@@ -172,16 +172,37 @@ public class DataManager : MonoBehaviour
     // RECOMMENDED FOR SAVING IN GENERAL, INFO IS DECENTLY SECURE.
     // IF FURTHER SECURITY IS DESIRED, USE ENCRYPTION LOGIC FROM THE SHUU ENCRYPTION FUNCTIONS
     #region Saving/Loading info to/from json files
-
+    
+    #region EXAMPLE
     /*
      For saving with JSON files, you need to have a custom class to store the info in that will then
      be used to save the info. Heres an example of a custom json data class ('Control + click' on the class name):
     */
+        #region Example of a json data class
+        /*
+        AN EXAMPLE OF A JSON DATA CLASS. YOU NEED TO CREATE A CUSTOM CLASS TO STORE THE INFO YOU WANT TO
+        SAVE AND LOAD WITH JSON FILES.
+        */
+
+        [System.Serializable]
+        #region XML doc
+        /// <summary>
+        /// Example of a json data file.
+        /// </summary>
+        #endregion
+        public class JsonDataExample
+        {
+            public string name;
+            public int score;
+            public List<string> inventory;
+        }
+        #endregion
     private JsonDataExample jsonDataExample = new JsonDataExample {
         name = "Sprout",
         score = 42,
-        inventory = new List<string> { "unity", "patience" }
+        inventory = new List<string> { "pepsi", "bracelet" }
     };
+    #endregion
 
     public static void SaveJsonFile<T>(T dataInstance, string customLocationFileName, bool prettyPrint){
         string address;

@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-#if SHUU_SAVE_DEPENDENCY
 using Newtonsoft.Json;
-#endif
 using SHUU.Utils.SceneManagement;
 
 namespace SHUU.Utils.PersistantInfo.SavingLoading
@@ -17,7 +15,6 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
 #endregion
 public class SaveFilesManager : MonoBehaviour
 {
-#if SHUU_SAVE_DEPENDENCY
     [SerializeField] private List<string> saveFiles;
 
 
@@ -96,12 +93,11 @@ public class SaveFilesManager : MonoBehaviour
 
 
 
-        #region Get (and load) all your DTO sinletons.
-        ExampleSingleton exampleSingleton = GetComponent<ExampleSingleton>();
-
-
-        exampleSingleton.ImportDTO(masterDTO.exampleData);
-        #endregion
+        // Get (and load) all your DTO sinletons.
+        foreach (SingletonInfo singleton in gameObject.GetComponents<SingletonInfo>())
+        {
+            singleton.ImportDTO(masterDTO.exampleData);
+        }
         
         
         
@@ -135,12 +131,11 @@ public class SaveFilesManager : MonoBehaviour
         singletonPersistance.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());
         
         
-        #region  Get (and save) all your DTO sinletons.
-        ExampleSingleton exampleSingleton = GetComponent<ExampleSingleton>();
-
-
-        exampleSingleton.ExportDTO(ref masterDTO);
-        #endregion
+        // Get (and save) all your DTO sinletons.
+        foreach (SingletonInfo singleton in gameObject.GetComponents<SingletonInfo>())
+        {
+            singleton.ExportDTO(ref masterDTO);
+        }
 
 
 
@@ -197,20 +192,6 @@ public class SaveFilesManager : MonoBehaviour
             Debug.LogWarning($"Save file not found (no need to delete): {fullPath}");
         }
     }
-#else
-    public void Awake() {
-        CallLackOfDependency();
-    }
-
-    public void CallLackOfDependency()
-    {
-        Debug.LogWarning("Saving feature not enabled. Download dependency and define SHUU_SAVE_DEPENDENCY symbol to enable it. (check README)");
-    }
-    public static void CallLackOfDependencyStatic()
-    {
-        Debug.LogWarning("Saving feature not enabled. Download dependency and define SHUU_SAVE_DEPENDENCY symbol to enable it. (check README)");
-    }
-#endif
 }
 
 }

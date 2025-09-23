@@ -1,16 +1,28 @@
 {
-    "name": "com.SproutingGames.Sprouts.HUU",
-    "version": "2.8.0",
-    "displayName": "SproutsHUU",
-    "description": "A bunch of handy Unity things, all in a single package!",
-    "unity": "6000",
-    "dependencies": {
-      "com.unity.nuget.newtonsoft-json": "1.0.0",
-      "com.[company-name].other-package": "2.0.0"
-   },
-    "author": {
-      "name": "TheGreenSprout",
-      "email": "sprouting.games@gmail.com",
-      "url": "https://www.unity3d.com"
+  "name": "com.SproutingGames.Sprouts.HUU",
+  "version": "2.8.0",
+  "displayName": "SproutsHUU",
+  "description": "A bunch of handy Unity things, all in a single package!",
+  "unity": "6000",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.inputsystem": "1.14.2"
+  },
+  "author": {
+    "name": "TheGreenSprout",
+    "email": "sprouting.games@gmail.com",
+    "url": "https://sprouts-garden.netlify.app"
+  },
+  "samples": [
+    {
+      "displayName": "Sample Utils",
+      "description": "Examples of how to use the provided Utils.",
+      "path": "Samples~/SampleUtils"
+    },
+    {
+      "displayName": "Sample Scenes",
+      "description": "Examples of how to apply the contents of the package in your projects.",
+      "path": "Samples~/SampleScenes"
     }
-  }
+  ]
+}
