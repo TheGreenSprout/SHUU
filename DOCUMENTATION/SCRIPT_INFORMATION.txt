@@ -1,0 +1,318 @@
+📁 --> Folder/Namespace
+📘 --> Information
+📜 --> Script
+🧩 --> Class
+🔢 --> Enum
+🎯 --> Class variable
+📍 --> Enum item
+⚙️ --> Function/Method
+📌 --> Parameter
+
+
+
+
+
+📁 Utils [SHUU.Utils]
+{
+
+    📁 BaseScripts [SHUU.Utils.BaseScripts]
+    {
+        📜🧩 AudioSelfDestruct 📘Automatically destroys an audio instance when it's done playing.📘 {[
+            🎯 AudioSource 📘The source that this script is attached to.📘
+
+            ⚙️ Start ()
+
+            ⚙️ Update ()
+        ]}
+
+
+
+        📜 FileExplorer 📘Contains classes and functions to handle file explorer dialogues.📘 {
+            🧩 FileExplorer [
+                🎯 [extern] IntPtr
+
+                ⚙️ FileExplorer ()
+
+                ⚙️ GetFileAddress 📘File explorer interaction to get a single file's directory address.📘 (
+                    📌 BrowserProperties / browserProperties
+                    📌 bool / newFile
+                )
+
+                ⚙️ GetFileFromBrowser 📘File explorer interaction to retrieve a single file.📘 (
+                    📌 BrowserProperties / browserProperties
+                    📌 Action<string> / filepath
+                )
+            ]
+
+
+            🧩 BrowserProperties [
+                🎯 string / title 📘Title of the dialog.📘
+
+                🎯 string / initialDir 📘Where dialogue will be opened initially.📘
+
+                🎯 string / filter 📘File extension filter.📘
+
+                🎯 int / filterIndex 📘Index of filter, if there is multiple filter. / Default is 0📘
+
+                🎯 bool / restoreDirectory = true 📘Restore to last return directory.📘
+
+                ⚙️ BrowserProperties ()
+
+                ⚙️ BrowserProperties (
+                    📌 string / title
+                )
+            ]
+
+
+            🧩 WindowWrapper [
+                ⚙️ WindowWrapper (
+                    📌 IntPtr / handle
+                )
+
+                🎯 IntPtr / Handle
+
+                🎯 IntPtr / _hwnd
+            ]
+        }
+    }
+
+
+
+
+    📁 Data [SHUU.Utils.Data]
+    {
+        📜🧩 DataManager 📘Manages all sorts of things relating to data manipulation, such as saving or managing file addresses.📘 {[
+            🎯 string / SAVE_fileInfoSeparator 📘The separator that will be used when joining info.📘
+
+            ⚙️ GetFileAddress 📘Gets a file address from the user.📘 (
+                📌 bool / newFile
+            )
+
+            ⚙️ DoesFileExist 📘Checks for the existance of a file.📘 (
+                📌 string / address
+            )
+
+            ⚙️ GetDataListFromString 📘Splits a string into all the info it contains, as a list.📘 (
+                📌 string / data
+            )
+
+            ⚙️ GetStringFromDataList 📘Converts a list of information into one single string.📘 (
+                📌 List<string> / dataList
+            )
+
+            ⚙️ SaveTxtFile 📘Saves a text file in the user's PC.📘 (
+                📌 List<string> / infoList
+                📌 string / customLocationFileName
+            )
+
+            ⚙️ LoadTxtFile 📘Loads a text file from the user's PC.📘 (
+                📌 string / address
+            )
+
+            🎯 JsonDataExample / jsonDataExample 📘Example of a custom json data class.📘
+
+            ⚙️ SaveJsonFile<T> 📘Saves a json file in the user's PC.📘 (
+                📌 T / dataInstance
+                📌 string / customLocationFileName
+                📌 bool / prettyPrint
+            )
+
+            ⚙️ LoadJsonFile<T> 📘Loads a json file from the user's PC.📘 (
+                📌 string / address
+            )
+        ]}
+
+
+
+        📜 DataEncryptor 📘Contains classes and functions to handle all sorts of data encryption.📘 {
+            🔢 EncryptionBasics 📘Contains all the encryption types included in SHUU.📘 [
+                📍 AES
+                📍 RSA
+                📍 BASE64
+            ]
+
+
+            🧩 EncryptionBasics 📘Manages all basic encryption-related methods.📘 [
+                ⚙️ GetEncryptionPrefixes 📘Function that allows you to get all the prefixes for all the encryption types.📘 ()
+
+                ⚙️ GetEncryptionPrefixByEnum 📘Function that allows you to get an encryption type prefix.📘 (
+                    📌 EncryptionTypes / encryptionType
+                )
+
+                ⚙️ GetBytesOfString 📘Gets the bytes of a string.📘 (
+                    📌 string / data
+                )
+
+                ⚙️ GetStringFromBytes 📘Translates bytes into a string.📘 (
+                    📌 byte[] / bytes
+                )
+            ]
+
+
+            🧩 AES_Encryption 📘Manages AES encryption.📘 [
+                ⚙️ GenerateKey 📘Generates an AES encryption key.📘 ()
+
+                ⚙️ EncryptString 📘Encrypts a string using AES.📘 (
+                    📌 string / stringToEncrypt
+                    📌 string / aesKey
+                    📌 bool / addPrefix
+                )
+
+                ⚙️ DecryptString 📘Decrypts a string using AES.📘 (
+                    📌 string / encryptedString
+                    📌 string / aesKey
+                    📌 bool / checkPrefix
+                )
+            ]
+
+
+            🧩 RSA_Encryption 📘Manages RSA encryption.📘 [
+                ⚙️ GenerateKeys 📘Generates 2 RSA encryption keys, a public one and a private one.📘 ()
+
+                ⚙️ EncryptString 📘Encrypts a string using RSA.📘 (
+                    📌 string / stringToEncrypt
+                    📌 string / publicKey
+                    📌 bool / addPrefix
+                )
+
+                ⚙️ DecryptString 📘Decrypts a string using RSA.📘 (
+                    📌 string / encryptedString
+                    📌 string / privateKey
+                    📌 bool / checkPrefix
+                )
+            ]
+
+
+            🧩 BASE64_Encryption 📘Manages Base64 encryption.📘 [
+                ⚙️ EncryptString 📘Encrypts a string using Base64.📘 (
+                    📌 string / stringToEncrypt
+                    📌 bool / addPrefix
+                )
+
+                ⚙️ EncryptString 📘Encrypts a byte sequence using Base64.📘 (
+                    📌 byte[] / bytesToEncrypt
+                    📌 bool / addPrefix
+                )
+
+                ⚙️ DecryptString 📘Decrypts a string using Base64.📘 (
+                    📌 string / encryptedString
+                    📌 bool / checkPrefix
+                )
+            ]
+        }
+    }
+
+
+
+
+    📁 Helpers [SHUU.Utils.Helpers]
+    {
+        📜🧩 HandyFunctions 📘Contains handy functions to handle all sorts of small things.📘 {[
+            ⚙️ CheckAndPopSubstring 📘Checks a string for a substring, and in some cases deletes the substring when found.📘 (
+                📌 ref string / toCheck
+                📌 string / checkFor
+                📌 int / startInd
+                📌 bool / removeSubstringChecked
+            )
+
+            ⚙️ GetEnumValFromString<enumType> 📘Gets the value of an enum item using it's name in string form.📘 (
+                📌 string / name
+            )
+
+            ⚙️ GetEnumNameFromVal<enumType> 📘Gets the name of an enum item it's value in int form.📘 (
+                📌 int / val
+            )
+
+            ⚙️ GetEnumLength<enumType> 📘Gets the length of an enum.📘 ()
+
+            ⚙️ IndexIsValid<T> 📘Checks if an index is valid for a list.📘 (
+                📌 int / index
+                📌 List<T> / list
+            )
+
+            ⚙️ CleanList<T> 📘Removes all empty items from a list.📘 (
+                📌 ref List<T> / list
+            )
+        ]}
+
+
+
+        📜🧩 AudioManager 📘Contains functions to spawn and manage audio clips.📘 {[
+            🎯 List<AudioSource> / audioList 📘List where all the active audios will be stored.📘
+
+            🎯 Gameobject / audioInstance 📘Prefab of a default audio instance.📘
+
+            🎯 AudioMixer / defaultMixer 📘Audio mixer attached to the default audio instance.📘
+
+            🎯 int / defaultPriority = 128 📘Default priority of the audio instance.📘
+    
+            🎯 float / defaultVolume = 1f 📘Default volume of the audio instance.📘
+
+            🎯 float / defaultPitch = 1f 📘Default pitch of the audio instance.📘
+
+            🎯 float / defaultStereoPan = 1f 📘Default stereo pan of the audio instance.📘
+
+            🎯 float / defaultSpatialBlend = 1f 📘Default spatial blend of the audio instance.📘
+
+            🎯 float / defaultReverbZoneMix = 1f 📘Default reverb zone mix of the audio instance.📘
+
+            🎯 bool / defaultPlayOnAwake = true 📘The default toggle of wether the audio will be played when created.📘
+
+            🎯 bool / defaultLoop = false 📘The default toggle of wether the audio will loop.📘
+
+            🎯 bool / defaultDeleteWhenFinished = true 📘The default toggle of wether the audio will be deleted when it stops playing.📘
+
+            ⚙️ Awake ()
+            
+            ⚙️ SpawnAudioAt 📘Creates a default audio instance (with custom volume) at a position.📘 (
+                📌 Transform / pos
+                📌 AudioClip / audio
+                📌 float / volume
+            )
+            
+            ⚙️ SpawnDefaultAudioAt 📘Creates a default audio instance at a position.📘 (
+                📌 Transform / pos
+                📌 AudioClip / audio
+            )
+
+            ⚙️ SpawnCustomAudioAt 📘Creates a custom audio instance at a position.📘 (
+                📌 Transform / pos
+                📌 AudioClip / audio
+                📌 int / priority
+                📌 float / volume
+                📌 float / pitch
+                📌 float / stereoPan
+                📌 float / spatialBlend
+                📌 float / reverbZoneMix
+                📌 bool / playOnAwake
+                📌 bool / loop
+                📌 bool / deleteWhenFinished
+            )
+
+            ⚙️ GetAudioCount 📘Gets the ammount of audios currently playing in the game.📘 ()
+
+            ⚙️ ClearAllAudio 📘Destroys all audio instances currently playing in the game.📘 ()
+        ]}
+
+
+
+        📜🧩 Timer 📘Manages the creation and behaviour of timers.📘 {[
+            ⚙️ Create 📘Creates a timer that, after the specified time, runs an Action.📘 (
+                📌 float / duration
+                📌 Action / onComplete
+            )
+
+            ⚙️ CreateAt 📘Creates a timer that, after the specified time, runs an Action. When creating it, it will be spawned as a child of another object.📘 (
+                📌 GameObject / obj
+                📌 float / duration
+                📌 Action / onComplete
+            )
+
+            ⚙️ Run 📘Creates a Courtine, runs an Action and destroys itself when done.📘 (
+                📌 float / duration
+                📌 Action / onComplete
+            )
+        ]}
+    }
+
+}

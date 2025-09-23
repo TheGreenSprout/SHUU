@@ -1,0 +1,4 @@
+Multiple portraits possible per line.
+Dialogue Importer/Exporter fix for the new multiple portrait system.
+Maybe rethink the portrait system, take into accounts different portraits in different lines will need different animations and positions etc.
+Maybe rethink the entire dialogue system?

@@ -1,0 +1,71 @@
+📁 --> Folder/Namespace
+🎨 --> Assets
+🏗️ --> Prefabs
+🛠️ --> Script folders
+📜 --> Scripts
+📝 --> Documentation
+⚙️ --> Plugin
+🧩 --> Class
+🔢 --> Enum
+
+
+📦 Sprout's Handy Unity Utils [SHUU] 🌱
+
+    📝 README
+
+
+
+    📝 LICENSE
+
+
+
+    📁 DOCUMENTATION
+        📝 PROJECT_STRUCTURE
+
+
+        📝 SCRIPT_INFORMATION
+
+    
+
+    📁 Plugins
+        ⚙️ Ookii.Dialogs
+
+
+        ⚙️ System.Windows.Forms
+
+
+
+    📁 Resources [SHUU.Resources]
+        🏗️ AudioInstance
+
+
+        🎨 DefaultMixer
+
+
+
+    📁 Utils [SHUU.Utils]
+        🛠️ BaseScripts [SHUU.Utils.BaseScripts]
+            📜🧩 AudioSelfDestruct { AudioSource }
+
+            📜 FileExplorer
+                🧩 FileExplorer { [extern] IntPtr }
+                🧩 BrowserProperties { string, string, string, int, bool }
+                🧩 WindowWrapper { IntPtr }
+
+
+        🛠️ Data [SHUU.Utils.Data]
+            📜🧩 DataManager { string }
+
+            📜 DataEncryptor
+                🔢 EncryptionBasics
+                🧩 AES_Encryption
+                🧩 RSA_Encryption
+                🧩 BASE64_Encryption
+
+
+        🛠️ Helpers [SHUU.Utils.Helpers]
+            📜🧩 HandyFunctions
+
+            📜🧩 AudioManager { List<AudioSource>, Gameobject, AudioMixer, int, 5x float, 3x bool }
+
+            📜🧩 Timer
