@@ -3,7 +3,6 @@
   "version": "2.8.0",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
-  "unity": "6000",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.inputsystem": "1.14.2"
