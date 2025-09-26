@@ -5,8 +5,8 @@ using UnityEngine;
 [Serializable]
 public class DialogueLineInstance
 {
-    //public DialoguePortrait portrait;
-    public List<DialoguePortrait> portraitList;
+    public DialoguePortrait portrait;
+    //public List<DialoguePortrait> portraitList;
 
     public string characterName;
     [TextArea]

@@ -65,7 +65,8 @@ public class TextToTypewriter : MonoBehaviour
             if (dialogueLines[i] != null)
             {
                 DialogueLineInstance line = new DialogueLineInstance();
-                line.portraitList[i] = portraits[i];
+                //line.portraitList[0] = portraits[i];
+                line.portrait = portraits[i];
                 line.characterName = dialogueLines[i].characterName;
                 line.line = dialogueLines[i].line;
 

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 
+namespace SHUU.ForUser
+{
+
 // Take this script out of the package and use it as your own.
 // DTO: Data Transfer Object --> Make your own and add them to MasterDTO (it's the DTO that will get serialized and saved).
 
@@ -39,4 +42,6 @@ public class DTO_InfoClass { }
 public class DTO_ExampleInfo : DTO_InfoClass
 {
     public Dictionary<int, bool> colorOfItems = new Dictionary<int, bool>();
+}
+
 }

@@ -1,3 +1,6 @@
+using SHUU.ForUser;
+
+
 namespace SHUU.Utils.PersistantInfo
 {
 

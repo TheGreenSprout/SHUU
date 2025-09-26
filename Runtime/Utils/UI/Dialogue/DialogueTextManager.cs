@@ -6,7 +6,9 @@ using UnityEngine;
 public class DialogueTextManager : MonoBehaviour
 {
     public TypewriterText typewriterText;
-    public List<DialoguePortraitManager> portraitManagerList;
+
+    public DialoguePortraitManager portraitManager;
+    //public List<DialoguePortraitManager> portraitManagerList;
 
     public UIfloat portraitFloat;
 
@@ -61,14 +63,14 @@ public class DialogueTextManager : MonoBehaviour
 
     public void StartDialogue(DialogueInstance dialogue)
     {
-        foreach (DialogueLineInstance line in dialogue.allDialogueLines)
+        /*foreach (DialogueLineInstance line in dialogue.allDialogueLines)
         {
             if (!HandyFunctions.IndexIsValid(line.talkingPortraitIndex, line.portraitList) || portraitManagerList.Count < line.portraitList.Count)
             {
                 Debug.LogError("DialogueLineInstance talking portrait index out of bounds.");
                 return;
             }
-        }
+        }*/
 
 
         if (!actionAdded)
@@ -95,7 +97,7 @@ public class DialogueTextManager : MonoBehaviour
         {
             DialogueLineInstance currentLine = currentDialogue.allDialogueLines[currrentLineIndex];
 
-            WriteLine(currentLine, currentLine.portraitList, currentLine.talkingPortraitIndex);
+            WriteLine(currentLine, currentLine.portrait, currentLine.talkingPortraitIndex);
 
 
             var sounds = defaultDialogueSounds;
@@ -111,7 +113,8 @@ public class DialogueTextManager : MonoBehaviour
     }
 
 
-    private void WriteLine(DialogueLineInstance lineToWrite, List<DialoguePortrait> portraitList, int talkingPortraitIndex)
+    //private void WriteLine(DialogueLineInstance lineToWrite, List<DialoguePortrait> portraitList, int talkingPortraitIndex)
+    private void WriteLine(DialogueLineInstance lineToWrite, DialoguePortrait portrait, int talkingPortraitIndex)
     {
         lineNameBox.text = lineToWrite.characterName;
 
@@ -119,8 +122,9 @@ public class DialogueTextManager : MonoBehaviour
         portraitFloat.floatStrength = lineToWrite.floatValues[0];
         portraitFloat.floatSpeed = lineToWrite.floatValues[1];
 
-        portraitManagerList[talkingPortraitIndex].ChangeCurrentPortrait(portraitList[talkingPortraitIndex]);
-        portraitManagerList[talkingPortraitIndex].StartTalking();
+        //portraitManager.ChangeCurrentPortrait(portraitList[talkingPortraitIndex]);
+        portraitManager.ChangeCurrentPortrait(portrait);
+        portraitManager.StartTalking();
 
         typewriterText._textBox.text = lineToWrite.line;
         typewriterText.StartTypewriterEffect();
@@ -133,10 +137,10 @@ public class DialogueTextManager : MonoBehaviour
 
         if (!linePause)
         {
-            foreach (var portraitManager in portraitManagerList)
-            {
+            //foreach (var portraitManager in portraitManagerList)
+            //{
                 portraitManager.StopTalking();
-            }
+            //}
 
             linePause = true;
             return;
@@ -151,7 +155,7 @@ public class DialogueTextManager : MonoBehaviour
             {
                 DialogueLineInstance currentLine = currentDialogue.allDialogueLines[currrentLineIndex];
 
-                WriteLine(currentLine, currentLine.portraitList, currentLine.talkingPortraitIndex);
+                WriteLine(currentLine, currentLine.portrait, currentLine.talkingPortraitIndex);
 
                 currrentLineIndex++;
             }

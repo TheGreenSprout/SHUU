@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.8.0",
+  "version": "2.8.3",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -14,14 +14,9 @@
   },
   "samples": [
     {
-      "displayName": "Sample Utils",
-      "description": "Examples of how to use the provided Utils.",
-      "path": "Samples~/SampleUtils"
-    },
-    {
-      "displayName": "Sample Scenes",
-      "description": "Examples of how to apply the contents of the package in your projects.",
-      "path": "Samples~/SampleScenes"
+      "displayName": "Sample Scenes & Utils",
+      "description": "Examples of how to use the provided scripts and prefabs.",
+      "path": "Samples~/SampleScenes&Utils"
     }
   ]
 }
