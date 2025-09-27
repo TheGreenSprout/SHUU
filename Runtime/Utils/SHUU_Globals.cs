@@ -156,11 +156,7 @@ public class SHUU_Globals : MonoBehaviour
     #endregion
     public static void SaveSingletonInfoToFile()
     {
-    #if SHUU_SAVE_DEPENDENCY
         Persistant_Globals.saveFilesManager.SaveJsonInfo();
-    #else
-        Persistant_Globals.saveFilesManager.CallLackOfDependency();
-    #endif
     }
     
     #region XML doc
@@ -180,12 +176,7 @@ public class SHUU_Globals : MonoBehaviour
     #endregion
     public static bool LoadSingletonInfoFromFile()
     {
-    #if SHUU_SAVE_DEPENDENCY
         return Persistant_Globals.saveFilesManager.LoadJsonInfo();
-    #else
-        Persistant_Globals.saveFilesManager.CallLackOfDependency();
-        return false;
-    #endif
     }
     
     #region XML doc
@@ -196,11 +187,7 @@ public class SHUU_Globals : MonoBehaviour
     #endregion
     public static void DeleteSaveInfo(int fileIndex = -1)
     {
-    #if SHUU_SAVE_DEPENDENCY
         Persistant_Globals.saveFilesManager.DeleteSave(fileIndex);
-    #else
-        Persistant_Globals.saveFilesManager.CallLackOfDependency();
-    #endif
     }
 }
 

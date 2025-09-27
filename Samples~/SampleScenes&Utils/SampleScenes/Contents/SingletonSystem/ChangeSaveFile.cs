@@ -11,7 +11,6 @@ public class ChangeSaveFile : MonoBehaviour
 
     public void ChangeSaveFileIndex()
     {
-    #if SHUU_SAVE_DEPENDENCY
         int newIndex = SaveFilesManager.currentSaveFileIndex;
 
 
@@ -28,8 +27,5 @@ public class ChangeSaveFile : MonoBehaviour
 
 
         saveFileText.text = "" + (newIndex + 1);
-    #else
-        SaveFilesManager.CallLackOfDependencyStatic();
-    #endif
     }
 }
