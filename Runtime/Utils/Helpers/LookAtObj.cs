@@ -7,6 +7,8 @@ public class LookAtObj : MonoBehaviour
 {
     public Transform target;
 
+    private Quaternion? cacheRotation;
+
 
     public float rotationSpeed = 5f;
 
@@ -18,9 +20,29 @@ public class LookAtObj : MonoBehaviour
 
 
 
+    private void Awake() {
+        cacheRotation = null;
+    }
+
+
     private void Update()
     {
-        if (target == null) return;
+        if (target == null)
+        {
+            if (transform.rotation != cacheRotation && cacheRotation != null)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, (Quaternion)cacheRotation, rotationSpeed * Time.deltaTime);
+            }
+                
+
+            return;
+        }
+
+
+        if (cacheRotation == null)
+        {
+            cacheRotation = this.transform.rotation;
+        }
 
 
         Vector3 direction = target.position - transform.position;

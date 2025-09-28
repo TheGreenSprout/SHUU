@@ -16,7 +16,7 @@ namespace SHUU.Editor
     {
         private const string SourceFolder = "ForUser";              // folder to move
         private const string TargetFolder = "Assets/SHUU";     // destination in user's project
-        private const string InstalledMarker = "Assets/SHUU/.foruser_installed"; // marker to prevent rerun
+        private const string InstalledMarker = "Assets/.shuu_foruser_installed"; // marker to prevent rerun
 
         [MenuItem("Tools/SHUU/Install ForUser Assets", true)]
         private static bool InstallForUserAssets_Validate()

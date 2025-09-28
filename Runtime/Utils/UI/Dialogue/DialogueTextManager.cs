@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SHUU.Utils.Helpers;
 using TMPro;
@@ -36,6 +37,9 @@ public class DialogueTextManager : MonoBehaviour
     public DialogueSounds defaultDialogueSounds;
 
 
+    public Action EndDialogueActions;
+
+
 
 
     private void Awake()
@@ -61,8 +65,9 @@ public class DialogueTextManager : MonoBehaviour
 
 
 
-    public void StartDialogue(DialogueInstance dialogue)
+    public void StartDialogue(DialogueInstance dialogue, Action endDialogueLogic = null)
     {
+        EndDialogueActions = endDialogueLogic;
         /*foreach (DialogueLineInstance line in dialogue.allDialogueLines)
         {
             if (!HandyFunctions.IndexIsValid(line.talkingPortraitIndex, line.portraitList) || portraitManagerList.Count < line.portraitList.Count)
@@ -176,5 +181,7 @@ public class DialogueTextManager : MonoBehaviour
     private void DialogueEndLogic()
     {
         currentlyInDialogue = false;
+
+        EndDialogueActions?.Invoke();
     }
 }

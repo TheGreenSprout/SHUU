@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DialogueManager : MonoBehaviour
@@ -10,15 +11,15 @@ public class DialogueManager : MonoBehaviour
 
 
 
-    public void CreateDialogue(DialogueInstance dialogue)
+    public void CreateDialogue(DialogueInstance dialogue, Action endDialogueLogic = null)
     {
         dialogueRunning = dialogue;
 
-        StartDialoge();
+        StartDialoge(endDialogueLogic);
     }
 
-    private void StartDialoge()
+    private void StartDialoge(Action endDialogueLogic = null)
     {
-        dialogueTextManager.StartDialogue(dialogueRunning);
+        dialogueTextManager.StartDialogue(dialogueRunning, endDialogueLogic);
     }
 }

@@ -118,7 +118,7 @@ public class SHUU_Globals : MonoBehaviour
 
         return manageDialogue;
     }*/
-    public static DialogueBox CreateDialogue(DialogueInstance dialogueInstance, int index)
+    public static DialogueBox CreateDialogue(DialogueInstance dialogueInstance, int index, Action endDialogueLogic = null)
     {
         if (!HandyFunctions.IndexIsValid(index, dialoguePrefabList))
         {
@@ -132,7 +132,7 @@ public class SHUU_Globals : MonoBehaviour
         DialogueBox dialogeBox = new DialogueBox(dialoguePrefabList[index], canvas.transform);
 
 
-        dialogeBox.CreateDialogue(dialogueInstance);
+        dialogeBox.CreateDialogue(dialogueInstance, endDialogueLogic);
         
         
 

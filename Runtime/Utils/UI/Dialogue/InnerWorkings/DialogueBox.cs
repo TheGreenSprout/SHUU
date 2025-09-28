@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DialogueBox
@@ -11,7 +12,7 @@ public class DialogueBox
 
     public DialogueBox(GameObject dialogueBoxPrefab, Transform dialogueBoxTransform)
     {
-        dialogueBoxInstance = Object.Instantiate(dialogueBoxPrefab, dialogueBoxTransform);
+        dialogueBoxInstance = UnityEngine.Object.Instantiate(dialogueBoxPrefab, dialogueBoxTransform);
 
         dialogueManager = dialogueBoxInstance.GetComponent<DialogueManager>();
     }
@@ -20,9 +21,9 @@ public class DialogueBox
 
     #region Dialogue Manager communication
 
-    public void CreateDialogue(DialogueInstance dialogue)
+    public void CreateDialogue(DialogueInstance dialogue, Action endDialogueLogic = null)
     {
-        dialogueManager.CreateDialogue(dialogue);
+        dialogueManager.CreateDialogue(dialogue, endDialogueLogic);
     }
 
     #endregion

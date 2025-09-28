@@ -40,10 +40,10 @@ public class TypewriterText : MonoBehaviour
 
     [Header("Skip options")]
     [SerializeField] private bool quickSkip;
-    [SerializeField] [Min(1)] private int skipSpeedup = 5;
+    [SerializeField][Min(1)] private int skipSpeedup = 5;
 
     private WaitForSeconds _textboxFullEventDelay;
-    [SerializeField] [Range(0.1f, 0.5f)] private float sendDoneDelay = 0.25f;
+    [SerializeField][Range(0.1f, 0.5f)] private float sendDoneDelay = 0.25f;
 
     public static event Action CompleteTextRevealed;
     public static event Action<char> CharacterRevealed;
@@ -293,5 +293,18 @@ public class TypewriterText : MonoBehaviour
     {
         yield return new WaitUntil(() => _textBox.maxVisibleCharacters == _textBox.textInfo.characterCount - 1);
         CurrentlySkipping = false;
+    }
+    
+    public void StopTypewriter()
+    {
+        if (_typewriterCoroutine != null)
+        {
+            StopCoroutine(_typewriterCoroutine);
+            _typewriterCoroutine = null;
+        }
+
+        // Don't reveal more characters — just freeze where it is.
+        CurrentlySkipping = false;
+        _readyForNewText = false;
     }
 }

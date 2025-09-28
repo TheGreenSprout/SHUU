@@ -55,12 +55,6 @@ public class InteractionRaycast : MonoBehaviour
 
                     inact.HoverStart();
                 }
-
-
-                /*if (Input.GetMouseButtonDown(0) && inact.CanBeInteracted())
-                {
-                    inact.Interact();
-                }*/
             }
         }
         else if (previousInact != null)

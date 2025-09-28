@@ -42,7 +42,7 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.8.4
+### + Current Version: 2.8.5
 ### - Update Date: 26-09-2025
 ### - Creation Date: 24-03-2025
 ***
