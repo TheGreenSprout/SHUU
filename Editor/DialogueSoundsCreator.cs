@@ -189,7 +189,7 @@ public class DialogueSoundsCreator : EditorWindow
 
     private void CreateTextSoundsAsset(string path, List<AudioClip> clips)
     {
-        DialogueSounds asset = ScriptableObject.CreateInstance<DialogueSounds>();
+        TalkingSounds asset = ScriptableObject.CreateInstance<TalkingSounds>();
         asset.SetClips(clips);
 
         AssetDatabase.CreateAsset(asset, path);

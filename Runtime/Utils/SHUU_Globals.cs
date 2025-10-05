@@ -5,6 +5,7 @@ using SHUU.Utils.PersistantInfo;
 using SHUU.Utils.UI;
 using SHUU.Utils.Helpers;
 using System.Collections.Generic;
+using SHUU.Utils.UI.Dialogue;
 
 namespace SHUU.Utils
 {
@@ -19,13 +20,13 @@ public class SHUU_Globals : MonoBehaviour
     public static ManageFades manageFades;
 
 
-    public static List<GameObject> dialoguePrefabList;
-    [SerializeField] private List<GameObject> dialoguePrefabListRef = new List<GameObject>();
+    public static List<GameObject> dialogueBox_PrefabList;
+    [SerializeField] private List<GameObject> dialogueBox_PrefabList_StaticRef = new List<GameObject>();
 
 
 
     public static Canvas canvas;
-    [SerializeField] private Canvas canvasRef;
+    [SerializeField] private Canvas canvas_StaticRef;
     
     
     
@@ -46,13 +47,13 @@ public class SHUU_Globals : MonoBehaviour
         TryGetComponent<ManageFades>(out manageFades);
 
 
-        canvas = canvasRef;
+        canvas = canvas_StaticRef;
 
 
-        dialoguePrefabList = new List<GameObject>();
-        for (int i = 0; i < dialoguePrefabListRef.Count; i++)
+        dialogueBox_PrefabList = new List<GameObject>();
+        for (int i = 0; i < dialogueBox_PrefabList_StaticRef.Count; i++)
         {
-            dialoguePrefabList.Add(dialoguePrefabListRef[i]);
+            dialogueBox_PrefabList.Add(dialogueBox_PrefabList_StaticRef[i]);
         }
     }
     
@@ -96,31 +97,13 @@ public class SHUU_Globals : MonoBehaviour
     }
     
     
-    /*public static DialogueManager CreateDialogue(DialogueInstance dialogueInstance, int index)
+    public static SHUU_DialogueBox CreateDialogue(DialogueInstance dialogueInstance, int index, Action endDialogueLogic = null, Transform dialoguBoxSpawnParent = null)
     {
-        if (!HandyFunctions.IndexIsValid(index, dialoguePrefabList))
-        {
-            Debug.LogError("Dialogue prefab index is not valid for the current dialogue prefab list.");
-
-            return null;
-        }
-
-
-        GameObject dialogue = Instantiate(dialoguePrefabList[index], canvas.transform);
-
-
-        DialogueManager manageDialogue = dialogue.GetComponent<DialogueManager>();
-
-
-        manageDialogue.CreateDialogue(dialogueInstance);
+        if (dialoguBoxSpawnParent == null) dialoguBoxSpawnParent = canvas.transform;
         
         
-
-        return manageDialogue;
-    }*/
-    public static DialogueBox CreateDialogue(DialogueInstance dialogueInstance, int index, Action endDialogueLogic = null)
-    {
-        if (!HandyFunctions.IndexIsValid(index, dialoguePrefabList))
+        
+        if (!HandyFunctions.IndexIsValid(index, dialogueBox_PrefabList))
         {
             Debug.LogError("Dialogue prefab index is not valid for the current dialogue prefab list.");
 
@@ -129,10 +112,10 @@ public class SHUU_Globals : MonoBehaviour
 
 
 
-        DialogueBox dialogeBox = new DialogueBox(dialoguePrefabList[index], canvas.transform);
+        SHUU_DialogueBox dialogeBox = new SHUU_DialogueBox(dialogueBox_PrefabList[index], canvas.transform);
 
 
-        dialogeBox.CreateDialogue(dialogueInstance, endDialogueLogic);
+        dialogeBox.StartDialogue(dialogueInstance, endDialogueLogic);
         
         
 

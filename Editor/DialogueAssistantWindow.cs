@@ -38,7 +38,7 @@ public class DialogueAssistantWindow : EditorWindow
         GUILayout.FlexibleSpace();
         if (GUILayout.Button("Dialogue Portrait Creator", GUILayout.Width(300), GUILayout.Height(50)))
         {
-            DialoguePortraitCreator.Open();
+            //DialoguePortraitCreator.Open();
         }
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();

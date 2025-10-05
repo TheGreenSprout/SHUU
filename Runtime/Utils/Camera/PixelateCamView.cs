@@ -1,11 +1,8 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Camera))]
 public class PixelateCamView : MonoBehaviour
 {
-    private Camera cam;
-
-    private GameObject camObj;
+    public Camera cam;
 
 
     public RenderTexture camTexture;
@@ -23,12 +20,6 @@ public class PixelateCamView : MonoBehaviour
     private void Awake()
     {
         RefreshScreenValues();
-
-
-
-        cam = this.GetComponent<Camera>();
-
-        camObj = this.gameObject;
     }
 
     private void OnEnable()
@@ -63,25 +54,10 @@ public class PixelateCamView : MonoBehaviour
         {
             cam.targetTexture = null;
         }
-        camObj.SetActive(false);
+        cam.gameObject.SetActive(false);
 
         camTexture.Release();
-
-
-        /*int gcd = GCD(screenValues[0], screenValues[1]);
-        int aspectWidth;
-        int aspectHeight;
-        if (gcd != 1)
-        {
-            aspectWidth = screenValues[0] / gcd;
-            aspectHeight = screenValues[1] / gcd;
-        }
-        else{
-            int[] closestRatio = GetClosestAspectRatio();
-
-            aspectWidth = closestRatio[0];
-            aspectHeight = closestRatio[1];
-        }*/
+        
 
         int[] closestRatio = GetClosestAspectRatio();
 
@@ -95,19 +71,8 @@ public class PixelateCamView : MonoBehaviour
         camTexture.Create();
 
         cam.targetTexture = camTexture;
-        camObj.SetActive(true);
+        cam.gameObject.SetActive(true);
     }
-
-    /*int GCD(int a, int b)
-    {
-        while (b != 0)
-        {
-            int temp = b;
-            b = a % b;
-            a = temp;
-        }
-        return a;
-    }*/
 
     int[] GetClosestAspectRatio()
     {

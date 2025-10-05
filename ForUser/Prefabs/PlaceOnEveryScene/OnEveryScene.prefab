@@ -97,7 +97,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8813999925792965058, guid: 1cba59932548e774daa34f9877429088, type: 3}
       propertyPath: m_Name
-      value: SINGLETON
+      value: SAVING SINGLETON
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

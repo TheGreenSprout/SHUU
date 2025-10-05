@@ -6,7 +6,7 @@ This code was written with the assistance of AI.
 
 
 
-using UnityEngine;
+/*using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
@@ -207,7 +207,7 @@ public class DialoguePortraitCreator : EditorWindow
 
         if (string.IsNullOrEmpty(path)) return;
 
-        DialoguePortrait newPortrait = ScriptableObject.CreateInstance<DialoguePortrait>();
+        CharacterPortrait newPortrait = ScriptableObject.CreateInstance<CharacterPortrait>();
         newPortrait.idlePortrait = singleIdleSprite;
         newPortrait.talkingPortrait = singleTalkingSprite;
         newPortrait.idleSize = singleIdleSize;
@@ -254,7 +254,7 @@ public class DialoguePortraitCreator : EditorWindow
                 continue;
             }
 
-            DialoguePortrait newPortrait = ScriptableObject.CreateInstance<DialoguePortrait>();
+            CharacterPortrait newPortrait = ScriptableObject.CreateInstance<CharacterPortrait>();
             newPortrait.idlePortrait = entry.idle;
             newPortrait.talkingPortrait = entry.talking;
             newPortrait.idleSize = entry.idleSize;
@@ -424,4 +424,4 @@ public class DialoguePortraitCreator : EditorWindow
         batchPortraits.Clear();
         saveFolderPath = "";
     }
-}
+}*/

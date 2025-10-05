@@ -11,7 +11,7 @@ namespace SHUU.Utils.Helpers
 /// Contains handy functions to handle all sorts of small things.
 /// </summary>
 #endregion
-public class HandyFunctions : MonoBehaviour
+public static class HandyFunctions
 {
     #region Strings
 
@@ -70,29 +70,44 @@ public class HandyFunctions : MonoBehaviour
     }
     
     public static bool IndexIsValidAndNotNull<T>(int index, List<T> list){
-        bool condition = !(index < 0 || index >= list.Count);
-        
-        if (condition && list[index] == null)
-        {
-            condition = false;
-        }
-        
-        
-        return condition;
+        return IndexIsValid(index, list) && list[index] != null;
     }
     
 
     public static void CleanList<T>(ref List<T> list)
+    {
+        for (int i = 0; i < list.Count; i++)
         {
-            for (int i = 0; i < list.Count; i++)
+            if (list[i] == null)
             {
-                if (list[i] == null)
-                {
-                    list.RemoveAt(i);
+                list.RemoveAt(i);
 
-                    i--;
-                }
+                i--;
             }
+        }
+    }
+
+
+        public static void MoveItemAndShiftList<T>(ref List<T> list, int indexToMove, int newIndex)
+        {
+            if (!IndexIsValid(indexToMove, list) || !IndexIsValid(newIndex, list))
+            {
+                return;
+            }
+
+            T temp = list[indexToMove];
+
+            list.RemoveAt(indexToMove);
+
+
+            list.Add(list[list.Count - 1]);
+            for (int i = newIndex + 1; i < list.Count; i++)
+            {
+                list[i] = list[i - 1];
+            }
+
+
+            list[newIndex] = temp;
         }
 
     #endregion

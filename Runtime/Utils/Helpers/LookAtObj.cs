@@ -33,6 +33,10 @@ public class LookAtObj : MonoBehaviour
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, (Quaternion)cacheRotation, rotationSpeed * Time.deltaTime);
             }
+            else
+            {
+                cacheRotation = null;
+            }
                 
 
             return;

@@ -49,9 +49,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49e08f04a02f73f4a829c2ece29f43f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialoguePrefabListRef:
+  dialoguePrefabList_StaticRef:
   - {fileID: 5588216944573180365, guid: 071f678da148e974da1cc8ee6cf47bb3, type: 3}
-  canvasRef: {fileID: 3374248677700942145}
+  canvas_StaticRef: {fileID: 3374248677700942145}
   fadeInAtSceneStart: 1
   startFadeInBuffer: 0.05
 --- !u!114 &3971717330311365469

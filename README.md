@@ -32,6 +32,9 @@ To install it:
     - Feel free to modify some of the values that appear on these scripts (in the inspector window), they are made to be customized
 <br><br>
 
+⚠️ Currently, dialogue doesn't fully work (and also hasn't been tested).
+<br><br>
+
 ⚠️ If you want to check out the Sample Scenes, please add them (and LoadingScene [inside the ForUser folder]) to your [Build Profiles > Scene List]
 <br><br><br>
 
@@ -42,7 +45,7 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.8.5
+### + Current Version: 2.9.6
 ### - Update Date: 26-09-2025
 ### - Creation Date: 24-03-2025
 ***
@@ -89,6 +92,11 @@ To install it:
 
 ---
 
-###      + Christina Creates Games: The base script for the text typewriter effect (I modified it)
-####         - Link: https://www.youtube.com/watch?v=UR_Rh0c4gbY
+###      + Christina Creates Games: The base script for the text typewriter effect (I modified it).
+####         - Link: https://www.youtube.com/watch?v=UR_Rh0c4gbY<br>
+
+---
+
+###      + Tanha Game Dev - Game & XR maker: The base scripts for the UI gradients.
+####         - Link: https://youtu.be/IssaURYlo-M?si=fOXuW6a_3IiMxFDI<br>
 ***
