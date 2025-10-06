@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace SHUU.Utils.Helpers
 {
-
     public static class SHUU_Sorter
     {
         private static bool CanBeSorted<E>(IList<E> list)

@@ -45,7 +45,7 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.9.6
+### + Current Version: 2.9.7
 ### - Update Date: 26-09-2025
 ### - Creation Date: 24-03-2025
 ***
