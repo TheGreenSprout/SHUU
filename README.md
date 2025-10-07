@@ -19,6 +19,7 @@ Enjoy :D
 ⚠️ This package requires SHUU_UserSide.
 To install it:
   - Download the SHUU_UserSide package and install it.
+  - https://github.com/TheGreenSprout/SHUU_UserSide/releases/tag/v1.0.0
 <br><br>
 
 ⚠️ This package requires Newtonsoft JSON and TextMeshPro.
