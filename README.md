@@ -16,6 +16,11 @@ Enjoy :D
 <br><br><br><br>
 
 ***
+⚠️ This package requires SHUU_UserSide.
+To install it:
+  - Download the SHUU_UserSide package and install it.
+<br><br>
+
 ⚠️ This package requires Newtonsoft JSON and TextMeshPro.
 To install it:
   - Open [Window > Package Manager]
@@ -45,8 +50,8 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.9.8
-### - Update Date: 06-10-2025
+### + Current Version: 2.9.9
+### - Update Date: 07-10-2025
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>

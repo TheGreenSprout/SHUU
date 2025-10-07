@@ -1,6 +1,6 @@
 using UnityEngine;
 using SHUU.Utils.SceneManagement;
-using SHUU.ForUser;
+using SHUU.UserSide;
 
 namespace SHUU.Utils.PersistantInfo
 {

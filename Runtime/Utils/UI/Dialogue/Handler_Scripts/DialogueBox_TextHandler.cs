@@ -1,5 +1,5 @@
 using System;
-using SHUU.ForUser;
+using SHUU.UserSide;
 using SHUU.Utils.Helpers;
 using TMPro;
 using UnityEngine;

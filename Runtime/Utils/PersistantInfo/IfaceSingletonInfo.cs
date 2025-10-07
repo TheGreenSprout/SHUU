@@ -1,4 +1,4 @@
-using SHUU.ForUser;
+using SHUU.UserSide;
 
 
 namespace SHUU.Utils.PersistantInfo

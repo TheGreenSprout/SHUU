@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using SHUU.Utils.Helpers;
-using SHUU.ForUser;
+using SHUU.UserSide;
 
 namespace SHUU.Utils.UI
 {
