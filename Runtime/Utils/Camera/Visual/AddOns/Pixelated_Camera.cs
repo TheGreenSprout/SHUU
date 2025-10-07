@@ -11,7 +11,9 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
     {
         [Header("Pixelation Settings")]
         [Tooltip("Multiplier for the aspect ratio. Smaller, more pixelated")]
-        [Min(1)] public int scaleMultiplier = 50;
+        [Min(1)] [SerializeField] private int scaleMultiplier = 50;
+
+        [SerializeField] private bool exactScreenSize = true;
 
 
         [Header("URP/HDRP Output")]
@@ -147,6 +149,20 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
         #region Inner workings
         int[] GetClosestAspectRatio()
         {
+            if (exactScreenSize)
+            {
+                int width = (int)screenValues[0];
+                int height = (int)screenValues[1];
+
+                int gcd = GreatestCommonDivisor(width, height);
+                int simpleWidth = width / gcd;
+                int simpleHeight = height / gcd;
+
+                return new int[] { simpleWidth, simpleHeight };
+            }
+
+
+            
             float aspectRatio = 0f;
             if (screenValues[1] != 0) aspectRatio = screenValues[0] / screenValues[1];
 
@@ -208,6 +224,16 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             }
 
             return closestRatio;
+        }
+        int GreatestCommonDivisor(int a, int b)
+        {
+            while (b != 0)
+            {
+                int temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
         }
 
         public void GetCurrentScreenSize(Vector2Int? customResolution = null)
