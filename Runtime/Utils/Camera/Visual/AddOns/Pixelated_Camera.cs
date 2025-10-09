@@ -1,291 +1,153 @@
-using UnityEditor;
+using SHUU.Utils.Helpers;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
 
 namespace SHUU.Utils.Cameras.Visual.AddOns
 {
     [ExecuteInEditMode]
-    [RequireComponent(typeof(Camera))]
-    public class Pixelated_Camera : MonoBehaviour
+    public class Pixelated_Camera : Shader_CameraAddOn
     {
         [Header("Pixelation Settings")]
-        [Tooltip("Multiplier for the aspect ratio. Smaller, more pixelated")]
-        [Min(1)] [SerializeField] private int scaleMultiplier = 50;
-
-        [SerializeField] private bool exactScreenSize = true;
+        [Tooltip("Desired pixel block size in screen pixels (width & height).")]
+        public float pixelBlockSize = 2;
 
 
-        [Header("URP/HDRP Output")]
-        [Tooltip("Only for URP/HDRP: assign a RawImage to display the pixelated view")]
-        [SerializeField] private RawImage _targetRawImage;
-        private RawImage _assign_targetRawImage = null;
-        public RawImage targetRawImage
+
+
+        #region Effect Logic
+        protected override bool ChangeMaterialValues(bool internalCall = false)
         {
-            get => _targetRawImage;
-            set
-            {
-                _targetRawImage = value;
+            _proxy._combinedMaterial.SetFloat("_EnablePixelate", base.ChangeMaterialValues() ? 1f : 0f);
 
-                EditorApplication.delayCall += () =>
-                {
-                    if (this != null) RefreshAll_MenuCommand();
-                };
-            }
+
+            Vector2 screenValues = HandyFunctions.GetCurrentScreenSize();
+
+            Vector2 screen = screenValues;
+            Vector2 blockCount = screen / pixelBlockSize;
+            Vector2 blockSize = new Vector2(1.0f, 1.0f) / blockCount;
+            Vector2 halfBlockSize = blockSize * 0.5f;
+
+
+            _proxy._combinedMaterial.SetVector("_BlockCount", new Vector4(blockCount.x, blockCount.y, 0f, 0f));
+            _proxy._combinedMaterial.SetVector("_BlockSize", new Vector4(blockSize.x, blockSize.y, 0f, 0f));
+            _proxy._combinedMaterial.SetVector("_HalfBlockSize", new Vector4(halfBlockSize.x, halfBlockSize.y, 0f, 0f));
+
+
+            return false;
         }
 
+        protected override void RemoveMaterialValues()
+        {
+            if (_proxy && _proxy._combinedMaterial) _proxy._combinedMaterial.SetFloat("_EnablePixelation", 0f);
+        }
+        #endregion
+    }
+}
 
 
-        private Camera cam;
-
-        private RenderTexture rt;
 
 
-        private enum Pipeline { BuiltIn, URP, HDRP }
-        private Pipeline activePipeline;
 
 
-        private int[] screenValues = new int[2];
+
+
+
+
+#region Old version (render texture resizing)
+/*using SHUU.Utils.Helpers;
+using UnityEngine;
+
+namespace SHUU.Utils.Cameras.Visual.AddOns
+{
+    [ExecuteInEditMode]
+    public class Pixelated_Camera : CameraAddOn
+    {
+        // Internal
+        private Vector2Int screenValues = Vector2Int.zero;
+
+        private Vector2Int closestRatio = Vector2Int.zero;
+
+
+
+        // External
+        [Header("Pixelation Settings")]
+        [Tooltip("Multiplier for the aspect ratio. Smaller, more pixelated")]
+        [Min(1)][SerializeField] private int scaleMultiplier = 50;
+
+        [SerializeField] private bool exactScreenSize = true;
 
 
 
 
         #region Setup
-#if UNITY_EDITOR
-        private void OnValidate()
+        protected override void Reset()
         {
-            if (_targetRawImage != null && _targetRawImage != _assign_targetRawImage)
+            base.Reset();
+
+
+            if (activePipeline != CameraAddOns_Proxy.Pipeline.BuiltIn) URP_HDRP_Logic();
+        }
+
+
+        public void SetScreenValues(Vector2Int? customResolution = null)
+        {
+            if (customResolution != null)
             {
-                _assign_targetRawImage = _targetRawImage;
-
-                targetRawImage = _targetRawImage;
+                screenValues = (Vector2Int)customResolution;
             }
-        }
-#endif
-
-
-        void Awake()
-        {
-            cam = GetComponent<Camera>();
-            DetectPipeline();
-            UpdateRenderTexture();
-        }
-
-        void OnDestroy()
-        {
-            cam.targetTexture = null;
-            if (rt != null) rt.Release();
-
-            if (activePipeline != Pipeline.BuiltIn && targetRawImage != null)
-                targetRawImage.texture = null;
-        }
-
-        void DetectPipeline()
-        {
-            RenderPipelineAsset rpAsset = null;
-
-#if UNITY_2022_1_OR_NEWER
-            rpAsset = GraphicsSettings.defaultRenderPipeline;
-#else
-            rpAsset = GraphicsSettings.renderPipelineAsset;
-#endif
-
-            if (rpAsset == null)
-                activePipeline = Pipeline.BuiltIn;
             else
             {
-                string rpName = rpAsset.GetType().ToString();
-                if (rpName.Contains("HD"))
-                    activePipeline = Pipeline.HDRP;
-                else
-                    activePipeline = Pipeline.URP;
+                screenValues = HandyFunctions.GetCurrentScreenSize();
             }
+
+            closestRatio = HandyFunctions.GetClosestAspectRatio(screenValues, exactScreenSize);
         }
         #endregion
 
 
 
-        #region URP/HDRP pipeline display
-        void UpdateRenderTexture()
+        #region Effect Logic
+        public override void URP_HDRP_Logic(bool internalCall = false)
         {
             if (rt != null) rt.Release();
 
+            if (internalCall) SetScreenValues();
 
-            int[] closestRatio = GetClosestAspectRatio();
 
-            int rtWidth = closestRatio[0] * scaleMultiplier;
-            int rtHeight = closestRatio[1] * scaleMultiplier;
+            int rtWidth = closestRatio.x * scaleMultiplier;
+            int rtHeight = closestRatio.y * scaleMultiplier;
 
 
             rt = new RenderTexture(rtWidth, rtHeight, 16);
             rt.filterMode = FilterMode.Point;
-            cam.targetTexture = rt;
 
 
-            if (activePipeline != Pipeline.BuiltIn && targetRawImage != null)
-                targetRawImage.texture = rt;
+
+            if (internalCall) _proxy.Update_RenderTexture();
         }
-        #endregion
 
 
-        #region Built-in pipeline display
-        void OnRenderImage(RenderTexture src, RenderTexture dest)
+        public override void BuiltIn_Logic()
         {
-            if (activePipeline != Pipeline.BuiltIn) return;
-
-            int[] closestRatio = GetClosestAspectRatio();
-            int expectedWidth = closestRatio[0] * scaleMultiplier;
-            int expectedHeight = closestRatio[1] * scaleMultiplier;
+            int expectedWidth = closestRatio.x * scaleMultiplier;
+            int expectedHeight = closestRatio.y * scaleMultiplier;
 
             if (rt == null || rt.width != expectedWidth || rt.height != expectedHeight)
-                UpdateRenderTexture();
+                URP_HDRP_Logic();
 
-            Graphics.Blit(rt, dest);
+            //Graphics.Blit(rt, dest);
         }
         #endregion
 
 
 
-        #region Inner workings
-        int[] GetClosestAspectRatio()
+        #region External handling
+        public override void RefreshEffect(bool internalCall = false)
         {
-            if (exactScreenSize)
-            {
-                int width = (int)screenValues[0];
-                int height = (int)screenValues[1];
+            SetScreenValues();
 
-                int gcd = GreatestCommonDivisor(width, height);
-                int simpleWidth = width / gcd;
-                int simpleHeight = height / gcd;
-
-                return new int[] { simpleWidth, simpleHeight };
-            }
-
-
-            
-            float aspectRatio = 0f;
-            if (screenValues[1] != 0) aspectRatio = screenValues[0] / screenValues[1];
-
-
-            int[][] commonRatios = new int[][]
-            {
-                new int[] { 1, 1 },  // 1:1
-                new int[] { 1, 2 },  // 1:2
-                new int[] { 2, 3 },  // 2:3
-                new int[] { 3, 4 },  // 3:4
-                new int[] { 4, 5 },  // 4:5
-                new int[] { 5, 6 },  // 5:6
-                new int[] { 6, 7 },  // 6:7
-                new int[] { 7, 8 },  // 7:8
-                new int[] { 8, 9 },  // 8:9
-                new int[] { 9, 10 }, // 9:10
-                new int[] { 1, 3 },  // 1:3
-                new int[] { 2, 5 },  // 2:5
-                new int[] { 3, 7 },  // 3:7
-                new int[] { 4, 9 },  // 4:9
-                new int[] { 5, 8 },  // 5:8
-                new int[] { 7, 10 }, // 7:10
-                new int[] { 3, 5 },  // 3:5
-                new int[] { 2, 7 },  // 2:7
-                new int[] { 5, 9 },  // 5:9
-                new int[] { 6, 11 }, // 6:11
-                new int[] { 11, 13 }, // 11:13
-                new int[] { 13, 14 }, // 13:14
-                new int[] { 16, 9 }, // 16:9
-                new int[] { 21, 9 }, // 21:9
-                new int[] { 16, 10 }, // 16:10
-                new int[] { 4, 3 },  // 4:3
-                new int[] { 3, 2 },  // 3:2
-                new int[] { 2, 1 },  // 2:1
-                new int[] { 5, 4 },  // 5:4
-                new int[] { 1, 4 },  // 1:4
-            };
-
-
-            // Find the closest match
-            int[] closestRatio = new int[2];
-            float closestDifference = float.MaxValue;
-
-            for (int i = 0; i < commonRatios.Length; i++)
-            {
-                float difference = Mathf.Abs(aspectRatio - ((float)commonRatios[i][0] / commonRatios[i][1]));
-
-                if (difference < closestDifference)
-                {
-                    closestDifference = difference;
-                    closestRatio = commonRatios[i];
-                }
-            }
-
-            while (closestRatio[0] + closestRatio[1] < 19)
-            {
-                closestRatio[0] *= 2;
-                closestRatio[1] *= 2;
-            }
-
-            return closestRatio;
+            base.RefreshEffect(internalCall);
         }
-        int GreatestCommonDivisor(int a, int b)
-        {
-            while (b != 0)
-            {
-                int temp = b;
-                b = a % b;
-                a = temp;
-            }
-            return a;
-        }
-
-        public void GetCurrentScreenSize(Vector2Int? customResolution = null)
-        {
-            Vector2Int screenSize;
-            if (customResolution == null)
-            {
-                screenSize = new Vector2Int(Screen.width, Screen.height);
-
-#if UNITY_EDITOR
-                screenSize = GetMainGameViewSize();
-#endif
-            }
-            else
-            {
-                screenSize = new Vector2Int(((Vector2Int)customResolution)[0], ((Vector2Int)customResolution)[1]);
-            }
-
-
-
-            screenValues[0] = screenSize.x;
-            screenValues[1] = screenSize.y;
-        }
-
-#if UNITY_EDITOR
-        public static Vector2Int GetMainGameViewSize()
-        {
-            System.Type gameViewType = typeof(Editor).Assembly.GetType("UnityEditor.GameView");
-            EditorWindow gameView = EditorWindow.GetWindow(gameViewType);
-            Rect rect = gameView.position; // This gives the actual Game View rect
-            return new Vector2Int(Mathf.RoundToInt(rect.width), Mathf.RoundToInt(rect.height));
-        }
-#endif
         #endregion
-
-
-
-        // External handling
-        [ContextMenu("Refresh All Pixelated Cameras")]
-        public void RefreshAll_MenuCommand()
-        {
-            RefreshAll();
-        }
-        public static void RefreshAll(Vector2Int? customResolution = null)
-        {
-            Pixelated_Camera[] cameras = FindObjectsByType<Pixelated_Camera>(FindObjectsSortMode.None);
-
-            foreach (var pixelCam in cameras)
-            {
-                pixelCam.GetCurrentScreenSize(customResolution);
-                pixelCam.UpdateRenderTexture();
-            }
-        }
     }
-}
+}*/
+#endregion
