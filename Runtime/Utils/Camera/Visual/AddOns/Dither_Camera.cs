@@ -24,7 +24,7 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
 
 #if UNITY_EDITOR
-            string path = "Assets/SHUU/Runtime/Utils/Camera/Visual/Resources/Dither_Texture.png";
+            string path = "Packages/com.sproutinggames.sprouts.huu/Runtime/Utils/Camera/Visual/Resources/Dither_Texture.png";
 
             if (!File.Exists(path)) return;
             else
