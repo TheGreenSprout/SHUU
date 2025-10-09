@@ -15,7 +15,7 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
     {
         #region Variables
         // Internal
-        private const string COMBINEDSHADER_FILE_LOCATION = "Assets/SHUU/Runtime/Utils/Camera/Visual/Resources/SHUU_CombinedShader.shader";
+        private const string COMBINEDSHADER_FILE_LOCATION = "Packages/SproutsHUU/Runtime/Utils/Camera/Visual/Resources/SHUU_CombinedShader.shader";
 
 
         [HideInInspector] public enum Pipeline { BuiltIn, URP, HDRP }
