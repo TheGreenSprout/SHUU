@@ -5,6 +5,7 @@ using UnityEditor;
 using System.IO;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using System.Linq;
 
 
 namespace SHUU.Utils.Helpers
@@ -17,6 +18,16 @@ namespace SHUU.Utils.Helpers
     #endregion
     public static class HandyFunctions
     {
+        #region Variables
+
+        // Editor Prefs
+        public static string ProjectKey => Application.dataPath.GetHashCode().ToString();
+        
+        #endregion
+
+
+
+
         #region Strings
 
         #region XML doc
@@ -43,6 +54,19 @@ namespace SHUU.Utils.Helpers
             }
 
             return false;
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Turns a string into a "local" version of itself (for the project).
+        /// </summary>
+        /// <param name="key">The string to be localized.</param>
+        /// <returns>Returns the localized string.</returns>
+        #endregion
+        public static string LocalizeString(string str)
+        {
+            return ProjectKey + "_" + str;
         }
 
         #endregion
@@ -120,6 +144,324 @@ namespace SHUU.Utils.Helpers
             list[newIndex] = temp;
         }
 
+        #endregion
+
+
+
+        #region Manage EditorPrefs
+        #region XML doc
+        /// <summary>
+        /// Checks if an EditorPref exists.
+        /// </summary>
+        /// <param name="key">The EditorPref's key (aka their "name").</param>
+        /// <param name="localized">Whether the key was localized when saving the EditorPref.</param>
+        /// <returns>Returns whether the EditorPref exists.</returns>
+        #endregion
+        public static bool HasEditorPref(string key, bool localized = true)
+        {
+            return EditorPrefs.HasKey(localized ? LocalizeString(key) : key);
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Adds an EditorPref key to a list in order to keep track of it.
+        /// </summary>
+        /// <param name="key">The key to track.</param>
+        #endregion
+        public static void TrackKey(string key)
+        {
+            string keyListKey = LocalizeString("EditorPrefsKeys");
+            string allKeys = EditorPrefs.GetString(keyListKey, "");
+
+            if (!allKeys.Contains(key))
+            {
+                allKeys += key + ";";
+                EditorPrefs.SetString(keyListKey, allKeys);
+            }
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Removes an EditorPref key from the list.
+        /// </summary>
+        /// <param name="key">The key to detrack.</param>
+        #endregion
+        public static void DeTrackKey(string key)
+        {
+            string keyListKey = LocalizeString("EditorPrefsKeys");
+            string allKeys = EditorPrefs.GetString(keyListKey, "");
+            var keys = allKeys.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            if (keys.Remove(key))
+            {
+                string updated = string.Join(";", keys) + (keys.Count > 0 ? ";" : "");
+                EditorPrefs.SetString(keyListKey, updated);
+            }
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Saves an EditorPref.
+        /// </summary>
+        /// <param name="key">The EditorPref's key (aka their "name").</param>
+        /// <param name="value">The value to save.</param>
+        /// <param name="localized">Whether the key is to be localized.</param>
+        #endregion
+        public static void SetEditorPref<T>(string key, T value, bool localized = true)
+        {
+            string newKey;
+            if (localized)
+            {
+                newKey = LocalizeString(key);
+
+                TrackKey(newKey);
+            }
+            else
+            {
+                newKey = key;
+            }
+
+            if (typeof(T) == typeof(string))
+            {
+                EditorPrefs.SetString(newKey, (string)(object)value);
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                EditorPrefs.SetBool(newKey, (bool)(object)value);
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                EditorPrefs.SetInt(newKey, (int)(object)value);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                EditorPrefs.SetFloat(newKey, (float)(object)value);
+            }
+            else if (typeof(T) == typeof(Vector2))
+            {
+                SetEditorPref(newKey + "_x", ((Vector2)(object)value).x, false);
+                SetEditorPref(newKey + "_y", ((Vector2)(object)value).y, false);
+            }
+            else if (typeof(T) == typeof(Vector3))
+            {
+                SetEditorPref(newKey + "_x", ((Vector3)(object)value).x, false);
+                SetEditorPref(newKey + "_y", ((Vector3)(object)value).y, false);
+                SetEditorPref(newKey + "_z", ((Vector3)(object)value).z, false);
+            }
+            else if (typeof(T) == typeof(Color))
+            {
+                string hex = ColorUtility.ToHtmlStringRGBA((Color)(object)value);
+
+                SetEditorPref(newKey, hex, false);
+            }
+            else if (typeof(T).IsEnum)
+            {
+                EditorPrefs.SetString(newKey, (string)(object)value);
+            }
+            else if (!typeof(T).IsSerializable)
+            {
+                string json = JsonUtility.ToJson(value);
+                EditorPrefs.SetString(newKey, json);
+            }
+            else
+            {
+                DeTrackKey(newKey);
+
+                throw new NotSupportedException($"Type {typeof(T)} is not supported by SetEditorPref and isn't Serializable.");
+            }
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Retrieves an EditorPref's value.
+        /// </summary>
+        /// <param name="key">The EditorPref's key (aka their "name").</param>
+        /// <param name="localized">Whether the key was localized when saving the EditorPref.</param>
+        /// <param name="defaultValue">The default value of this EditorPref.</param>
+        /// <returns>Returns the value of the EditorPref.</returns>
+        #endregion
+        public static T GetEditorPref<T>(string key, bool localized = true, T defaultValue = default)
+        {
+            if (!HasEditorPref(key, localized))
+            {
+                return default;
+            }
+
+
+            string newKey = localized ? LocalizeString(key) : key;
+
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)EditorPrefs.GetString(newKey, (string)(object)defaultValue);
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                return (T)(object)EditorPrefs.GetBool(newKey, (bool)(object)defaultValue);
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                return (T)(object)EditorPrefs.GetInt(newKey, (int)(object)defaultValue);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                return (T)(object)EditorPrefs.GetFloat(newKey, (float)(object)defaultValue);
+            }
+            else if (typeof(T) == typeof(Vector2))
+            {
+                float x = GetEditorPref(newKey + "_x", false, ((Vector2)(object)defaultValue).x);
+                float y = GetEditorPref(newKey + "_y", false, ((Vector2)(object)defaultValue).y);
+                return (T)(object)new Vector2(x, y);
+            }
+            else if (typeof(T) == typeof(Vector3))
+            {
+                float x = GetEditorPref(newKey + "_x", false, ((Vector3)(object)defaultValue).x);
+                float y = GetEditorPref(newKey + "_y", false, ((Vector3)(object)defaultValue).y);
+                float z = GetEditorPref(newKey + "_z", false, ((Vector3)(object)defaultValue).z);
+                return (T)(object)new Vector3(x, y, z);
+            }
+            else if (typeof(T) == typeof(Color))
+            {
+                string hex = GetEditorPref(key, localized, ((Color)(object)defaultValue).ToString());
+
+                if (ColorUtility.TryParseHtmlString("#" + hex, out var color))
+                {
+                    return (T)(object)color;
+                }
+
+                return defaultValue;
+            }
+            else if (typeof(T).IsEnum)
+            {
+                string str = EditorPrefs.GetString(newKey, defaultValue.ToString());
+
+                try
+                {
+                    return (T)Enum.Parse(typeof(T), str);
+                }
+                catch
+                {
+                    return defaultValue;
+                }
+            }
+            else if (typeof(T).IsSerializable)
+            {
+                string json = EditorPrefs.GetString(newKey, "");
+                if (string.IsNullOrEmpty(json)) return defaultValue;
+
+                try { return JsonUtility.FromJson<T>(json); }
+                catch { return defaultValue; }
+            }
+            else
+            {
+                throw new NotSupportedException($"Type {typeof(T)} is not supported by GetEditorPref and isn't Serializable.");
+            }
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Deletes an EditorPref.
+        /// </summary>
+        /// <param name="key">The EditorPref's key (aka their "name").</param>
+        /// <param name="localized">Whether the key was localized when saving the EditorPref.</param>
+        #endregion
+        public static void DeleteEditorPref(string key, bool localized = true)
+        {
+            if (!HasEditorPref(key, localized))
+            {
+                return;
+            }
+
+
+            string newKey;
+            if (localized)
+            {
+                newKey = LocalizeString(key);
+
+                DeTrackKey(newKey);
+            }
+            else
+            {
+                newKey = key;
+            }
+
+            EditorPrefs.DeleteKey(newKey);
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Deletes all tracked EditorPrefs.
+        /// </summary>
+        #endregion
+        public static void ClearAllTrackedEditorPrefs()
+        {
+            string keyListKey = LocalizeString("EditorPrefsKeys");
+
+            string allKeys = EditorPrefs.GetString(keyListKey, "");
+            string[] keys = allKeys.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string key in keys)
+            {
+                if (HasEditorPref(key, false))
+                {
+                    EditorPrefs.DeleteKey(key);
+                }
+            }
+
+
+            EditorPrefs.DeleteKey(keyListKey);
+        }
+        #endregion
+
+
+
+        #region Recursion
+        public static T SearchComponent_InSelfAndParents<T>(Transform start) where T : Component
+        {
+            Transform current = start;
+
+
+            while (current != null)
+            {
+                T found = current.GetComponent<T>();
+
+                if (found != null)
+                {
+                    return found;
+                }
+
+                current = current.parent;
+            }
+
+
+            return null; // Not found
+        }
+
+        public static T SearchComponent_InSelfAndChildren<T>(Transform start) where T : Component
+        {
+            Queue<Transform> queue = new Queue<Transform>();
+    
+            queue.Enqueue(start);
+
+
+            while (queue.Count > 0)
+            {
+                Transform current = queue.Dequeue();
+
+
+                T found = current.GetComponent<T>();
+
+                if (found != null) return found;
+
+
+                foreach (Transform child in current) queue.Enqueue(child);
+            }
+
+
+            return null; // Not found
+        }
         #endregion
 
 
