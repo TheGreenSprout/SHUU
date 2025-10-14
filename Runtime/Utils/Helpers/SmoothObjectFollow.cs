@@ -12,6 +12,9 @@ public class SmoothObjectFollow : MonoBehaviour
     // how long (in seconds) it takes to get about 63% of the way there
     [SerializeField] private float followSmoothTime = 0.3f;
 
+    [SerializeField] private float minimumDistance = 0f;
+    [SerializeField] private bool alwaysStayAtMinimumDistance = false;
+
 
 
     [Header("Position Smoothing")]
@@ -28,13 +31,24 @@ public class SmoothObjectFollow : MonoBehaviour
         if (target == null) return;
 
 
-
         float t = 1f - Mathf.Exp(-Time.deltaTime / followSmoothTime);
 
 
         if (positionFollow)
         {
-            transform.position = Vector3.SmoothDamp(transform.position, target.position, ref _posVelocity, positionSmoothTime);
+            Vector3 toTarget = target.position - transform.position;
+            float distance = toTarget.magnitude;
+
+            if (distance > minimumDistance)
+            {
+                Vector3 desiredPos = target.position - toTarget.normalized * minimumDistance;
+
+                transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _posVelocity, positionSmoothTime);
+            }
+            else if (alwaysStayAtMinimumDistance)
+            {
+                transform.position = target.position - toTarget.normalized * minimumDistance;
+            }
         }
         
         if (rotationFollow)

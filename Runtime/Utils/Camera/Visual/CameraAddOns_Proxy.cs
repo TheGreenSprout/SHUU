@@ -1,12 +1,14 @@
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using SHUU.Utils.Helpers;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+#if UNITY_EDITOR
+using UnityEditor.Rendering.Universal;
+#endif
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
-using System.IO;
-using UnityEditor;
 
 namespace SHUU.Utils.Cameras.Visual.AddOns
 {
@@ -15,14 +17,16 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
     {
         #region Variables
         // Internal
-        private const string COMBINEDSHADER_FILE_LOCATION = "Packages/com.sproutinggames.sprouts.huu/Runtime/Utils/Camera/Visual/Resources/SHUU_CombinedShader.shader";
+        private const string COMBINEDSHADER_FILE_LOCATION = "Runtime/Utils/Camera/Visual/Resources/SHUU_RenderTextureCameraEffectsShader.shader";
+        private const string COMBINEDSHADER_FILE_LOCATION_AssetsPrefix = "Assets/SHUU/";
+        private const string COMBINEDSHADER_FILE_LOCATION_PackagesPrefix = "Packages/com.sproutinggames.sprouts.huu/";
 
 
         [HideInInspector] public enum Pipeline { BuiltIn, URP, HDRP }
         [HideInInspector] public Pipeline activePipeline;
 
 
-        private List<CameraAddOn> addOns = new List<CameraAddOn>();
+        private CameraAddOn[] addOns = new CameraAddOn[0];
 
 
         private Camera cam;
@@ -31,6 +35,8 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
         private Shader _combinedMaterial_shader;
         [HideInInspector] public Material _combinedMaterial;
+
+        //private SHUU_CameraEffectsFeature _renderFeature;
 
 
 
@@ -57,16 +63,22 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
         }
 
 
+        private void GetAddOns()
+        {
+            addOns = GetComponentsInChildren<CameraAddOn>();
+        }
+
+
         public void RegisterAddOn(CameraAddOn addOn)
         {
-            if (!addOns.Contains(addOn)) addOns.Add(addOn);
+            if (!addOns.Contains(addOn)) GetAddOns();
         }
 
         public void RemoveAddOn(CameraAddOn addOn)
         {
             if (addOns.Contains(addOn))
             {
-                addOns.Remove(addOn);
+                GetAddOns();
 
 
                 SetupRenderTexture();
@@ -112,16 +124,17 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
         private void SetupMaterial()
         {
-#if UNITY_EDITOR
-            if (!File.Exists(COMBINEDSHADER_FILE_LOCATION)) return;
-            else
+            _combinedMaterial_shader = HandyFunctions.FindFile<Shader>(new string[]
             {
-                _combinedMaterial_shader = AssetDatabase.LoadAssetAtPath<Shader>(COMBINEDSHADER_FILE_LOCATION);
-            }
-#endif
+                COMBINEDSHADER_FILE_LOCATION_AssetsPrefix + COMBINEDSHADER_FILE_LOCATION,
+                COMBINEDSHADER_FILE_LOCATION_PackagesPrefix + COMBINEDSHADER_FILE_LOCATION
+            });
+
+            if (_combinedMaterial_shader == null) Shader.Find("Custom/SHUU_RenderTextureCameraEffectsShader");
 
 
             if (_combinedMaterial_shader) _combinedMaterial = new Material(_combinedMaterial_shader);
+        
 
             Update_Material();
         }
@@ -129,7 +142,7 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
         void OnDestroy()
         {
-            cam.targetTexture = null;
+            if (cam != null) cam.targetTexture = null;
             if (output_renderTexture != null) output_renderTexture.Release();
 
             if (activePipeline != Pipeline.BuiltIn && output_rawImage != null)
@@ -157,6 +170,8 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
         public void Update_RenderTexture()
         {
+            if (output_renderTexture == null) SetupRenderTexture();
+
             cam.targetTexture = output_renderTexture;
 
             if (activePipeline != Pipeline.BuiltIn && output_rawImage != null) output_rawImage.texture = output_renderTexture;
@@ -184,6 +199,23 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
         public void Effect_Reloading(Action middleExecution)
         {
+            if (cam == null) cam = GetComponent<Camera>();
+
+            if (output_renderTexture == null) SetupRenderTexture();
+
+            if (addOns == null || addOns.Length == 0) GetAddOns();
+
+            output_renderTexture.filterMode = renderTexture_filterMode;
+
+            foreach (CameraAddOn addOn in addOns)
+            {
+                if (addOn._proxy == null)
+                {
+                    addOn._proxy = this;
+                }
+            }
+
+
             middleExecution?.Invoke();
 
             Update_RenderTexture();

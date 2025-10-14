@@ -238,7 +238,7 @@ public class AddingInputsHelper : EditorWindow
             {
                 sb.AppendLine("        // States");
                 foreach (var opt in bools)
-                    sb.AppendLine($"        public static bool it_{GetVariableName(opt)}Down {{ get; private set; }}");
+                    sb.AppendLine($"        public bool it_{GetVariableName(opt)}Down {{ get; private set; }}");
                 sb.AppendLine();
             }
 
@@ -249,9 +249,9 @@ public class AddingInputsHelper : EditorWindow
                 foreach (var opt in events)
                 {
                     if (opt.generatePressed)
-                        sb.AppendLine($"        public static event Action icb_{GetVariableName(opt)}PressedAction;");
+                        sb.AppendLine($"        public event Action icb_{GetVariableName(opt)}PressedAction;");
                     if (opt.generateReleased)
-                        sb.AppendLine($"        public static event Action icb_{GetVariableName(opt)}ReleasedAction;");
+                        sb.AppendLine($"        public event Action icb_{GetVariableName(opt)}ReleasedAction;");
                 }
                 sb.AppendLine();
             }

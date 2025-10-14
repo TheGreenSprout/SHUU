@@ -2,6 +2,9 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using System.IO;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 
 namespace SHUU.Utils.Helpers
@@ -242,6 +245,114 @@ namespace SHUU.Utils.Helpers
         }
 #endif
         #endregion
+
+
+
+        #region Mouse
+        public static Vector2 GetMouseScreenCoords(RectTransform canvasRect, Camera cam = null)
+        {
+            Vector2 mousePos;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, cam, out mousePos);
+
+
+            return mousePos;
+        }
+
+
+        public static void ChangeMouseLockState(CursorLockMode state, bool? cursorVisible = null)
+        {
+            Cursor.lockState = state;
+
+
+            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+        }
+
+        public static void LockMouse(bool? cursorVisible = null)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+
+
+            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+        }
+        public static void ConfineMouse(bool? cursorVisible = null)
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+
+
+            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+        }
+        public static void FreeMouse(bool? cursorVisible = null)
+        {
+            Cursor.lockState = CursorLockMode.None;
+
+
+            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+        }
+
+
+        public static void ChangeCursorVisibility(bool? cursorVisible = null)
+        {
+            if (cursorVisible == null) Cursor.visible = !Cursor.visible;
+            else Cursor.visible = (bool)cursorVisible;
+        }
+        #endregion
+
+
+
+        #region Files
+        public static T FindFile<T>(string path, T defaultValue = default) where T : UnityEngine.Object
+        {
+#if UNITY_EDITOR
+            if (!File.Exists(path)) return defaultValue;
+            else
+            {
+                return AssetDatabase.LoadAssetAtPath<T>(path);
+            }
+#else
+            return defaultValue;
+#endif
+        }
+        public static T FindFile<T>(string[] pathArray, T defaultValue = default) where T : UnityEngine.Object
+        {
+#if UNITY_EDITOR
+            for (int i = 0; i < pathArray.Length; i++)
+            {
+                if (!File.Exists(pathArray[i])) continue;
+                else
+                {
+                    return AssetDatabase.LoadAssetAtPath<T>(pathArray[i]);
+                }
+            }
+
+            return defaultValue;
+#else
+            return defaultValue;
+#endif
+        }
+        #endregion
+    
+    
+    
+        /*#region URP
+        public static ScriptableRenderer URP_GetActiveRenderer()
+        {
+            var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            if (pipeline == null)
+            {
+                Debug.LogWarning("Not using URP!");
+                return null;
+            }
+
+#if UNITY_6000_0_OR_NEWER
+            // Unity 6000+: get the renderer via UniversalRenderPipeline singleton
+            return UniversalRenderPipeline.asset?.GetDefaultRenderer();
+#else
+            // Pre-6000 (URP 16 and below)
+            return pipeline.scriptableRenderer;
+#endif
+        }
+        #endregion*/
     }
 
 }

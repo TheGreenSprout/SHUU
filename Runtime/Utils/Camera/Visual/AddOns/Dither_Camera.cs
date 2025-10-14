@@ -1,4 +1,5 @@
 using System.IO;
+using SHUU.Utils.Helpers;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -23,15 +24,11 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             base.Reset();
 
 
-#if UNITY_EDITOR
-            string path = "Packages/com.sproutinggames.sprouts.huu/Runtime/Utils/Camera/Visual/Resources/Dither_Texture.png";
-
-            if (!File.Exists(path)) return;
-            else
+            ditherTexture = HandyFunctions.FindFile<Texture2D>(new string[]
             {
-                ditherTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            }
-#endif
+                "Packages/com.sproutinggames.sprouts.huu/Runtime/Utils/Camera/Visual/Resources/Dither_Texture.png",
+                "Assets/SHUU/Runtime/Utils/Camera/Visual/Resources/Dither_Texture.png"
+            });
         }
         #endregion
 
@@ -39,6 +36,13 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
         protected override bool ChangeMaterialValues(bool internalCall = false)
         {
+            if (!ditherTexture) ditherTexture = HandyFunctions.FindFile<Texture2D>(new string[]
+            {
+                "Packages/com.sproutinggames.sprouts.huu/Runtime/Utils/Camera/Visual/Resources/Dither_Texture.png",
+                "Assets/SHUU/Runtime/Utils/Camera/Visual/Resources/Dither_Texture.png"
+            });
+
+
             _proxy._combinedMaterial.SetFloat("_EnableDither", base.ChangeMaterialValues() ? 1f : 0f);
             _proxy._combinedMaterial.SetFloat("_DitherScale", ditherScale);
 

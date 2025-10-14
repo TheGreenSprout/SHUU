@@ -1,4 +1,4 @@
-Shader "Custom/SHUU_CombinedShader"
+Shader "Custom/SHUU_RenderTextureCameraEffectsShader"
 {
     Properties
     {

@@ -5,7 +5,10 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
     [ExecuteInEditMode, RequireComponent(typeof(CameraAddOns_Proxy))]
     public class CameraAddOn : MonoBehaviour
     {
-        protected CameraAddOns_Proxy _proxy;
+        protected bool instantiated = false;
+
+
+        public CameraAddOns_Proxy _proxy;
 
 
         protected CameraAddOns_Proxy.Pipeline activePipeline
@@ -24,13 +27,19 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
                 _proxy = GetComponent<CameraAddOns_Proxy>();
 
                 _proxy.RegisterAddOn(this);
+
+
+                instantiated = true;
             }
         }
 
 
         protected virtual void OnDestroy()
         {
-            _proxy.RemoveAddOn(this);
+            if (!instantiated) return;
+
+
+            if (_proxy != null) _proxy.RemoveAddOn(this);
         }
         #endregion
 
@@ -42,17 +51,17 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             if (!this.enabled) return;
 
 
-            if (activePipeline == CameraAddOns_Proxy.Pipeline.BuiltIn) return;
+            if (_proxy != null && activePipeline == CameraAddOns_Proxy.Pipeline.BuiltIn) return;
             
 
-            URP_HDRP_Logic(internalCall);
+            if (_proxy != null) URP_HDRP_Logic(internalCall);
         }
         public void _OnRenderImage(RenderTexture src, RenderTexture dest)
         {
             if (!this.enabled) return;
 
 
-            if (activePipeline != CameraAddOns_Proxy.Pipeline.BuiltIn)
+            if (_proxy != null && activePipeline != CameraAddOns_Proxy.Pipeline.BuiltIn)
             {
                 Graphics.Blit(src, dest);
 
@@ -60,7 +69,7 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             }
 
 
-            BuiltIn_Logic();
+            if (_proxy != null) BuiltIn_Logic();
         }
 
 
@@ -78,7 +87,7 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             if (!this.enabled) return;
 
 
-            RefreshEffect(true);
+            if (_proxy != null) RefreshEffect(true);
         }
 
 

@@ -16,9 +16,10 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
         protected override void OnDestroy()
         {
             base.OnDestroy();
+            if (!instantiated) return;
 
 
-            if (_proxy._combinedMaterial) RemoveMaterialValues();
+            if (_proxy != null && _proxy._combinedMaterial) RemoveMaterialValues();
         }
 
 
