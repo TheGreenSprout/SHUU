@@ -5,6 +5,7 @@ using UnityEditor;
 using System.IO;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using System.Linq;
 
 
 namespace SHUU.Utils.Helpers
@@ -17,6 +18,16 @@ namespace SHUU.Utils.Helpers
     #endregion
     public static class HandyFunctions
     {
+        #region Variables
+
+        // Editor Prefs
+        public static string ProjectKey => Application.dataPath.GetHashCode().ToString();
+        
+        #endregion
+
+
+
+
         #region Strings
 
         #region XML doc
@@ -43,6 +54,19 @@ namespace SHUU.Utils.Helpers
             }
 
             return false;
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Turns a string into a "local" version of itself (for the project).
+        /// </summary>
+        /// <param name="key">The string to be localized.</param>
+        /// <returns>Returns the localized string.</returns>
+        #endregion
+        public static string LocalizeString(string str)
+        {
+            return ProjectKey + "_" + str;
         }
 
         #endregion
@@ -124,7 +148,336 @@ namespace SHUU.Utils.Helpers
 
 
 
+        #region Manage PlayerPrefs
+
+        #region XML doc
+        /// <summary>
+        /// Checks if an PlayerPref exists.
+        /// </summary>
+        /// <param name="key">The PlayerPref's key (aka their "name").</param>
+        /// <param name="localized">Whether the key was localized when saving the PlayerPref.</param>
+        /// <returns>Returns whether the PlayerPref exists.</returns>
+        #endregion
+        public static bool HasPlayerPref(string key, bool localized = true)
+        {
+            return PlayerPrefs.HasKey(localized ? LocalizeString(key) : key);
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Adds an PlayerPrefs key to a list in order to keep track of it.
+        /// </summary>
+        /// <param name="key">The key to track.</param>
+        #endregion
+        public static void TrackKey(string key)
+        {
+            string keyListKey = LocalizeString("PlayerPrefsKeys");
+            string allKeys = PlayerPrefs.GetString(keyListKey, "");
+
+            if (!allKeys.Contains(key))
+            {
+                allKeys += key + ";";
+                PlayerPrefs.SetString(keyListKey, allKeys);
+            }
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Removes an PlayerPref key from the list.
+        /// </summary>
+        /// <param name="key">The key to detrack.</param>
+        #endregion
+        public static void DeTrackKey(string key)
+        {
+            string keyListKey = LocalizeString("PlayerPrefsKeys");
+            string allKeys = PlayerPrefs.GetString(keyListKey, "");
+            var keys = allKeys.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            if (keys.Remove(key))
+            {
+                string updated = string.Join(";", keys) + (keys.Count > 0 ? ";" : "");
+                PlayerPrefs.SetString(keyListKey, updated);
+            }
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Saves an PlayerPref.
+        /// </summary>
+        /// <param name="key">The PlayerPref's key (aka their "name").</param>
+        /// <param name="value">The value to save.</param>
+        /// <param name="localized">Whether the key is to be localized.</param>
+        #endregion
+        public static void SetPlayerPref<T>(string key, T value, bool localized = true)
+        {
+            string newKey;
+            if (localized)
+            {
+                newKey = LocalizeString(key);
+
+                TrackKey(newKey);
+            }
+            else
+            {
+                newKey = key;
+            }
+
+            if (typeof(T) == typeof(string))
+            {
+                PlayerPrefs.SetString(newKey, (string)(object)value);
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                string bool_str = (bool)(object)value ? bool.TrueString : bool.FalseString;
+                PlayerPrefs.SetString(newKey, bool_str);
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                PlayerPrefs.SetInt(newKey, (int)(object)value);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                PlayerPrefs.SetFloat(newKey, (float)(object)value);
+            }
+            else if (typeof(T) == typeof(Vector2))
+            {
+                SetPlayerPref(newKey + "_x", ((Vector2)(object)value).x, false);
+                SetPlayerPref(newKey + "_y", ((Vector2)(object)value).y, false);
+            }
+            else if (typeof(T) == typeof(Vector3))
+            {
+                SetPlayerPref(newKey + "_x", ((Vector3)(object)value).x, false);
+                SetPlayerPref(newKey + "_y", ((Vector3)(object)value).y, false);
+                SetPlayerPref(newKey + "_z", ((Vector3)(object)value).z, false);
+            }
+            else if (typeof(T) == typeof(Color))
+            {
+                string hex = ColorUtility.ToHtmlStringRGBA((Color)(object)value);
+
+                SetPlayerPref(newKey, hex, false);
+            }
+            else if (typeof(T).IsEnum)
+            {
+                PlayerPrefs.SetString(newKey, (string)(object)value);
+            }
+            else if (!typeof(T).IsSerializable)
+            {
+                string json = JsonUtility.ToJson(value);
+                PlayerPrefs.SetString(newKey, json);
+            }
+            else
+            {
+                DeTrackKey(newKey);
+
+                throw new NotSupportedException($"Type {typeof(T)} is not supported by SetPlayerPref and isn't Serializable.");
+            }
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Retrieves an PlayerPref's value.
+        /// </summary>
+        /// <param name="key">The PlayerPref's key (aka their "name").</param>
+        /// <param name="localized">Whether the key was localized when saving the PlayerPref.</param>
+        /// <param name="defaultValue">The default value of this PlayerPref.</param>
+        /// <returns>Returns the value of the PlayerPref.</returns>
+        #endregion
+        public static T GetPlayerPref<T>(string key, bool localized = true, T defaultValue = default)
+        {
+            if (!HasPlayerPref(key, localized))
+            {
+                return default;
+            }
+
+
+            string newKey = localized ? LocalizeString(key) : key;
+
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)PlayerPrefs.GetString(newKey, (string)(object)defaultValue);
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                string bool_defaultVal_str = (bool)(object)defaultValue ? bool.TrueString : bool.FalseString;
+                string bool_str = PlayerPrefs.GetString(newKey, bool_defaultVal_str);
+
+                bool bool_val = bool_str == bool.TrueString ? true : false;
+
+                return (T)(object)bool_val;
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                return (T)(object)PlayerPrefs.GetInt(newKey, (int)(object)defaultValue);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                return (T)(object)PlayerPrefs.GetFloat(newKey, (float)(object)defaultValue);
+            }
+            else if (typeof(T) == typeof(Vector2))
+            {
+                float x = GetPlayerPref(newKey + "_x", false, ((Vector2)(object)defaultValue).x);
+                float y = GetPlayerPref(newKey + "_y", false, ((Vector2)(object)defaultValue).y);
+                return (T)(object)new Vector2(x, y);
+            }
+            else if (typeof(T) == typeof(Vector3))
+            {
+                float x = GetPlayerPref(newKey + "_x", false, ((Vector3)(object)defaultValue).x);
+                float y = GetPlayerPref(newKey + "_y", false, ((Vector3)(object)defaultValue).y);
+                float z = GetPlayerPref(newKey + "_z", false, ((Vector3)(object)defaultValue).z);
+                return (T)(object)new Vector3(x, y, z);
+            }
+            else if (typeof(T) == typeof(Color))
+            {
+                string hex = GetPlayerPref(key, localized, ((Color)(object)defaultValue).ToString());
+
+                if (ColorUtility.TryParseHtmlString("#" + hex, out var color))
+                {
+                    return (T)(object)color;
+                }
+
+                return defaultValue;
+            }
+            else if (typeof(T).IsEnum)
+            {
+                string str = PlayerPrefs.GetString(newKey, defaultValue.ToString());
+
+                try
+                {
+                    return (T)Enum.Parse(typeof(T), str);
+                }
+                catch
+                {
+                    return defaultValue;
+                }
+            }
+            else if (typeof(T).IsSerializable)
+            {
+                string json = PlayerPrefs.GetString(newKey, "");
+                if (string.IsNullOrEmpty(json)) return defaultValue;
+
+                try { return JsonUtility.FromJson<T>(json); }
+                catch { return defaultValue; }
+            }
+            else
+            {
+                throw new NotSupportedException($"Type {typeof(T)} is not supported by GetPlayerPref and isn't Serializable.");
+            }
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Deletes an PlayerPref.
+        /// </summary>
+        /// <param name="key">The PlayerPref's key (aka their "name").</param>
+        /// <param name="localized">Whether the key was localized when saving the PlayerPref.</param>
+        #endregion
+        public static void DeletePlayerPref(string key, bool localized = true)
+        {
+            if (!HasPlayerPref(key, localized))
+            {
+                return;
+            }
+
+
+            string newKey;
+            if (localized)
+            {
+                newKey = LocalizeString(key);
+
+                DeTrackKey(newKey);
+            }
+            else
+            {
+                newKey = key;
+            }
+
+            PlayerPrefs.DeleteKey(newKey);
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Deletes all tracked PlayerPrefs.
+        /// </summary>
+        #endregion
+        public static void ClearAllTrackedPlayerPrefs()
+        {
+            string keyListKey = LocalizeString("PlayerPrefsKeys");
+
+            string allKeys = PlayerPrefs.GetString(keyListKey, "");
+            string[] keys = allKeys.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string key in keys)
+            {
+                if (HasPlayerPref(key, false))
+                {
+                    PlayerPrefs.DeleteKey(key);
+                }
+            }
+
+
+            PlayerPrefs.DeleteKey(keyListKey);
+        }
+
+        #endregion
+
+
+
+        #region Recursion
+
+        public static T SearchComponent_InSelfAndParents<T>(Transform start) where T : Component
+        {
+            Transform current = start;
+
+
+            while (current != null)
+            {
+                T found = current.GetComponent<T>();
+
+                if (found != null)
+                {
+                    return found;
+                }
+
+                current = current.parent;
+            }
+
+
+            return null; // Not found
+        }
+
+        public static T SearchComponent_InSelfAndChildren<T>(Transform start) where T : Component
+        {
+            Queue<Transform> queue = new Queue<Transform>();
+
+            queue.Enqueue(start);
+
+
+            while (queue.Count > 0)
+            {
+                Transform current = queue.Dequeue();
+
+
+                T found = current.GetComponent<T>();
+
+                if (found != null) return found;
+
+
+                foreach (Transform child in current) queue.Enqueue(child);
+            }
+
+
+            return null; // Not found
+        }
+        
+        #endregion
+
+
+
         #region Screen Resolution
+
         public static Vector2Int GetClosestAspectRatio(Vector2Int screenValues, bool exactScreenSize = true)
         {
             if (exactScreenSize)
@@ -244,11 +597,13 @@ namespace SHUU.Utils.Helpers
             return new Vector2Int(Mathf.RoundToInt(rect.width), Mathf.RoundToInt(rect.height));
         }
 #endif
+
         #endregion
 
 
 
         #region Mouse
+
         public static Vector2 GetMouseScreenCoords(RectTransform canvasRect, Camera cam = null)
         {
             Vector2 mousePos;
@@ -296,11 +651,13 @@ namespace SHUU.Utils.Helpers
             if (cursorVisible == null) Cursor.visible = !Cursor.visible;
             else Cursor.visible = (bool)cursorVisible;
         }
+
         #endregion
 
 
 
         #region Files
+
         public static T FindFile<T>(string path, T defaultValue = default) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
@@ -330,6 +687,7 @@ namespace SHUU.Utils.Helpers
             return defaultValue;
 #endif
         }
+
         #endregion
     
     
