@@ -1,3 +1,11 @@
+/*
+⚠️‼️ AI ASSISTED CODE
+
+This code was written with the assistance of AI.
+*/
+
+
+
 Shader "Custom/SHUU_RenderTextureCameraEffectsShader"
 {
     Properties
