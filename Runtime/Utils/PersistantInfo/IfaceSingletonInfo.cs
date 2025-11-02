@@ -39,7 +39,7 @@ public interface IfaceSingletonInfo
     /// </summary>
     /// <param name="dto">It's corresponding DTO with all the info that needs loading.</param>
     #endregion
-    public void ImportDTO(DTO_InfoClass dto);
+    public void ImportDTO(DTO_Info dto);
 }
 
 }

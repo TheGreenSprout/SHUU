@@ -251,7 +251,7 @@ namespace SHUU.Utils.UI
                 }
 
                 if (currentTextSounds != null)
-                    AudioManager.PlayRandomLineAt(Camera.main.transform, currentTextSounds.sounds, currentTextSounds.volume);
+                    AudioManager.PlayRandomAudioAt(Camera.main.transform, currentTextSounds.sounds, new AudioManager.AudioOptions { volume = currentTextSounds.volume });
 
                 char character = textInfo.characterInfo[_currentVisibleCharacterIndex].character;
                 _textBox.maxVisibleCharacters++;

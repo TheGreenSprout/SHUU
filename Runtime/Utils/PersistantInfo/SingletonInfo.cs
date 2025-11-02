@@ -13,6 +13,10 @@ namespace SHUU.Utils.PersistantInfo
 #endregion
 public class SingletonInfo : SceneSensitiveScript, IfaceSingletonInfo
 {
+    public string identifier = "SingletonName";
+    
+    
+    
     #region Save info
     #region XML doc
     /// <summary>
@@ -75,7 +79,7 @@ public class SingletonInfo : SceneSensitiveScript, IfaceSingletonInfo
     /// </summary>
     /// <param name="dto">It's corresponding DTO with all the info that needs loading.</param>
     #endregion
-    public virtual void ImportDTO(DTO_InfoClass dto)
+    public virtual void ImportDTO(DTO_Info dto)
     {
         Debug.LogWarning("SingletonInfo void [ImportDTO()] not set up for object: " + this.name);
     }
