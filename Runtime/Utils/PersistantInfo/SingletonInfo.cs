@@ -67,9 +67,11 @@ public class SingletonInfo : SceneSensitiveScript, IfaceSingletonInfo
     /// </summary>
     /// <param name="masterDTO">A reference to the MasterDTO.</param>
     #endregion
-    public virtual void ExportDTO(ref MasterDTO masterDTO)
+    public virtual DTO_Info ExportDTO()
     {
         Debug.LogWarning("SingletonInfo function (return DTO_InfoClass) [ExportDTO()] not set up for object: " + this.name);
+
+        return null;
     }
 
 

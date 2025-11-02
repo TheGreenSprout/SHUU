@@ -32,7 +32,7 @@ public interface IfaceSingletonInfo
     /// </summary>
     /// <param name="masterDTO">A reference to the MasterDTO.</param>
     #endregion
-    public void ExportDTO(ref MasterDTO masterDTO);
+    public DTO_Info ExportDTO();
     #region XML doc
     /// <summary>
     /// Imports all of this singleton's info from it's corresponding DTO inside the MasterDTO.

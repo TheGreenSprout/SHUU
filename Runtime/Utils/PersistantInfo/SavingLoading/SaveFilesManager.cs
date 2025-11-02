@@ -138,7 +138,7 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
             // Get (and save) all your DTO sinletons.
             foreach (SingletonInfo singleton in gameObject.GetComponents<SingletonInfo>())
             {
-                singleton.ExportDTO(ref masterDTO);
+                masterDTO.dataDictionary.Add(singleton.ExportDTO(), singleton.identifier);
             }
 
 

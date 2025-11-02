@@ -81,9 +81,9 @@ public class ExampleSingleton : SingletonInfo
     /// </summary>
     /// <param name="masterDTO">MasterDTO reference.</param>
     #endregion
-    public override void ExportDTO(ref MasterDTO masterDTO)
+    public override DTO_Info ExportDTO()
     {
-        masterDTO.exampleData = new DTO_ExampleInfo
+        return new DTO_ExampleInfo
         {
             colorOfItems = colorOfItems
         };
