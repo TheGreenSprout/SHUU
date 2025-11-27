@@ -22,6 +22,7 @@ namespace SHUU.Utils.UI.Dialogue
     [RequireComponent(typeof(DialogueBox_NameDisplayHandler))]
     [RequireComponent(typeof(DialogueBox_PortraitHandler))]
     [RequireComponent(typeof(DialogueBox_OptionsHandler))]
+    [RequireComponent(typeof(TWriter_Proxy))]
     public class DialogueBox_TextHandler : MonoBehaviour
     {
         // Internal
@@ -50,7 +51,7 @@ namespace SHUU.Utils.UI.Dialogue
         [SerializeField] private float startLineDelay = 0.25f;
 
 
-        [Tooltip("Leave null if you don't want a default talking sounds")]
+        [Tooltip("Leave null if you don't want a default talking sounds.")]
         [SerializeField] private TalkingSounds defaultTalkingSounds = null;
 
 
@@ -162,7 +163,7 @@ namespace SHUU.Utils.UI.Dialogue
             DialogueLineInstance processedLine = new DialogueLineInstance(line);
 
 
-            if (currentPortrait != null) if (currentPortrait != null) currentPortrait.StartTalking();
+            if (currentPortrait != null) currentPortrait.StartTalking();
             nameDisplayHandler.DisplayName(processedLine.characterName);
 
             if (processedLine.variables is DialogueLineInstance.DialogueLine_Text text)

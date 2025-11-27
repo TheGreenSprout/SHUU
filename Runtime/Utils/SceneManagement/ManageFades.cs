@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using SHUU.Utils.Helpers;
+using SHUU.Utils.UI;
 using UnityEngine.UI;
-using SHUU.Utils.SceneManagement;
 
 namespace SHUU.Utils.UI
 {
@@ -13,127 +14,229 @@ namespace SHUU.Utils.UI
     #endregion
     public class ManageFades : MonoBehaviour
     {
-        [SerializeField] private GameObject fadePanel;
+        #region Option classes
+        public class FadeOptions
+        {
+            public Color? startColor = null;
+            public Color? endColor = null;
+
+
+            public float? duration = null;
+
+            public float start_delay = 0f;
+            public float end_delay = 0f;
+
+
+            public Action end_Action = null;
+
+
+
+            public FadeOptions() { }
+            public FadeOptions(FadeOptions other)
+            {
+                startColor = other.startColor;
+                endColor = other.endColor;
+
+
+                duration = other.duration;
+
+                start_delay = other.start_delay;
+                end_delay = other.end_delay;
+
+
+                end_Action = other.end_Action;
+            }
+        }
+        public class PingPong_FadeOptions
+        {
+            public Color? startColor = null;
+            public Color? middleColor = null;
+            public Color? endColor = null;
+
+
+            public float? firstFade_duration = null;
+            public float? pingPong_duration = null;
+            public float? secondFade_duration = null;
+
+            public float start_delay = 0f;
+            public float end_delay = 0f;
+
+            public float middleAction_delay = 0.05f;
+
+
+            public Action endFirstFade_Action = null;
+            public Action middle_Action = null;
+            public Action startSecondFade_Action = null;
+
+            public Action end_Action = null;
+
+
+
+            public PingPong_FadeOptions() { }
+            public PingPong_FadeOptions(PingPong_FadeOptions other)
+            {
+                startColor = other.startColor;
+                middleColor = other.middleColor;
+                endColor = other.endColor;
+
+
+                firstFade_duration = other.firstFade_duration;
+                pingPong_duration = other.pingPong_duration;
+                secondFade_duration = other.secondFade_duration;
+
+                start_delay = other.start_delay;
+                end_delay = other.end_delay;
+
+                middleAction_delay = other.middleAction_delay;
+
+
+                endFirstFade_Action = other.endFirstFade_Action;
+                middle_Action = other.middle_Action;
+                startSecondFade_Action = other.startSecondFade_Action;
+
+                end_Action = other.end_Action;
+            }
+        }
+        #endregion
+
+
+
+        [SerializeField] private FadePanel fadePanel_scr;
 
 
 
         [SerializeField] private float defaultFadeDuration;
+        [SerializeField] private float defaultPingPongDuration;
 
 
 
-        private Color transparentBlack;
+        [SerializeField] private Color default_solid = Color.black;
+        [SerializeField] private Color default_transparent = new Color(Color.black.r, Color.black.g, Color.black.b, 0f);
+
+
+
+        private FadeOptions currentOptions = null;
 
 
 
 
         private void Start()
         {
-            transparentBlack = new Color(Color.black.r, Color.black.g, Color.black.b, 0f);
+            currentOptions = null;
         }
 
 
-        #region XML doc
-        /// <summary>
-        /// Creates a custom fade-in. (Custom color)
-        /// </summary>
-        /// <param name="starterColor">The color of the fade-in.</param>
-        /// <returns>Returns the fade-in object.</returns>
-        #endregion
-        public GameObject CreateFadeIn(Color? starterColor = null)
+
+        public void CreateFade(FadeOptions fadeOptions = null)
         {
-            if (starterColor == null)
+            if (currentOptions != null) return;
+
+
+            FadeOptions localOptions;
+            if (fadeOptions == null) localOptions = new FadeOptions();
+            else localOptions = new FadeOptions(fadeOptions);
+
+            if (localOptions.startColor == null) localOptions.startColor = default_solid;
+            if (localOptions.endColor == null) localOptions.endColor = GetOppositeAlpha(localOptions.startColor.Value);
+            if (localOptions.duration == null) localOptions.duration = defaultFadeDuration;
+
+
+            fadeOptions.end_Action += () => currentOptions = null;
+
+            currentOptions = localOptions;
+
+            if (currentOptions != null) fadePanel_scr.NewFade(currentOptions);
+        }
+
+        public void CreateFade_In(FadeOptions fadeOptions = null)
+        {
+            FadeOptions localOptions;
+            if (fadeOptions == null) localOptions = new FadeOptions();
+            else localOptions = new FadeOptions(fadeOptions);
+
+
+            localOptions.startColor = default_solid;
+            localOptions.endColor = default_transparent;
+
+
+            CreateFade(localOptions);
+        }
+        public void CreateFade_Out(FadeOptions fadeOptions = null)
+        {
+            FadeOptions localOptions;
+            if (fadeOptions == null) localOptions = new FadeOptions();
+            else localOptions = new FadeOptions(fadeOptions);
+
+
+            localOptions.startColor = default_transparent;
+            localOptions.endColor = default_solid;
+
+
+            CreateFade(localOptions);
+        }
+
+        public void CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null)
+        {
+            PingPong_FadeOptions localOptions;
+            if (pingPongOptions == null) localOptions = new PingPong_FadeOptions();
+            else localOptions = new PingPong_FadeOptions(pingPongOptions);
+
+            if (localOptions.startColor == null) localOptions.startColor = default_solid;
+            if (localOptions.middleColor == null) localOptions.middleColor = GetOppositeAlpha(localOptions.startColor.Value);
+            if (localOptions.endColor == null) localOptions.endColor = localOptions.startColor;
+
+            if (localOptions.pingPong_duration == null) localOptions.pingPong_duration = defaultPingPongDuration;
+
+            if (localOptions.firstFade_duration == null && localOptions.secondFade_duration != null) localOptions.firstFade_duration = localOptions.secondFade_duration;
+            else if (localOptions.firstFade_duration != null && localOptions.secondFade_duration == null) localOptions.secondFade_duration = localOptions.firstFade_duration;
+
+
+            Action pingPong = () =>
             {
-                starterColor = Color.black;
-            }
+                currentOptions = null;
+                
+                CreateFade(new FadeOptions
+                {
+                    startColor = localOptions.middleColor,
+                    endColor = localOptions.endColor,
+                    duration = localOptions.secondFade_duration,
+                    end_delay = localOptions.end_delay,
+                    end_Action = localOptions.end_Action
+                });
+
+                localOptions.startSecondFade_Action?.Invoke();
+            };
             
-
-            GameObject fadeIn = Instantiate(fadePanel, SHUU_Globals.canvas.gameObject.transform);
-
-            ((RawImage)fadeIn.GetComponent(typeof(RawImage))).color = (Color)starterColor;
-
-
-            return fadeIn;
-        }
-
-        #region XML doc
-        /// <summary>
-        /// Triggers a fade-in with a custom duration.
-        /// </summary>
-        /// <param name="fadeIn">Fade-in that's being triggered.</param>
-        /// <param name="duration">The duration of the fade-in.</param>
-        /// <param name="null">Action to run after the fade-in is over.</param>
-        #endregion
-        public void TriggerFadeIn(GameObject fadeIn, float? duration = null, Action action = null)
-        {
-            if (duration == null)
+            Action holdColor = () =>
             {
-                duration = defaultFadeDuration;
-            }
+                currentOptions = null;
 
-
-            Action callback = () =>
-            {
-                Destroy(fadeIn);
-
-                if (action != null)
+                CreateFade(new FadeOptions
                 {
-                    action();
-                }
+                    startColor = localOptions.middleColor,
+                    endColor = localOptions.middleColor,
+                    duration = localOptions.pingPong_duration,
+                    end_Action = pingPong
+                });
+
+                if (localOptions.middle_Action != null) SHUU_Timer.Create(localOptions.middleAction_delay, localOptions.middle_Action);
+                localOptions.endFirstFade_Action?.Invoke();
             };
 
-
-            ((ScreenFader)fadeIn.GetComponent(typeof(ScreenFader))).FadeIn((float)duration, callback);
-        }
-        public void TriggerFadeIn(Color? starterColor = null, float? duration = null, Action action = null)
-        {
-            if (duration == null)
-            {
-                duration = defaultFadeDuration;
-            }
-
-            GameObject fadeIn = CreateFadeIn(starterColor);
-
-
-            Action callback = () =>
-            {
-                Destroy(fadeIn);
-
-                if (action != null)
-                {
-                    action();
-                }
-            };
-
-
-            ((ScreenFader)fadeIn.GetComponent(typeof(ScreenFader))).FadeIn((float)duration, callback);
+            CreateFade(new FadeOptions {
+                startColor = localOptions.startColor,
+                endColor = localOptions.middleColor,
+                duration = localOptions.firstFade_duration,
+                start_delay = localOptions.start_delay,
+                end_Action = holdColor
+            });
         }
 
 
-        #region XML doc
-        /// <summary>
-        /// Creates and triggers a default fade-out with a custom duration. (Black color)
-        /// </summary>
-        /// <param name="starterColor">The color of the fade-out.</param>
-        /// <param name="duration">The duration of the fade-out.</param>
-        /// <param name="null">Action to run after the fade-out is over.</param>
-        #endregion
-        public void TriggerFadeOut(Color? starterColor = null, float? duration = null, Action action = null)
+        private Color GetOppositeAlpha(Color color)
         {
-            if (starterColor == null)
-            {
-                starterColor = transparentBlack;
-            }
-            if (duration == null)
-            {
-                duration = defaultFadeDuration;
-            }
-
-
-            GameObject fadeOut = Instantiate(fadePanel, SHUU_Globals.canvas.gameObject.transform);
-
-            ((RawImage)fadeOut.GetComponent(typeof(RawImage))).color = (Color)starterColor;
-
-            ((ScreenFader)fadeOut.GetComponent(typeof(ScreenFader))).FadeOut((float)duration, action);
+            if (color.a > 0) return new Color(color.r, color.g, color.b, 0f);
+            else return new Color(color.r, color.g, color.b, 1f);
         }
     }
 

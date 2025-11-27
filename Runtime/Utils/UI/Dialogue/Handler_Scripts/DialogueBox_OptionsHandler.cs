@@ -17,7 +17,8 @@ namespace SHUU.Utils.UI.Dialogue
 
 
         // External
-        [SerializeField] private Transform optionSpawnParent = null;
+        [SerializeField] private Transform withQuestion_optionSpawnParent = null;
+        [SerializeField] private Transform withoutQuestion_optionSpawnParent = null;
 
         [SerializeField] private TypewriterText question_typewriterText;
 
@@ -51,12 +52,13 @@ namespace SHUU.Utils.UI.Dialogue
 
         public void DrawOptions(DialogueLineInstance.DialogueLine_Options variables, Action txtHandler_endLine = null)
         {
-            if (optionsDrawn) return;
+            if (optionsDrawn || optionButtonPrefab == null) return;
             optionsDrawn = true;
 
 
-
-            if (string.IsNullOrEmpty(variables.question))
+            
+            bool thereIsQuestion = !string.IsNullOrEmpty(variables.question);
+            if (thereIsQuestion)
             {
                 if (!question_typewriterText.gameObject.activeInHierarchy) question_typewriterText.gameObject.SetActive(true);
 
@@ -73,9 +75,10 @@ namespace SHUU.Utils.UI.Dialogue
 
 
 
+            Transform spawnParent = thereIsQuestion ? withQuestion_optionSpawnParent : withoutQuestion_optionSpawnParent;
             foreach (DialogueLineInstance.OptionButton option in variables.optionList)
             {
-                OptionButton_Reference button_Ref = Instantiate(optionButtonPrefab, optionSpawnParent).GetComponent<OptionButton_Reference>();
+                OptionButton_Reference button_Ref = Instantiate(optionButtonPrefab, spawnParent).GetComponent<OptionButton_Reference>();
 
                 Action onClick = option.onClickAction + txtHandler_endLine;
 
@@ -85,7 +88,7 @@ namespace SHUU.Utils.UI.Dialogue
                     button.ButtonWasAdded();
                 }
 
-                button_Ref.Appear(option.optionText, onClick, new Vector2Int(optionButtonList.Count+1, optionButtonList.Count+1));
+                button_Ref.Appear(option.optionText, onClick, new Vector2Int(optionButtonList.Count+1, variables.optionList.Count));
 
 
                 optionButtonList.Add(button_Ref);

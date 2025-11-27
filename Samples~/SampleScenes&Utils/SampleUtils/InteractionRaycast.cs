@@ -43,17 +43,26 @@ public class InteractionRaycast : MonoBehaviour
         {
             if (hitInfo.collider.gameObject.TryGetComponent(out IfaceInteractable inact))
             {
-                if (previousInact != inact)
+                if (inact.CanBeInteracted())
                 {
-                    if (previousInact != null)
+                    if (previousInact != inact)
                     {
-                        previousInact.HoverEnd();
+                        if (previousInact != null)
+                        {
+                            previousInact.HoverEnd();
+                        }
+
+                        previousInact = inact;
+
+
+                        inact.HoverStart();
                     }
+                }
+                else if (previousInact != null)
+                {
+                    previousInact.HoverEnd();
 
-                    previousInact = inact;
-
-
-                    inact.HoverStart();
+                    previousInact = null;
                 }
             }
         }

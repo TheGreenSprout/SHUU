@@ -1,3 +1,7 @@
 Fix all editor dialogue script helpers (including dialoguelineinstancedrawer)
 
 Portraits can have different emotions, right now thats not accounted for (different emotions would be like 2 different characters). (emotion index no because characters shouldnt appear again when they change emotion)
+
+
+
+methods to make options appear and such, so users can make a parent and make their own

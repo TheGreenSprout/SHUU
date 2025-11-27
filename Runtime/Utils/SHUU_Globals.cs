@@ -36,7 +36,8 @@ namespace SHUU.Utils
 
 
         [SerializeField] private bool fadeInAtSceneRoomEnter = true;
-        [SerializeField] private float enterFadeInBuffer = 0.05f;
+        [SerializeField] private float enterFadeIn_buffer = 0.05f;
+        [SerializeField] private float enterFadeIn_duration = 1f;
 
         public static bool fadeInAtSceneRoomLeave;
         [SerializeField] private bool fadeInAtSceneRoomLeave_Ref = true;
@@ -63,7 +64,7 @@ namespace SHUU.Utils
             dialogueBox_PrefabList = new List<GameObject>();
             for (int i = 0; i < dialogueBox_PrefabList_StaticRef.Count; i++)
             {
-                dialogueBox_PrefabList.Add(dialogueBox_PrefabList_StaticRef[i]);
+                if (dialogueBox_PrefabList_StaticRef[i] != null) dialogueBox_PrefabList.Add(dialogueBox_PrefabList_StaticRef[i]);
             }
 
 
@@ -76,20 +77,10 @@ namespace SHUU.Utils
         
         private void Start()
         {
-            if (!fadeInAtSceneRoomEnter)
+            if (fadeInAtSceneRoomEnter)
             {
-                return;
+                manageFades.CreateFade_In(new ManageFades.FadeOptions { duration = enterFadeIn_duration, start_delay = enterFadeIn_buffer });
             }
-
-            
-            GameObject fadeIn = manageFades.CreateFadeIn();
-
-            Action action = () =>
-            {
-                manageFades.TriggerFadeIn(fadeIn, 1f);
-            };
-
-            SHUU_Timer.Create(enterFadeInBuffer, action);
         }
 
 
@@ -103,13 +94,19 @@ namespace SHUU.Utils
         {
             if (fadeInAtSceneRoomLeave)
             {
-                manageFades.TriggerFadeOut(fadeStarterColor, fadeDuration, () =>
+                ManageFades.FadeOptions fadeOptions = new ManageFades.FadeOptions
                 {
-                    SHUU_Timer.Create(exitFadeInBuffer, () =>
+                    duration = fadeDuration,
+                    end_delay = exitFadeInBuffer,
+                    end_Action = () =>
                     {
                         SceneLoader.Load(sceneName);
-                    });
-                });
+                    }
+                };
+
+                if (fadeStarterColor != null) fadeOptions.startColor = fadeStarterColor;
+
+                manageFades.CreateFade_Out(fadeOptions);
             }
             else
             {
@@ -140,7 +137,7 @@ namespace SHUU.Utils
             SHUU_DialogueBox dialogeBox = new SHUU_DialogueBox(dialogueBox_PrefabList[index], canvas.transform);
 
 
-            dialogeBox.StartDialogue(dialogueInstance, endDialogueLogic);
+            //dialogeBox.StartDialogue(dialogueInstance, endDialogueLogic);
             
             
 

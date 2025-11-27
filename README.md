@@ -19,7 +19,7 @@ Enjoy :D
 ⚠️ This package requires SHUU_UserSide.
 To install it:
   - Download the SHUU_UserSide package and install it.
-  - https://github.com/TheGreenSprout/SHUU_UserSide/releases/tag/v1.0.0
+  - https://github.com/TheGreenSprout/SHUU_UserSide/releases
 <br><br>
 
 ⚠️ This package requires Newtonsoft JSON and TextMeshPro.
@@ -38,7 +38,7 @@ To install it:
     - Feel free to modify some of the values that appear on these scripts (in the inspector window), they are made to be customized
 <br><br>
 
-⚠️ Currently, dialogue doesn't fully work (and also hasn't been tested).
+⚠️ Currently, dialogue works but the portrait system is missing some features (and also the whole system hasn't been tested). The current diaogue sample scene is also entirely outdated.
 <br><br>
 
 ⚠️ If you want to check out the Sample Scenes, please add them (and LoadingScene [inside the ForUser folder]) to your [Build Profiles > Scene List]
@@ -51,8 +51,8 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.10.9
-### - Update Date: 02-11-2025
+### + Current Version: 2.11.0
+### - Update Date: 27-11-2025
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>

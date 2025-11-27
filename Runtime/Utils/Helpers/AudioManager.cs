@@ -50,7 +50,7 @@ namespace SHUU.Utils.Helpers
         void Awake(){
             audioList = new List<AudioSource>();
 
-            audioInstance = Resources.Load<GameObject>("AudioInstance");
+            audioInstance = Resources.Load<GameObject>("SHUU_AudioInstance");
 
 
             defaultMixer = _defaultMixer;
@@ -65,7 +65,7 @@ namespace SHUU.Utils.Helpers
         /// <param name="audio">The audio to play.</param>
         /// <param name="volume">The volume the audio will play at.</param>
         #endregion
-        public static GameObject PlayAudioAt(Transform pos, AudioClip audio, AudioOptions audioOptions){
+        public static GameObject PlayAudioAt(Transform pos, AudioClip audio, AudioOptions audioOptions = null){
             if (audioOptions == null)
             {
                 audioOptions = new AudioOptions();
@@ -111,7 +111,7 @@ namespace SHUU.Utils.Helpers
         /// <param name="audioList">The list of audios to pick from.</param>
         /// <param name="volume">The volume the audio will play at.</param>
         #endregion
-        public static void PlayRandomAudioAt(Transform pos, List<AudioClip> audioList, AudioOptions audioOptions)
+        public static void PlayRandomAudioAt(Transform pos, List<AudioClip> audioList, AudioOptions audioOptions = null)
         {
             int voiceline = Random.Range(0, audioList.Count);
 

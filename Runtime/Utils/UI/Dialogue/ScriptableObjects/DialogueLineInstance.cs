@@ -3,131 +3,116 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-[Serializable]
-public class DialogueLineInstance
+namespace SHUU.Utils.UI.Dialogue
 {
-    public GameObject characterPortrait = null;
-
-    public TalkingSounds textSounds = null;
-
-
-    public string characterName = "NullName";
-
-
-
-    [SerializeReference] public DialogueLineVariables variables = null;
-
-
-
-    public Action endLineAction
-    {
-        get => endLineAction;
-        set
-        {
-            endLineAction = value;
-            endLineEvent = null;
-            endLineEvent.AddListener(new UnityAction(value));
-        }
-    }
-
-    [SerializeField]
-    private UnityEvent endLineEvent
-    {
-        get => endLineEvent;
-        set
-        {
-            endLineEvent = value;
-            TransformEventsToActions();
-        }
-    }
-    public UnityEvent Get_EndDialogueEvent() { return endLineEvent; }
-
-
-
-
-    private void TransformEventsToActions()
-    {
-        if (variables is DialogueLine_Options options)
-        {
-            foreach (OptionButton option in options.optionList)
-            {
-                option.onClickAction = () => option.GetClickEvent()?.Invoke();
-            }
-        }
-    }
-
-
-    public DialogueLineInstance()
-    {
-        TransformEventsToActions();
-    }
-
-    public DialogueLineInstance(DialogueLineInstance other)
-    {
-        characterPortrait = other.characterPortrait;
-        textSounds = other.textSounds;
-
-        characterName = other.characterName;
-
-
-        if (other.variables is DialogueLine_Text text)
-        {
-            variables = new DialogueLine_Text
-            {
-                line = text.line
-            };
-        }
-        else if (other.variables is DialogueLine_Options options)
-        {
-            variables = new DialogueLine_Options
-            {
-                question = options.question,
-                optionList = new List<OptionButton>(options.optionList)
-            };
-
-            TransformEventsToActions();
-        }
-    }
-    
-
-
-
-    #region Variable Classes
-    public class DialogueLineVariables { }
-
 
     [Serializable]
-    public class DialogueLine_Text : DialogueLineVariables
+    public class DialogueLineInstance
     {
-        [TextArea] public string line = "";
-    }
+        public GameObject characterPortrait = null;
 
-    [Serializable]
-    public class DialogueLine_Options : DialogueLineVariables
-    {
-        public string question = "";
-        public List<OptionButton> optionList = new List<OptionButton>();
-    }
-
-    
-    [Serializable]
-    public class OptionButton
-    {
-        public string optionText = "Option";
-        public Action onClickAction = null;
+        public TalkingSounds textSounds = null;
 
 
-        [SerializeField] private UnityEvent onClickEvent
+        public string characterName = "NullName";
+
+
+
+        [SerializeReference] public DialogueLineVariables variables = null;
+
+
+
+        private Action _endLineAction;
+        public Action endLineAction
         {
-            get => onClickEvent;
+            get => _endLineAction;
             set
             {
-                onClickEvent = value;
-                TransformEventsToActions();
+                endLineEvent = null;
+                endLineEvent.AddListener(new UnityAction(value));
+
+                _endLineAction = () => endLineEvent?.Invoke();
             }
         }
-        public UnityEvent GetClickEvent() { return onClickEvent; }
-        private void TransformEventsToActions() { onClickAction = () => GetClickEvent()?.Invoke(); }
+
+        [SerializeField] private UnityEvent endLineEvent;
+
+
+
+
+        public DialogueLineInstance()
+        {
+            
+        }
+
+        public DialogueLineInstance(DialogueLineInstance other)
+        {
+            characterPortrait = other.characterPortrait;
+            textSounds = other.textSounds;
+
+            characterName = other.characterName;
+
+
+            if (other.variables is DialogueLine_Text text)
+            {
+                variables = new DialogueLine_Text
+                {
+                    line = text.line
+                };
+            }
+            else if (other.variables is DialogueLine_Options options)
+            {
+                variables = new DialogueLine_Options
+                {
+                    question = options.question,
+                    optionList = new List<OptionButton>(options.optionList)
+                };
+            }
+        }
+        
+
+
+
+        #region Variable Classes
+        public class DialogueLineVariables { }
+
+
+        [Serializable]
+        public class DialogueLine_Text : DialogueLineVariables
+        {
+            [TextArea] public string line = "";
+        }
+
+        [Serializable]
+        public class DialogueLine_Options : DialogueLineVariables
+        {
+            public string question = "";
+            public List<OptionButton> optionList = new List<OptionButton>();
+        }
+
+        
+        [Serializable]
+        public class OptionButton
+        {
+            public string optionText = "Option";
+
+
+            private Action _onClickAction;
+            public Action onClickAction
+            {
+                get => _onClickAction;
+                set
+                {
+                    onClickEvent = null;
+                    onClickEvent.AddListener(new UnityAction(value));
+
+                    _onClickAction = () => onClickEvent?.Invoke();
+                }
+            }
+
+            [SerializeField] private UnityEvent onClickEvent;
+        }
+        #endregion
     }
-    #endregion
+
 }

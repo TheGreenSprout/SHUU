@@ -26,6 +26,10 @@ namespace SHUU.Utils.Helpers
         [SerializeField] private bool twoDimensions = false;
 
 
+        [Tooltip("For when lookAtMovementDirection is true. Makes it so that if the object is still, the rotation won't reset.")]
+        [SerializeField] private bool whileNotMoving = false;
+
+
 
 
         private void Awake()
@@ -92,7 +96,7 @@ namespace SHUU.Utils.Helpers
 
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
-            else
+            else if (transform.position != lastPosition || whileNotMoving)
             {
                 Vector3 movement = transform.position - lastPosition;
 

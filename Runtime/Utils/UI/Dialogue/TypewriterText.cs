@@ -35,19 +35,19 @@ namespace SHUU.Utils.UI
         private WaitForSeconds _semi_interpunctuationDelay;
 
         [Header("Typewriter Settings")]
-        [SerializeField] private float charactersPerSecond = 20;
-        [SerializeField] private float interpunctuationDelay = 0.5f;
-        [SerializeField] private float semi_interpunctuationDelay = 0.5f;
+        public float charactersPerSecond = 20;
+        public float interpunctuationDelay = 0.5f;
+        public float semi_interpunctuationDelay = 0.5f;
 
         public bool CurrentlySkipping { get; private set; }
         private WaitForSeconds _skipDelay;
 
         [Header("Skip options")]
-        [SerializeField] private bool quickSkip;
-        [SerializeField][Min(1)] private int skipSpeedup = 5;
+        public bool quickSkip;
+        [Min(1)] public int skipSpeedup = 5;
 
         private WaitForSeconds _textboxFullEventDelay;
-        [SerializeField][Range(0.1f, 0.5f)] private float sendDoneDelay = 0.25f;
+       [Range(0.1f, 0.5f)] public float sendDoneDelay = 0.25f;
 
         public event Action CompleteTextRevealed;
         public event Action<char> CharacterRevealed;

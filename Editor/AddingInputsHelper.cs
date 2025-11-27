@@ -31,7 +31,7 @@ public class AddingInputsHelper : EditorWindow
     private const string PrefKey_CustomScript = "AddingInputsHelper_CustomScript";
     private const string PrefKey_IncludeMapNames = "AddingInputsHelper_IncludeMapNames";
 
-    [MenuItem("Tools/Input Sync Helper")]
+    [MenuItem("Tools/Sprout's Handy Unity Utils/Adding Inputs Helper")]
     public static void ShowWindow()
     {
         var window = GetWindow<AddingInputsHelper>("Input Sync Helper");

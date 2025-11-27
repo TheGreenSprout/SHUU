@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//! Incorportate delayed actions, aka waiting for the animations to finish before proceeding.
+
 namespace SHUU.Utils.UI.Dialogue
 {
 
     [DisallowMultipleComponent]
     public class CharacterPortrait_Reference : MonoBehaviour
     {
-        [SerializeField] private const string identifier = "generic_identifier";
+        [SerializeField] private string identifier = "generic_identifier";
         public string IDENTIFIER()
         {
             return identifier;
@@ -28,6 +30,16 @@ namespace SHUU.Utils.UI.Dialogue
 
 
         [SerializeField] private AutomaticSpacingStyles automaticSpacingStyle = AutomaticSpacingStyles.Horizontal;
+
+
+
+        [Header("Animation Names")]
+        [SerializeField] private Animation portraitAnimator;
+
+        [SerializeField] private string appear_animName = "PortraitExample_Appear";
+        [SerializeField] private string delete_animName = "PortraitExample_Delete";
+        [SerializeField] private string talk_animName = "PortraitExample_Talk";
+        [SerializeField] private string idle_animName = "PortraitExample_Idle";
 
 
 
@@ -52,19 +64,19 @@ namespace SHUU.Utils.UI.Dialogue
 
         public virtual void Appear()
         {
-
+            portraitAnimator.Play(appear_animName);
         }
 
 
 
         public virtual void StartTalking()
         {
-
+            portraitAnimator.Play(talk_animName);
         }
 
         public virtual void StopTalking()
         {
-
+            portraitAnimator.Play(idle_animName);
         }
 
 
@@ -219,6 +231,11 @@ namespace SHUU.Utils.UI.Dialogue
         {
             EndLine();
 
+            portraitAnimator.Play(delete_animName);
+        }
+
+        private void ActualDelete()
+        {
             Destroy(this.gameObject);
         }
     }

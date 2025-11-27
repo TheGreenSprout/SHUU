@@ -28,6 +28,12 @@ namespace SHUU.Utils.UI
         }
 
 
+        private void OnDisable()
+        {
+            transform.localPosition = Vector3.zero;
+        }
+
+
         void Update()
         {
             Vector2 mousePos = HandyFunctions.GetMouseScreenCoords(canvasRect, canvasCam);

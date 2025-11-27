@@ -10,7 +10,17 @@ namespace SHUU.Utils
     #endregion
     public class Interactable : MonoBehaviour, IfaceInteractable
     {
-        private bool canBeInteracted;
+        [SerializeField] private bool _canBeInteracted = true;
+        public bool canBeInteracted
+        {
+            private get => _canBeInteracted;
+            set
+            {
+                CanBeInteracted_Changed();
+
+                _canBeInteracted = value;
+            }
+        }
 
 
 
@@ -31,6 +41,8 @@ namespace SHUU.Utils
         {
             return canBeInteracted;
         }
+
+        protected virtual void CanBeInteracted_Changed() { }
 
         #region XML doc
         /// <summary>
