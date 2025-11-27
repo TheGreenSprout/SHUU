@@ -13,7 +13,7 @@ namespace SHUU.Utils
         [SerializeField] private bool _canBeInteracted = true;
         public bool canBeInteracted
         {
-            private get => _canBeInteracted;
+            protected get => _canBeInteracted;
             set
             {
                 CanBeInteracted_Changed();

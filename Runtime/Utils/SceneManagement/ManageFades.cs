@@ -141,7 +141,7 @@ namespace SHUU.Utils.UI
             if (localOptions.duration == null) localOptions.duration = defaultFadeDuration;
 
 
-            fadeOptions.end_Action += () => currentOptions = null;
+            localOptions.end_Action += () => currentOptions = null;
 
             currentOptions = localOptions;
 
