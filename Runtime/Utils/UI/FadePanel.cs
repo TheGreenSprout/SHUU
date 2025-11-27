@@ -85,7 +85,7 @@ namespace SHUU.Utils.UI
 
             // Auto-hide if fully transparent
             if (Mathf.Approximately(endColor.a, 0f))
-                fadeImage.gameObject.SetActive(false);
+                fadeImage.enabled = false;
 
 
             SHUU_Timer.Create(onComplete_delay, onComplete);
