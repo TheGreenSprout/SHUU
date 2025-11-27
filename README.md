@@ -51,10 +51,10 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.11.0
+### + Current Version: 2.11.1
 ### - Update Date: 27-11-2025
 ### - Creation Date: 24-03-2025
-*** 
+***
 <br><br><br><br>
 
 ***
