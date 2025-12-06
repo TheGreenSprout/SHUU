@@ -3,9 +3,8 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 using System.Linq;
+using UnityEngine.UI;
 
 
 namespace SHUU.Utils.Helpers
@@ -691,7 +690,99 @@ namespace SHUU.Utils.Helpers
         #endregion
     
     
-    
+        
+        #region Misc
+        public static string GetTypeName(Type t)
+        {
+            // Primitive C# types
+            if (t == typeof(bool))       return "bool";
+            if (t == typeof(byte))       return "byte";
+            if (t == typeof(sbyte))      return "sbyte";
+            if (t == typeof(short))      return "short";
+            if (t == typeof(ushort))     return "ushort";
+            if (t == typeof(int))        return "int";
+            if (t == typeof(uint))       return "uint";
+            if (t == typeof(long))       return "long";
+            if (t == typeof(ulong))      return "ulong";
+            if (t == typeof(float))      return "float";
+            if (t == typeof(double))     return "double";
+            if (t == typeof(decimal))    return "decimal";
+            if (t == typeof(char))       return "char";
+            if (t == typeof(string))     return "string";
+
+            // Unity common types
+            if (t == typeof(Vector2))         return "Vector2";
+            if (t == typeof(Vector2Int))      return "Vector2Int";
+            if (t == typeof(Vector3))         return "Vector3";
+            if (t == typeof(Vector3Int))      return "Vector3Int";
+            if (t == typeof(Vector4))         return "Vector4";
+            if (t == typeof(Quaternion))      return "Quaternion";
+            if (t == typeof(Color))           return "Color";
+            if (t == typeof(Color32))         return "Color32";
+            if (t == typeof(Rect))            return "Rect";
+            if (t == typeof(RectInt))         return "RectInt";
+            if (t == typeof(Bounds))          return "Bounds";
+            if (t == typeof(BoundsInt))       return "BoundsInt";
+            if (t == typeof(Plane))           return "Plane";
+            if (t == typeof(Ray))             return "Ray";
+            if (t == typeof(RaycastHit))      return "RaycastHit";
+
+            // Unity Engine base types
+            if (t == typeof(GameObject))      return "GameObject";
+            if (t == typeof(Transform))       return "Transform";
+            if (t == typeof(Component))       return "Component";
+            if (t == typeof(UnityEngine.Object))          return "Object";
+
+            // Physics
+            if (t == typeof(Rigidbody))       return "Rigidbody";
+            if (t == typeof(Rigidbody2D))     return "Rigidbody2D";
+            if (t == typeof(Collider))        return "Collider";
+            if (t == typeof(Collider2D))      return "Collider2D";
+            if (t == typeof(BoxCollider))     return "BoxCollider";
+            if (t == typeof(BoxCollider2D))   return "BoxCollider2D";
+            if (t == typeof(SphereCollider))  return "SphereCollider";
+            if (t == typeof(CapsuleCollider)) return "CapsuleCollider";
+            if (t == typeof(MeshCollider))    return "MeshCollider";
+
+            // Rendering / graphics types
+            if (t == typeof(Material))        return "Material";
+            if (t == typeof(Shader))          return "Shader";
+            if (t == typeof(Texture))         return "Texture";
+            if (t == typeof(Texture2D))       return "Texture2D";
+            if (t == typeof(Sprite))          return "Sprite";
+            if (t == typeof(Mesh))            return "Mesh";
+            if (t == typeof(Light))           return "Light";
+            if (t == typeof(Camera))          return "Camera";
+
+            // UI types
+            if (t == typeof(Canvas))          return "Canvas";
+            if (t == typeof(RectTransform))   return "RectTransform";
+            if (t == typeof(Image))           return "Image";
+            if (t == typeof(Text))            return "Text";
+            if (t == typeof(TMPro.TMP_Text))  return "TMP_Text";
+            if (t == typeof(TMPro.TMP_InputField)) return "TMP_InputField";
+            if (t == typeof(Button))          return "Button";
+            if (t == typeof(Slider))          return "Slider";
+            if (t == typeof(Toggle))          return "Toggle";
+            if (t == typeof(Dropdown))        return "Dropdown";
+
+            // Audio
+            if (t == typeof(AudioClip))       return "AudioClip";
+            if (t == typeof(AudioSource))     return "AudioSource";
+
+            // Misc Unity Types
+            if (t == typeof(AnimationCurve))  return "AnimationCurve";
+            if (t == typeof(Keyframe))        return "Keyframe";
+            if (t == typeof(Gradient))        return "Gradient";
+            if (t == typeof(LayerMask))       return "LayerMask";
+
+            // Fallback for generic objects
+            return t.Name;
+        }
+        #endregion
+
+
+
         /*#region URP
         public static ScriptableRenderer URP_GetActiveRenderer()
         {

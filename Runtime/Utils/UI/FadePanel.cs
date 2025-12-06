@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
-using SHUU.Utils.Helpers;
+using SHUU.Utils.Globals;
 
 namespace SHUU.Utils.UI
 {
@@ -17,7 +17,7 @@ namespace SHUU.Utils.UI
 
 
 
-        private ManageFades.FadeOptions fadeOptions;
+        private FadeManager.FadeOptions fadeOptions;
 
 
 
@@ -31,7 +31,7 @@ namespace SHUU.Utils.UI
 
 
 
-        public void NewFade(ManageFades.FadeOptions _fadeOptions)
+        public void NewFade(FadeManager.FadeOptions _fadeOptions)
         {
             if (currentFadeCoroutine != null)
             {
@@ -53,7 +53,7 @@ namespace SHUU.Utils.UI
             EnableSelf();
 
 
-            SHUU_Timer.Create(fadeOptions.start_delay, StartFade);
+            SHUU_GlobalsProxy.timerManager.Create(fadeOptions.start_delay, StartFade);
         }
 
         public void StartFade()
@@ -88,7 +88,7 @@ namespace SHUU.Utils.UI
                 fadeImage.enabled = false;
 
 
-            SHUU_Timer.Create(onComplete_delay, onComplete);
+            SHUU_GlobalsProxy.timerManager.Create(onComplete_delay, onComplete);
         }
     }
     

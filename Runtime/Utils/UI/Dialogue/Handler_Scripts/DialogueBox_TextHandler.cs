@@ -1,7 +1,4 @@
-using System;
-using SHUU.UserSide;
-using SHUU.Utils.Helpers;
-using TMPro;
+using SHUU.Utils.Globals;
 using UnityEngine;
 
 namespace SHUU.Utils.UI.Dialogue
@@ -29,6 +26,9 @@ namespace SHUU.Utils.UI.Dialogue
         private DialogueBox_NameDisplayHandler nameDisplayHandler;
         private DialogueBox_PortraitHandler portraitHandler;
         private DialogueBox_OptionsHandler optionsHandler;
+
+
+        private DialogueInputAddon input;
 
 
         private CharacterPortrait_Reference currentPortrait;
@@ -72,16 +72,20 @@ namespace SHUU.Utils.UI.Dialogue
             linePause = false;
 
 
-            CustomInputManager.AddNextLinePressedCallback(NextLine);
+            input = GetComponent<DialogueInputAddon>();
+        }
 
+        private void OnEnable()
+        {
+            input.nextLine_callback += NextLine;
 
             line_typewriterText.CompleteTextRevealed += EndLine;
             line_typewriterText.CompleteTextRevealed += optionsHandler.EndLine;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            CustomInputManager.RemoveNextLinePressedCallback(NextLine);
+            input.nextLine_callback -= NextLine;
             
 
             line_typewriterText.CompleteTextRevealed -= EndLine;
@@ -114,7 +118,7 @@ namespace SHUU.Utils.UI.Dialogue
             currentDialogue.endDialogueAction += optionsHandler.EndDialogue;
 
 
-            SHUU_Timer.CreateAt(this.transform, startDialogueDelay, DialogueStepLogic_Call);
+            SHUU_GlobalsProxy.timerManager.CreateAt(this.transform, startDialogueDelay, DialogueStepLogic_Call);
         }
         private void DialogueStepLogic()
         {
@@ -122,7 +126,7 @@ namespace SHUU.Utils.UI.Dialogue
             {
                 currentPortrait = portraitHandler.CharacterTalks(currentDialogue.allDialogueLines[currrentLineIndex].characterPortrait);
 
-                SHUU_Timer.CreateAt(this.transform, startLineDelay, DialogueStepLogic_Call);
+                SHUU_GlobalsProxy.timerManager.CreateAt(this.transform, startLineDelay, DialogueStepLogic_Call);
             }
         }
         private void DialogueStepLogic_Call()

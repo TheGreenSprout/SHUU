@@ -1,7 +1,12 @@
+using SHUU.Utils.UI.Dialogue;
 using UnityEngine;
 
 namespace SHUU.Utils.UI
 {
+    
+    [DisallowMultipleComponent]
+
+    [RequireComponent(typeof(DialogueInputAddon))]
     public class TWriter_Proxy : MonoBehaviour
     {
         [Header("References")]
@@ -26,8 +31,14 @@ namespace SHUU.Utils.UI
 
         private void Awake()
         {
+            DialogueInputAddon inputAddon = GetComponent<DialogueInputAddon>();
+
+            
             foreach (TypewriterText twriter in allTWriterScrs)
             {
+                twriter.input = inputAddon;
+
+
                 twriter.charactersPerSecond = charactersPerSecond;
 
                 twriter.interpunctuationDelay = interpunctuationDelay;

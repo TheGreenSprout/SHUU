@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
-using SHUU.Utils.Helpers;
+using SHUU.Utils.Globals;
 
 //! Convert this into a 1 RawImage System, aka make it not be instantiated and deleted but reused
 
@@ -80,7 +80,7 @@ namespace SHUU.Utils.UI
 
             _currentFadeCoroutine = null;
 
-            SHUU_Timer.Create(onComplete_delay, onComplete);
+            SHUU_GlobalsProxy.timerManager.Create(onComplete_delay, onComplete);
         }
     }
 

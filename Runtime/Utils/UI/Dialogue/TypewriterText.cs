@@ -6,8 +6,8 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using SHUU.Utils.Helpers;
-using SHUU.UserSide;
+using SHUU.Utils.Globals;
+using SHUU.Utils.UI.Dialogue;
 
 namespace SHUU.Utils.UI
 {
@@ -21,6 +21,9 @@ namespace SHUU.Utils.UI
     [RequireComponent(typeof(TMP_Text))]
     public class TypewriterText : MonoBehaviour
     {
+        [HideInInspector] public DialogueInputAddon input;
+
+
         private readonly char[] InterpunctuationChars = { '?', '.', ':', ';', '!' };
         private readonly char[] SemiInterpunctuationChars = { ',', '-' };
 
@@ -78,14 +81,16 @@ namespace SHUU.Utils.UI
             _textboxFullEventDelay = new WaitForSeconds(sendDoneDelay);
 
 
-            //CustomInputManager.AddSkipPressedCallback(Skip);
-            CustomInputManager.AddFastForwardPressedCallback(QuickWriting);
+
+            //input.skip_callback += Skip;
+            input.fastForard_callback += QuickWriting;
+            
         }
-        
+
         private void OnDestroy()
         {
-            //CustomInputManager.RemoveSkipPressedCallback(Skip);
-            CustomInputManager.RemoveFastForwardPressedCallback(QuickWriting);
+            //input.skip_callback -= Skip;
+            input.fastForard_callback -= QuickWriting;
         }
 
         private void OnEnable() => TMPro_EventManager.TEXT_CHANGED_EVENT.Add(PrepareForNewText);
@@ -251,7 +256,7 @@ namespace SHUU.Utils.UI
                 }
 
                 if (currentTextSounds != null)
-                    AudioManager.PlayRandomAudioAt(Camera.main.transform, currentTextSounds.sounds, new AudioManager.AudioOptions { volume = currentTextSounds.volume });
+                    SHUU_GlobalsProxy.audioManager.PlayRandomAudioAt(Camera.main.transform, currentTextSounds.sounds, new AudioManager.AudioOptions { volume = currentTextSounds.volume });
 
                 char character = textInfo.characterInfo[_currentVisibleCharacterIndex].character;
                 _textBox.maxVisibleCharacters++;
