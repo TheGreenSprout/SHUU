@@ -689,7 +689,59 @@ namespace SHUU.Utils.Helpers
 
         #endregion
     
-    
+        
+
+        #region Gizmos
+        public static void DrawCircle(Transform t, Vector2 offset, float radius, bool filled)
+        {
+            int segments = 32;
+            Vector3 center = t.TransformPoint(offset);
+
+            Vector3 prev = center + new Vector3(radius, 0, 0);
+
+            for (int i = 1; i <= segments; i++)
+            {
+                float angle = (float)i / segments * Mathf.PI * 2f;
+                Vector3 next = center + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
+
+                if (!filled)
+                    Gizmos.DrawLine(prev, next);
+                else
+                    Gizmos.DrawLine(center, next);
+
+                prev = next;
+            }
+        }
+
+        public static void DrawPolygon(Transform t, PolygonCollider2D poly, bool filled)
+        {
+            for (int p = 0; p < poly.pathCount; p++)
+            {
+                var path = poly.GetPath(p);
+
+                for (int i = 0; i < path.Length; i++)
+                {
+                    Vector3 a = t.TransformPoint(path[i]);
+                    Vector3 b = t.TransformPoint(path[(i + 1) % path.Length]);
+
+                    if (!filled)
+                        Gizmos.DrawLine(a, b);
+                    else
+                        Gizmos.DrawLine(t.TransformPoint(Vector2.zero), a);
+                }
+            }
+        }
+
+        public static void DrawCapsule(CapsuleCollider cap, bool filled)
+        {
+            // Draw as sphere + box (good enough for visualization)
+            Gizmos.DrawWireSphere(cap.center + Vector3.up * (cap.height * .5f - cap.radius), cap.radius);
+            Gizmos.DrawWireSphere(cap.center - Vector3.up * (cap.height * .5f - cap.radius), cap.radius);
+            Gizmos.DrawWireCube(cap.center, new Vector3(cap.radius * 2, cap.height - cap.radius * 2, cap.radius * 2));
+        }
+        #endregion
+
+
         
         #region Misc
         public static string GetTypeName(Type t)

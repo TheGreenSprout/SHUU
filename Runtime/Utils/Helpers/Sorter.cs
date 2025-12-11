@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SHUU.Utils.Helpers
 {
-    public static class SHUU_Sorter
+    public static class Sorter
     {
         private static bool CanBeSorted<E>(IList<E> list)
         {

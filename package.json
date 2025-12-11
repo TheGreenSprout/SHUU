@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.13.0",
+  "version": "2.14.0",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -17,6 +17,11 @@
       "displayName": "Sample Scenes & Utils",
       "description": "Examples of how to use the provided scripts and prefabs.",
       "path": "Samples~/SampleScenes&Utils"
+    },
+    {
+      "displayName": "Sample Dev Console Commands",
+      "description": "A set of sample useful commands for the developer console.",
+      "path": "Samples~/SampleDevConsoleCommands"
     }
   ]
 }

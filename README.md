@@ -18,8 +18,7 @@ Enjoy :D
 ***
 ⚠️ This package requires SHUU_UserSide.
 To install it:
-  - Download the SHUU_UserSide package and install it.
-  - https://github.com/TheGreenSprout/SHUU_UserSide/releases
+  - In the samples for this package (SHUU), install the one called "SHUU_UserSide"
 <br><br>
 
 ⚠️ This package requires Newtonsoft JSON and TextMeshPro.
@@ -51,7 +50,7 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.13.0
+### + Current Version: 2.14.0
 ### - Update Date: 27-11-2025
 ### - Creation Date: 24-03-2025
 ***

@@ -1,0 +1,21 @@
+WARNING
+
+When making devconsole commands, follow this structure:
+
+[DevConsoleCommand("command", "description")]
+public static (string[], Color?) ClearSet(parameters)
+{
+    
+}
+
+string[] are the output lines that will be displayed on the console,
+with Color? being the color of these lines (if left null the lines will be white)
+
+
+also, if you want an array of elements as a parameter, currently only "params" at the end of the parameters is supported:
+
+[DevConsoleCommand("command", "description")]
+public static (string[], Color?) ClearSet(int num1, int num2, params int[] numarray)
+{
+    
+}

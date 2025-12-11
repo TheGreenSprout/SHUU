@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.Audio;
 using SHUU.Utils.BaseScripts;
 
+//! Add object pooling option?
+
 namespace SHUU.Utils.Globals
 {
 
