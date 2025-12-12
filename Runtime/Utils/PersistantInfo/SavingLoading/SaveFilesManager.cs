@@ -9,7 +9,7 @@ using System.Linq;
 namespace SHUU.Utils.PersistantInfo.SavingLoading
 {
 
-    [RequireComponent(typeof(SingletonPersistance))]
+    [RequireComponent(typeof(SavingPersistance))]
     #region XML doc
     /// <summary>
     /// Script that manages all save files.
@@ -96,7 +96,7 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
 
 
             // Get (and load) all your DTO sinletons.
-            foreach (SingletonInfo singleton in gameObject.GetComponents<SingletonInfo>())
+            foreach (SavingInfo singleton in gameObject.GetComponents<SavingInfo>())
             {
                 DTO_Info dto = masterDTO.dataDictionary.FirstOrDefault(x => x.Value == singleton.identifier).Key;
                 
@@ -131,12 +131,12 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
             MasterDTO masterDTO = new MasterDTO();
 
 
-            SingletonPersistance singletonPersistance = GetComponent<SingletonPersistance>();
-            singletonPersistance.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());
+            SavingPersistance savingPersistance = GetComponent<SavingPersistance>();
+            savingPersistance.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());
             
             
             // Get (and save) all your DTO sinletons.
-            foreach (SingletonInfo singleton in gameObject.GetComponents<SingletonInfo>())
+            foreach (SavingInfo singleton in gameObject.GetComponents<SavingInfo>())
             {
                 masterDTO.dataDictionary.Add(singleton.ExportDTO(), singleton.identifier);
             }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using SHUU.UserSide;
-using SHUU.Utils.PersistantInfo;
+using SHUU.Utils.PersistantInfo.SavingLoading;
 using UnityEngine;
 
 namespace SHUU.Samples
@@ -11,7 +11,7 @@ namespace SHUU.Samples
 /// Example of how to create your own info singletons.
 /// </summary>
 #endregion
-public class ExampleSingleton : SingletonInfo
+public class ExampleSavingInfo : SavingInfo
 {
     [SerializeField] private Dictionary<int, bool> colorOfItems = new Dictionary<int, bool>();
 

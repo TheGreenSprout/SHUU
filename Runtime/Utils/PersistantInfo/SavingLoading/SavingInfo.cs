@@ -2,7 +2,7 @@ using UnityEngine;
 using SHUU.Utils.SceneManagement;
 using SHUU.UserSide;
 
-namespace SHUU.Utils.PersistantInfo
+namespace SHUU.Utils.PersistantInfo.SavingLoading
 {
 
 [RequireComponent(typeof(SingletonPersistance))]
@@ -11,7 +11,7 @@ namespace SHUU.Utils.PersistantInfo
 /// Parent of all Singleton persistance scripts.
 /// </summary>
 #endregion
-public class SingletonInfo : SceneSensitiveScript, IfaceSingletonInfo
+public class SavingInfo : SceneSensitiveScript, IfaceSavingInfo
 {
     public string identifier = "SingletonName";
     

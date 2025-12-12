@@ -40,7 +40,7 @@ namespace SHUU.Utils.Globals
         #endregion
         public void SaveSingletonInfo()
         {
-            Persistant_Globals.sigletonInfo.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());
+            Persistant_Globals.savingInfo.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());
         }
         #region XML doc
         /// <summary>
@@ -59,7 +59,7 @@ namespace SHUU.Utils.Globals
         #endregion
         public void LoadSingletonInfo()
         {
-            Persistant_Globals.sigletonInfo.LoadAllSingletonInfo(SceneLoader.GetCurrentSceneName());
+            Persistant_Globals.savingInfo.LoadAllSingletonInfo(SceneLoader.GetCurrentSceneName());
         }
         #region XML doc
         /// <summary>

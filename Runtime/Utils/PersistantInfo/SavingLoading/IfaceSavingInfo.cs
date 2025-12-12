@@ -1,7 +1,7 @@
 using SHUU.UserSide;
 
 
-namespace SHUU.Utils.PersistantInfo
+namespace SHUU.Utils.PersistantInfo.SavingLoading
 {
 
 #region XML doc
@@ -9,7 +9,7 @@ namespace SHUU.Utils.PersistantInfo
 /// Interface implemented by all Singleton persistance scripts.
 /// </summary>
 #endregion
-public interface IfaceSingletonInfo
+public interface IfaceSavingInfo
 {
     #region XML doc
     /// <summary>
