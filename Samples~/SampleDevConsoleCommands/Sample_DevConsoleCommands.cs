@@ -1,6 +1,8 @@
 using SHUU.UserSide;
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
+using SHUU.Utils.PersistantInfo.General;
+using System.Reflection;
 using UnityEngine;
 
 public class Sample_DevConsoleCommands : MonoBehaviour
@@ -71,6 +73,49 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
         return (new string[] { "Timescale paused/unpaused (toggle)" }, null);
+    }
+
+
+
+    [DevConsoleCommand("setsettings", "Sets a field on the global settings data")]
+    public static (string[], Color?) TrySetSettingsValue(string fieldName, MutableParameter value)
+    {
+        (string[], Color?) returnVal = (null, null);
+
+
+        if (value.TryGetValue<bool>(out bool b)) returnVal = TrySetFieldValue<bool>(fieldName, b);
+        else if (value.TryGetValue<int>(out int i)) returnVal = TrySetFieldValue<int>(fieldName, i);
+        else if (value.TryGetValue<float>(out float f)) returnVal = TrySetFieldValue<float>(fieldName, f);
+        else if (value.TryGetValue<string>(out string s)) returnVal = TrySetFieldValue<string>(fieldName, s);
+        else if (value.TryGetValue<char>(out char c)) returnVal = TrySetFieldValue<char>(fieldName, c);
+        else returnVal = (new string[] { "Unsupported value type" }, Color.red);
+
+
+        return returnVal;
+    }
+
+
+    public static (string[], Color?) TrySetFieldValue<T>(string fieldName, T value)
+    {
+        SettingsData target = SettingsTracker.settings;
+
+        FieldInfo field = target.GetType().GetField(
+            fieldName,
+            BindingFlags.Instance | BindingFlags.Public
+        );
+
+        if (field == null)
+        {
+            return (new string[] { $"Field '{fieldName}' not found on {target.name}" }, Color.red);
+        }
+
+        if (!field.FieldType.IsAssignableFrom(typeof(T)))
+        {
+            return (new string[] { $"Type mismatch. Field '{fieldName}' is {field.FieldType}, tried to assign {typeof(T)}" }, Color.red);
+        }
+
+        field.SetValue(target, value);
+        return (new string[] { $"Field '{fieldName}' set successfully to {value}" }, null);
     }
 
 
