@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.14.2",
+  "version": "2.15.0",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -14,14 +14,29 @@
   },
   "samples": [
     {
-      "displayName": "Sample Scenes & Utils",
-      "description": "Examples of how to use the provided scripts and prefabs.",
-      "path": "Samples~/SampleScenes&Utils"
+      "displayName": "UserSide (Required)",
+      "description": "A set of scripts required for SHUU that the user can modify.",
+      "path": "Samples~/SHUU_UserSide"
+    },
+    {
+      "displayName": "Sample Input System Binding Maps",
+      "description": "A set of simple input binding maps.",
+      "path": "Samples~/SampleInputSystemBindingMaps"
     },
     {
       "displayName": "Sample Dev Console Commands",
       "description": "A set of sample useful commands for the developer console.",
       "path": "Samples~/SampleDevConsoleCommands"
+    },
+    {
+      "displayName": "Dev Console & Input System",
+      "description": "Prefabs and scripts that implement the input system onto the developer console (commands included).",
+      "path": "Samples~/DevConsole&InputSystem"
+    },
+    {
+      "displayName": "Sample Scenes & Utils",
+      "description": "Examples of how to use the provided scripts and prefabs.",
+      "path": "Samples~/SampleScenes&Utils"
     }
   ]
 }

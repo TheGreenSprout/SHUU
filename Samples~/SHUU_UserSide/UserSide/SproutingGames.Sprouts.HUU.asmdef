@@ -1,0 +1,21 @@
+{
+    "name": "SproutingGames.Sprouts.HUU.UserSide",
+    "rootNamespace": "SHUU.UserSide",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9",
+        "GUID:df380645f10b7bc4b97d4f5eb6303d95",
+        "GUID:3fa6bc7a02d93594296de95fff8cc78a",
+        "GUID:853a10fe68edd994d9115ec00a708d26"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

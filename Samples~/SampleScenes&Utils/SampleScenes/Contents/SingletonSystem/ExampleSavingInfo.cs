@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using SHUU.UserSide;
+using SHUU.UserSide.Commons;
 using SHUU.Utils.PersistantInfo.SavingLoading;
 using UnityEngine;
 

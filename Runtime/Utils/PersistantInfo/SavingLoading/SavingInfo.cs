@@ -1,6 +1,6 @@
 using UnityEngine;
 using SHUU.Utils.SceneManagement;
-using SHUU.UserSide;
+using SHUU.UserSide.Commons;
 
 namespace SHUU.Utils.PersistantInfo.SavingLoading
 {

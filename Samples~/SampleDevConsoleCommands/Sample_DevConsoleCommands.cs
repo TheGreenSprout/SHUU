@@ -1,12 +1,92 @@
-using SHUU.UserSide;
+using SHUU.UserSide.Commons;
+using SHUU.Utils.Developer.Console;
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
 using SHUU.Utils.PersistantInfo.General;
+using System;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
 public class Sample_DevConsoleCommands : MonoBehaviour
 {
+    [DevConsoleCommand("help", "Lists all commands")]
+    public static (string[], Color?) Help()
+    {
+        var cmds = DevCommandRegistry.AllCommands();
+        if (!cmds.Any()) return (new string[] { "No commands registered." }, Color.red);
+
+
+        string[] commandList = new string[cmds.Count()];
+        int i = 0;
+
+        foreach (var (name, info) in cmds)
+        {
+            var parameters = info.Method.GetParameters();
+            
+            string paramString = parameters.Length == 0
+                ? ""
+                : " (" + string.Join(", ", parameters.Select((p, index) =>
+                {
+                    bool isParams = Attribute.IsDefined(p, typeof(ParamArrayAttribute));
+
+                    if (isParams)
+                    {
+                        Type elemType = p.ParameterType.GetElementType();
+                        return $"params {ParseParameter(elemType)}[]";
+                    }
+
+                    return ParseParameter(p.ParameterType);
+
+                })) + ")";
+
+            commandList[i] = $"{name}{paramString} - {info.Description}";
+            i++;
+        }
+
+        return (commandList, null);
+    }
+
+    private static string ParseParameter(Type t)
+    {
+        // Detect OptionalParameter<T>
+        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(OptionalParameter<>))
+        {
+            Type inner = t.GetGenericArguments()[0];
+            return "~" + ParseParameter(inner);
+        }
+
+
+        // Primitive C# types
+        if (t == typeof(bool))       return "bool";
+        if (t == typeof(byte))       return "byte";
+        if (t == typeof(sbyte))      return "sbyte";
+        if (t == typeof(short))      return "short";
+        if (t == typeof(ushort))     return "ushort";
+        if (t == typeof(int))        return "int";
+        if (t == typeof(uint))       return "uint";
+        if (t == typeof(long))       return "long";
+        if (t == typeof(ulong))      return "ulong";
+        if (t == typeof(float))      return "float";
+        if (t == typeof(double))     return "double";
+        if (t == typeof(decimal))    return "decimal";
+        if (t == typeof(char))       return "char";
+        if (t == typeof(string))     return "string";
+        if (t == typeof(MutableParameter))     return "mutable";
+
+        else return null;
+    }
+
+
+
+    /*[DevConsoleCommand("bindcommand", "Binds a Dev Console command to a keycode")]
+    public static (string[], Color?) BindCommand(string key, params string[] commandInfo)
+    {
+        
+    }*/
+
+
+
     [DevConsoleCommand("loadscene", "Changes the scene to the specified scene name")]
     public static (string[], Color?) Save(string sceneName)
     {

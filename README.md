@@ -18,7 +18,7 @@ Enjoy :D
 ***
 ⚠️ This package requires SHUU_UserSide.
 To install it:
-  - In the samples for this package (SHUU), install the one called "SHUU_UserSide"
+  - In the samples for this package (SHUU), install the one called "SHUU_UserSide (Required)"
 <br><br>
 
 ⚠️ This package requires Newtonsoft JSON and TextMeshPro.
@@ -32,7 +32,8 @@ To install it:
 <br><br>
 
 ️️⚠️ For a bunch of the implemented systems to work, you'll need a few objects/scripts in every scene:
-    - In your assets folder go to [SHUU > ForUser > Prefabs > PlaceOnEveryScene]
+    - In your assets folder go to [SHUU_Userside > Prefabs > PlaceOnEveryScene > OnEveryScene]
+    - If you are using the custom input system (classic or otherwise), use the OnEveryScene present in their respective folders.
     - There you will find a "OnEveryScene" prefab. Place it on every scene
     - Feel free to modify some of the values that appear on these scripts (in the inspector window), they are made to be customized
 <br><br>
@@ -50,8 +51,8 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.14.2
-### - Update Date: 27-11-2025
+### + Current Version: 2.15.0
+### - Update Date: 15-12-2025
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>

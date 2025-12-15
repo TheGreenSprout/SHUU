@@ -12,7 +12,7 @@ using SHUU.Utils.UI;
 using UnityEngine;
 using UnityEditor;
 
-namespace SHUU.Editor
+namespace SHUU.Editor.Drawers
 {
     [CustomPropertyDrawer(typeof(SHUU_Gradient.GradientType), true)]
     public class Gradient_Drawer : PropertyDrawer

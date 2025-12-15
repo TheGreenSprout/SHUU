@@ -3,7 +3,7 @@ using System.IO;
 using UnityEngine;
 using Newtonsoft.Json;
 using SHUU.Utils.SceneManagement;
-using SHUU.UserSide;
+using SHUU.UserSide.Commons;
 using System.Linq;
 
 namespace SHUU.Utils.PersistantInfo.SavingLoading

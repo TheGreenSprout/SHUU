@@ -23,7 +23,7 @@ public class InteractionRaycast : MonoBehaviour
 
     private void OnEnable()
     {
-        CustomInputManager.AddInteractPressedCallback(OnInteractionPressed);
+        //CustomInputManager.AddInteractPressedCallback(OnInteractionPressed);
 
 
         previousInact = null;
@@ -31,7 +31,7 @@ public class InteractionRaycast : MonoBehaviour
 
     private void OnDisable()
     {
-        CustomInputManager.RemoveInteractPressedCallback(OnInteractionPressed);
+        //CustomInputManager.RemoveInteractPressedCallback(OnInteractionPressed);
     }
 
 

@@ -19,3 +19,22 @@ public static (string[], Color?) ClearSet(int num1, int num2, params int[] numar
 {
     
 }
+
+
+theres also 2 custom parameter types: OptionalParameter<T> and MutableParameter
+
+[DevConsoleCommand("command", "description")]
+public static (string[], Color?) ClearSet(OptionalParameter<float> optional, MutableParameter mutable)
+{
+    // OPTIONAL
+    if (!optional.TryGetValue(out float _optional)) // method handles _optional;
+
+
+    // MUTABLE
+    if (mutable.TryGetValue<bool>(out bool b)) ;
+    else if (mutable.TryGetValue<int>(out int i)) ;
+    else if (mutable.TryGetValue<float>(out float f)) ;
+    else if (mutable.TryGetValue<string>(out string s)) ;
+    else if (mutable.TryGetValue<char>(out char c)) returnVal = ;
+    else returnVal = (new string[] { "Unsupported value type" }, Color.red);
+}

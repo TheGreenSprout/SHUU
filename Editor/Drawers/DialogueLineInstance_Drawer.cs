@@ -12,7 +12,7 @@ using UnityEngine;
 using SHUU.Utils.UI.Dialogue;
 using System;
 
-namespace SHUU.Editor
+namespace SHUU.Editor.Drawers
 {
     [CustomPropertyDrawer(typeof(DialogueLineInstance))]
     public class DialogueLineInstance_Drawer : PropertyDrawer
