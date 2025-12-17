@@ -31,6 +31,7 @@ namespace SHUU.Utils.Globals
             public bool loop { get; set; } = false;
             public bool deleteWhenFinished { get; set; } = true;
 
+            public GameObject prefab = null;
             public AudioMixer mixer = null;
         }
         
@@ -71,9 +72,17 @@ namespace SHUU.Utils.Globals
                 audioOptions = new AudioOptions();
             }
         
+            
+            AudioSource theSource = null;
+            if (audioOptions.prefab != null) theSource = Instantiate(audioOptions.prefab, pos).GetComponent<AudioSource>();
+            else if (audioInstance != null) theSource = Instantiate(audioInstance, pos).GetComponent<AudioSource>();
+            else
+            {
+                Debug.LogError("No audio prefab assigned to AudioManager or AudioOptions!");
 
-            AudioSource theSource = Instantiate(audioInstance, pos).GetComponent<AudioSource>();
-
+                return null;
+            }
+            
 
             theSource.clip = audio;
             if (audioOptions.mixer != null) theSource.outputAudioMixerGroup = audioOptions.mixer.outputAudioMixerGroup;

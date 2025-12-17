@@ -19,4 +19,12 @@ MonoBehaviour:
     set:
       valid_keyBinds: 340100001b010000
       valid_mouseBinds: 
+  - name: PreviousCommand
+    set:
+      valid_keyBinds: 11010000
+      valid_mouseBinds: 
+  - name: NextCommand
+    set:
+      valid_keyBinds: 12010000
+      valid_mouseBinds: 
   compositeSets_list: []

@@ -14,7 +14,7 @@ namespace SHUU.Utils.PersistantInfo.General
 {
     public class SettingsTracker : MonoBehaviour
     {
-        private static string settingsPath => Path.Combine(Application.persistentDataPath, "game_settings" + ".json");
+        private static string filePath => Path.Combine(Application.persistentDataPath, "game_settings" + ".json");
 
 
 
@@ -33,7 +33,7 @@ namespace SHUU.Utils.PersistantInfo.General
         }
 
 
-        private void OnDestroy()
+        private void OnApplicationQuit()
         {
             Save();
         }
@@ -42,6 +42,7 @@ namespace SHUU.Utils.PersistantInfo.General
 
         public void Save()
         {
+            #if !UNITY_EDITOR
             if (settings == null)
             {
                 Debug.LogWarning("GameSettings reference missing.");
@@ -52,35 +53,38 @@ namespace SHUU.Utils.PersistantInfo.General
 
             try
             {
-                File.WriteAllText(settingsPath, json);
+                File.WriteAllText(filePath, json);
             }
             catch (System.Exception ex)
             {
                 Debug.LogError($"Failed to save settings: {ex}");
             }
+            #endif
         }
 
 
         public void Load()
         {
+            #if !UNITY_EDITOR
             if (settings == null)
             {
                 Debug.LogWarning("GameSettings reference missing.");
                 return;
             }
 
-            if (!File.Exists(settingsPath))
+            if (!File.Exists(filePath))
                 return;
 
             try
             {
-                string json = File.ReadAllText(settingsPath);
+                string json = File.ReadAllText(filePath);
                 JsonUtility.FromJsonOverwrite(json, settings);
             }
             catch (System.Exception ex)
             {
                 Debug.LogError($"Failed to load settings: {ex}");
             }
+            #endif
         }
     }
 }

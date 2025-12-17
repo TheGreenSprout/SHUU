@@ -2,6 +2,7 @@ using SHUU.UserSide.Commons;
 using SHUU.Utils.Developer.Console;
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
+using SHUU.Utils.InputSystem;
 using SHUU.Utils.PersistantInfo.General;
 using System;
 using System.Linq;
@@ -136,6 +137,24 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     }
 
 
+    [DevConsoleCommand("saveprefs", "Saves all player prefs")]
+    public static (string[], Color?) SavePlayerPrefs()
+    {
+        PlayerPrefs.Save();
+
+
+        return (new string[] { "PlayerPrefs saved successfully" }, null);
+    }
+
+    [DevConsoleCommand("deleteprefs", "Deletes all player prefs")]
+    public static (string[], Color?) DeletePlayerPrefs()
+    {
+        PlayerPrefs.DeleteAll();
+
+        return (new string[] { "PlayerPrefs deleted successfully" }, null);
+    }
+
+
 
     [DevConsoleCommand("timescale", "Sets the game's timescale to the specified value")]
     public static (string[], Color?) SetTimeScale(float timeScale)
@@ -262,7 +281,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("pools", "Displays all object pool information")]
     public static (string[], Color?) ShowPools()
     {
-        if (ObjectPooling.pools.Count == 0) return (new string[] { "No object pools found." }, Color.yellow);
+        if (ObjectPooling.pools.Count == 0) return (new string[] { "No object pools found" }, Color.yellow);
 
 
         string[] lines = new string[ObjectPooling.pools.Count + 1];
@@ -277,5 +296,33 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
         return (lines, null);
+    }
+
+
+
+    [DevConsoleCommand("bindcommand", "Binds a Dev Console command to a keycode or mouse button")]
+    public static (string[], Color?) BindCommand(string _input, params string[] commandData)
+    {
+        (KeyCode?, int?) input = InputParser.ParseInput(_input);
+        if (input == (null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
+
+
+        BoundCommands.BindCommand(input, commandData);
+
+
+        return (new string[] { $"Command bound to {_input} successfully" }, null);
+    }
+
+    [DevConsoleCommand("unbindcommands", "Unbinds all Dev Console commands previously bound to a keycode or mouse button")]
+    public static (string[], Color?) UnBindCommands(string _input)
+    {
+        (KeyCode?, int?) input = InputParser.ParseInput(_input);
+        if (input == (null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
+
+
+        BoundCommands.UnBindCommands(input);
+
+
+        return (new string[] { $"All commands unbound from {_input} successfully" }, null);
     }
 }

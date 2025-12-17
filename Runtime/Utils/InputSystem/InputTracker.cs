@@ -20,7 +20,7 @@ namespace SHUU.Utils.InputSystem
 
         public List<InputBindingMap> mapsToSave = new List<InputBindingMap>();
 
-        private static string FilePath => Path.Combine(Application.persistentDataPath, "input_bindings.json");
+        private static string filePath => Path.Combine(Application.persistentDataPath, "input_bindings.json");
 
         [System.Serializable]
         private class MapsDataWrapper
@@ -35,7 +35,7 @@ namespace SHUU.Utils.InputSystem
             BuildDictionary();
         }
 
-        void OnDestroy()
+        void OnApplicationQuit()
         {
             SaveAll();
         }
@@ -76,6 +76,7 @@ namespace SHUU.Utils.InputSystem
         // ---------------- SAVE ----------------
         public void SaveAll()
         {
+            #if !UNITY_EDITOR
             MapsDataWrapper wrapper = new MapsDataWrapper();
 
             foreach (var map in mapsToSave)
@@ -88,23 +89,25 @@ namespace SHUU.Utils.InputSystem
 
             try
             {
-                File.WriteAllText(FilePath, json);
+                File.WriteAllText(filePath, json);
             }
             catch (System.Exception ex)
             {
                 Debug.LogError("Failed to save input bindings: " + ex);
             }
+            #endif
         }
 
         // ---------------- LOAD ----------------
         public void LoadAll()
         {
-            if (!File.Exists(FilePath))
+            #if !UNITY_EDITOR
+            if (!File.Exists(filePath))
                 return;
 
             try
             {
-                string json = File.ReadAllText(FilePath);
+                string json = File.ReadAllText(filePath);
                 MapsDataWrapper wrapper = JsonUtility.FromJson<MapsDataWrapper>(json);
 
                 foreach (var map in mapsToSave)
@@ -126,6 +129,7 @@ namespace SHUU.Utils.InputSystem
             {
                 Debug.LogError("Failed to load input bindings: " + ex);
             }
+            #endif
         }
     }
 }

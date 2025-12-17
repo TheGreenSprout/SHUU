@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SHUU.Utils.Helpers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,17 +10,11 @@ namespace SHUU.Utils.Developer.Console
     public class DevConsoleUI : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private DevConsoleManager controller;
+        private DevConsoleManager controller;
 
-        [SerializeField] private GameObject logLinePrefab;
-        [SerializeField] private Transform logLineContainer;
         [SerializeField] private TMP_InputField inputField;
         [SerializeField] private ScrollRect scrollRect;
-
-
-        [Header("Keys")]
-        [SerializeField] private KeyCode previousCommand = KeyCode.UpArrow;
-        [SerializeField] private KeyCode nextCommand = KeyCode.DownArrow;
+        [SerializeField] private TMP_Text outputText;
 
 
 
@@ -34,10 +29,23 @@ namespace SHUU.Utils.Developer.Console
 
         private void Awake()
         {
+            controller = HandyFunctions.SearchComponent_InSelfAndParents<DevConsoleManager>(this.transform);
+
             inputField.onSubmit.AddListener(SubmitCommand);
 
 
             previousCommands = new List<string>();
+        }
+
+        private void OnEnable()
+        {
+            controller.input.previousCommand += PreviousCommand;
+            controller.input.nextCommand += NextCommand;
+        }
+        private void OnDisable()
+        {
+            controller.input.previousCommand -= PreviousCommand;
+            controller.input.nextCommand -= NextCommand;
         }
 
 
@@ -56,29 +64,32 @@ namespace SHUU.Utils.Developer.Console
         private void Update()
         {
             if (previousCommands.Count == 0) return;
+        }
 
+        private void PreviousCommand()
+        {
+            if (previousCommands.Count == 0) return;
 
-            if (Input.GetKeyDown(previousCommand))
+            if (previousCommandIndex < previousCommands.Count - 1)
             {
-                if (previousCommandIndex < previousCommands.Count - 1)
-                {
-                    previousCommandIndex++;
-                    inputField.text = previousCommands[previousCommands.Count - 1 - previousCommandIndex];
-                    inputField.caretPosition = inputField.text.Length;
-                }
+                previousCommandIndex++;
+                inputField.text = previousCommands[previousCommands.Count - 1 - previousCommandIndex];
+                inputField.caretPosition = inputField.text.Length;
             }
-            if (Input.GetKeyDown(nextCommand))
+        }
+        private void NextCommand()
+        {
+            if (previousCommands.Count == 0) return;
+
+            if (previousCommandIndex > 0)
             {
-                if (previousCommandIndex > 0)
-                {
-                    previousCommandIndex--;
-                    inputField.text = previousCommands[previousCommands.Count - 1 - previousCommandIndex];
-                    inputField.caretPosition = inputField.text.Length;
-                }
-                else
-                {
-                    ResetPreviousCommandIndex();
-                }
+                previousCommandIndex--;
+                inputField.text = previousCommands[previousCommands.Count - 1 - previousCommandIndex];
+                inputField.caretPosition = inputField.text.Length;
+            }
+            else
+            {
+                ResetPreviousCommandIndex();
             }
         }
 
@@ -116,12 +127,11 @@ namespace SHUU.Utils.Developer.Console
 
         public void Print(string message, Color? textColor = null)
         {
-            if (textColor == null) textColor = Color.white;
+            (string, string) colortag = ("", "");
+            if (textColor != null) colortag = ("<color=#" + ColorUtility.ToHtmlStringRGBA(textColor.Value) + ">", "</color>");
 
-            GameObject newLine = Instantiate(logLinePrefab, logLineContainer);
 
-            LogLine logLine = newLine.GetComponent<LogLine>();
-            logLine.Setup(message, textColor.Value);
+            outputText.text += $"{colortag.Item1}{message}{colortag.Item2}\n";
 
             
             Canvas.ForceUpdateCanvases();

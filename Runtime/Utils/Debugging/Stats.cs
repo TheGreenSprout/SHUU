@@ -45,7 +45,17 @@ namespace SHUU.Utils.Developer.Debugging
         public static string gpu => SystemInfo.graphicsDeviceName;
         public static int gpumemory => SystemInfo.graphicsMemorySize;
         public static string os => SystemInfo.operatingSystem;
-        public static double refreshrate => Screen.currentResolution.refreshRateRatio.value;
+        public static double refreshrate
+        {
+            get
+            {
+                #if UNITY_2021_2_OR_NEWER
+                return Screen.currentResolution.refreshRateRatio.value;
+                #else
+                return Screen.currentResolution.refreshRate;
+                #endif
+            }
+        }
 
 
         // Time Stats

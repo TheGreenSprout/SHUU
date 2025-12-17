@@ -136,14 +136,14 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-    [RequireComponent(typeof(ToggleDevConsole))]
+    [RequireComponent(typeof(DevConsoleInput))]
     public class DevConsoleManager : MonoBehaviour
     {
         public static DevConsoleManager instance;
 
 
-        public static bool devConsole_On => instance.toggleDevConsole.devConsole_On;
-        public static bool canToggle_devConsole => instance.toggleDevConsole.canToggle_devConsole;
+        public static bool devConsole_On => instance.input.devConsole_On;
+        public static bool canToggle_devConsole => instance.input.canToggle_devConsole;
 
 
 
@@ -154,7 +154,7 @@ namespace SHUU.Utils.Developer.Console
         [SerializeField] private DevConsoleUI devConsoleUI;
 
 
-        [HideInInspector] public ToggleDevConsole toggleDevConsole;
+        [HideInInspector] public DevConsoleInput input;
 
 
 
@@ -167,15 +167,15 @@ namespace SHUU.Utils.Developer.Console
             DevCommandRegistry.RegisterCommands();
 
 
-            toggleDevConsole = GetComponent<ToggleDevConsole>();
+            input = GetComponent<DevConsoleInput>();
 
-            toggleDevConsole.toggle += devConsoleUI.Toggle;
+            input.toggle += devConsoleUI.Toggle;
         }
 
 
         private void OnDestroy()
         {
-            toggleDevConsole.toggle -= devConsoleUI.Toggle;
+            input.toggle -= devConsoleUI.Toggle;
         }
 
 

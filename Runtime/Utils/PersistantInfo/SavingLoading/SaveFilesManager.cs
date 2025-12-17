@@ -45,13 +45,10 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
 
         void OnApplicationQuit()
         {
-            //PlayerPrefs.Save();
+            PlayerPrefs.Save();
             
             
-            if (autoSaveWhenClosing)
-            {
-                SaveJsonInfo();
-            }
+            if (autoSaveWhenClosing) SaveJsonInfo();
         }
 
 

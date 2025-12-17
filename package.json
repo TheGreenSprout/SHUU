@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.15.0",
+  "version": "2.15.2",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -14,7 +14,7 @@
   },
   "samples": [
     {
-      "displayName": "UserSide (Required)",
+      "displayName": "SHUU_UserSide (Required)",
       "description": "A set of scripts required for SHUU that the user can modify.",
       "path": "Samples~/SHUU_UserSide"
     },

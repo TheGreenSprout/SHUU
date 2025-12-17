@@ -595,6 +595,22 @@ namespace SHUU.Utils.InputSystem
 
             return (null, null);
         }
+
+
+        public static InputBindingMap RetrieveBindingMap(string name)
+        {
+            InputBindingMap _map = null;
+
+            foreach (InputBindingMap map in InputTracker.allInputBindingMaps.Values)
+            {
+                if (map.mapName.ToLower() == name.ToLower())
+                {
+                    _map = map;
+                }
+            }
+
+            return _map;
+        }
         #endregion
     }
 

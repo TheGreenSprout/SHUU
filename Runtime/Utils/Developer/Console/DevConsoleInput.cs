@@ -4,13 +4,16 @@ using UnityEngine;
 namespace SHUU.Utils.Developer.Console
 {
 
-    public class ToggleDevConsole : MonoBehaviour
+    public class DevConsoleInput : MonoBehaviour
     {
         public bool devConsole_On = false;
         public bool canToggle_devConsole = false;
 
 
         [HideInInspector] public Action toggle;
+
+        [HideInInspector] public Action previousCommand;
+        [HideInInspector] public Action nextCommand;
 
 
 
@@ -31,6 +34,15 @@ namespace SHUU.Utils.Developer.Console
             devConsole_On = !devConsole_On;
 
             toggle?.Invoke();
+        }
+
+        protected void PreviousCommand()
+        {
+            previousCommand?.Invoke();
+        }
+        protected void NextCommand()
+        {
+            nextCommand?.Invoke();
         }
     }
     
