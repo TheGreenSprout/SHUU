@@ -26,10 +26,12 @@ namespace SHUU.Utils.PersistantInfo
 
         [Tooltip("If set  to 0 or more, after that ammount of scene changes, on the next scene change the object will be destroyed.")]
         [SerializeField] private int bridges = -1;
+        [Tooltip("These scenes won't cost a bridge to enter.")]
+        [SerializeField] private List<string> bridgeFree_Scenes = new List<string>() {"Loading"};
 
 
         [Tooltip("If the singleton enters one of these scenes it will be deleted.")]
-        [SerializeField] private List<string> bannedScenes = new List<string>();
+        [SerializeField] private List<string> banned_Scenes = new List<string>();
 
 
 
@@ -84,7 +86,7 @@ namespace SHUU.Utils.PersistantInfo
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (bannedScenes.Contains(SceneLoader.GetCurrentSceneName()))
+            if (banned_Scenes.Contains(SceneLoader.GetCurrentSceneName()))
             {
                 Destroy(gameObject);
 
@@ -96,7 +98,7 @@ namespace SHUU.Utils.PersistantInfo
             {
                 if (bridges == 0) Destroy(gameObject);
                 
-                bridges--;
+                if (!bridgeFree_Scenes.Contains(SceneLoader.GetCurrentSceneName())) bridges--;
             }
         }
     }
