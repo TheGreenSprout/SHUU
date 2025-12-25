@@ -49,7 +49,7 @@ namespace SHUU.Utils.Developer.Debugging
         {
             get
             {
-                #if UNITY_2021_2_OR_NEWER
+                #if UNITY_2022_2_OR_NEWER
                 return Screen.currentResolution.refreshRateRatio.value;
                 #else
                 return Screen.currentResolution.refreshRate;

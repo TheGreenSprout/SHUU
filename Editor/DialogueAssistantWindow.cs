@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-public class DialogueAssistantWindow : EditorWindow
+/*public class DialogueAssistantWindow : EditorWindow
 {
     private GUIStyle titleStyle;
 
@@ -55,4 +55,4 @@ public class DialogueAssistantWindow : EditorWindow
 
         GUILayout.EndVertical();
     }
-}
+}*/

@@ -66,10 +66,14 @@ namespace SHUU.Utils.Globals
         /// Starts the process to travel to a different scene.
         /// </summary>
         /// <param name="sceneName">Name of the scene to go to.</param>
+        /// <param name="fade">Whether to fade in when leaving the scene. If null, uses the default setting.</param>
         #endregion
-        public void GoToScene(string sceneName)
+        public void GoToScene(string sceneName, bool? fade = null)
         {
-            if (fadeInAtSceneRoomLeave)
+            if (fade == null) fade = fadeInAtSceneRoomLeave;
+
+
+            if (fade.Value)
             {
                 FadeManager.FadeOptions fadeOptions = new FadeManager.FadeOptions
                 {
@@ -78,7 +82,8 @@ namespace SHUU.Utils.Globals
                     end_Action = () =>
                     {
                         SceneLoader.Load(sceneName);
-                    }
+                    },
+                    clearOnEnd = false
                 };
 
                 SHUU_GlobalsProxy.fadeManager.CreateFade_Out(fadeOptions);
@@ -90,6 +95,11 @@ namespace SHUU.Utils.Globals
 
 
             SHUU_GlobalsProxy.savingSystemManager.OnRoomChange();
+        }
+
+        public void ReloadScene(bool? fade = null)
+        {
+            GoToScene(SceneLoader.GetCurrentSceneName(), fade);
         }
         
         

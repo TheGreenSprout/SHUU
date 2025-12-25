@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Player_Bindings
   m_EditorClassIdentifier: 
   mapName: Player
-  enabled: 0
+  enabled: 1
   inputSets_list:
   - name: Run
     set:

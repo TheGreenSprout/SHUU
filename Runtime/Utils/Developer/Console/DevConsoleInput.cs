@@ -4,6 +4,7 @@ using UnityEngine;
 namespace SHUU.Utils.Developer.Console
 {
 
+    
     public class DevConsoleInput : MonoBehaviour
     {
         public bool devConsole_On = false;

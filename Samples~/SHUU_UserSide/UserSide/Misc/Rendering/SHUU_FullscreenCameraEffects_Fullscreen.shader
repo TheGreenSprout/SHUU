@@ -77,19 +77,9 @@ Shader "Custom/SHUU_FullscreenCameraEffects_Fullscreen"
                 // --- Pixelation ---
                 if (_EnablePixelate > 0.5)
                 {
-                    float2 screen = float2(_ScreenParams.x, _ScreenParams.y);
-
-                    // Compute block count as integers (floor ensures full blocks)
-                    float2 blockCount = floor(screen / _PixelBlockSize);
-                    blockCount = max(blockCount, 1.0); // prevent division by zero
-
-                    // Compute block size in UV space
-                    float2 blockSize = 1.0 / blockCount;
-                    float2 halfBlockSize = blockSize * 0.5;
-
-                    // Snap UVs to the **center of each block**
-                    float2 blockPos = floor(uv * blockCount);
-                    uv = blockPos * blockSize + halfBlockSize;
+                    float2 pixelPos = i.uv * _ScreenParams.xy;
+                    pixelPos = floor(pixelPos / _PixelBlockSize) * _PixelBlockSize;
+                    uv = (pixelPos + (_PixelBlockSize * 0.5)) / _ScreenParams.xy;
                 }
 
                 float4 col = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_BlitTexture, uv);

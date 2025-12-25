@@ -180,7 +180,11 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-        public bool ProcessInput(string input)
+        public static bool ProcessConsoleInput(string input, (string[], Color?)? printOutput = null)
+        {
+            return instance.ProcessInput(input, printOutput);
+        }
+        public bool ProcessInput(string input, (string[], Color?)? printOutput = null)
         {
             if (string.IsNullOrWhiteSpace(input)) return false;
 

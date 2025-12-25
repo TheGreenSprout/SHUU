@@ -46,9 +46,12 @@ namespace SHUU.Utils.UI
             fadeImage.color = fadeOptions.startColor.Value;
 
 
-            fadeOptions.end_Action += DisableSelf;
-            fadeOptions.end_Action += () => currentFadeCoroutine = null;
-
+            if (fadeOptions.clearOnEnd)
+            {
+               fadeOptions.end_Action += DisableSelf;
+                fadeOptions.end_Action += () => currentFadeCoroutine = null; 
+            }
+            
 
             EnableSelf();
 

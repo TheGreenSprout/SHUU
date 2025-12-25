@@ -12,7 +12,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using SHUU.Utils.InputSystem;
 
-namespace SHUU.Editor.InputSystem
+namespace SHUU._Editor.InputSystem
 {
     public class InputBindingsMap_Editor : EditorWindow
     {

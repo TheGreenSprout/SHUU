@@ -28,6 +28,9 @@ namespace SHUU.Utils.UI
             public Action end_Action = null;
 
 
+            public bool clearOnEnd = true;
+
+
 
             public FadeOptions() { }
             public FadeOptions(FadeOptions other)
@@ -43,6 +46,9 @@ namespace SHUU.Utils.UI
 
 
                 end_Action = other.end_Action;
+
+
+                clearOnEnd = other.clearOnEnd;
             }
         }
         public class PingPong_FadeOptions

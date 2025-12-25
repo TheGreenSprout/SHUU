@@ -145,9 +145,9 @@ namespace SHUU.Utils.InputSystem
 
 
         #region General Bindings
-        public static bool GetInput(InputBindingMap map, string name, bool requiresAllBindsDown = false)
+        public static bool GetInput(InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, name);
+            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
 
             if (setTouple.Item1 != null)
             {
@@ -157,15 +157,15 @@ namespace SHUU.Utils.InputSystem
             {
                 return GetCompositeInput(setTouple.Item2, requiresAllBindsDown);
             }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'");
+            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
             return false;
         }
 
-        public static InputValue GetInputValue(InputBindingMap map, string name, bool requiresAllBindsDown = false)
+        public static InputValue GetInputValue(InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, name);
+            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
 
             if (setTouple.Item1 != null)
             {
@@ -177,32 +177,36 @@ namespace SHUU.Utils.InputSystem
 
                 return new InputValue{ x = compostiveVal.x, y = compostiveVal.y };
             }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'");
+            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
             return new InputValue();
         }
-        public static float GetInputValue_float(InputBindingMap map, string name, bool requiresAllBindsDown = false)
+        public static float GetInputValue_float(InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, name);
+            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
 
             if (setTouple.Item1 != null)
             {
                 return GetSingleInputValue(setTouple.Item1, requiresAllBindsDown);
             }
-            else if (setTouple.Item2 != null) Debug.LogWarning($"SHUU_Input: InputSet '{name}' in map '{map.mapName}' is composite, not single.");
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'");
+            else if (setTouple.Item2 != null) Debug.LogWarning($"SHUU_Input: InputSet '{set}' in map '{map.mapName}' is composite, not single.");
+            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
             return 0f;
         }
-        public static Vector2 GetInputValue_Vector2(InputBindingMap map, string name, bool requiresAllBindsDown = false)
+        public static float GetInputValue_2wayAxis_float(InputBindingMap map, string setPositive, string setNegative, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, name);
+            return GetInputValue_float(map, setPositive, requiresAllBindsDown) - GetInputValue_float(map, setNegative, requiresAllBindsDown);
+        }
+        public static Vector2 GetInputValue_Vector2(InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        {
+            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
 
             if (setTouple.Item1 != null)
             {
-                Debug.LogWarning($"SHUU_Input: Composite_InputSet '{name}' not found in map '{map.mapName}'. Returning float in x val.");
+                Debug.LogWarning($"SHUU_Input: Composite_InputSet '{set}' not found in map '{map.mapName}'. Returning float in x val.");
 
                 return new Vector2(GetSingleInputValue(setTouple.Item1, requiresAllBindsDown), 0);
             }
@@ -212,16 +216,16 @@ namespace SHUU.Utils.InputSystem
 
                 return new Vector2(compostiveVal.x, compostiveVal.y);
             }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'");
+            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
             return Vector2.zero;
         }
 
 
-        public static bool GetInputDown(InputBindingMap map, string name, bool requiresAllBindsDown = false)
+        public static bool GetInputDown(InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, name);
+            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
 
             if (setTouple.Item1 != null)
             {
@@ -231,16 +235,16 @@ namespace SHUU.Utils.InputSystem
             {
                 return GetCompositeInputDown(setTouple.Item2, requiresAllBindsDown);
             }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'");
+            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
             return false;
         }
 
 
-        public static bool GetInputUp(InputBindingMap map, string name, bool requiresAllBindsDown = false)
+        public static bool GetInputUp(InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, name);
+            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
 
             if (setTouple.Item1 != null)
             {
@@ -250,7 +254,7 @@ namespace SHUU.Utils.InputSystem
             {
                 return GetCompositeInputUp(setTouple.Item2, requiresAllBindsDown);
             }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'");
+            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
             
             return false;
@@ -340,7 +344,7 @@ namespace SHUU.Utils.InputSystem
         }
 
         // [+x, -x, +y, -y]
-        public static Vector2 GetCompositeInputValue(Composite_InputSet compositeSet, bool requiresAllBindsDown = false)
+        private static Vector2 GetCompositeInputValue(Composite_InputSet compositeSet, bool requiresAllBindsDown = false)
         {
             Vector2 result = Vector2.zero;
 

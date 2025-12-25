@@ -169,7 +169,7 @@ MonoBehaviour:
   - '-'
   - ~
   devConsoleUI: {fileID: 7987799377277825665}
-  toggleDevConsole: {fileID: 0}
+  input: {fileID: 0}
 --- !u!114 &5871272403144840486
 MonoBehaviour:
   m_ObjectHideFlags: 0

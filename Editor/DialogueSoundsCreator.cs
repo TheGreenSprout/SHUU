@@ -11,6 +11,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
 
+#if UNITY_EDITOR
 public class DialogueSoundsCreator : EditorWindow
 {
     private enum Mode { Single, Batch }
@@ -270,3 +271,4 @@ public class DialogueSoundsCreator : EditorWindow
         singleClips.Clear();
     }
 }
+#endif

@@ -68,6 +68,30 @@ namespace SHUU.Utils.Helpers
             return ProjectKey + "_" + str;
         }
 
+
+        public static void CopyToClipboard(string str)
+        {
+            #if UNITY_2017_1_OR_NEWER
+                GUIUtility.systemCopyBuffer = str;
+            #else
+                TextEditor textEditor = new TextEditor { text = str };
+
+                textEditor.SelectAll();
+                textEditor.Copy();
+            #endif
+        }
+
+        public static string PasteFromClipboard()
+        {
+            #if UNITY_2017_1_OR_NEWER
+                return GUIUtility.systemCopyBuffer;
+            #else
+                Debug.LogWarning("Pasting from clipboard is not supported in Unity versions older than 2017.1");
+
+                return "";
+            #endif
+        }
+
         #endregion
 
 
@@ -107,7 +131,7 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        public static void CleanList<E>(ref IList<E> list)
+        public static void CleanList<E>(this IList<E> list)
         {
             for (int i = 0; i < list.Count; i++)
             {
@@ -121,7 +145,7 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        public static void MoveItemAndShiftList<E>(ref IList<E> list, int indexToMove, int newIndex)
+        public static void MoveItemAndShiftList<E>(this IList<E> list, int indexToMove, int newIndex)
         {
             if (!IndexIsValid(indexToMove, list) || !IndexIsValid(newIndex, list))
             {
@@ -143,6 +167,12 @@ namespace SHUU.Utils.Helpers
             list[newIndex] = temp;
         }
 
+
+        public static T RandomElement<T>(this IList<T> list)
+        {
+            return list[UnityEngine.Random.Range(0, list.Count)];
+        }
+
         #endregion
 
 
@@ -154,50 +184,11 @@ namespace SHUU.Utils.Helpers
         /// Checks if an PlayerPref exists.
         /// </summary>
         /// <param name="key">The PlayerPref's key (aka their "name").</param>
-        /// <param name="localized">Whether the key was localized when saving the PlayerPref.</param>
         /// <returns>Returns whether the PlayerPref exists.</returns>
         #endregion
-        public static bool HasPlayerPref(string key, bool localized = true)
+        public static bool HasPlayerPref(string key)
         {
-            return PlayerPrefs.HasKey(localized ? LocalizeString(key) : key);
-        }
-
-
-        #region XML doc
-        /// <summary>
-        /// Adds an PlayerPrefs key to a list in order to keep track of it.
-        /// </summary>
-        /// <param name="key">The key to track.</param>
-        #endregion
-        public static void TrackKey(string key)
-        {
-            string keyListKey = LocalizeString("PlayerPrefsKeys");
-            string allKeys = PlayerPrefs.GetString(keyListKey, "");
-
-            if (!allKeys.Contains(key))
-            {
-                allKeys += key + ";";
-                PlayerPrefs.SetString(keyListKey, allKeys);
-            }
-        }
-
-        #region XML doc
-        /// <summary>
-        /// Removes an PlayerPref key from the list.
-        /// </summary>
-        /// <param name="key">The key to detrack.</param>
-        #endregion
-        public static void DeTrackKey(string key)
-        {
-            string keyListKey = LocalizeString("PlayerPrefsKeys");
-            string allKeys = PlayerPrefs.GetString(keyListKey, "");
-            var keys = allKeys.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            if (keys.Remove(key))
-            {
-                string updated = string.Join(";", keys) + (keys.Count > 0 ? ";" : "");
-                PlayerPrefs.SetString(keyListKey, updated);
-            }
+            return PlayerPrefs.HasKey(key);
         }
 
 
@@ -207,71 +198,53 @@ namespace SHUU.Utils.Helpers
         /// </summary>
         /// <param name="key">The PlayerPref's key (aka their "name").</param>
         /// <param name="value">The value to save.</param>
-        /// <param name="localized">Whether the key is to be localized.</param>
         #endregion
-        public static void SetPlayerPref<T>(string key, T value, bool localized = true)
+        public static void SetPlayerPref<T>(string key, T value)
         {
-            string newKey;
-            if (localized)
-            {
-                newKey = LocalizeString(key);
-
-                TrackKey(newKey);
-            }
-            else
-            {
-                newKey = key;
-            }
-
             if (typeof(T) == typeof(string))
             {
-                PlayerPrefs.SetString(newKey, (string)(object)value);
+                PlayerPrefs.SetString(key, (string)(object)value);
             }
             else if (typeof(T) == typeof(bool))
             {
                 string bool_str = (bool)(object)value ? bool.TrueString : bool.FalseString;
-                PlayerPrefs.SetString(newKey, bool_str);
+                PlayerPrefs.SetString(key, bool_str);
             }
             else if (typeof(T) == typeof(int))
             {
-                PlayerPrefs.SetInt(newKey, (int)(object)value);
+                PlayerPrefs.SetInt(key, (int)(object)value);
             }
             else if (typeof(T) == typeof(float))
             {
-                PlayerPrefs.SetFloat(newKey, (float)(object)value);
+                PlayerPrefs.SetFloat(key, (float)(object)value);
             }
             else if (typeof(T) == typeof(Vector2))
             {
-                SetPlayerPref(newKey + "_x", ((Vector2)(object)value).x, false);
-                SetPlayerPref(newKey + "_y", ((Vector2)(object)value).y, false);
+                SetPlayerPref(key + "_x", ((Vector2)(object)value).x);
+                SetPlayerPref(key + "_y", ((Vector2)(object)value).y);
             }
             else if (typeof(T) == typeof(Vector3))
             {
-                SetPlayerPref(newKey + "_x", ((Vector3)(object)value).x, false);
-                SetPlayerPref(newKey + "_y", ((Vector3)(object)value).y, false);
-                SetPlayerPref(newKey + "_z", ((Vector3)(object)value).z, false);
+                SetPlayerPref(key + "_x", ((Vector3)(object)value).x);
+                SetPlayerPref(key + "_y", ((Vector3)(object)value).y);
+                SetPlayerPref(key + "_z", ((Vector3)(object)value).z);
             }
             else if (typeof(T) == typeof(Color))
             {
                 string hex = ColorUtility.ToHtmlStringRGBA((Color)(object)value);
 
-                SetPlayerPref(newKey, hex, false);
+                SetPlayerPref(key, hex);
             }
             else if (typeof(T).IsEnum)
             {
-                PlayerPrefs.SetString(newKey, (string)(object)value);
+                PlayerPrefs.SetString(key, (string)(object)value);
             }
             else if (!typeof(T).IsSerializable)
             {
                 string json = JsonUtility.ToJson(value);
-                PlayerPrefs.SetString(newKey, json);
+                PlayerPrefs.SetString(key, json);
             }
-            else
-            {
-                DeTrackKey(newKey);
-
-                throw new NotSupportedException($"Type {typeof(T)} is not supported by SetPlayerPref and isn't Serializable.");
-            }
+            else throw new NotSupportedException($"Type {typeof(T)} is not supported by SetPlayerPref and isn't Serializable.");
         }
 
         #region XML doc
@@ -279,28 +252,22 @@ namespace SHUU.Utils.Helpers
         /// Retrieves an PlayerPref's value.
         /// </summary>
         /// <param name="key">The PlayerPref's key (aka their "name").</param>
-        /// <param name="localized">Whether the key was localized when saving the PlayerPref.</param>
         /// <param name="defaultValue">The default value of this PlayerPref.</param>
         /// <returns>Returns the value of the PlayerPref.</returns>
         #endregion
-        public static T GetPlayerPref<T>(string key, bool localized = true, T defaultValue = default)
+        public static T GetPlayerPref<T>(string key, T defaultValue = default)
         {
-            if (!HasPlayerPref(key, localized))
-            {
-                return default;
-            }
+            if (!HasPlayerPref(key)) return default;
 
-
-            string newKey = localized ? LocalizeString(key) : key;
 
             if (typeof(T) == typeof(string))
             {
-                return (T)(object)PlayerPrefs.GetString(newKey, (string)(object)defaultValue);
+                return (T)(object)PlayerPrefs.GetString(key, (string)(object)defaultValue);
             }
             else if (typeof(T) == typeof(bool))
             {
                 string bool_defaultVal_str = (bool)(object)defaultValue ? bool.TrueString : bool.FalseString;
-                string bool_str = PlayerPrefs.GetString(newKey, bool_defaultVal_str);
+                string bool_str = PlayerPrefs.GetString(key, bool_defaultVal_str);
 
                 bool bool_val = bool_str == bool.TrueString ? true : false;
 
@@ -308,28 +275,28 @@ namespace SHUU.Utils.Helpers
             }
             else if (typeof(T) == typeof(int))
             {
-                return (T)(object)PlayerPrefs.GetInt(newKey, (int)(object)defaultValue);
+                return (T)(object)PlayerPrefs.GetInt(key, (int)(object)defaultValue);
             }
             else if (typeof(T) == typeof(float))
             {
-                return (T)(object)PlayerPrefs.GetFloat(newKey, (float)(object)defaultValue);
+                return (T)(object)PlayerPrefs.GetFloat(key, (float)(object)defaultValue);
             }
             else if (typeof(T) == typeof(Vector2))
             {
-                float x = GetPlayerPref(newKey + "_x", false, ((Vector2)(object)defaultValue).x);
-                float y = GetPlayerPref(newKey + "_y", false, ((Vector2)(object)defaultValue).y);
+                float x = GetPlayerPref(key + "_x", ((Vector2)(object)defaultValue).x);
+                float y = GetPlayerPref(key + "_y", ((Vector2)(object)defaultValue).y);
                 return (T)(object)new Vector2(x, y);
             }
             else if (typeof(T) == typeof(Vector3))
             {
-                float x = GetPlayerPref(newKey + "_x", false, ((Vector3)(object)defaultValue).x);
-                float y = GetPlayerPref(newKey + "_y", false, ((Vector3)(object)defaultValue).y);
-                float z = GetPlayerPref(newKey + "_z", false, ((Vector3)(object)defaultValue).z);
+                float x = GetPlayerPref(key + "_x", ((Vector3)(object)defaultValue).x);
+                float y = GetPlayerPref(key + "_y", ((Vector3)(object)defaultValue).y);
+                float z = GetPlayerPref(key + "_z", ((Vector3)(object)defaultValue).z);
                 return (T)(object)new Vector3(x, y, z);
             }
             else if (typeof(T) == typeof(Color))
             {
-                string hex = GetPlayerPref(key, localized, ((Color)(object)defaultValue).ToString());
+                string hex = GetPlayerPref(key, ((Color)(object)defaultValue).ToString());
 
                 if (ColorUtility.TryParseHtmlString("#" + hex, out var color))
                 {
@@ -340,7 +307,7 @@ namespace SHUU.Utils.Helpers
             }
             else if (typeof(T).IsEnum)
             {
-                string str = PlayerPrefs.GetString(newKey, defaultValue.ToString());
+                string str = PlayerPrefs.GetString(key, defaultValue.ToString());
 
                 try
                 {
@@ -353,7 +320,7 @@ namespace SHUU.Utils.Helpers
             }
             else if (typeof(T).IsSerializable)
             {
-                string json = PlayerPrefs.GetString(newKey, "");
+                string json = PlayerPrefs.GetString(key, "");
                 if (string.IsNullOrEmpty(json)) return defaultValue;
 
                 try { return JsonUtility.FromJson<T>(json); }
@@ -371,53 +338,13 @@ namespace SHUU.Utils.Helpers
         /// Deletes an PlayerPref.
         /// </summary>
         /// <param name="key">The PlayerPref's key (aka their "name").</param>
-        /// <param name="localized">Whether the key was localized when saving the PlayerPref.</param>
         #endregion
-        public static void DeletePlayerPref(string key, bool localized = true)
+        public static void DeletePlayerPref(string key)
         {
-            if (!HasPlayerPref(key, localized))
-            {
-                return;
-            }
+            if (!HasPlayerPref(key)) return;
 
 
-            string newKey;
-            if (localized)
-            {
-                newKey = LocalizeString(key);
-
-                DeTrackKey(newKey);
-            }
-            else
-            {
-                newKey = key;
-            }
-
-            PlayerPrefs.DeleteKey(newKey);
-        }
-
-        #region XML doc
-        /// <summary>
-        /// Deletes all tracked PlayerPrefs.
-        /// </summary>
-        #endregion
-        public static void ClearAllTrackedPlayerPrefs()
-        {
-            string keyListKey = LocalizeString("PlayerPrefsKeys");
-
-            string allKeys = PlayerPrefs.GetString(keyListKey, "");
-            string[] keys = allKeys.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string key in keys)
-            {
-                if (HasPlayerPref(key, false))
-                {
-                    PlayerPrefs.DeleteKey(key);
-                }
-            }
-
-
-            PlayerPrefs.DeleteKey(keyListKey);
+            PlayerPrefs.DeleteKey(key);
         }
 
         #endregion
@@ -470,7 +397,40 @@ namespace SHUU.Utils.Helpers
 
             return null; // Not found
         }
+
+
+        public static void SetLayer_InSelfAndChildren(GameObject start, LayerMask newLayer)
+        {
+            SetLayer_InSelfAndChildren(start, LayerMask_To_LayerIndex(newLayer));
+        }
+        public static void SetLayer_InSelfAndChildren(GameObject start, int newLayer)
+        {
+            Queue<GameObject> queue = new Queue<GameObject>();
+            
+            queue.Enqueue(start);
+
+
+            while (queue.Count > 0)
+            {
+                GameObject current = queue.Dequeue();
+
+
+                current.layer = newLayer;
+
+
+                foreach (Transform child in current.transform) queue.Enqueue(child.gameObject);
+            }
+        }
         
+        #endregion
+
+
+
+        #region Layers
+        public static int LayerMask_To_LayerIndex(LayerMask mask)
+        {
+            return Mathf.RoundToInt(Mathf.Log(mask.value, 2));
+        }
         #endregion
 
 
@@ -738,6 +698,25 @@ namespace SHUU.Utils.Helpers
             Gizmos.DrawWireSphere(cap.center + Vector3.up * (cap.height * .5f - cap.radius), cap.radius);
             Gizmos.DrawWireSphere(cap.center - Vector3.up * (cap.height * .5f - cap.radius), cap.radius);
             Gizmos.DrawWireCube(cap.center, new Vector3(cap.radius * 2, cap.height - cap.radius * 2, cap.radius * 2));
+        }
+        #endregion
+
+
+
+        #region Interact System
+        public static bool InteractionRaycast_Check(RaycastHit hit, out IfaceInteractable inactScript, params string[] tags)
+        {
+            inactScript = null;
+
+            if (!hit.collider.gameObject.TryGetComponent(out IfaceInteractable inact)) return false;
+            inactScript = inact;
+
+            if (!inact.CanBeInteracted()) return false;
+
+            foreach (string tag in tags) if (hit.collider.CompareTag(tag)) return true;
+
+
+            return false;
         }
         #endregion
 
