@@ -103,5 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126a80fe8d633af4ab7cdf62ef0c4a4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IDENTIFIER: GeneralSingleton
+  identifier: General_Singleton
   scripts: {fileID: 663234805260778511}
+  bridges: -1
+  bannedScenes: []

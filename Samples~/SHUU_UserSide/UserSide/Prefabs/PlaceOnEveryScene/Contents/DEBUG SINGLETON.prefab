@@ -45,8 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126a80fe8d633af4ab7cdf62ef0c4a4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IDENTIFIER: DebugSingleton
+  identifier: Debug_Singleton
   scripts: {fileID: 6373702377639606796}
+  bridges: -1
+  bannedScenes: []
 --- !u!1 &6373702377639606796
 GameObject:
   m_ObjectHideFlags: 0
