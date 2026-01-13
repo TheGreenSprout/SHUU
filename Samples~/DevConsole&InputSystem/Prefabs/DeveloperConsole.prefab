@@ -168,6 +168,13 @@ MonoBehaviour:
   optionalParameter_consoleInterpreters:
   - '-'
   - ~
+  tagList:
+  - Information
+  - Utilities
+  - Debug
+  - Classic Input
+  - Input System
+  - Untagged
   devConsoleUI: {fileID: 7987799377277825665}
   input: {fileID: 0}
 --- !u!114 &5871272403144840486
@@ -182,6 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0069aa5557cf0f8448beac63228c7316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  devConsoleManager: {fileID: 0}
 --- !u!1001 &2973031509289071869
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -14,21 +14,10 @@ namespace SHUU.UserSide.Commons
     #endregion
     public class MasterDTO
     {
-        public Dictionary<DTO_Info, string> dataDictionary;
+        public Dictionary<string, DTO_Info> dataDictionary;
 
 
-        public MasterDTO()
-        {
-            // This is how your MasterDTO should look (with all your data DTOs).
-            DTO_Info exampleData = new DTO_ExampleInfo();
-
-
-            dataDictionary = new Dictionary<DTO_Info, string>
-            {
-                // This is how your MasterDTO should look (with all your data DTOs).
-                { exampleData, exampleData.GetIdentifier() },
-            };
-        }
+        public MasterDTO() => dataDictionary = new();
     }
 
 
@@ -46,6 +35,7 @@ namespace SHUU.UserSide.Commons
 
 
 
+    //! THIS IS AN EXAMPLE DTO CLASS FOR THE SAMPLE SCENE, IF YOU ARE NOT USING IT, DELETE IT.
     // This is how you should make all your DTO classes:
     [Serializable]
     #region XML doc
@@ -60,5 +50,6 @@ namespace SHUU.UserSide.Commons
         
         public Dictionary<int, bool> colorOfItems = new Dictionary<int, bool>();
     }
+    //! THIS IS THE END OF THE EXAMPLE.
 
 }

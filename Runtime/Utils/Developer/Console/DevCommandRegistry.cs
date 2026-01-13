@@ -12,7 +12,7 @@ namespace SHUU.Utils.Developer.Console
             public MethodInfo Method;
             public string Description;
 
-            public int priority;
+            public string Tag;
         }
 
         private static Dictionary<string, DevCommandInfo> commands = new();
@@ -34,7 +34,8 @@ namespace SHUU.Utils.Developer.Console
                             commands[attr.name.ToLower()] = new DevCommandInfo
                             {
                                 Method = method,
-                                Description = attr.description
+                                Description = attr.description,
+                                Tag = attr.tag
                             };
                         }
                     }

@@ -1,51 +1,80 @@
 using SHUU.UserSide.Commons;
 using SHUU.Utils.Developer.Console;
+using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
-using SHUU.Utils.InputSystem;
 using SHUU.Utils.PersistantInfo.General;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
 public class Sample_DevConsoleCommands : MonoBehaviour
 {
-    [DevConsoleCommand("help", "Lists all commands")]
+    [DevConsoleCommand("help", "Lists all commands", "Information")]
     public static (string[], Color?) Help()
     {
-        var cmds = DevCommandRegistry.AllCommands();
-        if (!cmds.Any()) return (new string[] { "No commands registered." }, Color.red);
+        var cmds = DevCommandRegistry.AllCommands().ToList();
+        if (!cmds.Any()) return (new[] { "No commands registered." }, Color.red);
 
+        List<string> tagOrder = DevConsoleManager.instance.tagList;
 
-        string[] commandList = new string[cmds.Count()];
-        int i = 0;
+        int fallbackIndex = tagOrder.Count - 2;
+
+        var grouped = new Dictionary<int, Dictionary<string, List<string>>>();
 
         foreach (var (name, info) in cmds)
         {
+            int tagIndex = tagOrder.IndexOf(info.Tag);
+            if (tagIndex == -1)
+                tagIndex = fallbackIndex;
+
+            if (!grouped.TryGetValue(tagIndex, out var tagGroups))
+            {
+                tagGroups = new Dictionary<string, List<string>>();
+                grouped[tagIndex] = tagGroups;
+            }
+
+            if (!tagGroups.TryGetValue(info.Tag, out var list))
+            {
+                list = new List<string>();
+                tagGroups[info.Tag] = list;
+            }
+
             var parameters = info.Method.GetParameters();
-            
             string paramString = parameters.Length == 0
                 ? ""
-                : " (" + string.Join(", ", parameters.Select((p, index) =>
+                : " (" + string.Join(", ", parameters.Select(p =>
                 {
                     bool isParams = Attribute.IsDefined(p, typeof(ParamArrayAttribute));
-
                     if (isParams)
                     {
                         Type elemType = p.ParameterType.GetElementType();
                         return $"params {ParseParameter(elemType)}[]";
                     }
-
                     return ParseParameter(p.ParameterType);
-
                 })) + ")";
 
-            commandList[i] = $"{name}{paramString} - {info.Description}";
-            i++;
+            list.Add($"{name}{paramString} - {info.Description}");
         }
 
-        return (commandList, null);
+        var output = new List<string>();
+
+        foreach (var index in grouped.Keys.OrderBy(i => i))
+        {
+            foreach (var tagGroup in grouped[index])
+            {
+                output.Add(tagGroup.Key);
+
+                foreach (var cmd in tagGroup.Value.OrderBy(c => c))
+                    output.Add("  " + cmd);
+
+                output.Add(string.Empty);
+            }
+        }
+
+        return (output.ToArray(), null);
     }
 
     private static string ParseParameter(Type t)
@@ -80,15 +109,22 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
 
-    /*[DevConsoleCommand("bindcommand", "Binds a Dev Console command to a keycode")]
-    public static (string[], Color?) BindCommand(string key, params string[] commandInfo)
+    [DevConsoleCommand("colliders", "Toggles the visibility of all colliders in the game", "Debug")]
+    public static (string[], Color?) ShowColliders()
     {
-        
-    }*/
+        if (Debug_ColliderVisualizer.instance == null) return (new string[] { "Local debug disabled on this scene" }, null);
 
 
 
-    [DevConsoleCommand("loadscene", "Changes the scene to the specified scene name")]
+        bool visible = Debug_ColliderVisualizer.Toggle();
+
+
+        return (new string[] { "Debug collider visibility " + (visible ? "enabled" : "disabled") }, null);
+    }
+
+
+
+    [DevConsoleCommand("loadscene", "Changes the scene to the specified scene name", "Debug")]
     public static (string[], Color?) Save(string sceneName)
     {
         SHUU_GlobalsProxy.generalManager.GoToScene(sceneName);
@@ -99,7 +135,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
 
-    [DevConsoleCommand("save", "Saves all data temporarily")]
+    [DevConsoleCommand("save", "Saves all data temporarily", "Debug")]
     public static (string[], Color?) Save()
     {
         SHUU_GlobalsProxy.savingSystemManager.SaveSingletonInfo();
@@ -108,7 +144,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         return (new string[] { "Data saved successfully" }, null);
     }
 
-    [DevConsoleCommand("filesave", "Saves all data to json files")]
+    [DevConsoleCommand("filesave", "Saves all data to json files", "Debug")]
     public static (string[], Color?) SaveFile()
     {
         SHUU_GlobalsProxy.savingSystemManager.SaveSingletonInfoToFile();
@@ -118,7 +154,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     }
 
 
-    [DevConsoleCommand("load", "Loads all temporary data")]
+    [DevConsoleCommand("load", "Loads all temporary data", "Debug")]
     public static (string[], Color?) Load()
     {
         SHUU_GlobalsProxy.savingSystemManager.LoadSingletonInfo();
@@ -127,7 +163,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         return (new string[] { "Data loaded successfully" }, null);
     }
 
-    [DevConsoleCommand("fileload", "Loads all data from json files")]
+    [DevConsoleCommand("fileload", "Loads all data from json files", "Debug")]
     public static (string[], Color?) LoadFile()
     {
         SHUU_GlobalsProxy.savingSystemManager.LoadSingletonInfoFromFile();
@@ -137,7 +173,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     }
 
 
-    [DevConsoleCommand("saveprefs", "Saves all player prefs")]
+    [DevConsoleCommand("saveprefs", "Saves all player prefs", "Debug")]
     public static (string[], Color?) SavePlayerPrefs()
     {
         PlayerPrefs.Save();
@@ -146,7 +182,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         return (new string[] { "PlayerPrefs saved successfully" }, null);
     }
 
-    [DevConsoleCommand("deleteprefs", "Deletes all player prefs")]
+    [DevConsoleCommand("deleteprefs", "Deletes all player prefs", "Debug")]
     public static (string[], Color?) DeletePlayerPrefs()
     {
         PlayerPrefs.DeleteAll();
@@ -156,7 +192,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
 
-    [DevConsoleCommand("timescale", "Sets the game's timescale to the specified value")]
+    [DevConsoleCommand("timescale", "Sets the game's timescale to the specified value", "Utilities")]
     public static (string[], Color?) SetTimeScale(float timeScale)
     {
         TimeController.SetTimeScale(timeScale);
@@ -165,7 +201,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         return (new string[] { $"Timescale set to {timeScale}" }, null);
     }
 
-    [DevConsoleCommand("pause", "Toggles the game's timescale between paused and unpaused states")]
+    [DevConsoleCommand("pause", "Toggles the game's timescale between paused and unpaused states", "Utilities")]
     public static (string[], Color?) Pause()
     {
         TimeController.TogglePause();
@@ -176,7 +212,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
 
-    [DevConsoleCommand("setsettings", "Sets a field on the global settings data")]
+    [DevConsoleCommand("setsettings", "Sets a field on the global settings data", "Utilities")]
     public static (string[], Color?) TrySetSettingsValue(string fieldName, MutableParameter value)
     {
         (string[], Color?) returnVal = (null, null);
@@ -219,7 +255,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
 
-    [DevConsoleCommand("screenshot", "Takes a screenshot")]
+    [DevConsoleCommand("screenshot", "Takes a screenshot", "Utilities")]
     public static (string[], Color?) Screenshot(OptionalParameter<bool> _showScreenshot, OptionalParameter<string> _prefix, OptionalParameter<string> _customDir)
     {
         if (!_prefix.TryGetValue(out string prefix)) prefix = null;
@@ -240,7 +276,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         }
     }
 
-    [DevConsoleCommand("scaleshot", "Takes a scaled screenshot")]
+    [DevConsoleCommand("scaleshot", "Takes a scaled screenshot", "Utilities")]
     public static (string[], Color?) ScaledScreenshot(int scale, OptionalParameter<bool> _showScreenshot, OptionalParameter<string> _prefix, OptionalParameter<string> _customDir)
     {
         if (!_prefix.TryGetValue(out string prefix)) prefix = null;
@@ -254,7 +290,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     }
 
 
-    [DevConsoleCommand("openshot", "Opens the last saved screenshot in the file browser")]
+    [DevConsoleCommand("openshot", "Opens the last saved screenshot in the file browser", "Utilities")]
     public static (string[], Color?) OpenLastShot()
     {
         if (string.IsNullOrEmpty(ScreenCaptureHelper.lastPath)) return (new string[] { "No screenshot has been taken yet"}, Color.red);
@@ -267,7 +303,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     }
 
 
-    [DevConsoleCommand("shotlocation", "Shows the last saved screenshot's file location")]
+    [DevConsoleCommand("shotlocation", "Shows the last saved screenshot's file location", "Information")]
     public static (string[], Color?) LastShotLocation()
     {
         if (string.IsNullOrEmpty(ScreenCaptureHelper.lastPath)) return (new string[] { "No screenshot has been taken yet"}, Color.red);
@@ -278,7 +314,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
 
-    [DevConsoleCommand("pools", "Displays all object pool information")]
+    [DevConsoleCommand("pools", "Displays all object pool information", "Information")]
     public static (string[], Color?) ShowPools()
     {
         if (ObjectPooling.pools.Count == 0) return (new string[] { "No object pools found" }, Color.yellow);
@@ -300,7 +336,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
 
-    [DevConsoleCommand("bindcommand", "Binds a Dev Console command to a keycode or mouse button")]
+    [DevConsoleCommand("bindcommand", "Binds a Dev Console command to a keycode or mouse button", "Classic Input")]
     public static (string[], Color?) BindCommand(string _input, params string[] commandData)
     {
         (KeyCode?, int?) input = InputParser.ParseInput(_input);
@@ -313,7 +349,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         return (new string[] { $"Command bound to {_input} successfully" }, null);
     }
 
-    [DevConsoleCommand("unbindcommands", "Unbinds all Dev Console commands previously bound to a keycode or mouse button")]
+    [DevConsoleCommand("unbindcommands", "Unbinds all Dev Console commands previously bound to a keycode or mouse button", "Classic Input")]
     public static (string[], Color?) UnBindCommands(string _input)
     {
         (KeyCode?, int?) input = InputParser.ParseInput(_input);

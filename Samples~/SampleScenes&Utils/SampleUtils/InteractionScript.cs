@@ -13,10 +13,6 @@ public class InteractionScript : Interactable
     public Material mat2;
 
 
-    public GameObject hoverIndicator;
-
-
-
     private MeshRenderer meshRenderer;
 
 
@@ -31,6 +27,7 @@ public class InteractionScript : Interactable
     }
 
 
+
     public override void Interact()
     {
         if (meshRenderer.sharedMaterial == mat1)
@@ -42,17 +39,6 @@ public class InteractionScript : Interactable
             meshRenderer.material = mat1;
         }
     }
-
-    public override void HoverStart()
-    {
-        hoverIndicator.SetActive(true);
-    }
-
-    public override void HoverEnd()
-    {
-        hoverIndicator.SetActive(false);
-    }
-
 
 
     public void SetMaterialFromBool(bool b)

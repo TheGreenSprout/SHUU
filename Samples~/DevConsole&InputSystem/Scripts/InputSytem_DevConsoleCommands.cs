@@ -34,7 +34,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
 
 
     
-    [DevConsoleCommand("createset", "Creates a new input set on the given map")]
+    [DevConsoleCommand("createset", "Creates a new input set on the given map", "Input System")]
     public static (string[], Color?) CreateInputSet(string _map, string _set, OptionalParameter<bool> _composite)
     {
         if (!_composite.TryGetValue(out bool composite)) composite = false;
@@ -51,7 +51,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (new string[] { $"{_map} map, {_set} set created." }, null);
     }
 
-    [DevConsoleCommand("deleteset", "Deletes a new input set on the given map")]
+    [DevConsoleCommand("deleteset", "Deletes a new input set on the given map", "Input System")]
     public static (string[], Color?) DeleteInputSet(string _map, string _set)
     {
         var _output = RetrieveMap(_map, out InputBindingMap map);
@@ -86,7 +86,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     }
 
 
-    [DevConsoleCommand("rebind", "Changes an input set's bindings")]
+    [DevConsoleCommand("rebind", "Changes an input set's bindings", "Input System")]
     public static (string[], Color?) RebindSet(string _map, string _set, params string[] newBinds)
     {
         var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
@@ -99,7 +99,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (new string[] { $"{_map} map, {_set} set, bindings rebound." }, null);
     }
 
-    [DevConsoleCommand("addbind", "Adds bindings to an input set")]
+    [DevConsoleCommand("addbind", "Adds bindings to an input set", "Input System")]
     public static (string[], Color?) AddSetBinding(string _map, string _set, params string[] newBinds)
     {
         var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
@@ -112,7 +112,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (new string[] { $"{_map} map, {_set} set, binding changed." }, null);
     }
 
-    [DevConsoleCommand("removebind", "Removes an input set's specific bind(s)")]
+    [DevConsoleCommand("removebind", "Removes an input set's specific bind(s)", "Input System")]
     public static (string[], Color?) RemoveSetBinding(string _map, string _set, params string[] newBinds)
     {
         var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
@@ -125,7 +125,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (new string[] { $"{_map} map, {_set} set, binding(s) removed." }, null);
     }
 
-    [DevConsoleCommand("clearbind", "Removes all of an input set's bindings")]
+    [DevConsoleCommand("clearbind", "Removes all of an input set's bindings", "Input System")]
     public static (string[], Color?) ClearSet(string _map, string _set)
     {
         var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
@@ -139,7 +139,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     }
 
 
-    [DevConsoleCommand("allinputmaps", "Displays all input set names of all tracked binding maps")]
+    [DevConsoleCommand("allinputmaps", "Displays all input set names of all tracked binding maps", "Input System")]
     public static (string[], Color?) DisplayAllMaps()
     {
         if (InputTracker.allInputBindingMaps.Values == null || InputTracker.allInputBindingMaps.Values.Count == 0) return (new string[] { "No input maps registered." }, Color.red);
@@ -156,7 +156,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (mapNames, null);
     }
 
-    [DevConsoleCommand("inputmap", "Displays all input set names on the given map")]
+    [DevConsoleCommand("inputmap", "Displays all input set names on the given map", "Input System")]
     public static (string[], Color?) DisplayMap(string _map)
     {
         var output = RetrieveMap(_map, out InputBindingMap map);
@@ -182,7 +182,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (inputList, null);
     }
 
-    [DevConsoleCommand("inputset", "Displays all input bindings on the given input set")]
+    [DevConsoleCommand("inputset", "Displays all input bindings on the given input set", "Input System")]
     public static (string[], Color?) DisplaySet(string _map, string _set)
     {
         var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
@@ -252,7 +252,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     }
 
 
-    [DevConsoleCommand("is_bindcommand", "Binds a Dev Console command to an input set (Custom Input System)")]
+    [DevConsoleCommand("is_bindcommand", "Binds a Dev Console command to an input set (Input System)", "Input System")]
     public static (string[], Color?) IS_BindCommand(string _map, string _set, params string[] commandData)
     {
         var output = RetrieveMap(_map, out InputBindingMap map);
@@ -265,7 +265,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (new string[] { $"Command bound to {_map} map, {_set} set" }, null);
     }
 
-    [DevConsoleCommand("is_unbindcommands", "Unbinds a Dev Console command previously bound to an input set (Custom Input System)")]
+    [DevConsoleCommand("is_unbindcommands", "Unbinds a Dev Console command previously bound to an input set (Input System)", "Input System")]
     public static (string[], Color?) IS_UnBindCommands(string _map, string _set)
     {
         var output = RetrieveMap(_map, out InputBindingMap map);

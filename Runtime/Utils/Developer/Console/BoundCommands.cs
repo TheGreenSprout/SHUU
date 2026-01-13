@@ -96,10 +96,7 @@ namespace SHUU.Utils.Developer.Console
         }
 
 
-        private void OnApplicationQuit()
-        {
-            Save();
-        }
+        private void OnApplicationQuit() => Save();
 
 
 
@@ -140,6 +137,10 @@ namespace SHUU.Utils.Developer.Console
 
         private void Update()
         {
+            if (devConsoleManager.devConsoleUI.gameObject.activeInHierarchy && devConsoleManager.inputFieldActive) return;
+
+
+            
             foreach (var kvp in boundCommands)
             {
                 if (GetInputDown(kvp.Key))

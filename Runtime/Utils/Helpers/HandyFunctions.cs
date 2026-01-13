@@ -19,8 +19,10 @@ namespace SHUU.Utils.Helpers
     {
         #region Variables
 
-        // Editor Prefs
         public static string ProjectKey => Application.dataPath.GetHashCode().ToString();
+
+
+        public static string Path => Application.dataPath;
         
         #endregion
 
@@ -44,10 +46,7 @@ namespace SHUU.Utils.Helpers
 
             if (toCheck.Substring(startInd, length) == checkFor)
             {
-                if (removeSubstringChecked)
-                {
-                    toCheck = toCheck.Substring(0, startInd) + toCheck.Substring(startInd + length);
-                }
+                if (removeSubstringChecked) toCheck = toCheck.Substring(0, startInd) + toCheck.Substring(startInd + length);
 
                 return true;
             }
@@ -63,13 +62,13 @@ namespace SHUU.Utils.Helpers
         /// <param name="key">The string to be localized.</param>
         /// <returns>Returns the localized string.</returns>
         #endregion
-        public static string LocalizeString(string str)
+        public static string LocalizeString(this string str)
         {
             return ProjectKey + "_" + str;
         }
 
 
-        public static void CopyToClipboard(string str)
+        public static void CopyToClipboard(this string str)
         {
             #if UNITY_2017_1_OR_NEWER
                 GUIUtility.systemCopyBuffer = str;
@@ -98,12 +97,12 @@ namespace SHUU.Utils.Helpers
 
         #region Enums
 
-        public static int GetEnumValFromString<enumType>(string name) where enumType : Enum
+        public static int GetEnumValFromString<enumType>(this string name) where enumType : Enum
         {
             return (int)Enum.Parse(typeof(enumType), name);
         }
 
-        public static string GetEnumNameFromVal<enumType>(int val) where enumType : Enum
+        public static string GetEnumNameFromVal<enumType>(this int val) where enumType : Enum
         {
             return Enum.GetName(typeof(enumType), val);
         }
@@ -120,19 +119,22 @@ namespace SHUU.Utils.Helpers
 
         #region Lists
 
-        public static bool IndexIsValid<E>(int index, IList<E> list)
+        public static bool IndexIsValid<E>(this IReadOnlyList<E> list, int index)
         {
             return !(index < 0 || index >= list.Count);
         }
 
-        public static bool IndexIsValidAndNotNull<E>(int index, IList<E> list)
+        public static bool IndexIsValidAndNotNull<E>(this IReadOnlyList<E> list, int index)
         {
-            return IndexIsValid(index, list) && list[index] != null;
+            return list.IndexIsValid(index) && list[index] != null;
         }
 
 
-        public static void CleanList<E>(this IList<E> list)
+        public static void Clean<E>(this IList<E> list)
         {
+            if (list is Array) return;
+
+
             for (int i = 0; i < list.Count; i++)
             {
                 if (list[i] == null)
@@ -143,32 +145,117 @@ namespace SHUU.Utils.Helpers
                 }
             }
         }
-
-
-        public static void MoveItemAndShiftList<E>(this IList<E> list, int indexToMove, int newIndex)
+        public static T[] CleanArray<T>(this T[] array)
         {
-            if (!IndexIsValid(indexToMove, list) || !IndexIsValid(newIndex, list))
-            {
-                return;
-            }
+            if (array == null) return Array.Empty<T>();
 
-            E temp = list[indexToMove];
+            int count = 0;
 
-            list.RemoveAt(indexToMove);
+            for (int i = 0; i < array.Length; i++) if (array[i] != null) count++;
 
+            T[] result = new T[count];
 
-            list.Add(list[list.Count - 1]);
-            for (int i = newIndex + 1; i < list.Count; i++)
-            {
-                list[i] = list[i - 1];
-            }
+            int index = 0;
+            for (int i = 0; i < array.Length; i++) if (array[i] != null) result[index++] = array[i];
 
-
-            list[newIndex] = temp;
+            return result;
         }
 
 
-        public static T RandomElement<T>(this IList<T> list)
+        #region List functions for arrays
+        public static T[] Add<T>(this T[] array, T item)
+        {
+            if (array == null) return new T[] { item };
+
+
+            T[] result = new T[array.Length + 1];
+            Array.Copy(array, result, array.Length);
+            
+            result[result.Length - 1] = item;
+
+
+            return result;
+        }
+
+        public static T[] RemoveAt<T>(this T[] array, int index)
+        {
+            if (array == null) return Array.Empty<T>();
+
+            if (!array.IndexIsValid(index)) throw new ArgumentOutOfRangeException(nameof(index));
+
+
+            T[] result = new T[array.Length - 1];
+
+            if (index > 0) Array.Copy(array, 0, result, 0, index);
+
+            if (index < array.Length - 1) Array.Copy(array, index + 1, result, index, array.Length - index - 1);
+
+
+            return result;
+        }
+        public static T[] Remove<T>(this T[] array, T item)
+        {
+            if (array == null || !array.Contains(item)) return array;
+
+
+            int index = Array.IndexOf(array, item);
+
+            if (index == -1) return array;
+
+
+            return array.RemoveAt(index);
+        }
+
+        public static T[] Insert<T>(this T[] array, int index, T item)
+        {
+            if (array == null) return new T[] { item };
+
+            if (!array.IndexIsValid(index)) throw new ArgumentOutOfRangeException(nameof(index));
+
+
+            T[] result = new T[array.Length + 1];
+
+            if (index > 0) Array.Copy(array, 0, result, 0, index);
+
+            result[index] = item;
+
+            if (index < array.Length) Array.Copy(array, index, result, index + 1, array.Length - index);
+
+
+            return result;
+        }
+        #endregion
+
+
+        public static void MoveItem<E>(this IList<E> list, int from, int to)
+        {
+            if (list is Array) return;
+
+            if (!((IReadOnlyList<E>)list).IndexIsValidAndNotNull(from) || !((IReadOnlyList<E>)list).IndexIsValid(to) || from == to) return;
+
+
+            list.Insert(to, list[from]);
+
+            if (from > to) from++;
+            list.RemoveAt(from);
+        }
+        public static T[] MoveItemArray<T>(this T[] array, int from, int to)
+        {
+            if (!array.IndexIsValidAndNotNull(from) || !array.IndexIsValid(to) || from == to) return array;
+
+
+            T item = array[from];
+            array = array.RemoveAt(from);
+
+            if (from < to) to--;
+            array = array.Insert(to, item);
+
+
+            return array;
+        }
+
+
+        public static T RandomElement<T>(this IReadOnlyList<T> list)
         {
             return list[UnityEngine.Random.Range(0, list.Count)];
         }
@@ -186,7 +273,7 @@ namespace SHUU.Utils.Helpers
         /// <param name="key">The PlayerPref's key (aka their "name").</param>
         /// <returns>Returns whether the PlayerPref exists.</returns>
         #endregion
-        public static bool HasPlayerPref(string key)
+        public static bool PlayerPrefExists(this string key)
         {
             return PlayerPrefs.HasKey(key);
         }
@@ -199,7 +286,7 @@ namespace SHUU.Utils.Helpers
         /// <param name="key">The PlayerPref's key (aka their "name").</param>
         /// <param name="value">The value to save.</param>
         #endregion
-        public static void SetPlayerPref<T>(string key, T value)
+        public static void SetPlayerPref<T>(this string key, T value)
         {
             if (typeof(T) == typeof(string))
             {
@@ -255,9 +342,9 @@ namespace SHUU.Utils.Helpers
         /// <param name="defaultValue">The default value of this PlayerPref.</param>
         /// <returns>Returns the value of the PlayerPref.</returns>
         #endregion
-        public static T GetPlayerPref<T>(string key, T defaultValue = default)
+        public static T GetPlayerPref<T>(this string key, T defaultValue = default)
         {
-            if (!HasPlayerPref(key)) return default;
+            if (!key.PlayerPrefExists()) return default;
 
 
             if (typeof(T) == typeof(string))
@@ -339,9 +426,9 @@ namespace SHUU.Utils.Helpers
         /// </summary>
         /// <param name="key">The PlayerPref's key (aka their "name").</param>
         #endregion
-        public static void DeletePlayerPref(string key)
+        public static void DeletePlayerPref(this string key)
         {
-            if (!HasPlayerPref(key)) return;
+            if (!key.PlayerPrefExists()) return;
 
 
             PlayerPrefs.DeleteKey(key);
@@ -353,7 +440,7 @@ namespace SHUU.Utils.Helpers
 
         #region Recursion
 
-        public static T SearchComponent_InSelfAndParents<T>(Transform start) where T : Component
+        public static T SearchComponent_InSelfAndParents<T>(this Transform start) where T : Component
         {
             Transform current = start;
 
@@ -374,7 +461,7 @@ namespace SHUU.Utils.Helpers
             return null; // Not found
         }
 
-        public static T SearchComponent_InSelfAndChildren<T>(Transform start) where T : Component
+        public static T SearchComponent_InSelfAndChildren<T>(this Transform start) where T : Component
         {
             Queue<Transform> queue = new Queue<Transform>();
 
@@ -399,11 +486,11 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        public static void SetLayer_InSelfAndChildren(GameObject start, LayerMask newLayer)
+        public static void SetLayer_InSelfAndChildren(this GameObject start, LayerMask newLayer)
         {
-            SetLayer_InSelfAndChildren(start, LayerMask_To_LayerIndex(newLayer));
+            SetLayer_InSelfAndChildren(start, newLayer.ToLayerIndex());
         }
-        public static void SetLayer_InSelfAndChildren(GameObject start, int newLayer)
+        public static void SetLayer_InSelfAndChildren(this GameObject start, int newLayer)
         {
             Queue<GameObject> queue = new Queue<GameObject>();
             
@@ -427,7 +514,7 @@ namespace SHUU.Utils.Helpers
 
 
         #region Layers
-        public static int LayerMask_To_LayerIndex(LayerMask mask)
+        public static int ToLayerIndex(this LayerMask mask)
         {
             return Mathf.RoundToInt(Mathf.Log(mask.value, 2));
         }
@@ -437,7 +524,7 @@ namespace SHUU.Utils.Helpers
 
         #region Screen Resolution
 
-        public static Vector2Int GetClosestAspectRatio(Vector2Int screenValues, bool exactScreenSize = true)
+        public static Vector2Int GetClosestAspectRatio(this Vector2Int screenValues, bool exactScreenSize = true)
         {
             if (exactScreenSize)
             {
@@ -563,7 +650,7 @@ namespace SHUU.Utils.Helpers
 
         #region Mouse
 
-        public static Vector2 GetMouseScreenCoords(RectTransform canvasRect, Camera cam = null)
+        public static Vector2 GetMouseScreenCoords(this RectTransform canvasRect, Camera cam = null)
         {
             Vector2 mousePos;
 
@@ -617,7 +704,7 @@ namespace SHUU.Utils.Helpers
 
         #region Files
 
-        public static T FindFile<T>(string path, T defaultValue = default) where T : UnityEngine.Object
+        public static T FindFile<T>(this string path, T defaultValue = default) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
             if (!File.Exists(path)) return defaultValue;
@@ -629,7 +716,7 @@ namespace SHUU.Utils.Helpers
             return defaultValue;
 #endif
         }
-        public static T FindFile<T>(string[] pathArray, T defaultValue = default) where T : UnityEngine.Object
+        public static T FindFile<T>(this string[] pathArray, T defaultValue = default) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
             for (int i = 0; i < pathArray.Length; i++)
@@ -704,7 +791,7 @@ namespace SHUU.Utils.Helpers
 
 
         #region Interact System
-        public static bool InteractionRaycast_Check(RaycastHit hit, out IfaceInteractable inactScript, params string[] tags)
+        public static bool InteractionRaycast_Check(this RaycastHit hit, out IfaceInteractable inactScript, params string[] tags)
         {
             inactScript = null;
 
@@ -723,7 +810,7 @@ namespace SHUU.Utils.Helpers
 
         
         #region Misc
-        public static string GetTypeName(Type t)
+        public static string GetTypeName(this Type t)
         {
             // Primitive C# types
             if (t == typeof(bool))       return "bool";

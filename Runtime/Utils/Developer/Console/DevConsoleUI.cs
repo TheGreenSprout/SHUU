@@ -17,6 +17,9 @@ namespace SHUU.Utils.Developer.Console
         [SerializeField] private TMP_Text outputText;
 
 
+        [HideInInspector] public bool inputFieldActive => inputField.isFocused;
+
+
 
         // Internal
         private List<string> previousCommands;

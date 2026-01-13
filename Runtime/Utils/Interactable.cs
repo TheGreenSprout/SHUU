@@ -1,3 +1,4 @@
+using SHUU.Utils.Helpers.Interaction;
 using UnityEngine;
 
 namespace SHUU.Utils
@@ -30,6 +31,8 @@ namespace SHUU.Utils
             canBeInteracted = true;
         }
 
+        protected virtual void OnDestroy() => DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
+
 
         #region XML doc
         /// <summary>
@@ -49,10 +52,7 @@ namespace SHUU.Utils
         /// Interaction logic.
         /// </summary>
         #endregion
-        public virtual void Interact()
-        {
-            Debug.LogWarning("Interaction void [Interact()] not set up for object: " + this.name);
-        }
+        public virtual void Interact() { }
 
 
         #region XML doc
@@ -60,20 +60,14 @@ namespace SHUU.Utils
         /// This runs when the interactable starts being hovered over.
         /// </summary>
         #endregion
-        public virtual void HoverStart()
-        {
-            Debug.LogWarning("Interaction void [HoverStart()] not set up for object: " + this.name);
-        }
+        public virtual void HoverStart() => DynamicCursorInteraction.AddCursorAffector(this.gameObject);
 
         #region XML doc
         /// <summary>
         /// This runs when the interactable stops being hovered over.
         /// </summary>
         #endregion
-        public virtual void HoverEnd()
-        {
-            Debug.LogWarning("Interaction void [HoverEnd()] not set up for object: " + this.name);
-        }
+        public virtual void HoverEnd() => DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
     }
 
 }

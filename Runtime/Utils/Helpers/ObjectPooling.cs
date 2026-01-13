@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SHUU.Utils.Helpers
 {
     public static class ObjectPooling
     {
-        public static Transform default_parent;
+        public static Transform default_parent = null;
 
 
-        public static List<IObjectPool> pools = new List<IObjectPool>();
+        public static List<IObjectPool> pools = new();
     }
 
     
@@ -41,8 +42,9 @@ namespace SHUU.Utils.Helpers
     {
         public System.Type GetItemType() => typeof(T);
 
-        public int totalCount => total;
-        public int poolCount => pool.Count;
+        public int totalCount => poolCount + activesCount;
+        public int poolCount => available.Count;
+        public int activesCount => inUse.Count;
 
         public string name => poolName;
 
@@ -50,7 +52,9 @@ namespace SHUU.Utils.Helpers
 
         private readonly T prefab;
 
-        private readonly Queue<ObjectPoolNode<T>> pool = new Queue<ObjectPoolNode<T>>();
+        private readonly Queue<ObjectPoolNode<T>> available = new();
+
+        private readonly HashSet<ObjectPoolNode<T>> inUse = new();
 
 
         private readonly Transform parent;
@@ -58,14 +62,12 @@ namespace SHUU.Utils.Helpers
         private readonly bool autoExpand;
 
 
-        private int total = 0;
-
         private string poolName = null;
 
 
 
 
-        public ObjectPool(T prefab, int initialSize, Transform parent = null, string _name = null, bool autoExpand = true)
+        public ObjectPool(T prefab, int initialSize, Transform parent = null, bool autoExpand = true, string _name = null)
         {
             ObjectPooling.pools.Add(this);
 
@@ -82,23 +84,28 @@ namespace SHUU.Utils.Helpers
             this.parent = parent;
             this.autoExpand = autoExpand;
 
-            total = 0;
-
             for (int i = 0; i < initialSize; i++) AddObject();
         }
 
 
 
-        private ObjectPoolNode<T> AddObject(bool canBeDeleted = true)
+        private ObjectPoolNode<T> AddObject()
         {
             T obj = Object.Instantiate(prefab, parent);
             obj.gameObject.SetActive(false);
 
             var node = new ObjectPoolNode<T>(obj);
 
-            pool.Enqueue(node);
+            available.Enqueue(node);
 
-            total++;
+
+            return node;
+        }
+        public ObjectPoolNode<T> ForceAdd_Active(T obj)
+        {
+            var node = new ObjectPoolNode<T>(obj);
+
+            inUse.Add(node);
 
 
             return node;
@@ -112,71 +119,101 @@ namespace SHUU.Utils.Helpers
 
         public T Get()
         {
-            if (pool.Count == 0)
+            ObjectPoolNode<T> node;
+
+            if (available.Count > 0) node = available.Dequeue();
+            else if (autoExpand)
             {
-                if (autoExpand) return AddObject().instance;
-                else return GetOldestRecyclable();
+                AddObject();
+                
+                return Get();
             }
-            
-            ObjectPoolNode<T> node = pool.Dequeue();
+            else return GetOldestRecyclable();
 
             node.instance.gameObject.SetActive(true);
-
+            inUse.Add(node);
 
             return node.instance;
+        }
+
+        public T[] GetActives()
+        {
+            ObjectPoolNode<T>[] arrayBridge = inUse.ToArray();
+            T[] array = new T[arrayBridge.Length];
+
+            for (int i = 0; i < arrayBridge.Length; i++)
+            {
+                array[i] = arrayBridge[i].instance;
+            }
+
+
+            return array;
+        }
+        public T[] GetPooled()
+        {
+            ObjectPoolNode<T>[] arrayBridge = available.ToArray();
+            T[] array = new T[arrayBridge.Length];
+
+            for (int i = 0; i < arrayBridge.Length; i++)
+            {
+                array[i] = arrayBridge[i].instance;
+            }
+            
+
+            return array;
         }
 
 
         private T GetOldestRecyclable()
         {
-            int attempts = pool.Count;
-
-            while (attempts-- > 0)
+            foreach (var node in inUse)
             {
-                var node = pool.Dequeue();
+                if (!node.canRecycle) continue;
 
-                if (node.canRecycle)
-                {
-                    node.instance.gameObject.SetActive(true);
+                node.instance.gameObject.SetActive(true);
 
-                    return node.instance;
-                }
 
-                
-                pool.Enqueue(node);
+                return node.instance;
             }
 
-            
+
             return null;
         }
 
         public void Return(T instance)
         {
-            foreach (var node in pool)
+            ObjectPoolNode<T> found = null;
+
+            foreach (var node in inUse)
             {
                 if (node.instance == instance)
                 {
-                    instance.gameObject.SetActive(false);
+                    found = node;
 
-                    return;
+                    break;
                 }
             }
 
-            var newNode = new ObjectPoolNode<T>(instance)
+
+            if (found == null)
             {
-                canRecycle = true
-            };
+                Debug.LogWarning($"[{poolName}] Tried to return object not owned by pool.");
+
+                return;
+            }
 
 
+            inUse.Remove(found);
             instance.gameObject.SetActive(false);
+            instance.transform.SetParent(parent, false);
 
-            pool.Enqueue(newNode);
+            available.Enqueue(found);
         }
 
 
         public void SetCanRecycle(T instance, bool value)
         {
-            foreach (var node in pool)
+            foreach (var node in inUse)
             {
                 if (node.instance == instance)
                 {

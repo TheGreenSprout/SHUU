@@ -5,7 +5,7 @@ namespace SHUU.Utils.UI
 {
     public class Mouse_Cursor : MonoBehaviour
     {
-        [SerializeField] private Canvas canvas;
+        private Canvas canvas;
 
         private RectTransform canvasRect;
         private Camera canvasCam;
@@ -15,9 +15,22 @@ namespace SHUU.Utils.UI
 
 
 
+        [SerializeField] private bool manageCursorVisibility = true;
 
-        void Start()
+
+
+
+        private void Awake()
         {
+            if (!canvas) canvas = transform.SearchComponent_InSelfAndParents<Canvas>();
+            if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            {
+                Debug.LogError("OverlayCanvas_MouseCursor can't be used in a canvas that isn't RenderMode 'Screen Space - Overlay'.");
+
+                Destroy(this);
+            }
+
+
             rectTransform = GetComponent<RectTransform>();
 
 
@@ -28,9 +41,17 @@ namespace SHUU.Utils.UI
         }
 
 
+        private void OnEnable()
+        {
+            if (manageCursorVisibility) HandyFunctions.ChangeCursorVisibility(false);
+        }
+
         private void OnDisable()
         {
             transform.localPosition = Vector3.zero;
+
+
+            if (manageCursorVisibility) HandyFunctions.ChangeCursorVisibility(true);
         }
 
 

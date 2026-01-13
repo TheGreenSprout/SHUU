@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Globals;
 using UnityEngine;
@@ -56,8 +57,12 @@ namespace SHUU.Utils.Helpers
             foreach (var c in objs) c.SetActive(false);
         }
 
-        public static void ShowUI()
+        public static async void ShowUI()
         {
+            await Task.Delay(50);
+
+
+
             if (cache_objs == null) return;
 
             foreach (var c in cache_objs) c.SetActive(true);
@@ -74,7 +79,7 @@ namespace SHUU.Utils.Helpers
 
             ScreenCapture.CaptureScreenshot(path);
 
-            if (hideUI != null) SHUU_GlobalsProxy.timerManager.Create(0, ShowUI);
+            if (hideUI != null) ShowUI();
 
 
             if (showScreenshot) Delayed_OpenLastScreenshot();
@@ -89,7 +94,7 @@ namespace SHUU.Utils.Helpers
 
             ScreenCapture.CaptureScreenshot(path, scale);
 
-            if (hideUI != null) SHUU_GlobalsProxy.timerManager.Create(0, ShowUI);
+            if (hideUI != null) ShowUI();
 
 
             if (showScreenshot) Delayed_OpenLastScreenshot();
@@ -143,9 +148,10 @@ namespace SHUU.Utils.Helpers
 
 
 
-        private static void Delayed_OpenLastScreenshot()
+        private static async void Delayed_OpenLastScreenshot()
         {
-            SHUU_GlobalsProxy.timerManager.Create(0.2f, OpenLastScreenshot);
+            await Task.Delay(200);
+            OpenLastScreenshot();
         }
         public static void OpenLastScreenshot()
         {

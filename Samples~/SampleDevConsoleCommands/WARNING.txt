@@ -2,11 +2,14 @@ WARNING
 
 When making devconsole commands, follow this structure:
 
-[DevConsoleCommand("command", "description")]
+[DevConsoleCommand("command", "description", "tag")]
 public static (string[], Color?) ClearSet(parameters)
 {
     
 }
+
+"command" is what the user writes to use the command, "description" is the description of the command (this is optional)
+and "tag" is the tag of this command (also optional)
 
 string[] are the output lines that will be displayed on the console,
 with Color? being the color of these lines (if left null the lines will be white)

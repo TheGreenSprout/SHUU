@@ -48,7 +48,9 @@ MonoBehaviour:
   identifier: Debug_Singleton
   scripts: {fileID: 6373702377639606796}
   bridges: -1
-  bannedScenes: []
+  bridgeFree_Scenes:
+  - LoadingScene
+  banned_Scenes: []
 --- !u!1 &6373702377639606796
 GameObject:
   m_ObjectHideFlags: 0

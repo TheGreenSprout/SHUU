@@ -1,84 +1,42 @@
 using UnityEngine;
-using SHUU.Utils;
-using SHUU.UserSide;
+using SHUU.Utils.Helpers.Interaction;
 
 #region XML doc
 /// <summary>
 /// Example script of how to code a basic interaction raycast using the SproutsHUU's interaction system.
 /// </summary>
 #endregion
-public class InteractionRaycast : MonoBehaviour
+public class InteractionRaycast : InteractionRaycastLogic
 {
-    public float interactionRange;
+    [SerializeField] private KeyCode[] interactKeys = new KeyCode[] { KeyCode.E };
 
-
-    public LayerMask interactablesMask;
-
-
-
-    public IfaceInteractable previousInact;
+    [SerializeField] private int[] interactMouse = new int[] { 0 };
 
 
 
 
-    private void OnEnable()
+    protected override void Update()
     {
-        //CustomInputManager.AddInteractPressedCallback(OnInteractionPressed);
+        base.Update();
 
 
-        previousInact = null;
-    }
-
-    private void OnDisable()
-    {
-        //CustomInputManager.RemoveInteractPressedCallback(OnInteractionPressed);
+        if (InputCheck()) Interact();
     }
 
 
-    private void Update()
+    private bool InputCheck()
     {
-        Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(r, out RaycastHit hitInfo, interactionRange, interactablesMask))
+        foreach (KeyCode key in interactKeys)
         {
-            if (hitInfo.collider.gameObject.TryGetComponent(out IfaceInteractable inact))
-            {
-                if (inact.CanBeInteracted())
-                {
-                    if (previousInact != inact)
-                    {
-                        if (previousInact != null)
-                        {
-                            previousInact.HoverEnd();
-                        }
-
-                        previousInact = inact;
-
-
-                        inact.HoverStart();
-                    }
-                }
-                else if (previousInact != null)
-                {
-                    previousInact.HoverEnd();
-
-                    previousInact = null;
-                }
-            }
+            if (Input.GetKeyDown(key)) return true;
         }
-        else if (previousInact != null)
+
+        foreach (int mouse in interactMouse)
         {
-            previousInact.HoverEnd();
-
-            previousInact = null;
+            if (Input.GetMouseButtonDown(mouse)) return true;
         }
-    }
 
-    private void OnInteractionPressed()
-    {
-        if (previousInact != null && previousInact.CanBeInteracted())
-        {
-            previousInact.Interact();
-        }
+
+        return false;
     }
 }

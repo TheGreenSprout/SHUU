@@ -150,8 +150,21 @@ namespace SHUU.Utils.Developer.Console
         [SerializeField] private List<string> optionalParameter_consoleInterpreters = new List<string>() { "-", "~" };
 
 
+        [Tooltip("The higher on the list (closer to index 0) the tag is, the higher the priority")]
+        public List<string> tagList = new List<string>() {
+            "Information",
+            "Utilities",
+            "Debug",
+            "Classic Input",
+            "Input System",
+            "Untagged"
+        };
 
-        [SerializeField] private DevConsoleUI devConsoleUI;
+
+
+        public DevConsoleUI devConsoleUI;
+
+        [HideInInspector] public bool inputFieldActive => devConsoleUI.inputFieldActive;
 
 
         [HideInInspector] public DevConsoleInput input;

@@ -109,7 +109,7 @@ namespace SHUU.Utils.Globals
             
             
             
-            if (!HandyFunctions.IndexIsValid(index, dialogueBox_PrefabList))
+            if (!dialogueBox_PrefabList.IndexIsValid(index))
             {
                 Debug.LogError("Dialogue prefab index is not valid for the current dialogue prefab list.");
 

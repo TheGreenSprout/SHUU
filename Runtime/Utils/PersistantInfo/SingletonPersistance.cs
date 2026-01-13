@@ -15,6 +15,7 @@ namespace SHUU.Utils.PersistantInfo
         public static List<SingletonPersistance> Singleton_Instance = new List<SingletonPersistance>();
 
 
+
         [SerializeField] private string identifier = "Singleton";
         public string IDENTIFIER => identifier;
 
@@ -25,9 +26,10 @@ namespace SHUU.Utils.PersistantInfo
 
 
         [Tooltip("If set  to 0 or more, after that ammount of scene changes, on the next scene change the object will be destroyed.")]
-        [SerializeField] private int bridges = -1;
+        public int bridges = -1;
         [Tooltip("These scenes won't cost a bridge to enter.")]
-        [SerializeField] private List<string> bridgeFree_Scenes = new List<string>() {"Loading"};
+        [SerializeField] private List<string> bridgeFree_Scenes = new List<string>() {"LoadingScene"};
+        private bool initialized = false;
 
 
         [Tooltip("If the singleton enters one of these scenes it will be deleted.")]
@@ -54,8 +56,8 @@ namespace SHUU.Utils.PersistantInfo
             DontDestroyOnLoad(gameObject);
 
 
-            if (bridges > -1) bridges++;
             SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.activeSceneChanged += OnSceneChanged;
 
 
             if (scripts != null) scripts.SetActive(true);
@@ -66,20 +68,28 @@ namespace SHUU.Utils.PersistantInfo
             if (Singleton_Instance == null) return true;
 
 
-            foreach (SingletonPersistance singleton in Singleton_Instance)
+            foreach (var singleton in Singleton_Instance)
             {
-                if(this.IDENTIFIER == singleton.IDENTIFIER) return true;
+                if (singleton.IDENTIFIER != IDENTIFIER) continue;
+
+                if (singleton.bridges == 0) return false;
+
+                return true;
             }
 
             return false;
         }
 
 
-        private void OnDestroy()
+        public void DestroySingleton()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.activeSceneChanged -= OnSceneChanged;
 
-            if (Singleton_Instance == null) Singleton_Instance.Remove(this);
+           Singleton_Instance.Remove(this);
+
+            
+            Destroy(this.gameObject);
         }
 
 
@@ -88,17 +98,27 @@ namespace SHUU.Utils.PersistantInfo
         {
             if (banned_Scenes.Contains(SceneLoader.GetCurrentSceneName()))
             {
-                Destroy(gameObject);
+                DestroySingleton();
+
+                return;
+            }
+        }
+
+        private void OnSceneChanged(Scene oldScene, Scene newScene)
+        {
+            if (!initialized)
+            {
+                initialized = true;
 
                 return;
             }
 
-
+            
             if (bridges > -1)
             {
-                if (bridges == 0) Destroy(gameObject);
+                if (bridges == 0) DestroySingleton();
                 
-                if (!bridgeFree_Scenes.Contains(SceneLoader.GetCurrentSceneName())) bridges--;
+                if (!bridgeFree_Scenes.Contains(newScene.name)) bridges--;
             }
         }
     }

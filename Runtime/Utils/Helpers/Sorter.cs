@@ -6,7 +6,7 @@ namespace SHUU.Utils.Helpers
 {
     public static class Sorter
     {
-        private static bool CanBeSorted<E>(IList<E> list)
+        private static bool CanBeSorted<E>(this IList<E> list)
         {
             return !(list.Count <= 1 || list == null);
         }
@@ -102,7 +102,7 @@ namespace SHUU.Utils.Helpers
 
             int max = arr.Max();
             for (int exp = 1; max / exp > 0; exp *= 10)
-                CountingSortByDigit(arr, exp);
+                CountingSortByDigit(ref arr, exp);
 
             list = arr.Cast<E>().ToList();
         }
@@ -111,7 +111,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Counting Sort (by digit) — O(n * k)
         /// </summary>
-        private static void CountingSortByDigit(int[] arr, int exp)
+        private static void CountingSortByDigit(ref int[] arr, int exp)
         {
             int n = arr.Length;
             int[] output = new int[n];
@@ -143,7 +143,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Merge Sort — O(n * log n)
         /// </summary>
-        public static void MergeSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void MergeSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
             if (list.Count <= 1) return;
@@ -185,7 +185,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Heap Sort — O(n * log n)
         /// </summary>
-        public static void HeapSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void HeapSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
 
@@ -225,7 +225,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Quick Sort — Worst case: O(n²) ; Best case: O(n * log n)
         /// </summary>
-        public static void QuickSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void QuickSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
             QuickSortInternal(ref list, 0, list.Count - 1);
@@ -263,7 +263,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Shell Sort — Worst case: O(n^(3/2)) ; Best case: O(n log n)
         /// </summary>
-        public static void ShellSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void ShellSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
 
@@ -290,7 +290,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Bubble Sort — Worst case: O(n²) ; Best case: O(n)
         /// </summary>
-        public static void BubbleSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void BubbleSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
 
@@ -309,7 +309,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Bidirectional (Cocktail) Bubble Sort — Worst case: O(n²) ; Best case: O(n)
         /// </summary>
-        public static void BidirectionalBubbleSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void BidirectionalBubbleSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
 
@@ -352,7 +352,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Insertion Sort — Worst case: O(n²) ; Best case: O(n)
         /// </summary>
-        public static void InsertionSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void InsertionSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
 
@@ -377,7 +377,7 @@ namespace SHUU.Utils.Helpers
         /// <summary>
         /// Selection Sort — O(n²)
         /// </summary>
-        public static void SelectionSort<E>(ref IList<E> list) where E : IComparable<E>
+        public static void SelectionSort<E>(this IList<E> list) where E : IComparable<E>
         {
             if (!CanBeSorted(list)) return;
 

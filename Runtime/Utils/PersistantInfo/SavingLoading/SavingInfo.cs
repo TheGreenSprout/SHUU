@@ -5,24 +5,25 @@ using SHUU.UserSide.Commons;
 namespace SHUU.Utils.PersistantInfo.SavingLoading
 {
 
-[RequireComponent(typeof(SingletonPersistance))]
+[RequireComponent(typeof(SavingPersistance))]
 #region XML doc
 /// <summary>
-/// Parent of all Singleton persistance scripts.
+/// Parent of all saving info persistance scripts.
 /// </summary>
 #endregion
 public class SavingInfo : SceneSensitiveScript, IfaceSavingInfo
 {
-    public string identifier = "SingletonName";
+    [Tooltip("Identifier must be the same as it's corresponding DTO_Info class")]
+    public string identifier = "Info Name";
     
     
     
     #region Save info
     #region XML doc
     /// <summary>
-    /// Saves all info related to this singleton.
+    /// Saves all info related to this saving info.
     /// </summary>
-    /// <param name="sceneName">Scene in which the singleton currently is.</param>
+    /// <param name="sceneName">Scene in which the saving info currently is.</param>
     #endregion
     public virtual void SaveInfo(string sceneName)
     {
@@ -33,7 +34,7 @@ public class SavingInfo : SceneSensitiveScript, IfaceSavingInfo
 
 
 
-        Debug.LogWarning("SingletonInfo void [SaveInfo()] not set up for object: " + this.name);
+        Debug.LogWarning("SavingInfo void [SaveInfo()] not set up for object: " + this.name);
     }
     #endregion
 
@@ -41,9 +42,9 @@ public class SavingInfo : SceneSensitiveScript, IfaceSavingInfo
     #region Load info
     #region XML doc
     /// <summary>
-    /// Loads all info related from this singleton.
+    /// Loads all info related from this saving info.
     /// </summary>
-    /// <param name="sceneName">Scene in which the singleton currently is.</param>
+    /// <param name="sceneName">Scene in which the saving info currently is.</param>
     #endregion
     public virtual void LoadInfo(string sceneName)
     {
@@ -54,7 +55,7 @@ public class SavingInfo : SceneSensitiveScript, IfaceSavingInfo
 
 
 
-        Debug.LogWarning("SingletonInfo void [LoadInfo()] not set up for object: " + this.name);
+        Debug.LogWarning("SavingInfo void [LoadInfo()] not set up for object: " + this.name);
     }
     #endregion
 
@@ -63,13 +64,13 @@ public class SavingInfo : SceneSensitiveScript, IfaceSavingInfo
     #region DTO import/export
     #region XML doc
     /// <summary>
-    /// Exports all of this singleton's info to it's corresponding DTO inside the MasterDTO.
+    /// Exports all of this saving info's info to it's corresponding DTO inside the MasterDTO.
     /// </summary>
     /// <param name="masterDTO">A reference to the MasterDTO.</param>
     #endregion
     public virtual DTO_Info ExportDTO()
     {
-        Debug.LogWarning("SingletonInfo function (return DTO_InfoClass) [ExportDTO()] not set up for object: " + this.name);
+        Debug.LogWarning("SavingInfo function (return DTO_InfoClass) [ExportDTO()] not set up for object: " + this.name);
 
         return null;
     }
@@ -77,13 +78,13 @@ public class SavingInfo : SceneSensitiveScript, IfaceSavingInfo
 
     #region XML doc
     /// <summary>
-    /// Imports all of this singleton's info from it's corresponding DTO inside the MasterDTO.
+    /// Imports all of this saving info's info from it's corresponding DTO inside the MasterDTO.
     /// </summary>
     /// <param name="dto">It's corresponding DTO with all the info that needs loading.</param>
     #endregion
     public virtual void ImportDTO(DTO_Info dto)
     {
-        Debug.LogWarning("SingletonInfo void [ImportDTO()] not set up for object: " + this.name);
+        Debug.LogWarning("SavingInfo void [ImportDTO()] not set up for object: " + this.name);
     }
     #endregion
 }

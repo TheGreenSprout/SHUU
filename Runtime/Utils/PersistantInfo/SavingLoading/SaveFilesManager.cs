@@ -17,23 +17,52 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
     #endregion
     public class SaveFilesManager : MonoBehaviour
     {
-        [SerializeField] private List<string> saveFiles;
+        [Tooltip("If null or empty, the path will be Application.persistentDataPath + customSaveFilesFolder")]
+        [SerializeField] private string customSaveFilesPath = null;
+        [Tooltip("If null or empty, the path will be Application.persistentDataPath")]
+        [SerializeField] private string customSaveFilesFolder = "/Saves";
+
+
+
+        public List<string> saveFiles;
 
 
         [SerializeField] private bool autoSaveWhenClosing;
 
 
 
-        public static int currentSaveFileIndex = 0;
+        private static int _currentSaveFileIndex = 0;
+        public static int currentSaveFileIndex
+        {
+            get => _currentSaveFileIndex;
+
+            set
+            {
+                if (value >= Persistant_Globals.saveFilesManager.saveFiles.Count) value = 0;
+                else if (value < 0) value = Persistant_Globals.saveFilesManager.saveFiles.Count-1;
+
+                _currentSaveFileIndex = value;
+            }
+        }
         
         
         
         
         private void Awake()
         {
+            if (string.IsNullOrEmpty(customSaveFilesPath)) customSaveFilesPath = Application.persistentDataPath;
+            else customSaveFilesPath = Path.Combine(Application.persistentDataPath);
+
+            customSaveFilesPath += customSaveFilesFolder;
+
+
+            Directory.CreateDirectory(customSaveFilesPath);
+
+
+
             for (int i = 0; i < saveFiles.Count; i++)
             {
-                saveFiles[i] = Application.persistentDataPath + "/" + saveFiles[i];
+                saveFiles[i] = customSaveFilesPath + "/" + saveFiles[i] + ".json";
             }
             
             
@@ -95,7 +124,7 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
             // Get (and load) all your DTO sinletons.
             foreach (SavingInfo singleton in gameObject.GetComponents<SavingInfo>())
             {
-                DTO_Info dto = masterDTO.dataDictionary.FirstOrDefault(x => x.Value == singleton.identifier).Key;
+                DTO_Info dto = masterDTO.dataDictionary.FirstOrDefault(x => x.Key == singleton.identifier).Value;
                 
                 singleton.ImportDTO(dto);
             }
@@ -135,7 +164,9 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
             // Get (and save) all your DTO sinletons.
             foreach (SavingInfo singleton in gameObject.GetComponents<SavingInfo>())
             {
-                masterDTO.dataDictionary.Add(singleton.ExportDTO(), singleton.identifier);
+                if (masterDTO.dataDictionary.ContainsKey(singleton.identifier)) masterDTO.dataDictionary.Remove(singleton.identifier);
+
+                masterDTO.dataDictionary.Add(singleton.identifier, singleton.ExportDTO());
             }
 
 
@@ -174,7 +205,7 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
 
 
 
-            string fullPath = Path.Combine(Application.persistentDataPath, saveFiles[fileIndex]);
+            string fullPath = saveFiles[fileIndex];
 
             if (File.Exists(fullPath))
             {

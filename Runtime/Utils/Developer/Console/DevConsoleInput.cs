@@ -8,7 +8,7 @@ namespace SHUU.Utils.Developer.Console
     public class DevConsoleInput : MonoBehaviour
     {
         public bool devConsole_On = false;
-        public bool canToggle_devConsole = false;
+        public bool canToggle_devConsole = true;
 
 
         [HideInInspector] public Action toggle;
