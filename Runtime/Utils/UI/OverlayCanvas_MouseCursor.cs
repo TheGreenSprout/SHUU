@@ -43,19 +43,34 @@ namespace SHUU.Utils.UI
 
         private void OnEnable()
         {
+            HandyFunctions.OnCursorStateChange += CursorStateChanged;
+
+
+
             if (manageCursorVisibility) HandyFunctions.ChangeCursorVisibility(false);
         }
 
         private void OnDisable()
         {
+            HandyFunctions.OnCursorStateChange += CursorStateChanged;
+
+
+            
             transform.localPosition = Vector3.zero;
 
 
             if (manageCursorVisibility) HandyFunctions.ChangeCursorVisibility(true);
         }
 
+        private void CursorStateChanged(CursorLockMode state)
+        {
+            if (state == CursorLockMode.Locked) this.enabled = false;
+            else this.enabled = true;
+        }
 
-        void Update()
+
+
+        private void Update()
         {
             Vector2 mousePos = HandyFunctions.GetMouseScreenCoords(canvasRect, canvasCam);
 

@@ -26,7 +26,7 @@ namespace SHUU.Utils.Helpers
 
 
 
-        public static Action<CursorLockMode> OnMouseLockStateChanged;
+        public static Action<CursorLockMode> OnCursorStateChange;
         
         #endregion
 
@@ -673,7 +673,7 @@ namespace SHUU.Utils.Helpers
             if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
 
 
-            OnMouseLockStateChanged?.Invoke(state);
+            OnCursorStateChange?.Invoke(state);
         }
 
         public static void LockMouse(bool? cursorVisible = null) => ChangeMouseLockState(CursorLockMode.Locked, cursorVisible);
