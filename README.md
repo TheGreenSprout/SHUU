@@ -51,7 +51,7 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.17.4
+### + Current Version: 2.17.5
 ### - Update Date: 13-01-2026
 ### - Creation Date: 24-03-2025
 ***

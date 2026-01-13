@@ -152,6 +152,8 @@ MonoBehaviour:
   devConsole_On: 0
   canToggle_devConsole: 0
   toggleKeys: 320100001b010000
+  previousCommandKey: 273
+  nextCommandKey: 274
 --- !u!114 &7568605695224927863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,8 +169,15 @@ MonoBehaviour:
   optionalParameter_consoleInterpreters:
   - '-'
   - ~
+  tagList:
+  - Information
+  - Utilities
+  - Debug
+  - Classic Input
+  - Input System
+  - Untagged
   devConsoleUI: {fileID: 4210943520205328992}
-  toggleDevConsole: {fileID: 0}
+  input: {fileID: 0}
 --- !u!114 &5453779029219081237
 MonoBehaviour:
   m_ObjectHideFlags: 0

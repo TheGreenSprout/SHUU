@@ -26,7 +26,7 @@ namespace SHUU.Utils.Helpers
 
 
 
-        public static Action<CursorLockMode> OnCursorStateChange;
+        public static event Action<CursorLockMode> OnCursorStateChange;
         
         #endregion
 

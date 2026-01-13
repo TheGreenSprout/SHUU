@@ -31,6 +31,10 @@ namespace SHUU.Utils.Developer.Debugging
         public Color defaultFillColor = new Color(0, 1, 0, 0.15f);
         public Color defaultWireColor = new Color(0, 1, 0, 0.55f);
 
+        [Header("Exclusion")]
+        public LayerMask excludedLayers;
+        public List<string> excludedTags = new();
+
         [Header("Layer → Wire Color")]
         public List<LayerWireColor> layerWireColors = new();
 
@@ -109,6 +113,7 @@ namespace SHUU.Utils.Developer.Debugging
             foreach (Collider col in colliders)
             {
                 if (!col) continue;
+                if (((1 << col.gameObject.layer) & excludedLayers) != 0 || excludedTags.Contains(col.gameObject.tag)) continue;
 
                 #if !UNITY_6000_0_OR_NEWER
                 // Skip assets / prefabs
