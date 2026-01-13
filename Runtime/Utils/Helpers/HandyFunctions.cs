@@ -23,6 +23,10 @@ namespace SHUU.Utils.Helpers
 
 
         public static string Path => Application.dataPath;
+
+
+
+        public static Action<CursorLockMode> OnMouseLockStateChanged;
         
         #endregion
 
@@ -667,31 +671,42 @@ namespace SHUU.Utils.Helpers
 
 
             if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+
+
+            OnMouseLockStateChanged?.Invoke(state);
         }
 
-        public static void LockMouse(bool? cursorVisible = null)
+        public static void LockMouse(bool? cursorVisible = null) => ChangeMouseLockState(CursorLockMode.Locked, cursorVisible);
+        public static void ConfineMouse(bool? cursorVisible = null) => ChangeMouseLockState(CursorLockMode.Confined, cursorVisible);
+        public static void FreeMouse(bool? cursorVisible = null) => ChangeMouseLockState(CursorLockMode.None, cursorVisible);
+
+        private static (CursorLockMode, bool?)? savedCursorState = null;
+        public static bool ChangeMouseLockState_Temporary(CursorLockMode state, bool? cursorVisible = null)
         {
-            Cursor.lockState = CursorLockMode.Locked;
+            if (savedCursorState != null) return false;
 
 
-            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+            savedCursorState = (Cursor.lockState, Cursor.visible);
+
+            ChangeMouseLockState(state, cursorVisible);
+
+
+            return true;
         }
-        public static void ConfineMouse(bool? cursorVisible = null)
+        public static bool ReturnMouseLockState_FromTemporary()
         {
-            Cursor.lockState = CursorLockMode.Confined;
+            if (savedCursorState == null) return false;
 
 
-            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+            ChangeMouseLockState(savedCursorState.Value.Item1, savedCursorState.Value.Item2);
+
+            savedCursorState = null;
+
+
+            return true;
         }
-        public static void FreeMouse(bool? cursorVisible = null)
-        {
-            Cursor.lockState = CursorLockMode.None;
-
-
-            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
-        }
-
-
+    
+    
         public static void ChangeCursorVisibility(bool? cursorVisible = null)
         {
             if (cursorVisible == null) Cursor.visible = !Cursor.visible;
