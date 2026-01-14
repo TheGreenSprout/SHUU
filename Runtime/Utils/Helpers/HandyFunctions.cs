@@ -815,6 +815,7 @@ namespace SHUU.Utils.Helpers
 
             if (!inact.CanBeInteracted()) return false;
 
+            if (tags == null || tags.Length == 0) return true;
             foreach (string tag in tags) if (hit.collider.CompareTag(tag)) return true;
 
 
