@@ -18,10 +18,7 @@ namespace SHUU.Utils.Cameras.Visual.Handlers
         {
             currentIteration = -1;
 
-            foreach (var cam in camerasToRender)
-            {
-                cam.enabled = false;
-            }
+            foreach (var cam in camerasToRender) cam.enabled = false;
 
 
             RenderCamera();
