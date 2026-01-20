@@ -27,9 +27,6 @@ namespace SHUU.Utils.Helpers.Interaction
         
         protected virtual void CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, interactablesMask);
 
-        protected virtual void Interact()
-        {
-            if (previousInact != null && previousInact.CanBeInteracted()) previousInact.Interact();
-        }
+        protected virtual void Interact() => previousInact?.Interact();
     }
 }

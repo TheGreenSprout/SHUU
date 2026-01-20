@@ -884,6 +884,17 @@ namespace SHUU.Utils.Helpers
         }
         public static bool InteractionRaycast(ref IfaceInteractable previousInact, Camera camera, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
         {
+            if (camera == null)
+            {
+                return InteractionRaycast(
+                    ref previousInact,
+                    interactionRange,
+                    interactionLayers,
+                    tags
+                );
+            }
+
+
             return InteractionRaycast(
                 ref previousInact,
                 camera.ScreenPointToRay(Input.mousePosition),

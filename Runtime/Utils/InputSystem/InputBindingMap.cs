@@ -4,8 +4,6 @@ using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Helpers;
 using UnityEngine;
 
-//! Requires a way to retrieve all the bindings from the map, so they can be for example displayed on an options menu.
-
 namespace SHUU.Utils.InputSystem
 {
     #region Set Classes

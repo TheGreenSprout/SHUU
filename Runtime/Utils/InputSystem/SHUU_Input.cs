@@ -246,11 +246,11 @@ namespace SHUU.Utils.InputSystem
 
         private static void UpdateBufferedInputs()
         {
-            if (down_buffereds != null && down_buffereds.Count > 0) UpdateBufferedInputs(down_buffereds);
-            if (up_buffereds != null && up_buffereds.Count > 0) UpdateBufferedInputs(up_buffereds);
+            if (down_buffereds != null && down_buffereds.Count > 0) UpdateBufferedInputs(down_buffereds, true);
+            if (up_buffereds != null && up_buffereds.Count > 0) UpdateBufferedInputs(up_buffereds, false);
         }
 
-        private static void UpdateBufferedInputs(Dictionary<InputBindingMap, List<BufferedInput>> buffereds)
+        private static void UpdateBufferedInputs(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, bool direction)
         {
             foreach (var mapPair in buffereds)
             {
@@ -259,7 +259,8 @@ namespace SHUU.Utils.InputSystem
 
                 foreach (var buffered in mapPair.Value)
                 {
-                    if (GetInputDown(map, buffered.set, buffered.requiresAllBindsDown)) buffered.ResetBuffer();
+                    if (direction) if (GetInputDown(map, buffered.set, buffered.requiresAllBindsDown)) buffered.ResetBuffer();
+                    else if (GetInputUp(map, buffered.set, buffered.requiresAllBindsDown)) buffered.ResetBuffer();
 
                     if (buffered.remainingTime > 0f) buffered.remainingTime -= Time.deltaTime;
                 }
@@ -296,7 +297,7 @@ namespace SHUU.Utils.InputSystem
         }
         private static void UnregisterBufferInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map)
         {
-            if (map == null && buffereds.ContainsKey(map)) buffereds.Remove(map);
+            if (map != null && buffereds.ContainsKey(map)) buffereds.Remove(map);
         }
 
         public static void RegisterBufferInput_Down(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false) =>
@@ -349,11 +350,11 @@ namespace SHUU.Utils.InputSystem
 
         private static void UpdateListeners()
         {
-            if (down_listeners != null && down_listeners.Count > 0) UpdateListener(down_listeners);
-            if (up_listeners != null && up_listeners.Count > 0) UpdateListener(up_listeners);
+            if (down_listeners != null && down_listeners.Count > 0) UpdateListener(down_listeners, true);
+            if (up_listeners != null && up_listeners.Count > 0) UpdateListener(up_listeners, false);
         }
         
-        private static void UpdateListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners)
+        private static void UpdateListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, bool direction)
         {
             foreach (var mapEntry in listeners)
             {
@@ -365,11 +366,23 @@ namespace SHUU.Utils.InputSystem
                 {
                     foreach (var binding in actionEntry.Value)
                     {
-                        if (GetInputDown(map, actionEntry.Key, binding.requiresAllBindsDown))
+                        if (direction)
                         {
-                            binding.callback?.Invoke();
+                            if (GetInputDown(map, actionEntry.Key, binding.requiresAllBindsDown))
+                            {
+                                binding.callback?.Invoke();
 
-                            break;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (GetInputUp(map, actionEntry.Key, binding.requiresAllBindsDown))
+                            {
+                                binding.callback?.Invoke();
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -401,7 +414,7 @@ namespace SHUU.Utils.InputSystem
         }
         public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback)
         {
-            if (map == null || !string.IsNullOrEmpty(set)) return;
+            if (map == null || string.IsNullOrEmpty(set) || callback == null) return;
 
 
             if (!listeners.TryGetValue(map, out var actionDict)) return;
@@ -413,7 +426,7 @@ namespace SHUU.Utils.InputSystem
         }
         public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set)
         {
-            if (map == null || !string.IsNullOrEmpty(set)) return;
+            if (map == null || string.IsNullOrEmpty(set)) return;
 
 
             if (!listeners.TryGetValue(map, out var actionDict)) return;

@@ -2382,6 +2382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d162ddbdedffe014281df4c1053d9e2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cam: {fileID: 0}
   interactionRange: 10
   interactablesMask:
     serializedVersion: 2
