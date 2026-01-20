@@ -12,12 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa334d12eb236e408f8818f04a1c673, type: 3}
   m_Name: DevConsole_Map
   m_EditorClassIdentifier: 
-  mapName: DevConsole
+  mapName: Console
   enabled: 1
+  lastDefaultSetDateTime: 2026-01-20_10-05-20
   defaultData:
-    mapName: 
-    enabled: 0
-    inputSets_list: []
+    mapName: Console
+    enabled: 1
+    inputSets_list:
+    - name: Toggle
+      set:
+        enabled: 1
+        valid_keyBinds: 340100001b010000
+        valid_mouseBinds: 
+    - name: PreviousCommand
+      set:
+        enabled: 1
+        valid_keyBinds: 11010000
+        valid_mouseBinds: 
+    - name: NextCommand
+      set:
+        enabled: 1
+        valid_keyBinds: 12010000
+        valid_mouseBinds: 
     compositeSets_list: []
   inputSets_list:
   - name: Toggle

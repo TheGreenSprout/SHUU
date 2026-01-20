@@ -848,6 +848,51 @@ namespace SHUU.Utils.Helpers
 
 
         #region Interact System
+        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
+        {
+            bool raycast;
+            RaycastHit hitInfo;
+
+            if (interactionLayers != null) raycast = Physics.Raycast(ray, out hitInfo, interactionRange, interactionLayers.Value);
+            else raycast = Physics.Raycast(ray, out hitInfo, interactionRange);
+
+
+            if (raycast && hitInfo.InteractionRaycast_Check(out IfaceInteractable inact))
+            {
+                if (previousInact != inact)
+                {
+                    if (previousInact != null)
+                    {
+                        previousInact.HoverEnd();
+                    }
+
+                    previousInact = inact;
+
+
+                    inact.HoverStart();
+                }
+            }
+            else if (previousInact != null)
+            {
+                previousInact.HoverEnd();
+
+                previousInact = null;
+            }
+
+
+            return raycast;
+        }
+        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Camera camera, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
+        {
+            return InteractionRaycast(
+                ref previousInact,
+                camera.ScreenPointToRay(Input.mousePosition),
+                interactionRange,
+                interactionLayers,
+                tags
+            );
+        }
+
         public static bool InteractionRaycast_Check(this RaycastHit hit, out IfaceInteractable inactScript, params string[] tags)
         {
             inactScript = null;
@@ -862,6 +907,12 @@ namespace SHUU.Utils.Helpers
 
 
             return false;
+        }
+
+
+        public static void InteractAction(this IfaceInteractable previousInact)
+        {
+            if (previousInact != null && previousInact.CanBeInteracted()) previousInact.Interact();
         }
         #endregion
 

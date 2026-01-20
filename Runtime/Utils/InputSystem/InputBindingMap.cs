@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Helpers;
 using UnityEngine;
 
@@ -454,6 +455,7 @@ namespace SHUU.Utils.InputSystem
         public bool enabled = true;
 
 
+        public string lastDefaultSetDateTime = "No Default Set";
         [HideInInspector] public InputBindingMap_Data defaultData = null;
 
 
@@ -601,7 +603,12 @@ namespace SHUU.Utils.InputSystem
 
 
         #region Defaults
-        public void SetDefaultData() => defaultData = ToData();
+        public void SetDefaultData()
+        {
+            lastDefaultSetDateTime = Stats.timestamp;
+
+            defaultData = ToData();
+        }
 
 
         public void ResetToDefault()

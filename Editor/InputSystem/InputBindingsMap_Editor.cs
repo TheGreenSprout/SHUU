@@ -49,6 +49,13 @@ namespace SHUU._Editor.InputSystem
             // Editable map name
             EditorGUI.BeginChangeCheck();
             map.mapName = EditorGUILayout.TextField("Map Name", map.mapName);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Last Default Set:", GUILayout.Width(100));
+            EditorGUILayout.LabelField(map.lastDefaultSetDateTime, GUILayout.Width(150));
+            EditorGUILayout.EndHorizontal();
+            
+
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(map, "Edit Map Name");

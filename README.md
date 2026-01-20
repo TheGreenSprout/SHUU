@@ -51,8 +51,8 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.18.3
-### - Update Date: 18-01-2026
+### + Current Version: 2.18.5
+### - Update Date: 20-01-2026
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>
@@ -105,4 +105,9 @@ To install it:
 
 ###      + Tanha Game Dev - Game & XR maker: The base scripts for the UI gradients.
 ####         - Link: https://youtu.be/IssaURYlo-M?si=fOXuW6a_3IiMxFDI<br>
+
+---
+
+###      + VS Audio Design: The logic for audio ambiences.
+####         - Link: https://www.youtube.com/@vsaudiodesign<br>
 ***

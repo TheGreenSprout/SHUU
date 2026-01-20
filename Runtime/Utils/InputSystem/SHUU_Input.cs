@@ -216,202 +216,220 @@ namespace SHUU.Utils.InputSystem
 
 
         #region Buffered Inputs
-        private static Dictionary<(InputBindingMap, string), BufferedInput> down_buffereds = new();
-        private static Dictionary<(InputBindingMap, string), BufferedInput> up_buffereds = new();
+        private static Dictionary<InputBindingMap, List<BufferedInput>> down_buffereds = new();
+        private static Dictionary<InputBindingMap, List<BufferedInput>> up_buffereds = new();
 
         private const float defaultBufferTime = 0.15f;
 
         private class BufferedInput
         {
+            public string set;
+
             public float remainingTime;
             public float bufferDuration;
             public bool requiresAllBindsDown;
 
 
-            public BufferedInput(float bufferDuration, bool requiresAllBindsDown)
+            public BufferedInput(string set, float bufferDuration, bool requiresAllBindsDown)
             {
+                this.set = set;
+
                 this.remainingTime = bufferDuration;
                 this.bufferDuration = bufferDuration;
                 this.requiresAllBindsDown = requiresAllBindsDown;
             }
 
             public void ResetBuffer() => remainingTime = bufferDuration;
+            public void Consume() => remainingTime = 0f;
         }
 
 
         private static void UpdateBufferedInputs()
         {
-            if (down_buffereds != null && down_buffereds.Count > 0) UpdateBuffereds_Down();
-            if (up_buffereds != null && up_buffereds.Count > 0) UpdateBuffereds_Up();
+            if (down_buffereds != null && down_buffereds.Count > 0) UpdateBufferedInputs(down_buffereds);
+            if (up_buffereds != null && up_buffereds.Count > 0) UpdateBufferedInputs(up_buffereds);
         }
 
-        private static void UpdateBuffereds_Down()
+        private static void UpdateBufferedInputs(Dictionary<InputBindingMap, List<BufferedInput>> buffereds)
         {
-            List<(InputBindingMap, string)> keys = new(down_buffereds.Keys);
-
-            foreach (var key in keys)
+            foreach (var mapPair in buffereds)
             {
-                if (GetInputDown(key.Item1, key.Item2, down_buffereds[key].requiresAllBindsDown)) down_buffereds[key].ResetBuffer();
+                var map = mapPair.Key;
+                if (map == null || !map.enabled) continue;
 
+                foreach (var buffered in mapPair.Value)
+                {
+                    if (GetInputDown(map, buffered.set, buffered.requiresAllBindsDown)) buffered.ResetBuffer();
 
-                if (down_buffereds[key].remainingTime > 0f) down_buffereds[key].remainingTime -= Time.deltaTime;
-            }
-        }
-        private static void UpdateBuffereds_Up()
-        {
-            List<(InputBindingMap, string)> keys = new(up_buffereds.Keys);
-
-            foreach (var key in keys)
-            {
-                if (GetInputDown(key.Item1, key.Item2, up_buffereds[key].requiresAllBindsDown)) up_buffereds[key].ResetBuffer();
-
-                if (up_buffereds[key].remainingTime > 0f) up_buffereds[key].remainingTime -= Time.deltaTime;
+                    if (buffered.remainingTime > 0f) buffered.remainingTime -= Time.deltaTime;
+                }
             }
         }
 
 
-        public static void RegisterBufferInput_Down(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false)
+        private static void RegisterBufferInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false)
         {
-            if (down_buffereds == null) down_buffereds = new();
-
             if (map == null || string.IsNullOrEmpty(set) || bufferTime <= 0f) return;
 
-            if (down_buffereds.ContainsKey((map, set))) return;
+
+            if (!buffereds.TryGetValue(map, out var list))
+            {
+                list = new();
+
+                buffereds[map] = list;
+            }
 
 
-            down_buffereds.Add((map, set), new BufferedInput(bufferTime, requiresAllBindsDown));
+            if (list.Exists(b => b.set == set && b.requiresAllBindsDown == requiresAllBindsDown)) return;
+
+            list.Add(new BufferedInput(set, bufferTime, requiresAllBindsDown));
         }
-        public static void UnregisterBufferInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        private static void UnregisterBufferInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            if (down_buffereds == null || down_buffereds.Count == 0) return;
-
             if (map == null || string.IsNullOrEmpty(set)) return;
+            if (!buffereds.TryGetValue(map, out var list)) return;
 
-            if (!down_buffereds.ContainsKey((map, set))) return;
 
+            list.RemoveAll(b => b.set == set && b.requiresAllBindsDown == requiresAllBindsDown);
 
-            down_buffereds.Remove((map, set));
+            if (list.Count == 0) buffereds.Remove(map);
+        }
+        private static void UnregisterBufferInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map)
+        {
+            if (map == null && buffereds.ContainsKey(map)) buffereds.Remove(map);
         }
 
-        public static void RegisterBufferInput_Up(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false)
+        public static void RegisterBufferInput_Down(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false) =>
+            RegisterBufferInput(down_buffereds, map, set, bufferTime, requiresAllBindsDown);
+        public static void UnregisterBufferInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false) =>
+            UnregisterBufferInput(down_buffereds, map, set, requiresAllBindsDown);
+        public static void UnregisterBufferInput_Down(this InputBindingMap map) =>
+            UnregisterBufferInput(down_buffereds, map);
+
+        public static void RegisterBufferInput_Up(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false) =>
+            RegisterBufferInput(up_buffereds, map, set, bufferTime, requiresAllBindsDown);
+        public static void UnregisterBufferInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false) =>
+            UnregisterBufferInput(up_buffereds, map, set, requiresAllBindsDown);
+        public static void UnregisterBufferInput_Up(this InputBindingMap map) =>
+            UnregisterBufferInput(up_buffereds, map);
+
+
+        private static bool GetBufferedInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map, string set, bool requiresAllBindsDown = false, bool consume = true)
         {
-            if (up_buffereds == null) up_buffereds = new();
-
-            if (map == null || string.IsNullOrEmpty(set) || bufferTime <= 0f) return;
-
-            if (up_buffereds.ContainsKey((map, set))) return;
-
-
-            up_buffereds.Add((map, set), new BufferedInput(bufferTime, requiresAllBindsDown));
-        }
-        public static void UnregisterBufferInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
-        {
-            if (up_buffereds == null || up_buffereds.Count == 0) return;
-
-            if (map == null || string.IsNullOrEmpty(set)) return;
-
-            if (!up_buffereds.ContainsKey((map, set))) return;
-
-
-            up_buffereds.Remove((map, set));
-        }
-
-
-        public static bool GetBufferedInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
-        {
-            if (down_buffereds == null || down_buffereds.Count == 0) return false;
-
             if (map == null || string.IsNullOrEmpty(set)) return false;
+            if (!buffereds.TryGetValue(map, out var list)) return false;
 
-            if (!down_buffereds.ContainsKey((map, set))) return false;
 
+            foreach (var buffered in list)
+            {
+                if (buffered.set == set && buffered.remainingTime > 0f)
+                {
+                    if (consume) buffered.Consume();
 
-            return down_buffereds[(map, set)].remainingTime > 0f;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        public static bool GetBufferedInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
-        {
-            if (up_buffereds == null || up_buffereds.Count == 0) return false;
+        public static bool GetBufferedInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false, bool consume = true) =>
+            GetBufferedInput(down_buffereds, map, set, requiresAllBindsDown, consume);
 
-            if (map == null || string.IsNullOrEmpty(set)) return false;
-
-            if (!up_buffereds.ContainsKey((map, set))) return false;
-            
-
-            return up_buffereds[(map, set)].remainingTime > 0f;
-        }
+        public static bool GetBufferedInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false, bool consume = true) =>
+            GetBufferedInput(up_buffereds, map, set, requiresAllBindsDown, consume);
         #endregion
 
 
 
         #region Listeners
-        private static Dictionary<Action, (InputBindingMap, string, bool)> down_listeners = new();
-        private static Dictionary<Action, (InputBindingMap, string, bool)> up_listeners = new();
+        private static Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> down_listeners = new();
+        private static Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> up_listeners = new();
 
 
         private static void UpdateListeners()
         {
-            if (down_listeners != null && down_listeners.Count > 0) UpdateListener_Down();
-            if (up_listeners != null && up_listeners.Count > 0) UpdateListener_Up();
+            if (down_listeners != null && down_listeners.Count > 0) UpdateListener(down_listeners);
+            if (up_listeners != null && up_listeners.Count > 0) UpdateListener(up_listeners);
         }
-
-        private static void UpdateListener_Down()
+        
+        private static void UpdateListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners)
         {
-            foreach (var listener in down_listeners)
+            foreach (var mapEntry in listeners)
             {
-                bool inputState = GetInputDown(listener.Value.Item1, listener.Value.Item2, listener.Value.Item3);
+                InputBindingMap map = mapEntry.Key;
 
-                if (inputState) listener.Key?.Invoke();
+                if (map == null || !map.enabled) continue;
+
+                foreach (var actionEntry in mapEntry.Value)
+                {
+                    foreach (var binding in actionEntry.Value)
+                    {
+                        if (GetInputDown(map, binding.set, binding.requiresAllBindsDown))
+                        {
+                            actionEntry.Key?.Invoke();
+
+                            break;
+                        }
+                    }
+                }
             }
         }
-        private static void UpdateListener_Up()
+
+
+        private static void RegisterListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
         {
-            foreach (var listener in up_listeners)
+            if (map == null || callback == null || string.IsNullOrEmpty(set)) return;
+
+
+            if (!listeners.TryGetValue(map, out var actionDict))
             {
-                bool inputState = GetInputUp(listener.Value.Item1, listener.Value.Item2, listener.Value.Item3);
+                actionDict = new();
 
-                if (inputState) listener.Key?.Invoke();
+                listeners[map] = actionDict;
             }
+
+            if (!actionDict.TryGetValue(callback, out var bindings))
+            {
+                bindings = new();
+
+                actionDict[callback] = bindings;
+            }
+
+
+            bindings.Add((set, requiresAllBindsDown));
         }
-
-
-        public static void RegisterListener_Down(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
+        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, Action callback)
         {
-            if (down_listeners == null) down_listeners = new();
-
-            if (callback == null || map == null || string.IsNullOrEmpty(set)) return;
+            if (map == null || callback == null) return;
 
 
-            down_listeners.Add(callback, (map, set, requiresAllBindsDown));
+            if (!listeners.TryGetValue(map, out var actionDict)) return;
+
+            actionDict.Remove(callback);
+
+            if (actionDict.Count == 0) listeners.Remove(map);
         }
-        public static void UnregisterListener_Down(Action callback)
+        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners, InputBindingMap map)
         {
-            if (down_listeners == null || down_listeners.Count == 0 || !down_listeners.ContainsKey(callback)) return;
-
-            if (callback == null) return;
-
-
-            down_listeners.Remove(callback);
+            if (map == null) return;
+            
+            if (down_listeners.ContainsKey(map)) down_listeners.Remove(map);
         }
 
-        public static void RegisterListener_Up(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
-        {
-            if (up_listeners == null) up_listeners = new();
+        public static void RegisterListener_Down(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false) =>
+            RegisterListener(down_listeners, map, set, callback, requiresAllBindsDown);
+        public static void UnregisterListener_Down(this InputBindingMap map, Action callback) =>
+            UnregisterListener(down_listeners, map, callback);
+        public static void UnregisterListener_Down(this InputBindingMap map) =>
+            UnregisterListener(down_listeners, map);
 
-            if (callback == null || map == null || string.IsNullOrEmpty(set)) return;
-
-
-            up_listeners.Add(callback, (map, set, requiresAllBindsDown));
-        }
-        public static void UnregisterListener_Up(Action callback)
-        {
-            if (up_listeners == null || up_listeners.Count == 0 || !up_listeners.ContainsKey(callback)) return;
-
-            if (callback == null) return;
-
-
-            up_listeners.Remove(callback);
-        }
+        public static void RegisterListener_Up(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false) =>
+            RegisterListener(up_listeners, map, set, callback, requiresAllBindsDown);
+        public static void UnregisterListener_Up(this InputBindingMap map, Action callback) =>
+            UnregisterListener(up_listeners, map, callback);
+        public static void UnregisterListener_Up(this InputBindingMap map) =>
+            UnregisterListener(up_listeners, map);
         #endregion
 
 
