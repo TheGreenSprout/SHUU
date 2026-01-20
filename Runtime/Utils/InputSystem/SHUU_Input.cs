@@ -1,81 +1,96 @@
+using System;
+using System.Collections.Generic;
 using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.InputSystem
 {
+    #region Data Classes
+    public struct DynamicInput
+    {
+        public (KeyCode?, int?) bind;
+
+        public bool direction;
+
+
+
+        public DynamicInput(KeyCode key, bool direction = true)
+        {
+            bind = (key, null);
+            this.direction = direction;
+        }
+
+        public DynamicInput(int mouseButton, bool direction = true)
+        {
+            bind = (null, mouseButton);
+            this.direction = direction;
+        }
+
+        public DynamicInput(string input)
+        {
+            if (input.StartsWith("+"))
+            {
+                input = input.Substring(1);
+                direction = true;
+            }
+            else if (input.StartsWith("-"))
+            {
+                input = input.Substring(1);
+                direction = false;
+            }
+            else direction = true;
+
+            bind = InputParser.ParseInput(input);
+        }
+
+
+        public bool IsValid()
+        {
+            return !(((bind.Item1 == null) && (bind.Item2 == null)) || ((bind.Item1 != null) && (bind.Item2 != null)));
+        }
+
+        public bool IsKey() => IsValid() && bind.Item1 != null;
+
+        public bool IsMouse() => IsValid() && bind.Item2 != null;
+
+
+        public bool TryGetKey(out KeyCode key)
+        {
+            if (!IsKey())
+            {
+                key = default;
+                
+                return false;
+            }
+
+
+            key = bind.Item1.Value;
+
+            return true;
+        }
+
+        public bool TryGetMouse(out int mouse)
+        {
+            if (!IsMouse())
+            {
+                mouse = default;
+                
+                return false;
+            }
+
+
+            mouse = bind.Item2.Value;
+
+            return true;
+        }
+    }
+    #endregion
+
+
 
     public static class SHUU_Input
     {
         #region Data Classes
-        public class DynamicInput
-        {
-            public (KeyCode?, int?) bind = (null, null);
-
-
-
-            public DynamicInput(KeyCode key)
-            {
-                bind = (key, null);
-            }
-
-            public DynamicInput(int mouseButton)
-            {
-                bind = (null, mouseButton);
-            }
-
-            public DynamicInput(string input)
-            {
-                bind = InputParser.ParseInput(input);
-            }
-
-
-            public bool IsValid()
-            {
-                return !(((bind.Item1 == null) && (bind.Item2 == null)) || ((bind.Item1 != null) && (bind.Item2 != null)));
-            }
-
-            public bool IsKey()
-            {
-                return IsValid() && bind.Item1 != null;
-            }
-
-            public bool IsMouse()
-            {
-                return IsValid() && bind.Item2 != null;
-            }
-
-
-            public bool TryGetKey(out KeyCode key)
-            {
-                if (!IsKey())
-                {
-                    key = default;
-                    
-                    return false;
-                }
-
-
-                key = bind.Item1.Value;
-
-                return true;
-            }
-
-            public bool TryGetMouse(out int mouse)
-            {
-                if (!IsMouse())
-                {
-                    mouse = default;
-                    
-                    return false;
-                }
-
-
-                mouse = bind.Item2.Value;
-
-                return true;
-            }
-        }
-
         public static DynamicInput[] CreateDynamicInputArray(params string[] input)
         {
             DynamicInput[] inputs = new DynamicInput[input.Length];
@@ -88,55 +103,101 @@ namespace SHUU.Utils.InputSystem
             return inputs;
         }
 
-
-        public class InputValue
+        public static DynamicInput[] CreateDynamicInputArray(params KeyCode[] input)
         {
-            public float? x = null;
+            DynamicInput[] inputs = new DynamicInput[input.Length];
 
-            public float? y = null;
-
-
-
-            public bool HasValue()
+            for (int i = 0; i < input.Length; i++)
             {
-                return x != null || y != null;
+                inputs[i] = new DynamicInput(InputParser.InputToString(input[i]));
             }
 
-            public bool IsFloat()
+            return inputs;
+        }
+        public static DynamicInput[] CreateDynamicInputArray(params int[] input)
+        {
+            DynamicInput[] inputs = new DynamicInput[input.Length];
+
+            for (int i = 0; i < input.Length; i++)
             {
-                return x != null && y != null;
+                inputs[i] = new DynamicInput(InputParser.InputToString(input[i]));
             }
 
-            public bool IsVector2()
+            return inputs;
+        }
+
+        public static DynamicInput[] CreateDynamicInputArray(params DynamicInput[][] input) => HandyFunctions.MergeArrays(input);
+
+
+        public struct InputValue
+        {
+            public float[] values;
+
+            public int ammountOfValues => values != null ? values.Length : 0;
+
+
+
+            public InputValue(params float[] values)
             {
-                return x != null && y != null;
+                this.values = values;
             }
 
 
-            public bool TryGetFloat(out float value)
+            public bool HasValue() => ammountOfValues > 0;
+
+
+            public bool TryGetFloat(out float value, int axis = 0)
             {
-                if (!HasValue() || IsVector2())
+                if (!HasValue() || !values.IndexIsValid(axis))
                 {
                     value = 0f;
                     return false;
                 }
 
 
-                value = x.Value;
+                value = values[axis];
 
                 return true;
             }
 
-            public bool TryGetVector2(out Vector2 value)
+            public bool TryGetVector2(out Vector2 value, int axis1 = 0, int axis2 = 1)
             {
-                if (!HasValue() || !IsVector2())
+                if (!HasValue() || values.Length < 2 || !values.IndexIsValid(axis1) || !values.IndexIsValid(axis2))
                 {
                     value = default;
                     return false;
                 }
 
 
-                value = new Vector2(x.Value, y.Value);
+                value = new Vector2(values[axis1], values[axis2]);
+
+                return true;
+            }
+
+            public bool TryGetVector3(out Vector3 value, int axis1 = 0, int axis2 = 1, int axis3 = 2)
+            {
+                if (!HasValue() || values.Length < 3 || !values.IndexIsValid(axis1) || !values.IndexIsValid(axis2) || !values.IndexIsValid(axis3))
+                {
+                    value = default;
+                    return false;
+                }
+
+
+                value = new Vector3(values[axis1], values[axis2], values[axis3]);
+
+                return true;
+            }
+
+            public bool TryGetVector4(out Vector4 value, int axis1 = 0, int axis2 = 1, int axis3 = 2, int axis4 = 3)
+            {
+                if (!HasValue() || values.Length < 4 || !values.IndexIsValid(axis1) || !values.IndexIsValid(axis2) || !values.IndexIsValid(axis3) || !values.IndexIsValid(axis4))
+                {
+                    value = default;
+                    return false;
+                }
+
+
+                value = new Vector4(values[axis1], values[axis2], values[axis3], values[axis4]);
 
                 return true;
             }
@@ -145,97 +206,282 @@ namespace SHUU.Utils.InputSystem
 
 
 
-        #region General Bindings
-        public static bool GetInput(InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        public static void Update()
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
+            UpdateBufferedInputs();
 
-            if (setTouple.Item1 != null)
+            UpdateListeners();
+        }
+
+
+
+        #region Buffered Inputs
+        private static Dictionary<(InputBindingMap, string), BufferedInput> down_buffereds = new();
+        private static Dictionary<(InputBindingMap, string), BufferedInput> up_buffereds = new();
+
+        private const float defaultBufferTime = 0.15f;
+
+        private class BufferedInput
+        {
+            public float remainingTime;
+            public float bufferDuration;
+            public bool requiresAllBindsDown;
+
+
+            public BufferedInput(float bufferDuration, bool requiresAllBindsDown)
             {
-                return GetSingleInput(setTouple.Item1, requiresAllBindsDown);
+                this.remainingTime = bufferDuration;
+                this.bufferDuration = bufferDuration;
+                this.requiresAllBindsDown = requiresAllBindsDown;
             }
-            else if (setTouple.Item2 != null)
+
+            public void ResetBuffer() => remainingTime = bufferDuration;
+        }
+
+
+        private static void UpdateBufferedInputs()
+        {
+            if (down_buffereds != null && down_buffereds.Count > 0) UpdateBuffereds_Down();
+            if (up_buffereds != null && up_buffereds.Count > 0) UpdateBuffereds_Up();
+        }
+
+        private static void UpdateBuffereds_Down()
+        {
+            List<(InputBindingMap, string)> keys = new(down_buffereds.Keys);
+
+            foreach (var key in keys)
             {
-                return GetCompositeInput(setTouple.Item2, requiresAllBindsDown);
+                if (GetInputDown(key.Item1, key.Item2, down_buffereds[key].requiresAllBindsDown)) down_buffereds[key].ResetBuffer();
+
+
+                if (down_buffereds[key].remainingTime > 0f) down_buffereds[key].remainingTime -= Time.deltaTime;
             }
+        }
+        private static void UpdateBuffereds_Up()
+        {
+            List<(InputBindingMap, string)> keys = new(up_buffereds.Keys);
+
+            foreach (var key in keys)
+            {
+                if (GetInputDown(key.Item1, key.Item2, up_buffereds[key].requiresAllBindsDown)) up_buffereds[key].ResetBuffer();
+
+                if (up_buffereds[key].remainingTime > 0f) up_buffereds[key].remainingTime -= Time.deltaTime;
+            }
+        }
+
+
+        public static void RegisterBufferInput_Down(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false)
+        {
+            if (down_buffereds == null) down_buffereds = new();
+
+            if (map == null || string.IsNullOrEmpty(set) || bufferTime <= 0f) return;
+
+            if (down_buffereds.ContainsKey((map, set))) return;
+
+
+            down_buffereds.Add((map, set), new BufferedInput(bufferTime, requiresAllBindsDown));
+        }
+        public static void UnregisterBufferInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        {
+            if (down_buffereds == null || down_buffereds.Count == 0) return;
+
+            if (map == null || string.IsNullOrEmpty(set)) return;
+
+            if (!down_buffereds.ContainsKey((map, set))) return;
+
+
+            down_buffereds.Remove((map, set));
+        }
+
+        public static void RegisterBufferInput_Up(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false)
+        {
+            if (up_buffereds == null) up_buffereds = new();
+
+            if (map == null || string.IsNullOrEmpty(set) || bufferTime <= 0f) return;
+
+            if (up_buffereds.ContainsKey((map, set))) return;
+
+
+            up_buffereds.Add((map, set), new BufferedInput(bufferTime, requiresAllBindsDown));
+        }
+        public static void UnregisterBufferInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        {
+            if (up_buffereds == null || up_buffereds.Count == 0) return;
+
+            if (map == null || string.IsNullOrEmpty(set)) return;
+
+            if (!up_buffereds.ContainsKey((map, set))) return;
+
+
+            up_buffereds.Remove((map, set));
+        }
+
+
+        public static bool GetBufferedInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        {
+            if (down_buffereds == null || down_buffereds.Count == 0) return false;
+
+            if (map == null || string.IsNullOrEmpty(set)) return false;
+
+            if (!down_buffereds.ContainsKey((map, set))) return false;
+
+
+            return down_buffereds[(map, set)].remainingTime > 0f;
+        }
+
+        public static bool GetBufferedInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        {
+            if (up_buffereds == null || up_buffereds.Count == 0) return false;
+
+            if (map == null || string.IsNullOrEmpty(set)) return false;
+
+            if (!up_buffereds.ContainsKey((map, set))) return false;
+            
+
+            return up_buffereds[(map, set)].remainingTime > 0f;
+        }
+        #endregion
+
+
+
+        #region Listeners
+        private static Dictionary<Action, (InputBindingMap, string, bool)> down_listeners = new();
+        private static Dictionary<Action, (InputBindingMap, string, bool)> up_listeners = new();
+
+
+        private static void UpdateListeners()
+        {
+            if (down_listeners != null && down_listeners.Count > 0) UpdateListener_Down();
+            if (up_listeners != null && up_listeners.Count > 0) UpdateListener_Up();
+        }
+
+        private static void UpdateListener_Down()
+        {
+            foreach (var listener in down_listeners)
+            {
+                bool inputState = GetInputDown(listener.Value.Item1, listener.Value.Item2, listener.Value.Item3);
+
+                if (inputState) listener.Key?.Invoke();
+            }
+        }
+        private static void UpdateListener_Up()
+        {
+            foreach (var listener in up_listeners)
+            {
+                bool inputState = GetInputUp(listener.Value.Item1, listener.Value.Item2, listener.Value.Item3);
+
+                if (inputState) listener.Key?.Invoke();
+            }
+        }
+
+
+        public static void RegisterListener_Down(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
+        {
+            if (down_listeners == null) down_listeners = new();
+
+            if (callback == null || map == null || string.IsNullOrEmpty(set)) return;
+
+
+            down_listeners.Add(callback, (map, set, requiresAllBindsDown));
+        }
+        public static void UnregisterListener_Down(Action callback)
+        {
+            if (down_listeners == null || down_listeners.Count == 0 || !down_listeners.ContainsKey(callback)) return;
+
+            if (callback == null) return;
+
+
+            down_listeners.Remove(callback);
+        }
+
+        public static void RegisterListener_Up(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
+        {
+            if (up_listeners == null) up_listeners = new();
+
+            if (callback == null || map == null || string.IsNullOrEmpty(set)) return;
+
+
+            up_listeners.Add(callback, (map, set, requiresAllBindsDown));
+        }
+        public static void UnregisterListener_Up(Action callback)
+        {
+            if (up_listeners == null || up_listeners.Count == 0 || !up_listeners.ContainsKey(callback)) return;
+
+            if (callback == null) return;
+
+
+            up_listeners.Remove(callback);
+        }
+        #endregion
+
+
+
+        #region Input Retrieval
+        public static bool GetInput(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        {
+            if (!map.enabled)
+            {
+                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+
+                return false;
+            }
+
+
+            IInputSet setInterface = RetrieveInputSet(map, set);
+
+            if (setInterface != null) return setInterface.GetInput(requiresAllBindsDown);
             else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
             return false;
         }
 
-        public static InputValue GetInputValue(InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        public static InputValue GetInputValue(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
-
-            if (setTouple.Item1 != null)
+            if (!map.enabled)
             {
-                return new InputValue{ x = GetSingleInputValue(setTouple.Item1, requiresAllBindsDown) };
+                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+
+                return new InputValue();
             }
-            else if (setTouple.Item2 != null)
-            {
-                Vector2 compostiveVal = GetCompositeInputValue(setTouple.Item2, requiresAllBindsDown);
 
-                return new InputValue{ x = compostiveVal.x, y = compostiveVal.y };
+
+            IInputSet setTouple = RetrieveInputSet(map, set);
+
+            if (setTouple is InputSet singleSet)
+            {
+                return new InputValue(singleSet.GetInputValue(requiresAllBindsDown));
+            }
+            else if (setTouple is Composite_InputSet compositeSet)
+            {
+                float[] axesValues = new float[compositeSet.axisCount];
+                for (int i = 0; i < compositeSet.axisCount; i++)
+                {
+                    axesValues[i] = compositeSet.GetAxisValue(i, requiresAllBindsDown);
+                }
+                
+                return new InputValue(axesValues);
             }
             else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
             return new InputValue();
         }
-        public static float GetInputValue_float(InputBindingMap map, string set, bool requiresAllBindsDown = false)
+
+
+        public static bool GetInputDown(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
-
-            if (setTouple.Item1 != null)
+            if (!map.enabled)
             {
-                return GetSingleInputValue(setTouple.Item1, requiresAllBindsDown);
+                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+
+                return false;
             }
-            else if (setTouple.Item2 != null) Debug.LogWarning($"SHUU_Input: InputSet '{set}' in map '{map.mapName}' is composite, not single.");
-            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
-            return 0f;
-        }
-        public static float GetInputValue_2wayAxis_float(InputBindingMap map, string setPositive, string setNegative, bool requiresAllBindsDown = false)
-        {
-            return GetInputValue_float(map, setPositive, requiresAllBindsDown) - GetInputValue_float(map, setNegative, requiresAllBindsDown);
-        }
-        public static Vector2 GetInputValue_Vector2(InputBindingMap map, string set, bool requiresAllBindsDown = false)
-        {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
+            IInputSet setInterface = RetrieveInputSet(map, set);
 
-            if (setTouple.Item1 != null)
-            {
-                Debug.LogWarning($"SHUU_Input: Composite_InputSet '{set}' not found in map '{map.mapName}'. Returning float in x val.");
-
-                return new Vector2(GetSingleInputValue(setTouple.Item1, requiresAllBindsDown), 0);
-            }
-            else if (setTouple.Item2 != null)
-            {
-                Vector2 compostiveVal = GetCompositeInputValue(setTouple.Item2, requiresAllBindsDown);
-
-                return new Vector2(compostiveVal.x, compostiveVal.y);
-            }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
-
-
-            return Vector2.zero;
-        }
-
-
-        public static bool GetInputDown(InputBindingMap map, string set, bool requiresAllBindsDown = false)
-        {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
-
-            if (setTouple.Item1 != null)
-            {
-                return GetSingleInputDown(setTouple.Item1, requiresAllBindsDown);
-            }
-            else if (setTouple.Item2 != null)
-            {
-                return GetCompositeInputDown(setTouple.Item2, requiresAllBindsDown);
-            }
+            if (setInterface != null) return setInterface.GetInputDown(requiresAllBindsDown);
             else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
 
@@ -243,18 +489,19 @@ namespace SHUU.Utils.InputSystem
         }
 
 
-        public static bool GetInputUp(InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        public static bool GetInputUp(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
         {
-            (InputSet, Composite_InputSet) setTouple = RetrieveInputSet(map, set);
+            if (!map.enabled)
+            {
+                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
-            if (setTouple.Item1 != null)
-            {
-                return GetSingleInputUp(setTouple.Item1, requiresAllBindsDown);
+                return false;
             }
-            else if (setTouple.Item2 != null)
-            {
-                return GetCompositeInputUp(setTouple.Item2, requiresAllBindsDown);
-            }
+
+
+            IInputSet setInterface = RetrieveInputSet(map, set);
+
+            if (setInterface != null) return setInterface.GetInputUp(requiresAllBindsDown);
             else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
 
             
@@ -263,157 +510,14 @@ namespace SHUU.Utils.InputSystem
         #endregion
 
 
-
-        #region Single Bindings
-        private static bool GetSingleInput(InputSet set, bool requiresAllBindsDown = false)
-        {
-            bool result = requiresAllBindsDown;
-
-            foreach (KeyCode input in set.valid_keyBinds)
-            {
-                if (!requiresAllBindsDown) result |= Input.GetKey(input);
-                else result &= Input.GetKey(input);
-            }
-            foreach (int mouseButton in set.valid_mouseBinds)
-            {
-                if (!requiresAllBindsDown) result |= Input.GetMouseButton(mouseButton);
-                else result &= Input.GetMouseButton(mouseButton);
-            }
-
-            return result;
-        }
-
-        private static float GetSingleInputValue(InputSet set, bool requiresAllBindsDown = false)
-        {
-            return GetSingleInput(set, requiresAllBindsDown) ? 1f : 0f;
-        }
-        
-        
-        private static bool GetSingleInputDown(InputSet set, bool requiresAllBindsDown = false)
-        {
-            bool result = false;
-
-            foreach (KeyCode input in set.valid_keyBinds)
-            {
-                result |= Input.GetKeyDown(input);
-            }
-            foreach (int mouseButton in set.valid_mouseBinds)
-            {
-                result |= Input.GetMouseButtonDown(mouseButton);
-            }
-
-
-            if (requiresAllBindsDown) result &= GetSingleInput(set, true);
-
-            return result;
-        }
-
-
-        private static bool GetSingleInputUp(InputSet set, bool requiresAllBindsDown = false)
-        {
-            bool result = false;
-
-            foreach (KeyCode input in set.valid_keyBinds)
-            {
-                result |= Input.GetKeyUp(input);
-            }
-            foreach (int mouseButton in set.valid_mouseBinds)
-            {
-                result |= Input.GetMouseButtonUp(mouseButton);
-            }
-
-
-            if (requiresAllBindsDown) result &= GetSingleInput(set, true);
-
-            return result;
-        }
-        #endregion
-
-
-
-        #region Composite Bindings
-        private static bool GetCompositeInput(Composite_InputSet compositeSet, bool requiresAllBindsDown = false)
-        {
-            bool result = false;
-
-            foreach (InputSet set in compositeSet.parts)
-            {
-                result |= GetSingleInput(set, requiresAllBindsDown);
-            }
-
-            return result;
-        }
-
-        // [+x, -x, +y, -y]
-        private static Vector2 GetCompositeInputValue(Composite_InputSet compositeSet, bool requiresAllBindsDown = false)
-        {
-            Vector2 result = Vector2.zero;
-
-            int index = 0;
-            foreach (InputSet set in compositeSet.parts)
-            {
-                float value = GetSingleInputValue(set, requiresAllBindsDown);
-
-
-                switch (index)
-                {
-                    case 0:
-                        result.x += value;
-                        break;
-                    case 1:
-                        result.x -= value;
-                        break;
-                    case 2:
-                        result.y += value;
-                        break;
-                    case 3:
-                        result.y -= value;
-                        break;
-                }
-
-
-                index++;
-            }
-
-            return result;
-        }
-
-        
-        private static bool GetCompositeInputDown(Composite_InputSet compositeSet, bool requiresAllBindsDown = false)
-        {
-            bool result = false;
-
-            foreach (InputSet set in compositeSet.parts)
-            {
-                result |= GetSingleInputDown(set, requiresAllBindsDown);
-            }
-
-            return result;
-        }
-
-
-        private static bool GetCompositeInputUp(Composite_InputSet compositeSet, bool requiresAllBindsDown = false)
-        {
-            bool result = false;
-
-            foreach (InputSet set in compositeSet.parts)
-            {
-                result |= GetSingleInputUp(set, requiresAllBindsDown);
-            }
-
-            return result;
-        }
-        #endregion
-
-
     
         #region Bindings Management
-        public static void AddInputBinds(InputBindingMap map, string name, params DynamicInput[] binds)
+        public static void AddInputBinds(this InputBindingMap map, string name, params DynamicInput[] binds)
         {
-            (InputSet, Composite_InputSet) touple = RetrieveInputSet(map, name);
+            IInputSet setInterface = RetrieveInputSet(map, name);
 
 
-            if (touple == (null, null))
+            if (setInterface == null)
             {
                 Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
@@ -421,23 +525,23 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            AddInputBinds(touple, binds);
+            AddInputBinds(setInterface, binds);
         }
 
-        public static void AddInputBinds((InputSet, Composite_InputSet) setTouple, params DynamicInput[] binds)
+        public static void AddInputBinds(IInputSet setInterface, params DynamicInput[] binds)
         {
-            if (setTouple.Item1 != null)
+            if (setInterface is InputSet singleSet)
             {
                 foreach (DynamicInput bind in binds)
                 {
-                    setTouple.Item1.AddBinding(bind);
+                    singleSet.AddBinding(bind);
                 }
             }
-            else if (setTouple.Item2 != null)
+            else if (setInterface is Composite_InputSet compositeSet)
             {
-                if (binds.Length % 4 != 0)
+                if (binds.Length % compositeSet.axisCount != 0)
                 {
-                    Debug.LogWarning($"SHUU_Input: Ammount of binds for Composite set is invalid, must be a multiple of 4.");
+                    Debug.LogWarning($"SHUU_Input: Ammount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
 
                     return;
                 }
@@ -446,21 +550,22 @@ namespace SHUU.Utils.InputSystem
                 int index = 0;
                 foreach (DynamicInput bind in binds)
                 {
-                    setTouple.Item2.AddBinding(bind, index);
+                    compositeSet.AddBinding(bind, index);
 
                     index++;
-                    if (index == 4) index = 0;
+                    if (index == compositeSet.axisCount) index = 0;
                 }
             }
+            else Debug.LogWarning($"SHUU_Input: InputSet is invalid.");
         }
 
 
-        public static void RemoveInputBinds(InputBindingMap map, string name, params DynamicInput[] binds)
+        public static void RemoveInputBinds(this InputBindingMap map, string name, params DynamicInput[] binds)
         {
-            (InputSet, Composite_InputSet) touple = RetrieveInputSet(map, name);
+            IInputSet setInterface = RetrieveInputSet(map, name);
 
 
-            if (touple == (null, null))
+            if (setInterface == null)
             {
                 Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
@@ -468,23 +573,23 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            RemoveInputBinds(touple, binds);
+            RemoveInputBinds(setInterface, binds);
         }
 
-        public static void RemoveInputBinds((InputSet, Composite_InputSet) setTouple, params DynamicInput[] binds)
+        public static void RemoveInputBinds(IInputSet setInterface, params DynamicInput[] binds)
         {
-            if (setTouple.Item1 != null)
+            if (setInterface is InputSet singleSet)
             {
                 foreach (DynamicInput bind in binds)
                 {
-                    setTouple.Item1.RemoveBinding(bind);
+                    singleSet.RemoveBinding(bind);
                 }
             }
-            else if (setTouple.Item2 != null)
+            else if (setInterface is Composite_InputSet compositeSet)
             {
-                if (binds.Length % 4 != 0)
+                if (binds.Length % compositeSet.axisCount != 0)
                 {
-                    Debug.LogWarning($"SHUU_Input: Ammount of binds for Composite set is invalid, must be a multiple of 4.");
+                    Debug.LogWarning($"SHUU_Input: Ammount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
 
                     return;
                 }
@@ -493,21 +598,22 @@ namespace SHUU.Utils.InputSystem
                 int index = 0;
                 foreach (DynamicInput bind in binds)
                 {
-                    setTouple.Item2.RemoveBinding(bind, index);
+                    compositeSet.RemoveBinding(bind, index);
 
                     index++;
-                    if (index == 4) index = 0;
+                    if (index == compositeSet.axisCount) index = 0;
                 }
             }
+            else Debug.LogWarning($"SHUU_Input: InputSet is invalid.");
         }
 
 
-        public static void ClearInputBinds(InputBindingMap map, string name)
+        public static void ClearInputBinds(this InputBindingMap map, string name)
         {
-            (InputSet, Composite_InputSet) touple = RetrieveInputSet(map, name);
+            IInputSet setInterface = RetrieveInputSet(map, name);
 
 
-            if (touple == (null, null))
+            if (setInterface == null)
             {
                 Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
@@ -515,28 +621,16 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            ClearInputBinds(touple);
-        }
-
-        public static void ClearInputBinds((InputSet, Composite_InputSet) setTouple)
-        {
-            if (setTouple.Item1 != null)
-            {
-                setTouple.Item1.ClearBindings();
-            }
-            else if (setTouple.Item2 != null)
-            {
-                setTouple.Item2.ClearBindings();
-            }
+            setInterface.ClearBindings();
         }
 
 
-        public static void RebindInputSet(InputBindingMap map, string name, params DynamicInput[] binds)
+        public static void RebindInputSet(this InputBindingMap map, string name, params DynamicInput[] binds)
         {
-            (InputSet, Composite_InputSet) touple = RetrieveInputSet(map, name);
+            IInputSet setInterface = RetrieveInputSet(map, name);
 
 
-            if (touple == (null, null))
+            if (setInterface == null)
             {
                 Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
@@ -544,61 +638,59 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            RebindInputSet(touple, binds);
+            RebindInputSet(setInterface, binds);
         }
 
-        public static void RebindInputSet((InputSet, Composite_InputSet) setTouple, params DynamicInput[] binds)
+        public static void RebindInputSet(IInputSet setInterface, params DynamicInput[] binds)
         {
-            ClearInputBinds(setTouple);
+            setInterface.ClearBindings();
 
-            AddInputBinds(setTouple, binds);
+            AddInputBinds(setInterface, binds);
         }
         #endregion
     
     
     
         #region Misc
-        public static InputSet RetrieveSingleInputSet(InputBindingMap map, string name)
+        public static InputSet RetrieveSingleInputSet(this InputBindingMap map, string name)
         {
             if (map.TryGetSingleSet(name, out InputSet singleSet))
             {
                 return singleSet;
             }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
-
+            else Debug.LogWarning($"SHUU_Input: Single InputSet '{name}' not found in map '{map.mapName}'.");
 
 
             return null;
         }
 
-        public static Composite_InputSet RetrieveCompositeInputSet(InputBindingMap map, string name)
+        public static Composite_InputSet RetrieveCompositeInputSet(this InputBindingMap map, string name)
         {
             if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet))
+            {
+                return compositeSet;
+            }
+            else Debug.LogWarning($"SHUU_Input: Composite InputSet '{name}' not found in map '{map.mapName}'.");
+
+
+            return null;
+        }
+
+
+        public static IInputSet RetrieveInputSet(this InputBindingMap map, string name)
+        {
+            if (map.TryGetSingleSet(name, out InputSet singleSet))
+            {
+                return singleSet;
+            }
+            else if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet))
             {
                 return compositeSet;
             }
             else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
 
 
-
             return null;
-        }
-
-
-        public static (InputSet, Composite_InputSet) RetrieveInputSet(InputBindingMap map, string name)
-        {
-            if (map.TryGetSingleSet(name, out InputSet singleSet))
-            {
-                return (singleSet, null);
-            }
-            else if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet))
-            {
-                return (null, compositeSet);
-            }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
-
-
-            return (null, null);
         }
 
 
@@ -618,5 +710,4 @@ namespace SHUU.Utils.InputSystem
         }
         #endregion
     }
-
 }

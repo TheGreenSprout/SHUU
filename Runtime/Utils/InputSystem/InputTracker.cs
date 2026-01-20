@@ -41,6 +41,9 @@ namespace SHUU.Utils.InputSystem
         }
 
 
+        private void Update() => SHUU_Input.Update();
+
+
         private void BuildDictionary()
         {
             allInputBindingMaps = new Dictionary<string, InputBindingMap>(

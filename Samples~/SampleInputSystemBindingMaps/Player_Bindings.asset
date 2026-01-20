@@ -14,28 +14,78 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapName: Player
   enabled: 1
+  defaultData:
+    mapName: Player
+    enabled: 1
+    inputSets_list:
+    - name: Run
+      set:
+        enabled: 1
+        valid_keyBinds: 30010000
+        valid_mouseBinds: 
+    - name: Jump
+      set:
+        enabled: 1
+        valid_keyBinds: 20000000
+        valid_mouseBinds: 
+    - name: Crouch
+      set:
+        enabled: 1
+        valid_keyBinds: 32010000
+        valid_mouseBinds: 
+    compositeSets_list:
+    - name: Movement
+      set:
+        axes:
+        - positiveSet:
+            enabled: 1
+            valid_keyBinds: 64000000
+            valid_mouseBinds: 
+          negativeSet:
+            enabled: 1
+            valid_keyBinds: 61000000
+            valid_mouseBinds: 
+        - positiveSet:
+            enabled: 1
+            valid_keyBinds: 77000000
+            valid_mouseBinds: 
+          negativeSet:
+            enabled: 1
+            valid_keyBinds: 77000000
+            valid_mouseBinds: 
   inputSets_list:
   - name: Run
     set:
+      enabled: 1
       valid_keyBinds: 30010000
       valid_mouseBinds: 
   - name: Jump
     set:
+      enabled: 1
       valid_keyBinds: 20000000
       valid_mouseBinds: 
   - name: Crouch
     set:
+      enabled: 1
       valid_keyBinds: 32010000
       valid_mouseBinds: 
   compositeSets_list:
   - name: Movement
     set:
-      parts:
-      - valid_keyBinds: 6400000013010000
-        valid_mouseBinds: 
-      - valid_keyBinds: 6100000014010000
-        valid_mouseBinds: 
-      - valid_keyBinds: 7700000011010000
-        valid_mouseBinds: 
-      - valid_keyBinds: 7300000012010000
-        valid_mouseBinds: 
+      axes:
+      - positiveSet:
+          enabled: 1
+          valid_keyBinds: 64000000
+          valid_mouseBinds: 
+        negativeSet:
+          enabled: 1
+          valid_keyBinds: 61000000
+          valid_mouseBinds: 
+      - positiveSet:
+          enabled: 1
+          valid_keyBinds: 77000000
+          valid_mouseBinds: 
+        negativeSet:
+          enabled: 1
+          valid_keyBinds: 73000000
+          valid_mouseBinds: 

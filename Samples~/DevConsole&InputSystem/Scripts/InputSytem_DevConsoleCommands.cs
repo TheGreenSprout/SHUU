@@ -15,20 +15,19 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         return (null, null);
     }
 
-    private static (string[], Color?) RetrieveInfo(string _map, string _set, out (InputSet, Composite_InputSet) info)
+    private static (string[], Color?) RetrieveInfo(string _map, string _set, out IInputSet info)
     {
-        info = (null, null);
+        info = null;
 
 
         var output = RetrieveMap(_map, out InputBindingMap map);
         if (output != (null, null)) return output;
 
-        (InputSet, Composite_InputSet) setTouple = SHUU_Input.RetrieveInputSet(map, _set);
-        if (setTouple == (null, null)) return (new string[] { $"Set doesn't exist or isn't present in the selected map." }, Color.red);
+        IInputSet set = SHUU_Input.RetrieveInputSet(map, _set);
+        if (set == null) return (new string[] { $"Set doesn't exist or isn't present in the selected map." }, Color.red);
 
 
-        info = (setTouple.Item1, setTouple.Item2);
-
+        info = set;
         return (null, null);
     }
 
@@ -57,7 +56,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         var _output = RetrieveMap(_map, out InputBindingMap map);
         if (_output != (null, null)) return _output;
 
-        var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
+        var output = RetrieveInfo(_map, _set, out IInputSet info);
         if (output != (null, null)) return output;
 
 
@@ -89,7 +88,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("rebind", "Changes an input set's bindings", "Input System")]
     public static (string[], Color?) RebindSet(string _map, string _set, params string[] newBinds)
     {
-        var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
+        var output = RetrieveInfo(_map, _set, out IInputSet info);
         if (output != (null, null)) return output;
 
 
@@ -102,7 +101,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("addbind", "Adds bindings to an input set", "Input System")]
     public static (string[], Color?) AddSetBinding(string _map, string _set, params string[] newBinds)
     {
-        var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
+        var output = RetrieveInfo(_map, _set, out IInputSet info);
         if (output != (null, null)) return output;
 
 
@@ -115,7 +114,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("removebind", "Removes an input set's specific bind(s)", "Input System")]
     public static (string[], Color?) RemoveSetBinding(string _map, string _set, params string[] newBinds)
     {
-        var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
+        var output = RetrieveInfo(_map, _set, out IInputSet info);
         if (output != (null, null)) return output;
 
 
@@ -128,11 +127,11 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("clearbind", "Removes all of an input set's bindings", "Input System")]
     public static (string[], Color?) ClearSet(string _map, string _set)
     {
-        var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
+        var output = RetrieveInfo(_map, _set, out IInputSet info);
         if (output != (null, null)) return output;
 
 
-        SHUU_Input.ClearInputBinds(info);
+        info?.ClearBindings();
 
 
         return (new string[] { $"{_map} map, {_set} set, bindings cleared." }, null);
@@ -185,19 +184,21 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("inputset", "Displays all input bindings on the given input set", "Input System")]
     public static (string[], Color?) DisplaySet(string _map, string _set)
     {
-        var output = RetrieveInfo(_map, _set, out (InputSet, Composite_InputSet) info);
+        var output = RetrieveInfo(_map, _set, out IInputSet info);
         if (output != (null, null)) return output;
+
+        if (info == null)
+            return (new[] { "Input set not found." }, Color.red);
 
         // ───────────────────────────────────────
         // SINGLE INPUT SET
         // ───────────────────────────────────────
-        if (info.Item1 != null)
+        if (info is InputSet set)
         {
-            InputSet set = info.Item1;
             int count = set.valid_keyBinds.Count + set.valid_mouseBinds.Count;
 
             if (count == 0)
-                return (new string[] { "No bindings registered." }, Color.red);
+                return (new[] { "No bindings registered." }, Color.red);
 
             string[] lines = new string[count];
             int i = 0;
@@ -214,41 +215,45 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         // ───────────────────────────────────────
         // COMPOSITE INPUT SET
         // ───────────────────────────────────────
-        Composite_InputSet comp = info.Item2;
-
-        if (comp == null || comp.parts == null || comp.parts.Length != 4)
-            return (new string[] { "Invalid composite input set." }, Color.red);
-
-        // Names for each composite direction
-        string[] partNames = new string[]
+        if (info is Composite_InputSet comp)
         {
-            "[X+]", "[X-]", "[Y+]", "[Y-]"
-        };
+            if (comp.axes == null || comp.axes.Count == 0)
+                return (new[] { "No bindings registered." }, Color.red);
 
-        // Calculate total line count
-        int total = 0;
-        foreach (var set in comp.parts)
-            total += set.valid_keyBinds.Count + set.valid_mouseBinds.Count;
+            List<string> lines = new();
 
-        if (total == 0)
-            return (new string[] { "No bindings registered." }, Color.red);
+            for (int axisIndex = 0; axisIndex < comp.axes.Count; axisIndex++)
+            {
+                Composite_Axis axis = comp.axes[axisIndex];
+                if (axis == null) continue;
 
-        string[] outputLines = new string[total];
-        int index = 0;
+                string axisLabel = $"[Axis {axisIndex+1}]";
 
-        for (int i = 0; i < 4; i++)
-        {
-            InputSet set = comp.parts[i];
-            string label = partNames[i];
+                // Positive
+                foreach (KeyCode key in axis.positiveSet.valid_keyBinds)
+                    lines.Add($"{axisLabel}[+] Key: {key}");
 
-            foreach (KeyCode key in set.valid_keyBinds)
-                outputLines[index++] = $"{label} Key: {key}";
+                foreach (int mouse in axis.positiveSet.valid_mouseBinds)
+                    lines.Add($"{axisLabel}[+] Mouse: {mouse}");
 
-            foreach (int mouse in set.valid_mouseBinds)
-                outputLines[index++] = $"{label} Mouse: {mouse}";
+                // Negative
+                foreach (KeyCode key in axis.negativeSet.valid_keyBinds)
+                    lines.Add($"{axisLabel}[-] Key: {key}");
+
+                foreach (int mouse in axis.negativeSet.valid_mouseBinds)
+                    lines.Add($"{axisLabel}[-] Mouse: {mouse}");
+            }
+
+            if (lines.Count == 0)
+                return (new[] { "No bindings registered." }, Color.red);
+
+            return (lines.ToArray(), null);
         }
 
-        return (outputLines, null);
+        // ───────────────────────────────────────
+        // UNKNOWN TYPE
+        // ───────────────────────────────────────
+        return (new[] { "Unsupported input set type." }, Color.red);
     }
 
 

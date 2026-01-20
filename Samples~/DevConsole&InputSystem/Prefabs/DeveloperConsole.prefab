@@ -152,7 +152,9 @@ MonoBehaviour:
   devConsole_On: 0
   canToggle_devConsole: 0
   map: {fileID: 11400000, guid: 206520c51e327c14cb2e42d439ea2b7a, type: 2}
-  setName: Control
+  toggle_setName: Toggle
+  previousCommand_setName: PreviousCommand
+  nextCommand_setName: NextCommand
 --- !u!114 &7568605695224927863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,7 +191,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0069aa5557cf0f8448beac63228c7316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  devConsoleManager: {fileID: 0}
 --- !u!1001 &2973031509289071869
 PrefabInstance:
   m_ObjectHideFlags: 0

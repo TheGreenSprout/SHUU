@@ -13,17 +13,26 @@ MonoBehaviour:
   m_Name: Dialogue_Bindings
   m_EditorClassIdentifier: 
   mapName: Dialogue
+  enabled: 1
+  defaultData:
+    mapName: 
+    enabled: 0
+    inputSets_list: []
+    compositeSets_list: []
   inputSets_list:
   - name: NextLine
     set:
+      enabled: 1
       valid_keyBinds: 65000000
       valid_mouseBinds: 00000000
   - name: Skip
     set:
+      enabled: 1
       valid_keyBinds: 20000000
       valid_mouseBinds: 
   - name: FastForward
     set:
-      valid_keyBinds: 00000000
+      enabled: 1
+      valid_keyBinds: 
       valid_mouseBinds: 01000000
   compositeSets_list: []

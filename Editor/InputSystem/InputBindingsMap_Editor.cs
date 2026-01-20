@@ -28,7 +28,7 @@ namespace SHUU._Editor.InputSystem
         private Dictionary<string, bool> compositeFoldouts = new Dictionary<string, bool>();
         private Dictionary<object, bool> setFoldouts = new Dictionary<object, bool>();
 
-        [MenuItem("Tools/Sprout's Handy Unity Utils/Input System/Classic/Input Bindings Map Editor")]
+        [MenuItem("Tools/Sprout's Handy Unity Utils/Input System/Custom/Input Bindings Map Editor")]
         public static void Open() => GetWindow<InputBindingsMap_Editor>("Input Bindings Map Editor");
 
         private void OnGUI()
@@ -65,6 +65,8 @@ namespace SHUU._Editor.InputSystem
             DrawCompositeInputSets();
 
             EditorGUILayout.EndScrollView();
+
+            if (GUILayout.Button("Set Default Data")) map.SetDefaultData();
         }
 
         // ============================================================================================
@@ -98,24 +100,45 @@ namespace SHUU._Editor.InputSystem
 
         private bool KeyIsDuplicate(KeyCode newKey, InputSet exceptSet)
         {
-            foreach (var s in map.inputSets_list)
-            {
-                if (s.set == exceptSet) continue;
+            if (newKey == KeyCode.None)
+                return false;
 
-                foreach (var key in s.set.valid_keyBinds)
-                    if (key == newKey)
-                        return true;
+            // ------------------------------
+            // Single Input Sets
+            // ------------------------------
+            foreach (var named in map.inputSets_list)
+            {
+                var set = named?.set;
+                if (set == null || set == exceptSet)
+                    continue;
+
+                if (set.valid_keyBinds.Contains(newKey))
+                    return true;
             }
 
-            foreach (var s in map.compositeSets_list)
+            // ------------------------------
+            // Composite Input Sets
+            // ------------------------------
+            foreach (var named in map.compositeSets_list)
             {
-                foreach (var part in s.set.parts)
-                {
-                    if (part == exceptSet) continue;
+                var composite = named?.set;
+                if (composite == null)
+                    continue;
 
-                    foreach (var key in part.valid_keyBinds)
-                        if (key == newKey)
-                            return true;
+                foreach (var axis in composite.axes)
+                {
+                    if (axis == null)
+                        continue;
+
+                    // Positive
+                    if (axis.positiveSet != exceptSet &&
+                        axis.positiveSet.valid_keyBinds.Contains(newKey))
+                        return true;
+
+                    // Negative
+                    if (axis.negativeSet != exceptSet &&
+                        axis.negativeSet.valid_keyBinds.Contains(newKey))
+                        return true;
                 }
             }
 
@@ -308,6 +331,7 @@ namespace SHUU._Editor.InputSystem
 
                 EditorGUILayout.BeginVertical("box");
 
+                // Header
                 EditorGUILayout.BeginHorizontal();
                 compositeFoldouts[element.name] =
                     EditorGUILayout.Foldout(compositeFoldouts[element.name], element.name, true);
@@ -326,29 +350,45 @@ namespace SHUU._Editor.InputSystem
                     return;
                 }
                 GUI.backgroundColor = Color.white;
-
                 EditorGUILayout.EndHorizontal();
 
+                // Body
                 if (compositeFoldouts[element.name])
                 {
                     element.name = EditorGUILayout.TextField("Name", element.name);
 
                     EditorGUILayout.Space(5);
 
-                    for (int p = 0; p < 4; p++)
+                    // AXIS COUNT
+                    EditorGUI.BeginChangeCheck();
+                    int axisCount = EditorGUILayout.IntField("Axis Count", element.set.axisCount);
+                    if (EditorGUI.EndChangeCheck())
                     {
-                        string header = p switch
-                        {
-                            0 => "+x",
-                            1 => "-x",
-                            2 => "+y",
-                            3 => "-y",
-                            _ => "?"
-                        };
+                        Undo.RecordObject(map, "Change Axis Count");
+                        element.set.axisCount = axisCount;
+                        SaveMap();
+                    }
 
-                        EditorGUILayout.LabelField($"Axis {header}", EditorStyles.boldLabel);
-                        DrawInputSet(element.set.parts[p]);
-                        EditorGUILayout.Space();
+                    EditorGUILayout.Space(8);
+
+                    // DRAW AXES
+                    for (int a = 0; a < element.set.axes.Count; a++)
+                    {
+                        var axis = element.set.axes[a];
+
+                        EditorGUILayout.BeginVertical("helpbox");
+                        EditorGUILayout.LabelField($"Axis {a+1}", EditorStyles.boldLabel);
+
+                        EditorGUILayout.LabelField("Positive", EditorStyles.miniBoldLabel);
+                        DrawInputSet(axis.positiveSet);
+
+                        EditorGUILayout.Space(4);
+
+                        EditorGUILayout.LabelField("Negative", EditorStyles.miniBoldLabel);
+                        DrawInputSet(axis.negativeSet);
+
+                        EditorGUILayout.EndVertical();
+                        EditorGUILayout.Space(6);
                     }
                 }
 

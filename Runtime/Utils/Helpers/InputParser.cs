@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace SHUU.Utils.Helpers
 {
-
     public static class InputParser
     {
         public static (KeyCode?, int?) ParseInput(string input)
@@ -21,6 +20,11 @@ namespace SHUU.Utils.Helpers
             return (null, null);
         }
 
+
+        public static string InputToString(KeyCode key) => key.ToString();
+
+        public static string InputToString(int mouse) => "Mouse" + mouse.ToString();
+
         
         
         public static bool Parse_GetInput(string input)
@@ -32,6 +36,7 @@ namespace SHUU.Utils.Helpers
             
             return false;
         }
+
 
         public static bool Parse_GetInputDown(string input)
         {
@@ -53,5 +58,4 @@ namespace SHUU.Utils.Helpers
             return false;
         }
     }
-
 }

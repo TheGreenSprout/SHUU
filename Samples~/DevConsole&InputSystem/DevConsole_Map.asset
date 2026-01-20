@@ -14,17 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapName: DevConsole
   enabled: 1
+  defaultData:
+    mapName: 
+    enabled: 0
+    inputSets_list: []
+    compositeSets_list: []
   inputSets_list:
-  - name: Control
+  - name: Toggle
     set:
+      enabled: 1
       valid_keyBinds: 340100001b010000
       valid_mouseBinds: 
   - name: PreviousCommand
     set:
+      enabled: 1
       valid_keyBinds: 11010000
       valid_mouseBinds: 
   - name: NextCommand
     set:
+      enabled: 1
       valid_keyBinds: 12010000
       valid_mouseBinds: 
   compositeSets_list: []

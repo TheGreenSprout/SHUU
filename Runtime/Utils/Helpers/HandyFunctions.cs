@@ -149,6 +149,7 @@ namespace SHUU.Utils.Helpers
                 }
             }
         }
+
         public static T[] CleanArray<T>(this T[] array)
         {
             if (array == null) return Array.Empty<T>();
@@ -162,6 +163,47 @@ namespace SHUU.Utils.Helpers
             int index = 0;
             for (int i = 0; i < array.Length; i++) if (array[i] != null) result[index++] = array[i];
 
+            return result;
+        }
+
+
+        public static IList<E> MergeLists<E>(params IList<E>[] lists)
+        {
+            if (lists is Array) return MergeArrays(lists.Select(l => l.ToArray()).ToArray());
+
+
+            List<E> result = new List<E>();
+
+            foreach (var list in lists)
+            {
+                if (list is Array) continue;
+
+                foreach (var item in list) result.Add(item);
+            }
+
+            return result;
+        }
+
+        public static T[] MergeArrays<T>(params T[][] arrays)
+        {
+            if (arrays is not Array) return null;
+
+
+            int totalLength = 0;
+            foreach (var array in arrays) totalLength += array.Length;
+
+
+            T[] result = new T[totalLength];
+
+            int index = 0;
+            foreach (var array in arrays)
+            {
+                foreach (var item in array)
+                {
+                    result[index++] = item;
+                }
+            }
+            
             return result;
         }
 
