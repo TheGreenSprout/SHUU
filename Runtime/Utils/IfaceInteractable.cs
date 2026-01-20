@@ -14,7 +14,7 @@ public interface IfaceInteractable
     /// </summary>
     /// <returns>Returns wether the interactable can be interacted with or not.</returns>
     #endregion
-    public bool CanBeInteracted();
+    public bool CanBeInteracted() => true;
     
     #region XML doc
     /// <summary>

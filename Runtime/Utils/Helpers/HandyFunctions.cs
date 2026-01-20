@@ -892,6 +892,16 @@ namespace SHUU.Utils.Helpers
                 tags
             );
         }
+        public static bool InteractionRaycast(ref IfaceInteractable previousInact, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
+        {
+            return InteractionRaycast(
+                ref previousInact,
+                Camera.main.ScreenPointToRay(Input.mousePosition),
+                interactionRange,
+                interactionLayers,
+                tags
+            );
+        }
 
         public static bool InteractionRaycast_Check(this RaycastHit hit, out IfaceInteractable inactScript, params string[] tags)
         {
@@ -907,12 +917,6 @@ namespace SHUU.Utils.Helpers
 
 
             return false;
-        }
-
-
-        public static void InteractAction(this IfaceInteractable previousInact)
-        {
-            if (previousInact != null && previousInact.CanBeInteracted()) previousInact.Interact();
         }
         #endregion
 

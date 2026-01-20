@@ -28,7 +28,7 @@ public class InteractionScript : Interactable
 
 
 
-    public override void Interact()
+    protected override void InteractLogic()
     {
         if (meshRenderer.sharedMaterial == mat1)
         {

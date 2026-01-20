@@ -322,7 +322,7 @@ namespace SHUU.Utils.InputSystem
 
             foreach (var buffered in list)
             {
-                if (buffered.set == set && buffered.remainingTime > 0f)
+                if (buffered.set == set && buffered.requiresAllBindsDown == requiresAllBindsDown && buffered.remainingTime > 0f)
                 {
                     if (consume) buffered.Consume();
 
@@ -343,8 +343,8 @@ namespace SHUU.Utils.InputSystem
 
 
         #region Listeners
-        private static Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> down_listeners = new();
-        private static Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> up_listeners = new();
+        private static Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> down_listeners = new();
+        private static Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> up_listeners = new();
 
 
         private static void UpdateListeners()
@@ -353,7 +353,7 @@ namespace SHUU.Utils.InputSystem
             if (up_listeners != null && up_listeners.Count > 0) UpdateListener(up_listeners);
         }
         
-        private static void UpdateListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners)
+        private static void UpdateListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners)
         {
             foreach (var mapEntry in listeners)
             {
@@ -365,9 +365,9 @@ namespace SHUU.Utils.InputSystem
                 {
                     foreach (var binding in actionEntry.Value)
                     {
-                        if (GetInputDown(map, binding.set, binding.requiresAllBindsDown))
+                        if (GetInputDown(map, actionEntry.Key, binding.requiresAllBindsDown))
                         {
-                            actionEntry.Key?.Invoke();
+                            binding.callback?.Invoke();
 
                             break;
                         }
@@ -377,7 +377,7 @@ namespace SHUU.Utils.InputSystem
         }
 
 
-        private static void RegisterListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
+        private static void RegisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
         {
             if (map == null || callback == null || string.IsNullOrEmpty(set)) return;
 
@@ -389,45 +389,61 @@ namespace SHUU.Utils.InputSystem
                 listeners[map] = actionDict;
             }
 
-            if (!actionDict.TryGetValue(callback, out var bindings))
+            if (!actionDict.TryGetValue(set, out var bindings))
             {
                 bindings = new();
 
-                actionDict[callback] = bindings;
+                actionDict[set] = bindings;
             }
 
 
-            bindings.Add((set, requiresAllBindsDown));
+            bindings.Add((callback, requiresAllBindsDown));
         }
-        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, Action callback)
+        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback)
         {
-            if (map == null || callback == null) return;
+            if (map == null || !string.IsNullOrEmpty(set)) return;
+
+
+            if (!listeners.TryGetValue(map, out var actionDict)) return;
+            if (!actionDict.TryGetValue(set, out var actionList)) return;
+
+            actionList.RemoveAll(a => a.callback == callback);
+
+            if (actionDict.Count == 0) listeners.Remove(map);
+        }
+        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set)
+        {
+            if (map == null || !string.IsNullOrEmpty(set)) return;
 
 
             if (!listeners.TryGetValue(map, out var actionDict)) return;
 
-            actionDict.Remove(callback);
+            actionDict.Remove(set);
 
             if (actionDict.Count == 0) listeners.Remove(map);
         }
-        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<Action, List<(string set, bool requiresAllBindsDown)>>> listeners, InputBindingMap map)
+        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map)
         {
             if (map == null) return;
             
-            if (down_listeners.ContainsKey(map)) down_listeners.Remove(map);
+            if (listeners.ContainsKey(map)) listeners.Remove(map);
         }
 
         public static void RegisterListener_Down(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false) =>
             RegisterListener(down_listeners, map, set, callback, requiresAllBindsDown);
-        public static void UnregisterListener_Down(this InputBindingMap map, Action callback) =>
-            UnregisterListener(down_listeners, map, callback);
+        public static void UnregisterListener_Down(this InputBindingMap map, string set, Action callback) =>
+            UnregisterListener(down_listeners, map, set, callback);
+            public static void UnregisterListener_Down(this InputBindingMap map, string set) =>
+            UnregisterListener(down_listeners, map, set);
         public static void UnregisterListener_Down(this InputBindingMap map) =>
             UnregisterListener(down_listeners, map);
 
         public static void RegisterListener_Up(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false) =>
             RegisterListener(up_listeners, map, set, callback, requiresAllBindsDown);
-        public static void UnregisterListener_Up(this InputBindingMap map, Action callback) =>
-            UnregisterListener(up_listeners, map, callback);
+        public static void UnregisterListener_Up(this InputBindingMap map, string set, Action callback) =>
+            UnregisterListener(up_listeners, map, set, callback);
+        public static void UnregisterListener_Up(this InputBindingMap map, string set) =>
+            UnregisterListener(up_listeners, map, set);
         public static void UnregisterListener_Up(this InputBindingMap map) =>
             UnregisterListener(up_listeners, map);
         #endregion

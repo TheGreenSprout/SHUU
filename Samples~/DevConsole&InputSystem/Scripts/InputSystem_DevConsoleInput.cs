@@ -27,9 +27,9 @@ namespace SHUU.UserSide
 
         private void OnDisable()
         {
-            map.UnregisterListener_Down(Toggle);
-            map.UnregisterListener_Down(PreviousCommand);
-            map.UnregisterListener_Down(NextCommand);
+            map.UnregisterListener_Down(toggle_setName, Toggle);
+            map.UnregisterListener_Down(previousCommand_setName, PreviousCommand);
+            map.UnregisterListener_Down(nextCommand_setName, NextCommand);
         }
     }
     

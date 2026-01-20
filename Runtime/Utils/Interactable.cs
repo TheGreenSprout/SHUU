@@ -52,7 +52,12 @@ namespace SHUU.Utils
         /// Interaction logic.
         /// </summary>
         #endregion
-        public virtual void Interact() { }
+        public void Interact()
+        {
+            if (CanBeInteracted()) InteractLogic();
+        }
+
+        protected virtual void InteractLogic() { }
 
 
         #region XML doc
