@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caa334d12eb236e408f8818f04a1c673, type: 3}
+  m_Name: Test2BindingMap
+  m_EditorClassIdentifier: 
+  mapName: Test2
+  enabled: 1
+  lastDefaultSetDateTime: No Default Set
+  defaultData:
+    mapName: 
+    enabled: 0
+    inputSets_list: []
+    compositeSets_list: []
+  inputSets_list:
+  - name: Console
+    set:
+      enabled: 1
+      valid_keyBinds: 1b010000
+      valid_mouseBinds: 
+  - name: Pause
+    set:
+      enabled: 1
+      valid_keyBinds: 1b00000070000000
+      valid_mouseBinds: 
+  - name: Special Ability
+    set:
+      enabled: 1
+      valid_keyBinds: 3100000071000000
+      valid_mouseBinds: 
+  compositeSets_list:
+  - name: SingleAxis
+    set:
+      axes:
+      - positiveSet:
+          enabled: 1
+          valid_keyBinds: 6f000000
+          valid_mouseBinds: 01000000
+        negativeSet:
+          enabled: 1
+          valid_keyBinds: 69000000
+          valid_mouseBinds: 00000000

@@ -6,6 +6,7 @@ using SHUU.Utils.UI;
 using SHUU.Utils.Helpers;
 using System.Collections.Generic;
 using SHUU.Utils.UI.Dialogue;
+using System.Collections;
 
 namespace SHUU.Utils.Globals
 {

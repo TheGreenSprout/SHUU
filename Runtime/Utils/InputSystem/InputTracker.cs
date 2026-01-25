@@ -28,17 +28,14 @@ namespace SHUU.Utils.InputSystem
             public List<InputBindingMap_Data> maps = new List<InputBindingMap_Data>();
         }
 
-        void Awake()
+        private void Awake()
         {
             LoadAll();
 
             BuildDictionary();
         }
 
-        void OnApplicationQuit()
-        {
-            SaveAll();
-        }
+        private void OnApplicationQuit() => SaveAll();
 
 
         private void Update() => SHUU_Input.Update();
@@ -46,27 +43,25 @@ namespace SHUU.Utils.InputSystem
 
         private void BuildDictionary()
         {
-            allInputBindingMaps = new Dictionary<string, InputBindingMap>(
-                System.StringComparer.OrdinalIgnoreCase
-            );
+            allInputBindingMaps = new Dictionary<string, InputBindingMap>(System.StringComparer.OrdinalIgnoreCase);
 
             foreach (var map in mapsToSave)
             {
-                if (map == null)
-                    continue;
+                if (map == null) continue;
 
                 string key = map.mapName.Trim();
 
                 if (string.IsNullOrEmpty(key))
                 {
                     Debug.LogWarning($"InputBindingMap '{map}' has an empty mapName!");
+
                     continue;
                 }
 
                 if (allInputBindingMaps.ContainsKey(key))
                 {
-                    Debug.LogError($"Duplicate InputBindingMap name detected: '{key}'. " +
-                                "Only the first entry will be stored.");
+                    Debug.LogError($"Duplicate InputBindingMap name detected: '{key}'. " + "Only the first entry will be stored.");
+
                     continue;
                 }
 
@@ -84,8 +79,7 @@ namespace SHUU.Utils.InputSystem
 
             foreach (var map in mapsToSave)
             {
-                if (map != null)
-                    wrapper.maps.Add(map.ToData());
+                if (map != null) wrapper.maps.Add(map.ToData());
             }
 
             string json = JsonUtility.ToJson(wrapper, true);
@@ -94,10 +88,7 @@ namespace SHUU.Utils.InputSystem
             {
                 File.WriteAllText(filePath, json);
             }
-            catch (System.Exception ex)
-            {
-                Debug.LogError("Failed to save input bindings: " + ex);
-            }
+            catch (System.Exception ex) Debug.LogError("Failed to save input bindings: " + ex);
             #endif
         }
 
@@ -105,8 +96,7 @@ namespace SHUU.Utils.InputSystem
         public void LoadAll()
         {
             #if !UNITY_EDITOR
-            if (!File.Exists(filePath))
-                return;
+            if (!File.Exists(filePath)) return;
 
             try
             {
@@ -118,20 +108,13 @@ namespace SHUU.Utils.InputSystem
                     if (map == null) continue;
 
                     // Match by mapName
-                    var data = wrapper.maps.Find(m => 
-                        m.mapName.Equals(map.mapName, System.StringComparison.OrdinalIgnoreCase));
+                    var data = wrapper.maps.Find(m => m.mapName.Equals(map.mapName, System.StringComparison.OrdinalIgnoreCase));
 
-                    if (data != null)
-                    {
-                        map.LoadFromData(data);
-                    }
+                    if (data != null) map.LoadFromData(data);
                     // If not found → keep defaults
                 }
             }
-            catch (System.Exception ex)
-            {
-                Debug.LogError("Failed to load input bindings: " + ex);
-            }
+            catch (System.Exception ex) Debug.LogError("Failed to load input bindings: " + ex);
             #endif
         }
     }

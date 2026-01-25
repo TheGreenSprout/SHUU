@@ -22,9 +22,22 @@ namespace SHUU.Utils.InputSystem
     [Serializable]
     public class NAMED_InputSet
     {
-        public string name;
+        public string name = "";
 
         public InputSet set = new InputSet();
+
+
+        public NAMED_InputSet() { }
+        public NAMED_InputSet(NAMED_InputSet other)
+        {
+            name = other.name;
+            set = new InputSet(other.set);
+
+            overrideAction = other.overrideAction;
+        }
+
+
+        public Action<NAMED_InputSet> overrideAction;
     }
 
     [Serializable]
@@ -34,6 +47,18 @@ namespace SHUU.Utils.InputSystem
 
         public List<KeyCode> valid_keyBinds = new List<KeyCode>();
         public List<int> valid_mouseBinds = new List<int>();
+
+
+        public InputSet() { }
+        public InputSet(InputSet other)
+        {
+            enabled = other.enabled;
+
+            valid_keyBinds = new();
+            valid_keyBinds.CopyFrom_List(other.valid_keyBinds);
+            valid_mouseBinds = new();
+            valid_mouseBinds.CopyFrom_List(other.valid_mouseBinds);
+        }
 
 
         public void AddBinding(DynamicInput bind)
@@ -91,6 +116,9 @@ namespace SHUU.Utils.InputSystem
 
         public bool GetInput(bool requiresAllBindsDown = false)
         {
+            if (!enabled) return false;
+
+
             bool result = requiresAllBindsDown;
 
             foreach (KeyCode input in valid_keyBinds)
@@ -109,6 +137,9 @@ namespace SHUU.Utils.InputSystem
 
         public bool GetInputDown(bool requiresAllBindsDown = false)
         {
+            if (!enabled) return false;
+
+            
             bool result = false;
 
             foreach (KeyCode input in valid_keyBinds)
@@ -127,6 +158,9 @@ namespace SHUU.Utils.InputSystem
         }
         public bool GetInputUp(bool requiresAllBindsDown = false)
         {
+            if (!enabled) return false;
+
+            
             bool result = false;
 
             foreach (KeyCode input in valid_keyBinds)
@@ -151,95 +185,24 @@ namespace SHUU.Utils.InputSystem
     [Serializable]
     public class NAMED_Composite_InputSet
     {
-        public string name;
+        public string name = "";
 
         public Composite_InputSet set = new Composite_InputSet();
+
+
+        public NAMED_Composite_InputSet() { }
+        public NAMED_Composite_InputSet(NAMED_Composite_InputSet other)
+        {
+            name = other.name;
+            set = new Composite_InputSet(other.set);
+
+            overrideAction = other.overrideAction;
+        }
+
+
+        public Action<NAMED_Composite_InputSet> overrideAction;
     }
 
-    /*[Serializable]
-    public class Composite_InputSet
-    {
-        public bool enabled
-        {
-            get
-            {
-                foreach (InputSet part in parts)
-                {
-                    if (!part.enabled) return false;
-                }
-
-                return true;
-            }
-
-            set
-            {
-                foreach (InputSet part in parts)
-                {
-                    part.enabled = value;
-                }
-            }
-        }
-
-        public InputSet[] parts = new InputSet[4]
-        {
-            new InputSet(), new InputSet(),
-            new InputSet(), new InputSet()
-        };
-
-
-        public void AddBinding(SHUU_Input.DynamicInput bind, int index)
-        {
-            if (!bind.IsValid()) return;
-
-            if (parts == null || parts.Length != 4) parts = new InputSet[4] { new InputSet(), new InputSet(), new InputSet(), new InputSet() }; 
-
-            
-            if (bind.TryGetKey(out KeyCode key))
-            {
-                AddBinding(key, index);
-            }
-            else if (bind.TryGetMouse(out int mouse))
-            {
-                AddBinding(mouse, index);
-            }
-            else Debug.LogError("Invalid Dynamic Input on Composite AddBind().");
-        }
-        public void AddBinding(KeyCode bind, int index)
-        {
-            if (parts[index].valid_keyBinds.Contains(bind)) Debug.LogError("Repeated Keyboard Binding on Composite AddBind().");
-
-            parts[index].AddBinding(bind);
-        }
-        public void AddBinding(int bind, int index)
-        {
-            if (parts[index].valid_mouseBinds.Contains(bind)) Debug.LogError("Repeated Mouse Binding on Composite AddBind().");
-
-            parts[index].AddBinding(bind);
-        }
-
-        public void RemoveBinding(SHUU_Input.DynamicInput bind, int index)
-        {
-            if (!bind.IsValid()) return;
-
-            
-            if (bind.TryGetKey(out KeyCode key))
-            {
-                RemoveBinding(key, index);
-            }
-            else if (bind.TryGetMouse(out int mouse))
-            {
-                RemoveBinding(mouse, index);
-            }
-            else Debug.LogError("Invalid Dynamic Input on Composite RemoveBind().");
-        }
-        public void RemoveBinding(KeyCode bind, int index) { parts[index].RemoveBinding(bind); }
-        public void RemoveBinding(int bind, int index) { parts[index].RemoveBinding(bind); }
-
-        public void ClearBindings()
-        {
-            foreach (InputSet set in parts) set.ClearBindings();
-        }
-    }*/
     [Serializable]
     public class Composite_InputSet : IInputSet
     {
@@ -267,6 +230,7 @@ namespace SHUU.Utils.InputSystem
             set
             {
                 if (value < 0) value = 0;
+                if (value > 4) value = 4;
 
                 while (axes.Count < value)
                 {
@@ -281,6 +245,14 @@ namespace SHUU.Utils.InputSystem
         }
 
         public List<Composite_Axis> axes = new();
+
+
+        public Composite_InputSet() { }
+        public Composite_InputSet(Composite_InputSet other)
+        {
+            axes = new();
+            axes.CopyFrom_List_CopyContructors(other.axes, x => new Composite_Axis(x));
+        }
 
 
         public void AddBinding(DynamicInput bind, int index)
@@ -327,6 +299,9 @@ namespace SHUU.Utils.InputSystem
 
         public bool GetInput(bool requiresAllBindsDown = false)
         {
+            if (!enabled) return false;
+
+            
             bool result = false;
 
             foreach (Composite_Axis axis in axes)
@@ -339,6 +314,9 @@ namespace SHUU.Utils.InputSystem
 
         public bool GetInputDown(bool requiresAllBindsDown = false)
         {
+            if (!enabled) return false;
+
+            
             bool result = false;
 
             foreach (Composite_Axis axis in axes)
@@ -351,6 +329,9 @@ namespace SHUU.Utils.InputSystem
 
         public bool GetInputUp(bool requiresAllBindsDown = false)
         {
+            if (!enabled) return false;
+
+            
             bool result = false;
 
             foreach (Composite_Axis axis in axes)
@@ -363,13 +344,16 @@ namespace SHUU.Utils.InputSystem
 
         public float GetAxisValue(int axis, bool requiresAllBindsDown = false)
         {
-            if (!axes.IndexIsValid(axis)) return 0f;
+            if (!axes.IndexIsValid(axis) || !enabled) return 0f;
 
             return axes[axis].GetInputValue(requiresAllBindsDown);
         }
 
         public Vector2 Get2AxisValue(int axis1, int axis2, bool requiresAllBindsDown = false)
         {
+            if (!enabled) return Vector2.zero;
+
+
             return new Vector2(
                 GetAxisValue(axis1, requiresAllBindsDown),
                 GetAxisValue(axis2, requiresAllBindsDown)
@@ -378,6 +362,9 @@ namespace SHUU.Utils.InputSystem
 
         public Vector3 Get3AxisValue(int axis1, int axis2, int axis3, bool requiresAllBindsDown = false)
         {
+            if (!enabled) return Vector3.zero;
+
+            
             return new Vector3(
                 GetAxisValue(axis1, requiresAllBindsDown),
                 GetAxisValue(axis2, requiresAllBindsDown),
@@ -391,55 +378,68 @@ namespace SHUU.Utils.InputSystem
     {
         public bool enabled
         {
-            get => positiveSet.enabled && negativeSet.enabled;
+            get => positiveSet.set.enabled && negativeSet.set.enabled;
 
             set
             {
-                positiveSet.enabled = value;
-                negativeSet.enabled = value;
+                positiveSet.set.enabled = value;
+                negativeSet.set.enabled = value;
             }
         }
 
-        public InputSet positiveSet = new InputSet();
-        public InputSet negativeSet = new InputSet();
+        public NAMED_InputSet positiveSet = new NAMED_InputSet();
+        public NAMED_InputSet negativeSet = new NAMED_InputSet();
+
+
+        public Composite_Axis()
+        {
+            if (string.IsNullOrEmpty(positiveSet.name)) positiveSet.name = "Positive";
+
+            if (string.IsNullOrEmpty(negativeSet.name)) negativeSet.name = "Negative";
+        }
+        public Composite_Axis(Composite_Axis other)
+        {
+            positiveSet = new NAMED_InputSet(other.positiveSet);
+            negativeSet = new NAMED_InputSet(other.negativeSet);
+        }
 
 
         public void AddBinding(KeyCode bind, bool direction)
         {
-            if (direction) positiveSet.AddBinding(bind);
-            else negativeSet.AddBinding(bind);
+            if (direction) positiveSet.set.AddBinding(bind);
+            else negativeSet.set.AddBinding(bind);
         }
         public void AddBinding(int bind, bool direction)
         {
-            if (direction) positiveSet.AddBinding(bind);
-            else negativeSet.AddBinding(bind);
+            if (direction) positiveSet.set.AddBinding(bind);
+            else negativeSet.set.AddBinding(bind);
         }
 
         public void RemoveBinding(KeyCode bind, bool direction)
         {
-            if (direction) positiveSet.RemoveBinding(bind);
-            else negativeSet.RemoveBinding(bind);
+            if (direction) positiveSet.set.RemoveBinding(bind);
+            else negativeSet.set.RemoveBinding(bind);
         }
         public void RemoveBinding(int bind, bool direction)
         {
-            if (direction) positiveSet.RemoveBinding(bind);
-            else negativeSet.RemoveBinding(bind);
+            if (direction) positiveSet.set.RemoveBinding(bind);
+            else negativeSet.set.RemoveBinding(bind);
         }
 
         public void ClearBindings()
         {
-            positiveSet.ClearBindings();
-            negativeSet.ClearBindings();
+            positiveSet.set.ClearBindings();
+            negativeSet.set.ClearBindings();
         }
 
 
-        public bool GetInput(bool requiresAllBindsDown = false) => positiveSet.GetInput(requiresAllBindsDown) || negativeSet.GetInput(requiresAllBindsDown);
+        public bool GetInput(bool requiresAllBindsDown = false) => enabled ? positiveSet.set.GetInput(requiresAllBindsDown) || negativeSet.set.GetInput(requiresAllBindsDown) : false;
 
-        public bool GetInputDown(bool requiresAllBindsDown = false) => positiveSet.GetInputDown(requiresAllBindsDown) || negativeSet.GetInputDown(requiresAllBindsDown);
+        public bool GetInputDown(bool requiresAllBindsDown = false) => enabled ? positiveSet.set.GetInputDown(requiresAllBindsDown) || negativeSet.set.GetInputDown(requiresAllBindsDown) : false;
 
-        public bool GetInputUp(bool requiresAllBindsDown = false) => positiveSet.GetInputUp(requiresAllBindsDown) || negativeSet.GetInputUp(requiresAllBindsDown);
+        public bool GetInputUp(bool requiresAllBindsDown = false) => enabled ? positiveSet.set.GetInputUp(requiresAllBindsDown) || negativeSet.set.GetInputUp(requiresAllBindsDown) : false;
 
-        public float GetInputValue(bool requiresAllBindsDown = false) => positiveSet.GetInputValue(requiresAllBindsDown) - negativeSet.GetInputValue(requiresAllBindsDown);
+        public float GetInputValue(bool requiresAllBindsDown = false) => enabled ? positiveSet.set.GetInputValue(requiresAllBindsDown) - negativeSet.set.GetInputValue(requiresAllBindsDown) : 0f;
     }
     #endregion
 
@@ -454,7 +454,7 @@ namespace SHUU.Utils.InputSystem
 
 
         public string lastDefaultSetDateTime = "No Default Set";
-        [HideInInspector] public InputBindingMap_Data defaultData = null;
+        [SerializeField] private InputBindingMap_Data defaultData = null;
 
 
 
@@ -473,6 +473,19 @@ namespace SHUU.Utils.InputSystem
         private void OnEnable()
         {
             BuildDictionaries();
+        }
+
+        public void OnDisable()
+        {
+            foreach (var set in inputSets_list)
+            {
+                set.overrideAction = null;
+            }
+
+            foreach (var set in compositeSets_list)
+            {
+                set.overrideAction = null;
+            }
         }
 
 
@@ -495,18 +508,10 @@ namespace SHUU.Utils.InputSystem
 
                 foreach (NAMED_InputSet namedSet in inputSets_list)
                 {
-                    if (namedSet == null || string.IsNullOrEmpty(namedSet.name))
-                        continue;
+                    if (namedSet == null || string.IsNullOrEmpty(namedSet.name)) continue;
 
-                    if (!inputSets_dict.ContainsKey(namedSet.name.Trim()))
-                    {
-                        inputSets_dict.Add(namedSet.name.Trim(), namedSet.set);
-                    }
-                    else
-                    {
-                        Debug.LogError($"Duplicate InputSet name detected in InputBindingMap '{mapName}': '{namedSet.name}'. " +
-                                "Only the first entry will be stored.");
-                    }
+                    if (!inputSets_dict.ContainsKey(namedSet.name.Trim())) inputSets_dict.Add(namedSet.name.Trim(), namedSet.set);
+                    else Debug.LogError($"Duplicate InputSet name detected in InputBindingMap '{mapName}': '{namedSet.name}'. " + "Only the first entry will be stored.");
                 }
             }
 
@@ -516,18 +521,10 @@ namespace SHUU.Utils.InputSystem
 
                 foreach (NAMED_Composite_InputSet namedSet in compositeSets_list)
                 {
-                    if (namedSet == null || string.IsNullOrEmpty(namedSet.name))
-                        continue;
+                    if (namedSet == null || string.IsNullOrEmpty(namedSet.name)) continue;
 
-                    if (!compositeSets_dict.ContainsKey(namedSet.name.Trim()))
-                    {
-                        compositeSets_dict.Add(namedSet.name.Trim(), namedSet.set);
-                    }
-                    else
-                    {
-                        Debug.LogError($"Duplicate Composite_InputSet name detected in InputBindingMap '{mapName}': '{namedSet.name}'. " +
-                                "Only the first entry will be stored.");
-                    }
+                    if (!compositeSets_dict.ContainsKey(namedSet.name.Trim())) compositeSets_dict.Add(namedSet.name.Trim(), namedSet.set);
+                    else Debug.LogError($"Duplicate Composite_InputSet name detected in InputBindingMap '{mapName}': '{namedSet.name}'. " + "Only the first entry will be stored.");
                 }
             }
         }
@@ -539,6 +536,11 @@ namespace SHUU.Utils.InputSystem
         public bool TryGetSingleSet(string name, out InputSet set)
         {
             set = null;
+
+
+            if (inputSets_dict == null || inputSets_dict.Count == 0) BuildDictionaries();
+            if (inputSets_dict.Count == 0) return false;
+            
 
             if (!enabled) return false;
 
@@ -554,6 +556,11 @@ namespace SHUU.Utils.InputSystem
         public bool TryGetCompositeSet(string name, out Composite_InputSet set)
         {
             set = null;
+
+
+            if (compositeSets_dict == null || compositeSets_dict.Count == 0) BuildDictionaries();
+            if (compositeSets_dict.Count == 0) return false;
+
 
             if (!enabled) return false;
 
@@ -611,7 +618,7 @@ namespace SHUU.Utils.InputSystem
 
         public void ResetToDefault()
         {
-            if (defaultData == null)
+            if (defaultData == null || !defaultData.hasValue)
             {
                 Debug.LogWarning($"InputBindingMap '{mapName}' has no default data to reset to.");
 
@@ -631,13 +638,35 @@ namespace SHUU.Utils.InputSystem
 
         public void LoadFromData(InputBindingMap_Data data)
         {
+            if (data == null || !data.hasValue)
+            {
+                Debug.LogWarning($"InputBindingMap '{mapName}' cannot load invalid data.");
+
+                return;
+            }
+
+
             this.enabled = data.enabled;
 
-            this.defaultData = new InputBindingMap_Data(data.defaultData);
-
-            this.inputSets_list = new List<NAMED_InputSet>(data.inputSets_list);
-            this.compositeSets_list = new List<NAMED_Composite_InputSet>(data.compositeSets_list);
-
+            List<NAMED_InputSet> single_copyList = new();
+            for (int i = 0; i < data.inputSets_list.Count; i++)
+            {
+                NAMED_InputSet newSet = new NAMED_InputSet(data.inputSets_list[i]);
+                this.inputSets_list[i].overrideAction?.Invoke(newSet);
+                
+                single_copyList.Add(newSet);
+            }
+            this.inputSets_list.CopyFrom_List_CopyContructors(single_copyList, x => new NAMED_InputSet(x));
+            
+            List<NAMED_Composite_InputSet> composite_copyList = new();
+            for (int i = 0; i < data.compositeSets_list.Count; i++)
+            {
+                NAMED_Composite_InputSet newSet = new NAMED_Composite_InputSet(data.compositeSets_list[i]);
+                this.compositeSets_list[i].overrideAction?.Invoke(newSet);
+                
+                composite_copyList.Add(newSet);
+            }
+            this.compositeSets_list.CopyFrom_List_CopyContructors(composite_copyList, x => new NAMED_Composite_InputSet(x));
 
             ForceBuildDictionaries();
         }
@@ -649,38 +678,52 @@ namespace SHUU.Utils.InputSystem
     [Serializable]
     public class InputBindingMap_Data
     {
+        public bool hasValue = false;
+
         public string mapName = null;
         public bool enabled = false;
 
-        public InputBindingMap_Data defaultData = null;
-    
         public List<NAMED_InputSet> inputSets_list = null;
         public List<NAMED_Composite_InputSet> compositeSets_list = null;
 
 
 
-        public InputBindingMap_Data() { }
-
         public InputBindingMap_Data(InputBindingMap map)
         {
+            hasValue = true;
+
             this.mapName = map.mapName;
             this.enabled = map.enabled;
 
-            this.defaultData = map.defaultData;
-
-            this.inputSets_list = new List<NAMED_InputSet>(map.inputSets_list);
-            this.compositeSets_list = new List<NAMED_Composite_InputSet>(map.compositeSets_list);
+            this.inputSets_list = new List<NAMED_InputSet>();
+            foreach (var set in map.inputSets_list)
+            {
+                this.inputSets_list.Add(new NAMED_InputSet(set));
+            }
+            this.compositeSets_list = new List<NAMED_Composite_InputSet>();
+            foreach (var set in map.compositeSets_list)
+            {
+                this.compositeSets_list.Add(new NAMED_Composite_InputSet(set));
+            }
         }
 
         public InputBindingMap_Data(InputBindingMap_Data other)
         {
+            hasValue = true;
+
             this.mapName = other.mapName;
             this.enabled = other.enabled;
 
-            this.defaultData = other.defaultData;
-
-            this.inputSets_list = new List<NAMED_InputSet>(other.inputSets_list);
-            this.compositeSets_list = new List<NAMED_Composite_InputSet>(other.compositeSets_list);
+            this.inputSets_list = new List<NAMED_InputSet>();
+            foreach (var set in other.inputSets_list)
+            {
+                this.inputSets_list.Add(new NAMED_InputSet(set));
+            }
+            this.compositeSets_list = new List<NAMED_Composite_InputSet>();
+            foreach (var set in other.compositeSets_list)
+            {
+                this.compositeSets_list.Add(new NAMED_Composite_InputSet(set));
+            }
         }
     }
 }

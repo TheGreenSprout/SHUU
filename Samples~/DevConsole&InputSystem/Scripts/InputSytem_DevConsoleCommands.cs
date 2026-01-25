@@ -230,17 +230,17 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
                 string axisLabel = $"[Axis {axisIndex+1}]";
 
                 // Positive
-                foreach (KeyCode key in axis.positiveSet.valid_keyBinds)
+                foreach (KeyCode key in axis.positiveSet.set.valid_keyBinds)
                     lines.Add($"{axisLabel}[+] Key: {key}");
 
-                foreach (int mouse in axis.positiveSet.valid_mouseBinds)
+                foreach (int mouse in axis.positiveSet.set.valid_mouseBinds)
                     lines.Add($"{axisLabel}[+] Mouse: {mouse}");
 
                 // Negative
-                foreach (KeyCode key in axis.negativeSet.valid_keyBinds)
+                foreach (KeyCode key in axis.negativeSet.set.valid_keyBinds)
                     lines.Add($"{axisLabel}[-] Key: {key}");
 
-                foreach (int mouse in axis.negativeSet.valid_mouseBinds)
+                foreach (int mouse in axis.negativeSet.set.valid_mouseBinds)
                     lines.Add($"{axisLabel}[-] Mouse: {mouse}");
             }
 

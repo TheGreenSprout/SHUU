@@ -10,20 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: caa334d12eb236e408f8818f04a1c673, type: 3}
-  m_Name: Player_Bindings
+  m_Name: Test1BindingMap
   m_EditorClassIdentifier: 
-  mapName: Player
+  mapName: Test1
   enabled: 1
-  lastDefaultSetDateTime: No Default Set
+  lastDefaultSetDateTime: 2026-01-23_13-45-37
   defaultData:
-    mapName: Player
+    hasValue: 1
+    mapName: Test1
     enabled: 1
     inputSets_list:
-    - name: Run
-      set:
-        enabled: 1
-        valid_keyBinds: 30010000
-        valid_mouseBinds: 
     - name: Jump
       set:
         enabled: 1
@@ -34,40 +30,40 @@ MonoBehaviour:
         enabled: 1
         valid_keyBinds: 32010000
         valid_mouseBinds: 
+    - name: Interact
+      set:
+        enabled: 1
+        valid_keyBinds: 65000000
+        valid_mouseBinds: 00000000
     compositeSets_list:
     - name: Movement
       set:
         axes:
         - positiveSet:
-            name: Positive
+            name: Right
             set:
               enabled: 1
               valid_keyBinds: 
               valid_mouseBinds: 
           negativeSet:
-            name: Negative
+            name: Left
             set:
               enabled: 1
               valid_keyBinds: 
               valid_mouseBinds: 
         - positiveSet:
-            name: Positive
+            name: Forward
             set:
               enabled: 1
               valid_keyBinds: 
               valid_mouseBinds: 
           negativeSet:
-            name: Negative
+            name: Backward
             set:
               enabled: 1
               valid_keyBinds: 
               valid_mouseBinds: 
   inputSets_list:
-  - name: Run
-    set:
-      enabled: 1
-      valid_keyBinds: 30010000
-      valid_mouseBinds: 
   - name: Jump
     set:
       enabled: 1
@@ -78,6 +74,11 @@ MonoBehaviour:
       enabled: 1
       valid_keyBinds: 32010000
       valid_mouseBinds: 
+  - name: Interact
+    set:
+      enabled: 1
+      valid_keyBinds: 65000000
+      valid_mouseBinds: 00000000
   compositeSets_list:
   - name: Movement
     set:
@@ -95,13 +96,13 @@ MonoBehaviour:
             valid_keyBinds: 6100000014010000
             valid_mouseBinds: 
       - positiveSet:
-          name: Forwards
+          name: Forward
           set:
             enabled: 1
             valid_keyBinds: 7700000011010000
             valid_mouseBinds: 
         negativeSet:
-          name: Backwards
+          name: Backward
           set:
             enabled: 1
             valid_keyBinds: 7300000012010000

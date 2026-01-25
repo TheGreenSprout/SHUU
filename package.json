@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.18.7",
+  "version": "2.18.9",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -33,6 +33,11 @@
       "displayName": "Sample Input System Binding Maps",
       "description": "A set of simple input binding maps.",
       "path": "Samples~/SampleInputSystemBindingMaps"
+    },
+    {
+      "displayName": "Input System Rebinding",
+      "description": "A set of scripts and UI prefabs that make rebinding inputs for the player easy.",
+      "path": "Samples~/CustomInputSystem_Rebinding"
     },
     {
       "displayName": "Simple UIRing Mouse Cursor",

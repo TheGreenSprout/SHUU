@@ -146,58 +146,58 @@ namespace SHUU.Utils.InputSystem
             public bool HasValue() => ammountOfValues > 0;
 
 
-            public bool TryGetFloat(out float value, int axis = 0)
+            public bool TryGetFloat(out float value)
             {
-                if (!HasValue() || !values.IndexIsValid(axis))
+                if (!HasValue() || values.Length != 1)
                 {
                     value = 0f;
                     return false;
                 }
 
 
-                value = values[axis];
+                value = values[0];
 
                 return true;
             }
 
-            public bool TryGetVector2(out Vector2 value, int axis1 = 0, int axis2 = 1)
+            public bool TryGetVector2(out Vector2 value)
             {
-                if (!HasValue() || values.Length < 2 || !values.IndexIsValid(axis1) || !values.IndexIsValid(axis2))
+                if (!HasValue() || values.Length < 2)
                 {
                     value = default;
                     return false;
                 }
 
 
-                value = new Vector2(values[axis1], values[axis2]);
+                value = new Vector2(values[0], values[1]);
 
                 return true;
             }
 
-            public bool TryGetVector3(out Vector3 value, int axis1 = 0, int axis2 = 1, int axis3 = 2)
+            public bool TryGetVector3(out Vector3 value)
             {
-                if (!HasValue() || values.Length < 3 || !values.IndexIsValid(axis1) || !values.IndexIsValid(axis2) || !values.IndexIsValid(axis3))
+                if (!HasValue() || values.Length < 3)
                 {
                     value = default;
                     return false;
                 }
 
 
-                value = new Vector3(values[axis1], values[axis2], values[axis3]);
+                value = new Vector3(values[0], values[1], values[2]);
 
                 return true;
             }
 
-            public bool TryGetVector4(out Vector4 value, int axis1 = 0, int axis2 = 1, int axis3 = 2, int axis4 = 3)
+            public bool TryGetVector4(out Vector4 value)
             {
-                if (!HasValue() || values.Length < 4 || !values.IndexIsValid(axis1) || !values.IndexIsValid(axis2) || !values.IndexIsValid(axis3) || !values.IndexIsValid(axis4))
+                if (!HasValue() || values.Length < 4)
                 {
                     value = default;
                     return false;
                 }
 
 
-                value = new Vector4(values[axis1], values[axis2], values[axis3], values[axis4]);
+                value = new Vector4(values[0], values[1], values[2], values[3]);
 
                 return true;
             }
@@ -595,12 +595,14 @@ namespace SHUU.Utils.InputSystem
 
 
                 int index = 0;
+                int count = 0;
+                int sectorCap = binds.Length / compositeSet.axisCount;
                 foreach (DynamicInput bind in binds)
                 {
                     compositeSet.AddBinding(bind, index);
 
-                    index++;
-                    if (index == compositeSet.axisCount) index = 0;
+                    count++;
+                    if (count == sectorCap) index++;
                 }
             }
             else Debug.LogWarning($"SHUU_Input: InputSet is invalid.");
@@ -643,12 +645,14 @@ namespace SHUU.Utils.InputSystem
 
 
                 int index = 0;
+                int count = 0;
+                int sectorCap = binds.Length / compositeSet.axisCount;
                 foreach (DynamicInput bind in binds)
                 {
                     compositeSet.RemoveBinding(bind, index);
 
-                    index++;
-                    if (index == compositeSet.axisCount) index = 0;
+                    count++;
+                    if (count == sectorCap) index++;
                 }
             }
             else Debug.LogWarning($"SHUU_Input: InputSet is invalid.");

@@ -5,6 +5,7 @@ using UnityEditor;
 using System.IO;
 using System.Linq;
 using UnityEngine.UI;
+using System.Collections;
 
 
 namespace SHUU.Utils.Helpers
@@ -167,9 +168,52 @@ namespace SHUU.Utils.Helpers
         }
 
 
+        public static void CopyFrom_List<E>(this IList<E> listTo, IList<E> listFrom)
+        {
+            if (listTo is Array || listFrom is Array || listFrom == null) return;
+
+
+            if (listTo == null)
+            {
+                Debug.LogError("HandyFunctions 'CopyFrom_List' method requires the list to not be null.");
+
+                return;
+            }
+
+            if (listTo.Count > 0) listTo.Clear();
+            foreach (var item in listFrom) listTo.Add(item);
+        }
+
+        public static void CopyFrom_List_CopyContructors<E>(this IList<E> listTo, IList<E> listFrom, Func<E, E> copier)
+        {
+            if (listTo is Array || listFrom is Array || listFrom == null) return;
+
+
+            if (listTo == null)
+            {
+                Debug.LogError("HandyFunctions 'CopyFrom_List' method requires the list to not be null.");
+
+                return;
+            }
+
+            if (listTo.Count > 0) listTo.Clear();
+            foreach (var item in listFrom) listTo.Add(copier(item));
+        }
+
+
         public static IList<E> MergeLists<E>(params IList<E>[] lists)
         {
-            if (lists is Array) return MergeArrays(lists.Select(l => l.ToArray()).ToArray());
+            bool arrayPresent = false;
+            foreach (var list in lists)
+            {
+                if (list is Array)
+                {
+                    arrayPresent = true;
+
+                    break;
+                }
+            }
+            if (arrayPresent) return MergeArrays(lists.Select(l => l.ToArray()).ToArray());
 
 
             List<E> result = new List<E>();
@@ -847,7 +891,7 @@ namespace SHUU.Utils.Helpers
 
 
 
-        #region Interact System
+        #region Interaction System
         public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
         {
             bool raycast;
@@ -1020,6 +1064,41 @@ namespace SHUU.Utils.Helpers
 
             // Fallback for generic objects
             return t.Name;
+        }
+
+
+        public static IEnumerator ListenForInput_Enumerator(Action<string> callback)
+        {
+            yield return new WaitUntil(() =>
+                Input.anyKeyDown ||
+                Input.GetMouseButtonDown(0) ||
+                Input.GetMouseButtonDown(1) ||
+                Input.GetMouseButtonDown(2) ||
+                Input.GetMouseButtonDown(3) ||
+                Input.GetMouseButtonDown(4) ||
+                Input.GetMouseButtonDown(5) ||
+                Input.GetMouseButtonDown(6)
+            );
+    
+            callback?.Invoke(DetectInput());
+
+
+            yield break;
+        }
+        private static string DetectInput()
+        {
+            foreach (KeyCode k in Enum.GetValues(typeof(KeyCode)))
+            {
+                if (Input.GetKeyDown(k)) return InputParser.InputToString(k);
+            }
+                
+            for (int i = 0; i <= 6; i++)
+            {
+                if (Input.GetMouseButtonDown(i)) return InputParser.InputToString(i);
+            }
+                
+
+            return null;
         }
         #endregion
 

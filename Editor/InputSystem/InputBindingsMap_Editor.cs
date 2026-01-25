@@ -73,7 +73,10 @@ namespace SHUU._Editor.InputSystem
 
             EditorGUILayout.EndScrollView();
 
+            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Set Default Data")) map.SetDefaultData();
+            if (GUILayout.Button("Reset to Default Data")) map.ResetToDefault();
+            EditorGUILayout.EndHorizontal();
         }
 
         // ============================================================================================
@@ -138,14 +141,22 @@ namespace SHUU._Editor.InputSystem
                         continue;
 
                     // Positive
-                    if (axis.positiveSet != exceptSet &&
-                        axis.positiveSet.valid_keyBinds.Contains(newKey))
+                    if (axis.positiveSet != null &&
+                        axis.positiveSet.set != null &&
+                        axis.positiveSet.set != exceptSet &&
+                        axis.positiveSet.set.valid_keyBinds.Contains(newKey))
+                    {
                         return true;
+                    }
 
                     // Negative
-                    if (axis.negativeSet != exceptSet &&
-                        axis.negativeSet.valid_keyBinds.Contains(newKey))
+                    if (axis.negativeSet != null &&
+                        axis.negativeSet.set != null &&
+                        axis.negativeSet.set != exceptSet &&
+                        axis.negativeSet.set.valid_keyBinds.Contains(newKey))
+                    {
                         return true;
+}
                 }
             }
 
@@ -312,6 +323,51 @@ namespace SHUU._Editor.InputSystem
 
             EditorGUI.indentLevel--;
         }
+        void DrawNamedInputSet(NAMED_InputSet namedSet, string fallbackLabel = null)
+        {
+            if (namedSet == null || namedSet.set == null)
+                return;
+
+            EditorGUILayout.BeginVertical("box");
+
+            // Header
+            EditorGUILayout.BeginHorizontal();
+
+            string label = string.IsNullOrEmpty(namedSet.name)
+                ? fallbackLabel ?? "Unnamed Set"
+                : namedSet.name;
+
+            if (!setFoldouts.ContainsKey(namedSet))
+                setFoldouts[namedSet] = true;
+
+            setFoldouts[namedSet] =
+                EditorGUILayout.Foldout(setFoldouts[namedSet], label, true);
+
+            EditorGUILayout.EndHorizontal();
+
+            if (setFoldouts[namedSet])
+            {
+                EditorGUI.indentLevel++;
+
+                // Name field
+                EditorGUI.BeginChangeCheck();
+                namedSet.name = EditorGUILayout.TextField("Name", namedSet.name);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(map, "Rename Axis Part");
+                    SaveMap();
+                }
+
+                EditorGUILayout.Space(4);
+
+                // Existing bindings UI
+                DrawInputSet(namedSet.set);
+
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.EndVertical();
+        }
 
         // ============================================================================================
         // COMPOSITE INPUT SETS
@@ -386,13 +442,9 @@ namespace SHUU._Editor.InputSystem
                         EditorGUILayout.BeginVertical("helpbox");
                         EditorGUILayout.LabelField($"Axis {a+1}", EditorStyles.boldLabel);
 
-                        EditorGUILayout.LabelField("Positive", EditorStyles.miniBoldLabel);
-                        DrawInputSet(axis.positiveSet);
-
+                        DrawNamedInputSet(axis.positiveSet, "Positive");
                         EditorGUILayout.Space(4);
-
-                        EditorGUILayout.LabelField("Negative", EditorStyles.miniBoldLabel);
-                        DrawInputSet(axis.negativeSet);
+                        DrawNamedInputSet(axis.negativeSet, "Negative");
 
                         EditorGUILayout.EndVertical();
                         EditorGUILayout.Space(6);
