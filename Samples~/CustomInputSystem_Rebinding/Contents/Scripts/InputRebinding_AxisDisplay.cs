@@ -39,22 +39,10 @@ public class InputRebinding_AxisDisplay : MonoBehaviour, InputRebinding_ISetDisp
         label.text = direction ? s.name : s.name;
 
 
-        List<KeyCode> keys = direction ? s.set.valid_keyBinds : s.set.valid_keyBinds;
-        List<int> mouse = direction ? s.set.valid_mouseBinds : s.set.valid_mouseBinds;
-
-        
-        for (int j = 0; j < keys.Count; j++)
+        for (int j = 0; j < s.set.validSources.Count; j++)
         {
             var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, s.set, j+1);
-
-            allButtons.Add(button);
-        }
-
-        for (int j = 0; j < mouse.Count; j++)
-        {
-            var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, s.set, -(j+1));
+            button.Init(this, s.set, j);
 
             allButtons.Add(button);
         }
@@ -62,28 +50,6 @@ public class InputRebinding_AxisDisplay : MonoBehaviour, InputRebinding_ISetDisp
 
     public void UpdateNames()
     {
-        /*bool direction = index > 0;
-        int i = Math.Abs(index)-1;
-
-        NAMED_InputSet s = direction ? compositeSet.axes[i].positiveSet : compositeSet.axes[i].negativeSet;
-
-
-        List<KeyCode> keys = direction ? s.set.valid_keyBinds : s.set.valid_keyBinds;
-        List<int> mouse = direction ? s.set.valid_mouseBinds : s.set.valid_mouseBinds;
-
-        
-        int k = 0;
-        for (int j = 0; j < keys.Count; j++)
-        {
-            allButtons[k].UpdateName(s.set, j+1);
-            k++;
-        }
-
-        for (int j = 0; j < mouse.Count; j++)
-        {
-            allButtons[k].UpdateName(s.set, -(j+1));
-            k++;
-        }*/
         foreach (var button in allButtons) Destroy(button.gameObject);
         allButtons.Clear();
 
@@ -96,22 +62,10 @@ public class InputRebinding_AxisDisplay : MonoBehaviour, InputRebinding_ISetDisp
         label.text = direction ? s.name : s.name;
 
 
-        List<KeyCode> keys = direction ? s.set.valid_keyBinds : s.set.valid_keyBinds;
-        List<int> mouse = direction ? s.set.valid_mouseBinds : s.set.valid_mouseBinds;
-
-        
-        for (int j = 0; j < keys.Count; j++)
+        for (int j = 0; j < s.set.validSources.Count; j++)
         {
             var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, s.set, j+1);
-
-            allButtons.Add(button);
-        }
-
-        for (int j = 0; j < mouse.Count; j++)
-        {
-            var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, s.set, -(j+1));
+            button.Init(this, s.set, j);
 
             allButtons.Add(button);
         }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SHUU.UserSide.Commons
+namespace SHUU.Utils.SettingsSytem
 {
     [CreateAssetMenu(fileName = "SettingsData", menuName = "SHUU/SettingsData")]
     public class SettingsData : ScriptableObject

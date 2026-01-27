@@ -19,8 +19,7 @@ public class InputRebinding_BindingButton : MonoBehaviour
     {
         onClick = setDisplay.ChangeBinding;
 
-        if (index > 0) label.text = InputParser.InputToString(set.valid_keyBinds[index-1]);
-        else label.text = InputParser.InputToString(set.valid_mouseBinds[(-index)-1]);
+        label.text = set.validSources[index].String();
     }
 
 

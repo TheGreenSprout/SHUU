@@ -195,7 +195,7 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         // ───────────────────────────────────────
         if (info is InputSet set)
         {
-            int count = set.valid_keyBinds.Count + set.valid_mouseBinds.Count;
+            int count = set.validSources.Count;
 
             if (count == 0)
                 return (new[] { "No bindings registered." }, Color.red);
@@ -203,11 +203,8 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
             string[] lines = new string[count];
             int i = 0;
 
-            foreach (KeyCode key in set.valid_keyBinds)
-                lines[i++] = $"Key: {key}";
-
-            foreach (int mouse in set.valid_mouseBinds)
-                lines[i++] = $"Mouse: {mouse}";
+            foreach (var source in set.validSources)
+                lines[i++] = source.String();
 
             return (lines, null);
         }
@@ -230,18 +227,12 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
                 string axisLabel = $"[Axis {axisIndex+1}]";
 
                 // Positive
-                foreach (KeyCode key in axis.positiveSet.set.valid_keyBinds)
-                    lines.Add($"{axisLabel}[+] Key: {key}");
-
-                foreach (int mouse in axis.positiveSet.set.valid_mouseBinds)
-                    lines.Add($"{axisLabel}[+] Mouse: {mouse}");
+                foreach (var source in axis.positiveSet.set.validSources)
+                    lines.Add($"{axisLabel}[+] {source.String()}");
 
                 // Negative
-                foreach (KeyCode key in axis.negativeSet.set.valid_keyBinds)
-                    lines.Add($"{axisLabel}[-] Key: {key}");
-
-                foreach (int mouse in axis.negativeSet.set.valid_mouseBinds)
-                    lines.Add($"{axisLabel}[-] Mouse: {mouse}");
+                foreach (var source in axis.negativeSet.set.validSources)
+                    lines.Add($"{axisLabel}[-] {source.String()}");
             }
 
             if (lines.Count == 0)

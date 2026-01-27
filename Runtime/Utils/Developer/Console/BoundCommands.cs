@@ -11,21 +11,23 @@ namespace SHUU.Utils.Developer.Console
     {
         public KeyCode key;
         public int mouse;
-        public bool isKey;
+        public string axis;
 
-        public static ClassicBind From((KeyCode?, int?) input)
+        public static ClassicBind From((KeyCode?, int?, string) input)
         {
             return new ClassicBind
             {
                 key = input.Item1 ?? KeyCode.None,
                 mouse = input.Item2 ?? -1,
-                isKey = input.Item1 != null
+                axis = input.Item3 ?? null
             };
         }
 
-        public (KeyCode?, int?) ToTuple()
+        public (KeyCode?, int?, string) ToTuple()
         {
-            return isKey ? ((KeyCode?)key, null) : (null, (int?)mouse);
+            if (key != KeyCode.None) return ((KeyCode?)key, null, null);
+            else if (axis != null) return (null, null, axis);
+            else return (null, (int?)mouse, null);
         }
     }
 
@@ -78,7 +80,7 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-        private static Dictionary<(KeyCode?, int?), string[]> boundCommands = new Dictionary<(KeyCode?, int?), string[]>();
+        private static Dictionary<(KeyCode?, int?, string), string[]> boundCommands = new Dictionary<(KeyCode?, int?, string), string[]>();
         private static Dictionary<(InputBindingMap, string), string[]> is_boundCommands = new Dictionary<(InputBindingMap, string), string[]>();
 
 
@@ -100,11 +102,11 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-        public static void BindCommand((KeyCode?, int?) input, string[] commandData)
+        public static void BindCommand((KeyCode?, int?, string) input, string[] commandData)
         {
             boundCommands.Add(input, commandData);
         }
-        public static void UnBindCommands((KeyCode?, int?) input)
+        public static void UnBindCommands((KeyCode?, int?, string) input)
         {
             boundCommands.Remove(input);
         }
@@ -120,7 +122,7 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-        private bool GetInputDown((KeyCode?, int?) input)
+        private bool GetInputDown((KeyCode?, int?, string) input)
         {
             if (input.Item1 != null)
             {
@@ -129,6 +131,10 @@ namespace SHUU.Utils.Developer.Console
             else if (input.Item2 != null)
             {
                 return Input.GetMouseButtonDown(input.Item2.Value);
+            }
+            else if (input.Item3 != null)
+            {
+                return Input.GetAxisRaw(input.Item3) > 0;
             }
 
             return false;

@@ -96,6 +96,11 @@ namespace SHUU.Utils.Helpers
             #endif
         }
 
+
+        public static string GetColorOpenTag_RichText(this Color color) => "<color=#" + ColorUtility.ToHtmlStringRGBA(color) + ">";
+
+        public static string EncloseInColorTags_RichText(this string text, Color color) => color.GetColorOpenTag_RichText() + text + "</color>";
+
         #endregion
 
 

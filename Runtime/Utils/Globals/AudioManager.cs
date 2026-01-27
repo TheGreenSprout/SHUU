@@ -495,14 +495,14 @@ namespace SHUU.Utils.Globals
 
     public class ObjectPool_AudioSystem : AudioSystem
     {
-        private ObjectPool<AudioSource> pool = null;
+        private SHUU_ObjectPool<AudioSource> pool = null;
 
 
         public ObjectPool_AudioSystem(GameObject _prefab, bool _isMusic, int initialPoolSize, Transform parent)
         {
             isMusic = _isMusic;
 
-            pool = new ObjectPool<AudioSource>(_prefab.GetComponent<AudioSource>(), initialPoolSize, parent);
+            pool = new SHUU_ObjectPool<AudioSource>(_prefab.GetComponent<AudioSource>(), initialPoolSize, parent);
         }
 
         public override AudioSource InstantiateAudio(Transform pos, GameObject overridePrefab)

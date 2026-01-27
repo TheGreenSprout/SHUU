@@ -38,7 +38,7 @@ namespace SHUU.Utils.Helpers
         string name { get; }
     }
 
-    public class ObjectPool<T> : IObjectPool where T : Component
+    public class SHUU_ObjectPool<T> : IObjectPool where T : Component
     {
         public System.Type GetItemType() => typeof(T);
 
@@ -67,7 +67,7 @@ namespace SHUU.Utils.Helpers
 
 
 
-        public ObjectPool(T prefab, int initialSize, Transform parent = null, bool autoExpand = true, string _name = null)
+        public SHUU_ObjectPool(T prefab, int initialSize, Transform parent = null, bool autoExpand = true, string _name = null)
         {
             ObjectPooling.pools.Add(this);
 

@@ -8,6 +8,7 @@ This code was written with the assistance of AI.
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace SHUU.Utils.InputSystem
@@ -38,7 +39,22 @@ namespace SHUU.Utils.InputSystem
         private void OnApplicationQuit() => SaveAll();
 
 
-        private void Update() => SHUU_Input.Update();
+        private void Update()
+        {
+            SHUU_Input.Update();
+
+
+            foreach (var map in allInputBindingMaps.Values)
+            {
+                foreach (var set in map.inputSets_list)
+                {
+                    foreach (AxisSource source in set.set.validSources.Where(x => x is AxisSource))
+                    {
+                        source.Tick();
+                    }
+                }
+            }
+        }
 
 
         private void BuildDictionary()
@@ -49,7 +65,7 @@ namespace SHUU.Utils.InputSystem
             {
                 if (map == null) continue;
 
-                string key = map.mapName.Trim();
+                string key = map.mapName?.Trim();
 
                 if (string.IsNullOrEmpty(key))
                 {
@@ -82,13 +98,15 @@ namespace SHUU.Utils.InputSystem
                 if (map != null) wrapper.maps.Add(map.ToData());
             }
 
-            string json = JsonUtility.ToJson(wrapper, true);
-
             try
             {
+                string json = JsonUtility.ToJson(wrapper, true);
                 File.WriteAllText(filePath, json);
             }
-            catch (System.Exception ex) Debug.LogError("Failed to save input bindings: " + ex);
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Failed to save input bindings: " + ex);
+            }
             #endif
         }
 
@@ -103,18 +121,24 @@ namespace SHUU.Utils.InputSystem
                 string json = File.ReadAllText(filePath);
                 MapsDataWrapper wrapper = JsonUtility.FromJson<MapsDataWrapper>(json);
 
+                if (wrapper == null || wrapper.maps == null) return;
+
                 foreach (var map in mapsToSave)
                 {
                     if (map == null) continue;
 
                     // Match by mapName
-                    var data = wrapper.maps.Find(m => m.mapName.Equals(map.mapName, System.StringComparison.OrdinalIgnoreCase));
+                    var data = wrapper.maps.Find(!string.IsNullOrEmpty(m.mapName) && m => m.mapName.Equals(map.mapName, System.StringComparison.OrdinalIgnoreCase));
 
                     if (data != null) map.LoadFromData(data);
+                    else Debug.Log($"InputTracker: No saved data for map '{map.mapName}', using defaults.");
                     // If not found → keep defaults
                 }
             }
-            catch (System.Exception ex) Debug.LogError("Failed to load input bindings: " + ex);
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Failed to load input bindings: " + ex);
+            }
             #endif
         }
     }

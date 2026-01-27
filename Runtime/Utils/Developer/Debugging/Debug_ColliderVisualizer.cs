@@ -13,9 +13,6 @@ namespace SHUU.Utils.Developer.Debugging
 {
     public class Debug_ColliderVisualizer : MonoBehaviour
     {
-        public static Debug_ColliderVisualizer instance;
-
-
         public Shader shader;
 
         [Header("Toggle")]
@@ -44,6 +41,7 @@ namespace SHUU.Utils.Developer.Debugging
         private readonly List<GameObject> visuals = new();
         private bool visible = true;
 
+
         #region Data
 
         [System.Serializable]
@@ -64,32 +62,36 @@ namespace SHUU.Utils.Developer.Debugging
 
         #region Unity
 
-        private void Awake()
+        private bool init = false;
+        public void Init()
         {
-            instance = this;
-        }
+            if (!init) init = true;
 
-        private void Start()
-        {
             CreateVisuals();
             Toggle(); // start hidden
         }
 
+        public void Reset()
+        {
+            foreach (var visual in visuals)
+            {
+                Destroy(visual);
+            }
+            visuals.Clear();
+
+            Invoke(nameof(Init), 0.02f);
+        }
+
         private void Update()
         {
-            if (Input.GetKeyDown(toggleKey)) Toggle();
+            if (init && Input.GetKeyDown(toggleKey)) Toggle();
         }
 
         #endregion
 
         #region Toggle
 
-        public static bool Toggle()
-        {
-            return instance && instance._Toggle();
-        }
-
-        private bool _Toggle()
+        public bool Toggle()
         {
             visible = !visible;
             foreach (var v in visuals)

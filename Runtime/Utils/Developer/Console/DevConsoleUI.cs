@@ -131,7 +131,7 @@ namespace SHUU.Utils.Developer.Console
         public void Print(string message, Color? textColor = null)
         {
             (string, string) colortag = ("", "");
-            if (textColor != null) colortag = ("<color=#" + ColorUtility.ToHtmlStringRGBA(textColor.Value) + ">", "</color>");
+            if (textColor != null) colortag = (textColor.Value.GetColorOpenTag_RichText(), "</color>");
 
 
             outputText.text += $"{colortag.Item1}{message}{colortag.Item2}\n";

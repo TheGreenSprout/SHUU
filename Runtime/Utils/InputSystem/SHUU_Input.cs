@@ -1,33 +1,43 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.InputSystem
 {
     #region Data Classes
-    public struct DynamicInput
+    public class DynamicInput
     {
-        public (KeyCode?, int?) bind;
+        public (KeyCode? key, int? mouse, string axis) bind = (null, null, null);
 
-        public bool direction;
+        public bool direction = false;
 
 
 
         public DynamicInput(KeyCode key, bool direction = true)
         {
-            bind = (key, null);
+            bind = (key, null, null);
             this.direction = direction;
         }
 
         public DynamicInput(int mouseButton, bool direction = true)
         {
-            bind = (null, mouseButton);
+            bind = (null, mouseButton, null);
+            this.direction = direction;
+        }
+
+        public DynamicInput(InputParser.AxisNames axisName, bool direction = true)
+        {
+            bind = (null, null, InputParser.GetAxis_WithEnumName(axisName));
             this.direction = direction;
         }
 
         public DynamicInput(string input)
         {
+            if (string.IsNullOrEmpty(input)) return;
+
+            
             if (input.StartsWith("+"))
             {
                 input = input.Substring(1);
@@ -46,12 +56,20 @@ namespace SHUU.Utils.InputSystem
 
         public bool IsValid()
         {
-            return !(((bind.Item1 == null) && (bind.Item2 == null)) || ((bind.Item1 != null) && (bind.Item2 != null)));
+            int count = 0;
+
+            if (bind.key != null) count++;
+            if (bind.mouse != null) count++;
+            if (bind.axis != null) count++;
+
+            return count == 1;
         }
 
-        public bool IsKey() => IsValid() && bind.Item1 != null;
+        public bool IsKey() => IsValid() && bind.key != null;
 
-        public bool IsMouse() => IsValid() && bind.Item2 != null;
+        public bool IsMouse() => IsValid() && bind.mouse != null;
+
+        public bool IsAxis() => IsValid() && bind.axis != null;
 
 
         public bool TryGetKey(out KeyCode key)
@@ -64,7 +82,7 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            key = bind.Item1.Value;
+            key = bind.key.Value;
 
             return true;
         }
@@ -79,7 +97,22 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            mouse = bind.Item2.Value;
+            mouse = bind.mouse.Value;
+
+            return true;
+        }
+
+        public bool TryGetAxis(out string axis)
+        {
+            if (!IsAxis())
+            {
+                axis = null;
+                
+                return false;
+            }
+
+
+            axis = bind.axis;
 
             return true;
         }
@@ -133,7 +166,7 @@ namespace SHUU.Utils.InputSystem
         {
             public float[] values;
 
-            public int ammountOfValues => values != null ? values.Length : 0;
+            public int AmountOfValues => values != null ? values.Length : 0;
 
 
 
@@ -143,7 +176,7 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            public bool HasValue() => ammountOfValues > 0;
+            public bool HasValue() => AmountOfValues > 0;
 
 
             public bool TryGetFloat(out float value)
@@ -202,6 +235,9 @@ namespace SHUU.Utils.InputSystem
                 return true;
             }
         }
+
+
+        public static bool IsGamepadKey(this KeyCode key) => key >= KeyCode.JoystickButton0 && key <= KeyCode.Joystick8Button19;
         #endregion
 
 
@@ -410,7 +446,7 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            bindings.Add((callback, requiresAllBindsDown));
+            if (!bindings.Any(b => b.callback == callback && b.requiresAllBindsDown == requiresAllBindsDown)) bindings.Add((callback, requiresAllBindsDown));
         }
         public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback)
         {
@@ -493,13 +529,13 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            IInputSet setTouple = RetrieveInputSet(map, set);
+            IInputSet iInputSet = RetrieveInputSet(map, set);
 
-            if (setTouple is InputSet singleSet)
+            if (iInputSet is InputSet singleSet)
             {
                 return new InputValue(singleSet.GetInputValue(requiresAllBindsDown));
             }
-            else if (setTouple is Composite_InputSet compositeSet)
+            else if (iInputSet is Composite_InputSet compositeSet)
             {
                 float[] axesValues = new float[compositeSet.axisCount];
                 for (int i = 0; i < compositeSet.axisCount; i++)
@@ -586,9 +622,9 @@ namespace SHUU.Utils.InputSystem
             }
             else if (setInterface is Composite_InputSet compositeSet)
             {
-                if (binds.Length % compositeSet.axisCount != 0)
+                if (compositeSet.axisCount == 0 || binds.Length % compositeSet.axisCount != 0)
                 {
-                    Debug.LogWarning($"SHUU_Input: Ammount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
+                    Debug.LogWarning($"SHUU_Input: Amount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
 
                     return;
                 }
@@ -636,9 +672,9 @@ namespace SHUU.Utils.InputSystem
             }
             else if (setInterface is Composite_InputSet compositeSet)
             {
-                if (binds.Length % compositeSet.axisCount != 0)
+                if (compositeSet.axisCount == 0 || binds.Length % compositeSet.axisCount != 0)
                 {
-                    Debug.LogWarning($"SHUU_Input: Ammount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
+                    Debug.LogWarning($"SHUU_Input: Amount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
 
                     return;
                 }
@@ -747,6 +783,9 @@ namespace SHUU.Utils.InputSystem
 
         public static InputBindingMap RetrieveBindingMap(string name)
         {
+            if (InputTracker.allInputBindingMaps == null) return null;
+
+
             InputBindingMap _map = null;
 
             foreach (InputBindingMap map in InputTracker.allInputBindingMaps.Values)

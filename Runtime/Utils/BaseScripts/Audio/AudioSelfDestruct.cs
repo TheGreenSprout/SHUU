@@ -10,7 +10,7 @@ namespace SHUU.Utils.BaseScripts.Audio
     #endregion
     public class AudioSelfDestruct : MonoBehaviour
     {
-        private ObjectPool<AudioSource> pool = null;
+        private SHUU_ObjectPool<AudioSource> pool = null;
 
 
         private AudioSource thisSource;
@@ -18,7 +18,7 @@ namespace SHUU.Utils.BaseScripts.Audio
 
 
 
-        public void Setup(bool active, ObjectPool<AudioSource> _pool = null)
+        public void Setup(bool active, SHUU_ObjectPool<AudioSource> _pool = null)
         {
             pool = _pool;
 

@@ -3,7 +3,7 @@ using SHUU.Utils.Developer.Console;
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
-using SHUU.Utils.PersistantInfo.General;
+using SHUU.Utils.SettingsSytem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -112,14 +112,23 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("colliders", "Toggles the visibility of all colliders in the game", "Debug")]
     public static (string[], Color?) ShowColliders()
     {
-        if (Debug_ColliderVisualizer.instance == null) return (new string[] { "Local debug disabled on this scene" }, null);
+        bool? visible = SHUU_Debug.Toggle_DebugColliders();
+
+        if (visible == null) return (new string[] { "Local debug disabled on this scene" }, null);
 
 
+        return (new string[] { "Debug collider visibility " + (visible.Value ? "enabled" : "disabled") }, null);
+    }
 
-        bool visible = Debug_ColliderVisualizer.Toggle();
+    [DevConsoleCommand("screenlogs", "Toggles whether Debug.Logs are displayed on screen.", "Debug")]
+    public static (string[], Color?) ToggleScreenLogs()
+    {
+        bool? visible = SHUU_Debug.Toggle_ScreenLogs();
+
+        if (visible == null) return (new string[] { "Something went wrong, missing reference exception" }, null);
 
 
-        return (new string[] { "Debug collider visibility " + (visible ? "enabled" : "disabled") }, null);
+        return (new string[] { "Screen logs " + (visible.Value ? "enabled" : "disabled") }, null);
     }
 
 
@@ -339,8 +348,8 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("bindcommand", "Binds a Dev Console command to a keycode or mouse button", "Classic Input")]
     public static (string[], Color?) BindCommand(string _input, params string[] commandData)
     {
-        (KeyCode?, int?) input = InputParser.ParseInput(_input);
-        if (input == (null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
+        (KeyCode?, int?, string) input = InputParser.ParseInput(_input);
+        if (input == (null, null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
 
 
         BoundCommands.BindCommand(input, commandData);
@@ -352,8 +361,8 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("unbindcommands", "Unbinds all Dev Console commands previously bound to a keycode or mouse button", "Classic Input")]
     public static (string[], Color?) UnBindCommands(string _input)
     {
-        (KeyCode?, int?) input = InputParser.ParseInput(_input);
-        if (input == (null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
+        (KeyCode?, int?, string) input = InputParser.ParseInput(_input);
+        if (input == (null, null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
 
 
         BoundCommands.UnBindCommands(input);

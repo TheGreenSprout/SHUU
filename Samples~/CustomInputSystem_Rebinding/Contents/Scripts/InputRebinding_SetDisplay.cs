@@ -32,18 +32,10 @@ public class InputRebinding_SetDisplay : MonoBehaviour, InputRebinding_ISetDispl
         set.overrideAction += UpdateButtons;
 
 
-        for (int i = 0; i < set.set.valid_keyBinds.Count; i++)
+        for (int i = 0; i < set.set.validSources.Count; i++)
         {
             var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, set.set, i+1);
-
-            allButtons.Add(button);
-        }
-
-        for (int i = 0; i < set.set.valid_mouseBinds.Count; i++)
-        {
-            var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, set.set, -(i+1));
+            button.Init(this, set.set, i);
 
             allButtons.Add(button);
         }
@@ -56,18 +48,10 @@ public class InputRebinding_SetDisplay : MonoBehaviour, InputRebinding_ISetDispl
         allButtons.Clear();
 
 
-        for (int i = 0; i < set.valid_keyBinds.Count; i++)
+        for (int i = 0; i < set.validSources.Count; i++)
         {
             var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, set, i+1);
-
-            allButtons.Add(button);
-        }
-
-        for (int i = 0; i < set.valid_mouseBinds.Count; i++)
-        {
-            var button = Instantiate(bindingButton_prefab, content);
-            button.Init(this, set, -(i+1));
+            button.Init(this, set, i);
 
             allButtons.Add(button);
         }

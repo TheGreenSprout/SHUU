@@ -7,10 +7,9 @@ This code was written with the assistance of AI.
 
 
 using System.IO;
-using SHUU.UserSide.Commons;
 using UnityEngine;
 
-namespace SHUU.Utils.PersistantInfo.General
+namespace SHUU.Utils.SettingsSytem
 {
     public class SettingsTracker : MonoBehaviour
     {
