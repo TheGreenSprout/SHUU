@@ -6,7 +6,7 @@ This code was written with the assistance of AI.
 
 
 
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using SHUU.Utils.UI.Dialogue;
@@ -125,4 +125,4 @@ namespace SHUU._Editor.Drawers
         }
     }
 }
-#endif
+#endif*/
