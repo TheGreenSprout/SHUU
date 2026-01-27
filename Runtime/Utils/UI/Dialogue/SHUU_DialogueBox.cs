@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using UnityEngine;
 
 namespace SHUU.Utils.UI.Dialogue
@@ -50,4 +50,4 @@ namespace SHUU.Utils.UI.Dialogue
         #endregion
     }
 
-}
+}*/

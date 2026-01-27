@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using UnityEngine;
 
 //! Incorportate delayed actions, aka waiting for the animations to finish before proceeding.
@@ -240,4 +240,4 @@ namespace SHUU.Utils.UI.Dialogue
         }
     }
 
-}
+}*/

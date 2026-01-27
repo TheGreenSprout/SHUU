@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -115,4 +115,4 @@ namespace SHUU.Utils.UI.Dialogue
         #endregion
     }
 
-}
+}*/

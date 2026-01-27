@@ -1,4 +1,4 @@
-using TMPro;
+/*using TMPro;
 using UnityEngine;
 
 namespace SHUU
@@ -30,4 +30,4 @@ namespace SHUU
             }
         }
     }
-}
+}*/

@@ -1,4 +1,4 @@
-using SHUU.Utils.UI.Dialogue;
+/*using SHUU.Utils.UI.Dialogue;
 using UnityEngine;
 
 namespace SHUU
@@ -30,4 +30,4 @@ namespace SHUU
             }
         }
     }
-}
+}*/

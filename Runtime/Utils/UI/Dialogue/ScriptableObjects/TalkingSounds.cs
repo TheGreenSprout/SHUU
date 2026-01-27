@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DialogueSounds", menuName = "SHUU/Dialogue/TalkingSounds")]
@@ -13,4 +13,4 @@ public class TalkingSounds : ScriptableObject
     {
         sounds = new List<AudioClip>(clips); // Ensure a copy is made
     }
-}
+}*/

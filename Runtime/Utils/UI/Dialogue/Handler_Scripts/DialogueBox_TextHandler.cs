@@ -1,4 +1,4 @@
-using SHUU.Utils.Globals;
+/*using SHUU.Utils.Globals;
 using UnityEngine;
 
 namespace SHUU.Utils.UI.Dialogue
@@ -262,4 +262,4 @@ namespace SHUU.Utils.UI.Dialogue
         #endregion
     }
     
-}
+}*/

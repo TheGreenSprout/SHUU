@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using System;
@@ -65,4 +65,4 @@ namespace SHUU.Utils.UI.Dialogue
         }
     }
 
-}
+}*/
