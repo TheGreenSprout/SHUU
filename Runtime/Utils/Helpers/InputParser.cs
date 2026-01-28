@@ -75,8 +75,8 @@ namespace SHUU.Utils.Helpers
                 AxisNames.RightJoystickX => "Joystick 3",
                 AxisNames.RightJoystickY => "Joystick 4",
 
-                AxisNames.LeftTrigger => "Joystick 6",
                 AxisNames.RightTrigger => "Joystick 5",
+                AxisNames.LeftTrigger => "Joystick 6",
 
                 _ => null
             };
@@ -100,8 +100,8 @@ namespace SHUU.Utils.Helpers
                 AxisNames.RightJoystickX => "Gamepad_Joystick 3",
                 AxisNames.RightJoystickY => "Gamepad_Joystick 4",
 
-                AxisNames.LeftTrigger => "Gamepad_Joystick 6",
                 AxisNames.RightTrigger => "Gamepad_Joystick 5",
+                AxisNames.LeftTrigger => "Gamepad_Joystick 6",
 
                 _ => null
             };
@@ -133,8 +133,8 @@ namespace SHUU.Utils.Helpers
                 "Joystick 3" => AxisNames.RightJoystickX,
                 "Joystick 4" => AxisNames.RightJoystickY,
 
-                "Joystick 5" => AxisNames.LeftTrigger,
-                "Joystick 6" => AxisNames.RightTrigger,
+                "Joystick 5" => AxisNames.RightTrigger,
+                "Joystick 6" => AxisNames.LeftTrigger,
 
                 _ => null
             };

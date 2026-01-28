@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using SHUU.Utils.Developer.Debugging;
+using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.SettingsSytem
@@ -5,21 +8,25 @@ namespace SHUU.Utils.SettingsSytem
     [CreateAssetMenu(fileName = "SettingsData", menuName = "SHUU/SettingsData")]
     public class SettingsData : ScriptableObject
     {
-        [Header("Gameplay")]
-        public float cameraSensitivity = 5f;
+        public string settingsName;
+
+
+        public List<SettingField> fields = new();
+
+
+        public string lastDefaultSetDateTime = "No Default Set";
+        public List<SettingField> defaultFields = new();
 
 
 
-        [Header("Audio")]
-        public float masterVolume = 1f;
-        public float musicVolume = 1f;
-        public float sfxVolume = 1f;
 
+        public void RestoreDefaults() => fields.CopyFrom_List_CopyContructors(defaultFields, x => new SettingField(x));
 
+        public void SaveAsDefaults()
+        {
+            defaultFields.CopyFrom_List_CopyContructors(fields, x => new SettingField(x));
 
-        [Header("Graphics")]
-        public bool fullscreen = true;
-        public int resolutionIndex = 0;
-        public int qualityIndex = 2;
+            lastDefaultSetDateTime = Stats.timestamp;
+        }
     }
 }

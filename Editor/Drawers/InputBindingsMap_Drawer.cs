@@ -23,6 +23,9 @@ namespace SHUU._Editor.Drawers
         private InputSet listeningSet;
         private int listeningIndex;
 
+        // 🔹 ADDED
+        private int listeningControlId;
+
         private enum BindingKind { Key, Mouse, Axis }
 
         // =============================================================
@@ -94,8 +97,7 @@ namespace SHUU._Editor.Drawers
                 }
                 EditorGUILayout.EndHorizontal();
 
-                if (open)
-                    DrawInputSet(named.set, allowAxis: true);
+                if (open) DrawInputSet(named.set, allowAxis: true);
 
                 EditorGUILayout.EndVertical();
             }
@@ -198,9 +200,15 @@ namespace SHUU._Editor.Drawers
                     new[] { "Left", "Right", "Middle", "Button 3", "Button 4", "Button 5" });
             else if (src is AxisSource axis && allowAxis)
             {
-                axis.axisName = EditorGUILayout.TextField(axis.axisName);
+                EditorGUILayout.BeginVertical();
+                InputParser.AxisNames currentEnum = InputParser.ParseAxisEnum(axis.axisName) ?? InputParser.AxisNames.Horizontal;
+                InputParser.AxisNames newEnum = (InputParser.AxisNames)EditorGUILayout.EnumPopup(currentEnum);
+
+                axis.axisName = new AxisSource(newEnum, axis.threshold, axis.raw).axisName;
+
                 axis.threshold = EditorGUILayout.Slider(axis.threshold, 0f, 1f);
                 axis.raw = EditorGUILayout.ToggleLeft("Raw", axis.raw, GUILayout.Width(50));
+                EditorGUILayout.EndVertical();
             }
 
             if (GUILayout.Button("🎧", GUILayout.Width(30)))
@@ -208,6 +216,10 @@ namespace SHUU._Editor.Drawers
                 isListening = true;
                 listeningSet = set;
                 listeningIndex = index;
+
+                // 🔹 ADDED
+                listeningControlId = GUIUtility.GetControlID(FocusType.Passive);
+                GUIUtility.hotControl = listeningControlId;
             }
 
             if (GUILayout.Button("X", GUILayout.Width(22)))
@@ -257,25 +269,43 @@ namespace SHUU._Editor.Drawers
         {
             if (!isListening) return;
 
-            EditorGUILayout.HelpBox("Listening for key or mouse input… (Esc to cancel)", MessageType.Info);
+            EditorGUILayout.HelpBox(
+                "Listening for key or mouse input… (Esc to cancel)",
+                MessageType.Info
+            );
 
             Event e = Event.current;
             if (e == null) return;
 
-            if (e.type == EventType.KeyDown && e.keyCode != KeyCode.None)
+            // 🔹 ADDED: force mouse capture
+            if (e.isMouse)
+                GUIUtility.hotControl = listeningControlId;
+
+            if (e.type == EventType.KeyDown)
             {
-                listeningSet.validSources[listeningIndex] = new KeySource(e.keyCode);
-                StopListening();
-                e.Use();
+                if (e.keyCode == KeyCode.Escape)
+                {
+                    StopListening();
+                    e.Use();
+                    return;
+                }
+
+                if (e.keyCode != KeyCode.None)
+                {
+                    listeningSet.validSources[listeningIndex] =
+                        new KeySource(e.keyCode);
+
+                    StopListening();
+                    e.Use();
+                    return;
+                }
             }
-            else if (e.type == EventType.MouseDown)
+
+            if (e.type == EventType.MouseDown)
             {
-                listeningSet.validSources[listeningIndex] = new MouseSource(e.button);
-                StopListening();
-                e.Use();
-            }
-            else if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
-            {
+                listeningSet.validSources[listeningIndex] =
+                    new MouseSource(e.button);
+
                 StopListening();
                 e.Use();
             }
@@ -286,6 +316,9 @@ namespace SHUU._Editor.Drawers
             isListening = false;
             listeningSet = null;
             listeningIndex = -1;
+
+            // 🔹 ADDED
+            GUIUtility.hotControl = 0;
         }
 
         // =============================================================
@@ -293,11 +326,10 @@ namespace SHUU._Editor.Drawers
         // =============================================================
         private bool DrawFoldout(string key, string label)
         {
-            bool open = EditorPrefs.GetBool(key, false); // folded by default
+            bool open = EditorPrefs.GetBool(key, false);
             bool newOpen = EditorGUILayout.Foldout(open, label, true);
 
-            if (newOpen != open)
-                EditorPrefs.SetBool(key, newOpen);
+            if (newOpen != open) EditorPrefs.SetBool(key, newOpen);
 
             return newOpen;
         }

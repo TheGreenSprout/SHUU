@@ -57,7 +57,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cad2165dd5ed1a747a9dc5c8ebdfb0dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settingsData: {fileID: 11400000, guid: 6e4a72254eff0f94da5ac6d8ab23b5da, type: 2}
+  tracked_settingsData:
+  - {fileID: 11400000, guid: 6e4a72254eff0f94da5ac6d8ab23b5da, type: 2}
+  - {fileID: 11400000, guid: 545db8f6e18343e4aa6342fb1cd010fa, type: 2}
+  - {fileID: 11400000, guid: fb8ccdf2902fa774f9e115dd0df97b36, type: 2}
 --- !u!1 &8326968758999774680
 GameObject:
   m_ObjectHideFlags: 0
@@ -106,4 +109,6 @@ MonoBehaviour:
   identifier: General_Singleton
   scripts: {fileID: 663234805260778511}
   bridges: -1
-  bannedScenes: []
+  bridgeFree_Scenes:
+  - LoadingScene
+  banned_Scenes: []

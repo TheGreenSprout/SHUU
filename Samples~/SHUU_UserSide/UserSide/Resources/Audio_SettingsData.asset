@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4bd47d1e6a491498fd70b06924411b, type: 3}
+  m_Name: Audio_SettingsData
+  m_EditorClassIdentifier: 
+  settingsName: Audio
+  fields:
+  - key: MasterVolume
+    type: 2
+    boolValue: 0
+    intValue: 0
+    floatValue: 70
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 100
+  - key: SfxVolume
+    type: 2
+    boolValue: 0
+    intValue: 0
+    floatValue: 100
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 100
+  - key: MusicVolume
+    type: 2
+    boolValue: 0
+    intValue: 0
+    floatValue: 100
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 100
+  lastDefaultSetDateTime: 2026-01-28_13-27-55
+  defaultFields:
+  - key: MasterVolume
+    type: 2
+    boolValue: 0
+    intValue: 0
+    floatValue: 70
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 100
+  - key: SfxVolume
+    type: 2
+    boolValue: 0
+    intValue: 0
+    floatValue: 100
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 100
+  - key: MusicVolume
+    type: 2
+    boolValue: 0
+    intValue: 0
+    floatValue: 100
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 100

@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4bd47d1e6a491498fd70b06924411b, type: 3}
+  m_Name: Graphics_SettingsData
+  m_EditorClassIdentifier: 
+  settingsName: Graphics
+  fields:
+  - key: Fullscreen
+    type: 0
+    boolValue: 1
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    useMin: 0
+    useMax: 0
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 0
+  - key: ResolutionIndex
+    type: 1
+    boolValue: 1
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    useMin: 1
+    useMax: 0
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 0
+  - key: QualityIndex
+    type: 1
+    boolValue: 1
+    intValue: 2
+    floatValue: 0
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 3
+    floatMin: 0
+    floatMax: 0
+  lastDefaultSetDateTime: 2026-01-28_13-27-51
+  defaultFields:
+  - key: Fullscreen
+    type: 0
+    boolValue: 1
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    useMin: 0
+    useMax: 0
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 0
+  - key: ResolutionIndex
+    type: 1
+    boolValue: 1
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    useMin: 1
+    useMax: 0
+    intMin: 0
+    intMax: 0
+    floatMin: 0
+    floatMax: 0
+  - key: QualityIndex
+    type: 1
+    boolValue: 1
+    intValue: 2
+    floatValue: 0
+    stringValue: 
+    useMin: 1
+    useMax: 1
+    intMin: 0
+    intMax: 3
+    floatMin: 0
+    floatMax: 0

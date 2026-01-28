@@ -222,16 +222,16 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
     [DevConsoleCommand("setsettings", "Sets a field on the global settings data", "Utilities")]
-    public static (string[], Color?) TrySetSettingsValue(string fieldName, MutableParameter value)
+    public static (string[], Color?) TrySetSettingsValue(string settingsDataName, string fieldName, MutableParameter value)
     {
         (string[], Color?) returnVal = (null, null);
 
 
-        if (value.TryGetValue<bool>(out bool b)) returnVal = TrySetFieldValue<bool>(fieldName, b);
-        else if (value.TryGetValue<int>(out int i)) returnVal = TrySetFieldValue<int>(fieldName, i);
-        else if (value.TryGetValue<float>(out float f)) returnVal = TrySetFieldValue<float>(fieldName, f);
-        else if (value.TryGetValue<string>(out string s)) returnVal = TrySetFieldValue<string>(fieldName, s);
-        else if (value.TryGetValue<char>(out char c)) returnVal = TrySetFieldValue<char>(fieldName, c);
+        if (value.TryGetValue(out bool b)) returnVal = TrySetFieldValue(settingsDataName, fieldName, b);
+        else if (value.TryGetValue(out int i)) returnVal = TrySetFieldValue(settingsDataName, fieldName, i);
+        else if (value.TryGetValue(out float f)) returnVal = TrySetFieldValue(settingsDataName, fieldName, f);
+        else if (value.TryGetValue(out string s)) returnVal = TrySetFieldValue(settingsDataName, fieldName, s);
+        else if (value.TryGetValue(out char c)) returnVal = TrySetFieldValue(settingsDataName, fieldName, c);
         else returnVal = (new string[] { "Unsupported value type" }, Color.red);
 
 
@@ -239,27 +239,14 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     }
 
 
-    public static (string[], Color?) TrySetFieldValue<T>(string fieldName, T value)
+    public static (string[], Color?) TrySetFieldValue(string name, string fieldName, object value)
     {
-        SettingsData target = SettingsTracker.settings;
+        SettingsData target = HandyFunctions.GetSettingsData(name);
 
-        FieldInfo field = target.GetType().GetField(
-            fieldName,
-            BindingFlags.Instance | BindingFlags.Public
-        );
+        if (!target.SetField(fieldName, value)) return (new string[] { $"Field '{fieldName}' not found on {target.name} or value {value} invalid for such field." }, Color.red);
 
-        if (field == null)
-        {
-            return (new string[] { $"Field '{fieldName}' not found on {target.name}" }, Color.red);
-        }
 
-        if (!field.FieldType.IsAssignableFrom(typeof(T)))
-        {
-            return (new string[] { $"Type mismatch. Field '{fieldName}' is {field.FieldType}, tried to assign {typeof(T)}" }, Color.red);
-        }
-
-        field.SetValue(target, value);
-        return (new string[] { $"Field '{fieldName}' set successfully to {value}" }, null);
+        return (null, null);
     }
 
 
