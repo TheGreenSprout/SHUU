@@ -11,13 +11,14 @@ namespace SHUU._Editor._CustomEditor
     {
         static CustomIcons()
         {
-            SetIcon<InputBindingMap>("InputBindingMap_Icon");
-            SetIcon<SettingsData>("SettingsData_Icon");
+            SetIcon<InputBindingMap>("InputBindingMap_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/InputBindingMap_Icon.png");
+            SetIcon<SettingsData>("SettingsData_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/SettingsData_Icon.png");
         }
 
-        public static void SetIcon<T>(string resourcePath) where T : ScriptableObject
+        public static void SetIcon<T>(string name, string resourcePath) where T : ScriptableObject
         {
-            Texture2D icon = FindIcon(resourcePath);
+            Texture2D icon = Resources.Load<Texture2D>(resourcePath);
+            if (!icon) icon = AssetDatabase.LoadAssetAtPath<Texture2D>(resourcePath); 
             if (!icon)
             {
                 Debug.LogError($"Icon not found in Resources at: {resourcePath}");
@@ -35,20 +36,6 @@ namespace SHUU._Editor._CustomEditor
             MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptPath);
 
             EditorGUIUtility.SetIconForObject(script, icon);
-        }
-
-        private static Texture2D FindIcon(string iconName)
-        {
-            string[] guids = AssetDatabase.FindAssets($"t:Texture2D l:shuu-icon");
-
-            foreach (string guid in guids)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (System.IO.Path.GetFileNameWithoutExtension(path) == iconName)
-                    return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            }
-
-            return null;
         }
     }
 }
