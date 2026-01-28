@@ -15,9 +15,9 @@ namespace SHUU._Editor._CustomEditor
             SetIcon<SettingsData>("SettingsData_Icon");
         }
 
-        static void SetIcon<T>(string resourcePath) where T : ScriptableObject
+        public static void SetIcon<T>(string resourcePath) where T : ScriptableObject
         {
-            Texture2D icon = Resources.Load<Texture2D>(resourcePath);
+            Texture2D icon = FindIcon(resourcePath);
             if (!icon)
             {
                 Debug.LogError($"Icon not found in Resources at: {resourcePath}");
@@ -35,6 +35,15 @@ namespace SHUU._Editor._CustomEditor
             MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptPath);
 
             EditorGUIUtility.SetIconForObject(script, icon);
+        }
+
+        private static Texture2D FindIcon(string iconName)
+        {
+            string[] guids = AssetDatabase.FindAssets($"t:Texture2D {iconName}");
+
+            if (guids.Length == 0) return null;
+
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(guids[0]));
         }
     }
 }
