@@ -39,11 +39,16 @@ namespace SHUU._Editor._CustomEditor
 
         private static Texture2D FindIcon(string iconName)
         {
-            string[] guids = AssetDatabase.FindAssets($"t:Texture2D {iconName}");
+            string[] guids = AssetDatabase.FindAssets($"t:Texture2D l:shuu-icon");
 
-            if (guids.Length == 0) return null;
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (System.IO.Path.GetFileNameWithoutExtension(path) == iconName)
+                    return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            }
 
-            return AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(guids[0]));
+            return null;
         }
     }
 }
