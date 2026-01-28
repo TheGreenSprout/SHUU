@@ -27,17 +27,11 @@ namespace SHUU._Editor._CustomEditor
                 return;
             }
 
-            string[] guids = AssetDatabase.FindAssets($"t:MonoScript {typeof(T).Name}");
-            if (guids.Length == 0)
-            {
-                Debug.LogError($"MonoScript not found for type {typeof(T).Name}");
-                return;
-            }
+            MonoScript script = MonoScript.FromScriptableObject(ScriptableObject.CreateInstance<T>());
 
-            string scriptPath = AssetDatabase.GUIDToAssetPath(guids[0]);
-            MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptPath);
-
+            EditorGUIUtility.SetIconForObject(script, null);
             EditorGUIUtility.SetIconForObject(script, icon);
+            EditorApplication.RepaintProjectWindow();
         }
     }
 }

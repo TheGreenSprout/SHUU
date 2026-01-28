@@ -3,12 +3,22 @@ using UnityEngine;
 
 namespace SHUU._Editor._CustomEditor.InspectorCreation
 {
-    public class CustomMenuItems : MonoBehaviour
+    [InitializeOnLoad]
+    public static class CustomMenuItems
     {
-        private static string objectsName = "EditorCreatable_Objects";
-
         private static EditorCreatable_Objects creatable_Objects = null;
 
+
+
+
+        static CustomMenuItems() => SearchForIcon();
+
+
+        private static void SearchForIcon()
+        {
+            creatable_Objects = Resources.Load<EditorCreatable_Objects>("InspectorCreation/EditorCreatable_Objects");
+            if (!creatable_Objects) creatable_Objects = AssetDatabase.LoadAssetAtPath<EditorCreatable_Objects>("Packages/com.sproutinggames.sprouts.huu/Editor/Resources/InspectorCreation/EditorCreatable_Objects.asset");
+        }
 
 
 
@@ -16,7 +26,7 @@ namespace SHUU._Editor._CustomEditor.InspectorCreation
         {
             if (creatable_Objects == null)
             {
-                creatable_Objects = Resources.Load<EditorCreatable_Objects>(objectsName);
+                SearchForIcon();
 
                 if (creatable_Objects == null) return;
             }
