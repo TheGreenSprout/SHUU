@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Helpers;
@@ -18,9 +19,18 @@ namespace SHUU.Utils.SettingsSytem
         public List<SettingField> defaultFields = new();
 
 
+        public event Action<string> OnSettingsChanged;
+        public void NotifyChanged(string field) => OnSettingsChanged?.Invoke(field);
 
 
-        public void RestoreDefaults() => fields.CopyFrom_List_CopyContructors(defaultFields, x => new SettingField(x));
+
+
+        public void RestoreDefaults()
+        {
+            fields.CopyFrom_List_CopyContructors(defaultFields, x => new SettingField(x));
+
+            NotifyChanged(null);
+        }
 
         public void SaveAsDefaults()
         {

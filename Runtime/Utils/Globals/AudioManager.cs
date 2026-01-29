@@ -5,6 +5,7 @@ using SHUU.Utils.BaseScripts.Audio;
 using SHUU.Utils.BaseScripts.ScriptableObjs.Audio;
 using SHUU.Utils.Helpers;
 using System.Linq;
+using SHUU.Utils.SettingsSytem;
 
 //! Add object pooling option?
 
@@ -52,19 +53,32 @@ namespace SHUU.Utils.Globals
 
 
         #region Variables
+        private const float MIN_DB = -80f;
+
+
         private AudioSystem sfxSystem = null;
         private AudioSystem musicSystem = null;
 
 
         [Header("General")]
-        [SerializeField] private AudioMixerGroup defaultSFX_mixer = null;
-        [SerializeField] private AudioMixerGroup defaultMusic_mixer = null;
+        [SerializeField] private AudioMixerGroup masterMixer = null;
+        [SerializeField] private AudioMixerGroup sfxMixer = null;
+        [SerializeField] private AudioMixerGroup musicMixer = null;
 
         [SerializeField] private SfxStorage sfxStorage;
         [SerializeField] private MusicStorage musicStorage;
 
 
         [SerializeField] private GameObject audioInstance = null;
+
+
+
+        [Header("Settings")]
+        [SerializeField] private SettingsData settingsData = null;
+
+        [SerializeField] private string masterAudio_fieldName = "Master";
+        [SerializeField] private string sfxAudio_fieldName = "SFX";
+        [SerializeField] private string musicAudio_fieldName = "Music";
 
 
 
@@ -83,9 +97,14 @@ namespace SHUU.Utils.Globals
 
 
         
-        void Awake()
+        #region Init
+        private void Awake()
         {
             SHUU_GlobalsProxy.audioManager = this;
+
+
+            settingsData.OnSettingsChanged += SettingsUpdate;
+            SettingsUpdate(null);
 
 
             if (sfxObjectPool_initialSize == 0) sfxSystem = new Basic_AudioSystem(audioInstance, false);
@@ -94,6 +113,36 @@ namespace SHUU.Utils.Globals
             if (musicObjectPool_initialSize == 0) musicSystem = new Basic_AudioSystem(audioInstance, true);
             else musicSystem = new ObjectPool_AudioSystem(audioInstance, true, musicObjectPool_initialSize, musicPoolObjects_parent);
         }
+
+        private void OnDestroy() => settingsData.OnSettingsChanged -= SettingsUpdate;
+
+
+        private void SettingsUpdate(string field)
+        {
+            if (field != null && field != masterAudio_fieldName && field != sfxAudio_fieldName && field != musicAudio_fieldName) return;
+
+
+            float masterVolume = settingsData.GetFloat(masterAudio_fieldName);
+            float sfxVolume = settingsData.GetFloat(sfxAudio_fieldName);
+            float musicVolume = settingsData.GetFloat(musicAudio_fieldName);
+
+            AudioMixer mixer = masterMixer.audioMixer;
+
+            mixer.SetFloat("MasterVolume", PercentToDb(masterVolume));
+            mixer.SetFloat("SFXVolume", PercentToDb(sfxVolume));
+            mixer.SetFloat("MusicVolume", PercentToDb(musicVolume));
+        }
+
+        private float PercentToDb(float percent)
+        {
+            float linear = Mathf.Clamp01(percent / 100f);
+
+            if (linear <= 0.0001f)
+                return MIN_DB;
+
+            return Mathf.Log10(linear) * 20f;
+        }
+        #endregion
 
 
 
@@ -141,7 +190,7 @@ namespace SHUU.Utils.Globals
 
             theSource.clip = audio;
             if (audioOptions.mixer != null) theSource.outputAudioMixerGroup = audioOptions.mixer;
-            else if (defaultSFX_mixer != null) theSource.outputAudioMixerGroup = defaultSFX_mixer;
+            else if (sfxMixer != null) theSource.outputAudioMixerGroup = sfxMixer;
 
             if (audioOptions.priority != null) theSource.priority = audioOptions.priority.Value;
             if (audioOptions.volume != null) theSource.volume = audioOptions.volume.Value;
@@ -245,7 +294,7 @@ namespace SHUU.Utils.Globals
 
             theSource.clip = set.music;
             if (audioOptions.mixer != null) theSource.outputAudioMixerGroup = audioOptions.mixer;
-            else if (defaultMusic_mixer != null) theSource.outputAudioMixerGroup = defaultMusic_mixer;
+            else if (musicMixer != null) theSource.outputAudioMixerGroup = musicMixer;
 
             if (audioOptions.priority != null) theSource.priority = audioOptions.priority.Value;
             if (audioOptions.volume != null) theSource.volume = audioOptions.volume.Value;

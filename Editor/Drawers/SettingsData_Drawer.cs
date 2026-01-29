@@ -63,6 +63,12 @@ namespace SHUU._Editor.Drawers
             DrawDefaultsButtons();
 
             serializedObject.ApplyModifiedProperties();
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                settingsData.NotifyChanged(null);
+                EditorUtility.SetDirty(settingsData);
+            }
         }
 
         // ---------------- UI ----------------

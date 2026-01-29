@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using SHUU.Utils.BaseScripts.ScriptableObjs.Audio;
 using SHUU.Utils.InputSystem;
 using SHUU.Utils.SettingsSytem;
 using UnityEditor;
@@ -11,11 +12,21 @@ namespace SHUU._Editor._CustomEditor
     {
         static CustomIcons() => EditorApplication.delayCall += ApplyIcons;
 
+
+
         private static void ApplyIcons()
         {
             SetIcon<InputBindingMap>("InputBindingMap_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/InputBindingMap_Icon.png");
+
             SetIcon<SettingsData>("SettingsData_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/SettingsData_Icon.png");
+
+            SetIcon<SfxStorage>("SfxStorage_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/SfxStorage_Icon.png");
+            SetIcon<MusicStorage>("MusicStorage_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/MusicStorage_Icon.png");
+
+
+            EditorApplication.delayCall += EditorApplication.RepaintProjectWindow;
         }
+
 
         public static void SetIcon<T>(string name, string resourcePath) where T : ScriptableObject
         {

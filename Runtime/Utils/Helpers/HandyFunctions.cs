@@ -1005,22 +1005,26 @@ namespace SHUU.Utils.Helpers
             {
                 case SettingType.Bool when value is bool b:
                     field.boolValue = b;
+                    data.NotifyChanged(key);
                     return true;
 
                 case SettingType.Int when value is int i:
                     if (field.useMin) i = Mathf.Max(i, field.intMin);
                     if (field.useMax) i = Mathf.Min(i, field.intMax);
                     field.intValue = i;
+                    data.NotifyChanged(key);
                     return true;
 
                 case SettingType.Float when value is float f:
                     if (field.useMin) f = Mathf.Max(f, field.floatMin);
                     if (field.useMax) f = Mathf.Min(f, field.floatMax);
                     field.floatValue = f;
+                    data.NotifyChanged(key);
                     return true;
 
                 case SettingType.String when value is string s:
                     field.stringValue = s;
+                    data.NotifyChanged(key);
                     return true;
             }
 
@@ -1033,6 +1037,7 @@ namespace SHUU.Utils.Helpers
             if (field == null) return false;
 
             field.boolValue = value;
+            data.NotifyChanged(key);
             return true;
         }
 
@@ -1045,6 +1050,7 @@ namespace SHUU.Utils.Helpers
             if (field.useMax) value = Mathf.Min(value, field.intMax);
 
             field.intValue = value;
+            data.NotifyChanged(key);
             return true;
         }
 
@@ -1057,6 +1063,7 @@ namespace SHUU.Utils.Helpers
             if (field.useMax) value = Mathf.Min(value, field.floatMax);
 
             field.floatValue = value;
+            data.NotifyChanged(key);
             return true;
         }
 
@@ -1066,6 +1073,7 @@ namespace SHUU.Utils.Helpers
             if (field == null) return false;
 
             field.stringValue = value;
+            data.NotifyChanged(key);
             return true;
         }
         #endregion

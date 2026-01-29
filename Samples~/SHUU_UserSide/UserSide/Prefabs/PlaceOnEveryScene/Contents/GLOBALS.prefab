@@ -232,11 +232,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5e141e750533bb4a90634a67a097cd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSFX_mixer: {fileID: 24300002, guid: 422987c918b036a459746cb9127bc6b1, type: 2}
-  defaultMusic_mixer: {fileID: 24300002, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
+  masterMixer: {fileID: 24300002, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
+  sfxMixer: {fileID: -1620632772027961612, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
+  musicMixer: {fileID: 7567011435774010195, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
   sfxStorage: {fileID: 11400000, guid: fa32f6a595a65ae42b75d52da8f4aa43, type: 2}
   musicStorage: {fileID: 11400000, guid: 0c6d5149963ac384c9fd30a4bc4659a2, type: 2}
   audioInstance: {fileID: 1010484141545196436, guid: 93e5648037ae91c4c98a163872149b4d, type: 3}
+  settingsData: {fileID: 0}
+  masterAudio_fieldName: Master
+  sfxAudio_fieldName: SFX
+  musicAudio_fieldName: Music
   sfxObjectPool_initialSize: 10
   musicObjectPool_initialSize: 0
   sfxPoolObjects_parent: {fileID: 3896987658163161922}
