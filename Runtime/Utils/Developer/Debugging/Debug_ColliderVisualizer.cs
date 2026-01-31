@@ -68,7 +68,7 @@ namespace SHUU.Utils.Developer.Debugging
             if (!init) init = true;
 
             CreateVisuals();
-            Toggle(); // start hidden
+            if (visible) Toggle(); // start hidden
         }
 
         public void Reset()

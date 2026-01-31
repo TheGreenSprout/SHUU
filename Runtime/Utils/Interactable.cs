@@ -65,14 +65,26 @@ namespace SHUU.Utils
         /// This runs when the interactable starts being hovered over.
         /// </summary>
         #endregion
-        public virtual void HoverStart() => DynamicCursorInteraction.AddCursorAffector(this.gameObject);
+        public void HoverStart()
+        {
+            DynamicCursorInteraction.AddCursorAffector(this.gameObject);
+
+            HoverStartLogic();
+        }
+        protected virtual void HoverStartLogic() { }
 
         #region XML doc
         /// <summary>
         /// This runs when the interactable stops being hovered over.
         /// </summary>
         #endregion
-        public virtual void HoverEnd() => DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
+        public void HoverEnd()
+        {
+            DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
+
+            HoverEndLogic();
+        }
+        protected virtual void HoverEndLogic() { }
     }
 
 }

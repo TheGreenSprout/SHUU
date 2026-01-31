@@ -14,6 +14,6 @@ namespace SHUU.Utils.Helpers.Interaction
         protected virtual void OnDisable() => DynamicCursorInteraction.alternateCursorState -= AlternateCursorState;
 
 
-        protected virtual void AlternateCursorState(bool active) { }
+        protected virtual void AlternateCursorState(bool active, GameObject affector) { }
     }
 }

@@ -27,7 +27,7 @@ namespace SHUU.Utils.SettingsSytem
             Save();
         }
 
-        public static SettingsData GetSettingsData(string name) => HandyFunctions.GetSettingsData(name);
+        public static SettingsData GetSettingsData(string name) => instance?.tracked_settingsData.Find(x => x.settingsName == name);
 
         // ---------------- SAVE ----------------
 

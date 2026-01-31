@@ -241,7 +241,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
     public static (string[], Color?) TrySetFieldValue(string name, string fieldName, object value)
     {
-        SettingsData target = HandyFunctions.GetSettingsData(name);
+        SettingsData target = SettingsTracker.GetSettingsData(name);
 
         if (!target.SetField(fieldName, value)) return (new string[] { $"Field '{fieldName}' not found on {target.name} or value {value} invalid for such field." }, Color.red);
 

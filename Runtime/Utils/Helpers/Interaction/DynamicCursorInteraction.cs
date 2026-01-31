@@ -6,7 +6,7 @@ namespace SHUU.Utils.Helpers.Interaction
 {
     public static class DynamicCursorInteraction
     {
-        public static event Action<bool> alternateCursorState = null;
+        public static event Action<bool, GameObject> alternateCursorState = null;
 
         public static bool cursorActive => ammountOfInteracts.Count != 0;
 
@@ -53,7 +53,7 @@ namespace SHUU.Utils.Helpers.Interaction
                 {
                     actionCalled = true;
 
-                    alternateCursorState?.Invoke(true);
+                    alternateCursorState?.Invoke(true, null);
                 }
             }
             else
@@ -62,7 +62,7 @@ namespace SHUU.Utils.Helpers.Interaction
                 {
                     actionCalled = false;
 
-                    alternateCursorState?.Invoke(false);
+                    alternateCursorState?.Invoke(false, ammountOfInteracts[ammountOfInteracts.Count-1]);
                 }
             }
         }

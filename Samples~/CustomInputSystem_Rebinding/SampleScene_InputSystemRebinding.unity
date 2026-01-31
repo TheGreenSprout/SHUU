@@ -422,10 +422,6 @@ PrefabInstance:
       propertyPath: listenForDebugLog
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 4020691803090948009, guid: 0d3c4b398dd720c40ba1bb00a2b30364, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5225186638109007582, guid: 0d3c4b398dd720c40ba1bb00a2b30364, type: 3}
       propertyPath: m_Name
       value: OnEveryScene

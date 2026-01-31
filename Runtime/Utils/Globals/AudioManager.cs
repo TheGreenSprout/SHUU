@@ -76,9 +76,9 @@ namespace SHUU.Utils.Globals
         [Header("Settings")]
         [SerializeField] private SettingsData settingsData = null;
 
-        [SerializeField] private string masterAudio_fieldName = "Master";
-        [SerializeField] private string sfxAudio_fieldName = "SFX";
-        [SerializeField] private string musicAudio_fieldName = "Music";
+        [SerializeField] private string masterAudio_fieldName = "MasterVolume";
+        [SerializeField] private string sfxAudio_fieldName = "SfxSVolume";
+        [SerializeField] private string musicAudio_fieldName = "MusicVolume";
 
 
 

@@ -21,12 +21,22 @@ namespace SHUU.Utils.Developer.Debugging
 
         private void OnEnable()
         {
-            if (listenForDebugLog) Application.logMessageReceived += HandleLog;
+            if (listenForDebugLog)
+            {
+                Application.logMessageReceived += HandleLog;
+
+                if (!content.gameObject.activeInHierarchy) content.gameObject.SetActive(true);
+            }
         }
 
         private void OnDisable()
         {
-            if (listenForDebugLog) Application.logMessageReceived -= HandleLog;
+            if (listenForDebugLog)
+            {
+                Application.logMessageReceived -= HandleLog;
+
+                if (content.gameObject.activeInHierarchy) content.gameObject.SetActive(false);
+            }
         }
 
 

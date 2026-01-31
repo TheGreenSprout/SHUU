@@ -29,7 +29,11 @@ namespace SHUU.Utils.Developer.Debugging
 
 
             colliderVisualizer = GetComponent<Debug_ColliderVisualizer>();
-            if (debugColliders) colliderVisualizer.Init();
+            if (debugColliders)
+            {
+                if (!colliderVisualizer.enabled) colliderVisualizer.enabled = true;
+                colliderVisualizer.Init();
+            }
 
             screenLogs = GetComponent<Debug_ScreenLogs>();
         }

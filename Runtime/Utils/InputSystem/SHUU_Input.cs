@@ -448,7 +448,7 @@ namespace SHUU.Utils.InputSystem
 
             if (!bindings.Any(b => b.callback == callback && b.requiresAllBindsDown == requiresAllBindsDown)) bindings.Add((callback, requiresAllBindsDown));
         }
-        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback)
+        private static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback)
         {
             if (map == null || string.IsNullOrEmpty(set) || callback == null) return;
 
@@ -460,7 +460,7 @@ namespace SHUU.Utils.InputSystem
 
             if (actionDict.Count == 0) listeners.Remove(map);
         }
-        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set)
+        private static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set)
         {
             if (map == null || string.IsNullOrEmpty(set)) return;
 
@@ -471,7 +471,7 @@ namespace SHUU.Utils.InputSystem
 
             if (actionDict.Count == 0) listeners.Remove(map);
         }
-        public static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map)
+        private static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map)
         {
             if (map == null) return;
             
