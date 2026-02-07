@@ -1,18 +1,11 @@
-using SHUU.Utils.Helpers;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace SHUU.Utils.Developer.Debugging
 {
-    [RequireComponent(typeof(Debug_ColliderVisualizer), typeof(Debug_ScreenLogs))]
+    [RequireComponent(typeof(Debug_ScreenLogs), typeof(Debug_ColliderVisualizer))]
     public class SHUU_Debug : MonoBehaviour
     {
-        private static SHUU_Debug instance;
-
-
-
-        [Tooltip("If true at the start of the game, the debug collider visualization will be available.")]
-        [SerializeField] private bool debugColliders = false;
+        public static SHUU_Debug instance;
 
 
 
@@ -29,26 +22,9 @@ namespace SHUU.Utils.Developer.Debugging
 
 
             colliderVisualizer = GetComponent<Debug_ColliderVisualizer>();
-            if (debugColliders)
-            {
-                if (!colliderVisualizer.enabled) colliderVisualizer.enabled = true;
-                colliderVisualizer.Init();
-            }
 
             screenLogs = GetComponent<Debug_ScreenLogs>();
         }
-
-
-        private void OnEnable()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-        private void OnDisable()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => colliderVisualizer?.Reset();
 
 
 

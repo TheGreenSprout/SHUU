@@ -13,7 +13,6 @@ using SHUU.Utils.InputSystem;
 using SHUU.Utils.Helpers;
 using System.Text;
 using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace SHUU._Editor.Drawers
@@ -252,14 +251,14 @@ namespace SHUU._Editor.Drawers
             if (GUILayout.Button("Set Default Data"))
             {
                 Undo.RecordObject(map, "Set Default Input Data");
-                map.SetDefaultData();
+                map.SaveDefaults();
                 EditorUtility.SetDirty(map);
             }
 
             if (GUILayout.Button("Reset To Default"))
             {
                 Undo.RecordObject(map, "Reset Input Map To Default");
-                map.ResetToDefault();
+                map.RestoreDefaults();
                 EditorUtility.SetDirty(map);
             }
 
@@ -422,7 +421,6 @@ namespace SHUU._Editor.Drawers
 
         private static bool TryResolveTargetFile(out string filePath)
         {
-            // 1️⃣ Resources (UnityPackage install)
             var textAsset = Resources.Load<TextAsset>(ResourcesPath);
             if (textAsset != null)
             {
@@ -430,7 +428,6 @@ namespace SHUU._Editor.Drawers
                 return true;
             }
 
-            // 2️⃣ Package path
             if (File.Exists(PackagePath))
             {
                 filePath = PackagePath;
@@ -481,75 +478,14 @@ namespace SHUU._Editor.Drawers
                 foreach (var set in map.inputSets_list)
                 {
                     if (string.IsNullOrEmpty(set.name)) continue;
-
-                    var setName = Sanitize(set.name);
-
-                    sb.AppendLine($"    public static class {setName}");
-                    sb.AppendLine("    {");
-                    sb.AppendLine($"        private const string KEY = \"{set.name}\";");
-                    sb.AppendLine();
-                    sb.AppendLine("        public static bool Down(bool all = false) => SHUU_Input.GetInputDown(Map, KEY, all);");
-                    sb.AppendLine("        public static bool Up(bool all = false) => SHUU_Input.GetInputUp(Map, KEY, all);");
-                    sb.AppendLine("        public static bool Held(bool all = false) => SHUU_Input.GetInput(Map, KEY, all);");
-                    sb.AppendLine("        public static float Value(bool all = false) => SHUU_Input.GetInputValue(Map, KEY, all).TryGetFloat(out var v) ? v : 0f;");
-                    sb.AppendLine("    }");
-                    sb.AppendLine();
+                    AppendInputSet(sb, set.name, 1);
                 }
 
                 // ---------- COMPOSITE SETS ----------
                 foreach (var set in map.compositeSets_list)
                 {
                     if (string.IsNullOrEmpty(set.name)) continue;
-
-                    var setName = Sanitize(set.name);
-                    int axisCount = set.set.axisCount;
-
-                    sb.AppendLine($"    public static class {setName}");
-                    sb.AppendLine("    {");
-                    sb.AppendLine($"        private const string KEY = \"{set.name}\";");
-                    sb.AppendLine();
-                    sb.AppendLine("        public static bool Down(bool all = false) => SHUU_Input.GetInputDown(Map, KEY, all);");
-                    sb.AppendLine("        public static bool Up(bool all = false) => SHUU_Input.GetInputUp(Map, KEY, all);");
-                    sb.AppendLine("        public static bool Held(bool all = false) => SHUU_Input.GetInput(Map, KEY, all);");
-                    sb.AppendLine();
-
-                    switch (axisCount)
-                    {
-                        case 1:
-                            sb.AppendLine("        public static float Value(bool all = false)");
-                            sb.AppendLine("        {");
-                            sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
-                            sb.AppendLine("            return v.TryGetFloat(out var r) ? r : 0f;");
-                            sb.AppendLine("        }");
-                            break;
-
-                        case 2:
-                            sb.AppendLine("        public static Vector2 Value(bool all = false)");
-                            sb.AppendLine("        {");
-                            sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
-                            sb.AppendLine("            return v.TryGetVector2(out var r) ? r : Vector2.zero;");
-                            sb.AppendLine("        }");
-                            break;
-
-                        case 3:
-                            sb.AppendLine("        public static Vector3 Value(bool all = false)");
-                            sb.AppendLine("        {");
-                            sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
-                            sb.AppendLine("            return v.TryGetVector3(out var r) ? r : Vector3.zero;");
-                            sb.AppendLine("        }");
-                            break;
-
-                        case 4:
-                            sb.AppendLine("        public static Vector4 Value(bool all = false)");
-                            sb.AppendLine("        {");
-                            sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
-                            sb.AppendLine("            return v.TryGetVector4(out var r) ? r : Vector4.zero;");
-                            sb.AppendLine("        }");
-                            break;
-                    }
-
-                    sb.AppendLine("    }");
-                    sb.AppendLine();
+                    AppendInputSet(sb, set.name, set.set.axisCount);
                 }
 
                 sb.AppendLine("}");
@@ -559,15 +495,85 @@ namespace SHUU._Editor.Drawers
             return sb.ToString();
         }
 
+        private static void AppendInputSet(StringBuilder sb, string rawName, int axisCount)
+        {
+            var name = Sanitize(rawName);
+
+            sb.AppendLine($"    public static class {name}");
+            sb.AppendLine("    {");
+            sb.AppendLine($"        private const string KEY = \"{rawName}\";");
+            sb.AppendLine();
+
+            // ---- basic ----
+            sb.AppendLine("        public static bool GetDown(bool all = false) => SHUU_Input.GetInputDown(Map, KEY, all);");
+            sb.AppendLine("        public static bool GetUp(bool all = false) => SHUU_Input.GetInputUp(Map, KEY, all);");
+            sb.AppendLine("        public static bool Get(bool all = false) => SHUU_Input.GetInput(Map, KEY, all);");
+            sb.AppendLine();
+
+            // ---- buffered ----
+            sb.AppendLine("        public static void RegisterBuffer_Down(float bufferTime = 0.15f, bool all = false) => Map.RegisterBufferInput_Down(KEY, bufferTime, all);");
+            sb.AppendLine("        public static void RegisterBuffer_Up(float bufferTime = 0.15f, bool all = false) => Map.RegisterBufferInput_Up(KEY, bufferTime, all);");
+            sb.AppendLine("        public static void UnregisterBuffer_Down(bool all = false) => Map.UnregisterBufferInput_Down(KEY, all);");
+            sb.AppendLine("        public static void UnregisterBuffer_Up(bool all = false) => Map.UnregisterBufferInput_Up(KEY, all);");
+            sb.AppendLine();
+            sb.AppendLine("        public static bool GetBufferedInput_Down(bool all = false, bool consume = true) => Map.GetBufferedInput_Down(KEY, all, consume);");
+            sb.AppendLine("        public static bool GetBufferedInput_Up(bool all = false, bool consume = true) => Map.GetBufferedInput_Up(KEY, all, consume);");
+            sb.AppendLine();
+
+            // ---- listeners ----
+            sb.AppendLine("        public static void RegisterListener_Down(System.Action cb, bool all = false) => Map.RegisterListener_Down(KEY, cb, all);");
+            sb.AppendLine("        public static void RegisterListener_Up(System.Action cb, bool all = false) => Map.RegisterListener_Up(KEY, cb, all);");
+            sb.AppendLine("        public static void UnregisterListener_Down(System.Action cb) => Map.UnregisterListener_Down(KEY, cb);");
+            sb.AppendLine("        public static void UnregisterListener_Up(System.Action cb) => Map.UnregisterListener_Up(KEY, cb);");
+            sb.AppendLine();
+
+            // ---- value ----
+            switch (axisCount)
+            {
+                case 1:
+                    sb.AppendLine("        public static float GetValue(bool all = false)");
+                    sb.AppendLine("        {");
+                    sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
+                    sb.AppendLine("            return v.TryGetFloat(out var r) ? r : 0f;");
+                    sb.AppendLine("        }");
+                    break;
+
+                case 2:
+                    sb.AppendLine("        public static Vector2 GetValue(bool all = false)");
+                    sb.AppendLine("        {");
+                    sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
+                    sb.AppendLine("            return v.TryGetVector2(out var r) ? r : Vector2.zero;");
+                    sb.AppendLine("        }");
+                    break;
+
+                case 3:
+                    sb.AppendLine("        public static Vector3 GetValue(bool all = false)");
+                    sb.AppendLine("        {");
+                    sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
+                    sb.AppendLine("            return v.TryGetVector3(out var r) ? r : Vector3.zero;");
+                    sb.AppendLine("        }");
+                    break;
+
+                case 4:
+                    sb.AppendLine("        public static Vector4 GetValue(bool all = false)");
+                    sb.AppendLine("        {");
+                    sb.AppendLine("            var v = SHUU_Input.GetInputValue(Map, KEY, all);");
+                    sb.AppendLine("            return v.TryGetVector4(out var r) ? r : Vector4.zero;");
+                    sb.AppendLine("        }");
+                    break;
+            }
+
+            sb.AppendLine("    }");
+            sb.AppendLine();
+        }
+
         private static string Sanitize(string s)
         {
             var sb = new StringBuilder();
 
             foreach (char c in s)
-            {
                 if (char.IsLetterOrDigit(c) || c == '_')
                     sb.Append(c);
-            }
 
             if (sb.Length == 0 || char.IsDigit(sb[0]))
                 sb.Insert(0, '_');
@@ -592,9 +598,8 @@ namespace SHUU._Editor.Drawers
 
             end += EndMarker.Length;
 
-            // ADD EXACTLY ONE TAB TO EVERY LINE
-            var indented =
-                "\t" + generatedContent.Replace("\n", "\n\t");
+            // EXACTLY ONE TAB because code is inside a namespace
+            var indented = "\t" + generatedContent.Replace("\n", "\n\t");
 
             var newText =
                 text.Substring(0, start) +

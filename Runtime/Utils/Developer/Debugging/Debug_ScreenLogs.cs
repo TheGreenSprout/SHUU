@@ -5,37 +5,61 @@ namespace SHUU.Utils.Developer.Debugging
 {
     public class Debug_ScreenLogs : MonoBehaviour
     {
-        public bool listenForDebugLog = false;
+        public static Debug_ScreenLogs instance;
 
+
+        private Debug_ScreenLogsProxy _proxy;
+        public Debug_ScreenLogsProxy proxy
+        {
+            get => _proxy;
+            set
+            {
+                if (value == null) OnProxyRemoved(_proxy);
+                else OnProxyAdded(value);
+
+                _proxy = value;
+            }
+        }
+
+
+
+        public bool listenForDebugLog = false;
 
 
         [SerializeField] private Color defaultTextColor = Color.white;
 
-
         [SerializeField] private Debug_LogMessage logMessagePrefab;
 
-        [SerializeField] private Transform content;
 
 
 
+        private void Awake() => instance = this;
 
-        private void OnEnable()
+        
+        private void OnProxyAdded(Debug_ScreenLogsProxy proxy)
         {
+            if (!proxy || !proxy.content) return;
+
+
             if (listenForDebugLog)
             {
                 Application.logMessageReceived += HandleLog;
 
-                if (!content.gameObject.activeInHierarchy) content.gameObject.SetActive(true);
+                if (!proxy.content.gameObject.activeInHierarchy) proxy.content.gameObject.SetActive(true);
             }
+            else if (proxy.content.gameObject.activeInHierarchy) proxy.content.gameObject.SetActive(false);
         }
 
-        private void OnDisable()
+        private void OnProxyRemoved(Debug_ScreenLogsProxy proxy)
         {
+            if (!proxy || !proxy.content) return;
+
+
             if (listenForDebugLog)
             {
                 Application.logMessageReceived -= HandleLog;
 
-                if (content.gameObject.activeInHierarchy) content.gameObject.SetActive(false);
+                if (proxy.content.gameObject.activeInHierarchy) proxy.content.gameObject.SetActive(false);
             }
         }
 
@@ -64,7 +88,7 @@ namespace SHUU.Utils.Developer.Debugging
                 Actual_HandleLog(line, color.Value);
             }
         }
-        private void Actual_HandleLog(string logString, Color color) => Instantiate(logMessagePrefab, content).Init(logString, color);
+        private void Actual_HandleLog(string logString, Color color) => Instantiate(logMessagePrefab, proxy?.content).Init(logString, color);
 
 
         public void ScreenLog(string message, Color? color = null)

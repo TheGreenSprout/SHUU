@@ -504,7 +504,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return false;
             }
@@ -523,7 +523,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return new InputValue();
             }
@@ -556,7 +556,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return false;
             }
@@ -576,7 +576,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return false;
             }

@@ -12,9 +12,9 @@ public class InputRebinding_Manager : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] private InputRebinding_Header mapHeader_prefab;
 
-
     [SerializeField] private InputRebinding_SetDisplay setDisplay_prefab;
     [SerializeField] private InputRebinding_CompositeDisplay compositeDisplay_prefab;
+
 
 
     [Header("References")]
@@ -35,15 +35,15 @@ public class InputRebinding_Manager : MonoBehaviour
         }
     }
 
-    void OnApplicationQuit()
+    private void OnApplicationQuit()
+    {
+        OnDestroy();
+    }
+    private void OnDestroy()
     {
         foreach (var map in inputBindingMaps)
         {
             map.OnDisable();
         }
-    }
-    void OnDestroy()
-    {
-        OnApplicationQuit();
     }
 }

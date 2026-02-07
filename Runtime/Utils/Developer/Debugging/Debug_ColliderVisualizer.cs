@@ -1,269 +1,117 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using UnityEngine;
 using System.Collections.Generic;
 
 namespace SHUU.Utils.Developer.Debugging
 {
+    #region Data classes
+
+    [System.Serializable]
+    public class LayerWireColor
+    {
+        public LayerMask layers;
+        public Color wireColor;
+    }
+
+    [System.Serializable]
+    public class TagFillColor
+    {
+        public List<string> tags = new();
+        public Color fillColor;
+    }
+
+    #endregion
+
+
+
     public class Debug_ColliderVisualizer : MonoBehaviour
     {
-        public Shader shader;
-
-        [Header("Toggle")]
-        public KeyCode toggleKey = KeyCode.F1;
-
-        [Header("Trigger Tone")]
-        [Range(0f, 1f)] public float triggerToneMultiplier = 0.75f;
-
-        [Header("Wire Settings")]
-        [Range(0.5f, 3f)] public float wireThickness = 2f;
-
-        [Header("Defaults")]
-        public Color defaultFillColor = new Color(0, 1, 0, 0.15f);
-        public Color defaultWireColor = new Color(0, 1, 0, 0.55f);
-
-        [Header("Exclusion")]
-        public LayerMask excludedLayers;
-        public List<string> excludedTags = new();
-
-        [Header("Layer → Wire Color")]
-        public List<LayerWireColor> layerWireColors = new();
-
-        [Header("Tag → Fill Color")]
-        public List<TagFillColor> tagFillColors = new();
-
-        private readonly List<GameObject> visuals = new();
-        private bool visible = true;
+        public static Debug_ColliderVisualizer instance;
 
 
-        #region Data
-
-        [System.Serializable]
-        public class LayerWireColor
+        private Debug_ColliderVisualizerProxy _proxy;
+        public Debug_ColliderVisualizerProxy proxy
         {
-            public LayerMask layers;
-            public Color wireColor;
-        }
-
-        [System.Serializable]
-        public class TagFillColor
-        {
-            public List<string> tags = new();
-            public Color fillColor;
-        }
-
-        #endregion
-
-        #region Unity
-
-        private bool init = false;
-        public void Init()
-        {
-            if (!init) init = true;
-
-            CreateVisuals();
-            if (visible) Toggle(); // start hidden
-        }
-
-        public void Reset()
-        {
-            foreach (var visual in visuals)
+            get => _proxy;
+            set
             {
-                Destroy(visual);
-            }
-            visuals.Clear();
+                if (value == null) OnProxyRemoved(_proxy);
+                else OnProxyAdded(value);
 
-            Invoke(nameof(Init), 0.02f);
-        }
-
-        private void Update()
-        {
-            if (init && Input.GetKeyDown(toggleKey)) Toggle();
-        }
-
-        #endregion
-
-        #region Toggle
-
-        public bool Toggle()
-        {
-            visible = !visible;
-            foreach (var v in visuals)
-                if (v) v.SetActive(visible);
-
-            return visible;
-        }
-
-        #endregion
-
-        #region Visual Creation
-
-        void CreateVisuals()
-        {
-#if UNITY_6000_0_OR_NEWER
-            Collider[] colliders = FindObjectsByType<Collider>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#else
-            Collider[] colliders = Resources.FindObjectsOfTypeAll<Collider>();
-#endif
-
-            foreach (Collider col in colliders)
-            {
-                if (!col) continue;
-                if (((1 << col.gameObject.layer) & excludedLayers) != 0 || excludedTags.Contains(col.gameObject.tag)) continue;
-
-                #if !UNITY_6000_0_OR_NEWER
-                // Skip assets / prefabs
-                if (col.gameObject.scene.name == null) continue;
-                #endif
-
-                GameObject vis = CreateForCollider(col);
-                if (!vis) continue;
-
-                vis.transform.SetParent(col.transform, false);
-                visuals.Add(vis);
+                _proxy = value;
             }
         }
 
-        GameObject CreateForCollider(Collider col)
+
+
+        [Header("Activation")]
+        [SerializeField] private bool colliderVisualizerEnabled = false;
+        [SerializeField] private bool beginEnabled = false;
+
+        [SerializeField] private KeyCode activationKey = KeyCode.None;
+
+
+        [Header("Rendering")]
+        [SerializeField] private Shader matShader;
+
+        [Tooltip("If true the wire will be rendered on top of all geometry.")]
+        [SerializeField] private bool alwaysRenderWire = false;
+        [Tooltip("If true the fill will be rendered on top of all geometry.")]
+        [SerializeField] private bool alwaysRenderFill = false;
+
+        [Tooltip("If 0, the colliders will have to be updated manually via CacheColliders() or CacheReload().")]
+        [SerializeField] private float updateCollidersInterval = 5f;
+        [Tooltip("If 0, the colliders will have to be updated manually via RebuildCache() or CacheReload().")]
+        [SerializeField] private float updateCacheInterval = 0.15f;
+
+        [Tooltip("Colliders with a distance from the Camera.main greater than this will not be rendered.")]
+        [SerializeField] private float maxDistance = 80f;
+
+
+        [Header("Colors")]
+        [SerializeField] private Color defaultWireColor = Color.green;
+        [SerializeField] private Color defaultFillColor = new(0, 0, 0, 0);
+
+        [Range(0f, 1f)] [SerializeField] private float triggerAlphaMultiplier = 0.6f;
+        [Range(0f, 1f)] [SerializeField] private float disabledAlphaMultiplier = 0.3f;
+
+
+        [Header("Overrides")]
+        [SerializeField] private LayerMask excludedLayers;
+        [SerializeField] private List<string> excludedTags = new();
+
+        [SerializeField] private List<LayerWireColor> layerWireColors = new();
+        [SerializeField] private List<TagFillColor> tagFillColors = new();
+
+
+
+
+        private void Awake() => instance = this;
+
+
+        private void OnProxyAdded(Debug_ColliderVisualizerProxy proxy)
         {
-            return col switch
-            {
-                BoxCollider box => CreateBox(box),
-                SphereCollider sphere => CreateSphere(sphere),
-                CapsuleCollider capsule => CreateCapsule(capsule),
-                MeshCollider mesh => CreateMesh(mesh),
-                _ => null
-            };
+            if (!proxy) return;
+
+
+            if (colliderVisualizerEnabled) proxy.Init(activationKey, matShader, alwaysRenderWire, alwaysRenderFill, updateCollidersInterval, updateCacheInterval, maxDistance, defaultWireColor, defaultFillColor, triggerAlphaMultiplier, disabledAlphaMultiplier, excludedLayers, excludedTags, layerWireColors, tagFillColors, beginEnabled);
         }
 
-        #endregion
-
-        #region Collider Types
-
-        GameObject CreateBox(BoxCollider box)
+        private void OnProxyRemoved(Debug_ColliderVisualizerProxy proxy)
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Destroy(go.GetComponent<Collider>());
+            if (!proxy) return;
 
-            go.transform.localPosition = box.center;
-            go.transform.localScale = box.size;
 
-            ApplyMaterial(go, box);
-            return go;
+            if (colliderVisualizerEnabled) proxy.initialized = false;
         }
 
-        GameObject CreateSphere(SphereCollider sphere)
-        {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Destroy(go.GetComponent<Collider>());
 
-            go.transform.localPosition = sphere.center;
-            go.transform.localScale = Vector3.one * sphere.radius * 2f;
 
-            ApplyMaterial(go, sphere);
-            return go;
-        }
+        public bool? Toggle() => proxy && colliderVisualizerEnabled ? proxy.Toggle() : null;
 
-        GameObject CreateCapsule(CapsuleCollider capsule)
-        {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            Destroy(go.GetComponent<Collider>());
 
-            go.transform.localPosition = capsule.center;
+        public static void CacheReload() => instance?.proxy?.CacheReload();
 
-            float d = capsule.radius * 2f;
-            float h = capsule.height;
-
-            go.transform.localScale = capsule.direction switch
-            {
-                0 => new Vector3(h, d, d),
-                1 => new Vector3(d, h, d),
-                2 => new Vector3(d, d, h),
-                _ => Vector3.one
-            };
-
-            ApplyMaterial(go, capsule);
-            return go;
-        }
-
-        GameObject CreateMesh(MeshCollider mesh)
-        {
-            if (!mesh.sharedMesh) return null;
-
-            GameObject go = new GameObject("MeshCollider_Visual");
-            MeshFilter mf = go.AddComponent<MeshFilter>();
-            MeshRenderer mr = go.AddComponent<MeshRenderer>();
-
-            mf.sharedMesh = Instantiate(mesh.sharedMesh);
-            mr.material = CreateMaterialForCollider(mesh);
-
-            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            mr.receiveShadows = false;
-
-            return go;
-        }
-
-        #endregion
-
-        #region Material / Colors
-
-        void ApplyMaterial(GameObject go, Collider col)
-        {
-            Renderer r = go.GetComponent<Renderer>();
-            r.material = CreateMaterialForCollider(col);
-            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            r.receiveShadows = false;
-        }
-
-        Material CreateMaterialForCollider(Collider col)
-        {
-            Material mat = new Material(shader);
-
-            Color fill = GetFillColor(col);
-            Color wire = GetWireColor(col);
-
-            if (col.isTrigger)
-            {
-                fill *= triggerToneMultiplier;
-                wire *= triggerToneMultiplier;
-            }
-
-            mat.SetColor("_FillColor", fill);
-            mat.SetColor("_WireColor", wire);
-            mat.SetFloat("_WireThickness", wireThickness);
-
-            mat.renderQueue = 3000;
-            return mat;
-        }
-
-        Color GetWireColor(Collider col)
-        {
-            int colLayerMask = 1 << col.gameObject.layer;
-
-            foreach (var l in layerWireColors)
-            {
-                if ((l.layers.value & colLayerMask) != 0)
-                    return l.wireColor;
-            }
-
-            return defaultWireColor;
-        }
-
-        Color GetFillColor(Collider col)
-        {
-            foreach (var t in tagFillColors)
-                if (t.tags.Contains(col.tag))
-                    return t.fillColor;
-
-            return defaultFillColor;
-        }
-
-        #endregion
+        public static void CacheColliders() => instance?.proxy?.CacheColliders();
+        public static void RebuildCache() => instance?.proxy?.RebuildCache();
     }
 }

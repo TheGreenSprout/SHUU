@@ -180,7 +180,7 @@ namespace SHUU.Utils.InputSystem
 
 
         #region Defaults
-        public void SetDefaultData()
+        public void SaveDefaults()
         {
             lastDefaultSetDateTime = Stats.timestamp;
 
@@ -188,7 +188,7 @@ namespace SHUU.Utils.InputSystem
         }
 
 
-        public void ResetToDefault()
+        public void RestoreDefaults()
         {
             if (defaultData == null || !defaultData.hasValue)
             {

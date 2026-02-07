@@ -189,24 +189,49 @@ namespace SHUU._Editor.Drawers
             var min = field.FindPropertyRelative("intMin");
             var max = field.FindPropertyRelative("intMax");
 
-            if (useMin.boolValue && useMax.boolValue)
-            {
-                value.intValue = EditorGUILayout.IntSlider(
-                    "Value",
-                    value.intValue,
-                    min.intValue,
-                    max.intValue
-                );
-            }
-            else
+            /*if (EditorGUIUtility.editingTextField)
             {
                 EditorGUILayout.PropertyField(value);
+                return;
+            }*/
 
-                if (useMin.boolValue)
-                    value.intValue = Mathf.Max(value.intValue, min.intValue);
-                if (useMax.boolValue)
-                    value.intValue = Mathf.Min(value.intValue, max.intValue);
+            try
+            {
+                if (useMin.boolValue && useMax.boolValue)
+                {
+                    int minVal = min.intValue;
+                    int maxVal = max.intValue;
+
+                    // 🔒 HARD SAFETY CHECK
+                    if (minVal >= maxVal)
+                    {
+                        EditorGUILayout.HelpBox(
+                            "Min must be less than Max",
+                            MessageType.Warning
+                        );
+                        return;
+                    }
+
+                    value.intValue = Mathf.Clamp(value.intValue, minVal, maxVal);
+
+                    value.intValue = EditorGUILayout.IntSlider(
+                        "Value",
+                        value.intValue,
+                        minVal,
+                        maxVal
+                    );
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(value);
+
+                    if (useMin.boolValue)
+                        value.intValue = Mathf.Max(value.intValue, min.intValue);
+                    if (useMax.boolValue)
+                        value.intValue = Mathf.Min(value.intValue, max.intValue);
+                }
             }
+            catch { }
         }
 
         void DrawFloatValue(SerializedProperty field)
@@ -217,24 +242,50 @@ namespace SHUU._Editor.Drawers
             var min = field.FindPropertyRelative("floatMin");
             var max = field.FindPropertyRelative("floatMax");
 
-            if (useMin.boolValue && useMax.boolValue)
-            {
-                value.floatValue = EditorGUILayout.Slider(
-                    "Value",
-                    value.floatValue,
-                    min.floatValue,
-                    max.floatValue
-                );
-            }
-            else
+            /*if (EditorGUIUtility.editingTextField)
             {
                 EditorGUILayout.PropertyField(value);
+                return;
+            }*/
 
-                if (useMin.boolValue)
-                    value.floatValue = Mathf.Max(value.floatValue, min.floatValue);
-                if (useMax.boolValue)
-                    value.floatValue = Mathf.Min(value.floatValue, max.floatValue);
+            try
+            {
+                if (useMin.boolValue && useMax.boolValue)
+                {
+                    float minVal = min.floatValue;
+                    float maxVal = max.floatValue;
+
+                    // Hard guards
+                    if (float.IsNaN(minVal) || float.IsNaN(maxVal))
+                        return;
+
+                    if (minVal >= maxVal)
+                    {
+                        EditorGUILayout.HelpBox("Min must be less than Max", MessageType.Warning);
+                        return;
+                    }
+
+                    // 🔑 CRITICAL LINE
+                    value.floatValue = Mathf.Clamp(value.floatValue, minVal, maxVal);
+
+                    value.floatValue = EditorGUILayout.Slider(
+                        "Value",
+                        value.floatValue,
+                        minVal,
+                        maxVal
+                    );
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(value);
+
+                    if (useMin.boolValue)
+                        value.floatValue = Mathf.Max(value.floatValue, min.floatValue);
+                    if (useMax.boolValue)
+                        value.floatValue = Mathf.Min(value.floatValue, max.floatValue);
+                }
             }
+            catch { }
         }
 
         // ---------------- MIN / MAX ----------------

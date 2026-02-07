@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.21.1",
+  "version": "2.21.7",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -36,8 +36,13 @@
     },
     {
       "displayName": "Input System Rebinding",
-      "description": "A set of scripts and UI prefabs that make rebinding inputs for the player easy.",
-      "path": "Samples~/CustomInputSystem_Rebinding"
+      "description": "A set of scripts and UI prefabs that make rebinding inputs easy for the player.",
+      "path": "Samples~/SampleInputSystem_Rebinding"
+    },
+    {
+      "displayName": "Settings System Menu",
+      "description": "A set of scripts and UI prefabs that make changing settings easy for the player.",
+      "path": "Samples~/SampleSettingsSystem"
     },
     {
       "displayName": "Simple UIRing Mouse Cursor",

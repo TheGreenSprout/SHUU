@@ -55,5 +55,15 @@ namespace SHUU.Utils.SettingsSytem
             floatMin = other.floatMin;
             floatMax = other.floatMax;
         }
+
+        public Type Type() => type switch
+                            {
+                                SettingType.Bool => typeof(bool),
+                                SettingType.Int => typeof(int),
+                                SettingType.Float => typeof(float),
+                                SettingType.String => typeof(string),
+
+                                _ => null
+                            };
     }
 }

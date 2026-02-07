@@ -25,10 +25,12 @@ namespace SHUU.Utils.Helpers
             Time.timeScale = currentTimeScale;
         }
 
-        public static void TogglePause()
+        public static bool TogglePause()
         {
             if (paused) Resume();
             else Pause();
+
+            return paused;
         }
 
         public static void StepFrame()

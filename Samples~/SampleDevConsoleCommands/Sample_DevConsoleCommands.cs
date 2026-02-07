@@ -5,6 +5,7 @@ using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
 using SHUU.Utils.SettingsSytem;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,10 +14,10 @@ using UnityEngine;
 public class Sample_DevConsoleCommands : MonoBehaviour
 {
     [DevConsoleCommand("help", "Lists all commands", "Information")]
-    public static (string[], Color?) Help()
+    public static CommandReturn Help()
     {
         var cmds = DevCommandRegistry.AllCommands().ToList();
-        if (!cmds.Any()) return (new[] { "No commands registered." }, Color.red);
+        if (!cmds.Any()) return new CommandReturn(Color.red, "No commands registered.");
 
         List<string> tagOrder = DevConsoleManager.instance.tagList;
 
@@ -74,7 +75,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
             }
         }
 
-        return (output.ToArray(), null);
+        return new CommandReturn(output.ToArray());
     }
 
     private static string ParseParameter(Type t)
@@ -110,121 +111,121 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
     [DevConsoleCommand("colliders", "Toggles the visibility of all colliders in the game", "Debug")]
-    public static (string[], Color?) ShowColliders()
+    public static CommandReturn ShowColliders()
     {
         bool? visible = SHUU_Debug.Toggle_DebugColliders();
 
-        if (visible == null) return (new string[] { "Local debug disabled on this scene" }, null);
+        if (visible == null) return new CommandReturn("Local debug disabled on this scene.");
 
 
-        return (new string[] { "Debug collider visibility " + (visible.Value ? "enabled" : "disabled") }, null);
+        return new CommandReturn("Debug collider visibility " + (visible.Value ? "enabled." : "disabled."));
     }
 
     [DevConsoleCommand("screenlogs", "Toggles whether Debug.Logs are displayed on screen.", "Debug")]
-    public static (string[], Color?) ToggleScreenLogs()
+    public static CommandReturn ToggleScreenLogs()
     {
         bool? visible = SHUU_Debug.Toggle_ScreenLogs();
 
-        if (visible == null) return (new string[] { "Something went wrong, missing reference exception" }, null);
+        if (visible == null) return new CommandReturn("Something went wrong, missing reference exception.");
 
 
-        return (new string[] { "Screen logs " + (visible.Value ? "enabled" : "disabled") }, null);
+        return new CommandReturn("Screen logs " + (visible.Value ? "enabled." : "disabled."));
     }
 
 
 
     [DevConsoleCommand("loadscene", "Changes the scene to the specified scene name", "Debug")]
-    public static (string[], Color?) Save(string sceneName)
+    public static CommandReturn Save(string sceneName)
     {
         SHUU_GlobalsProxy.generalManager.GoToScene(sceneName);
 
 
-        return (new string[] { $"Scene changed to {sceneName}" }, null);
+        return new CommandReturn($"Scene changed to {sceneName}");
     }
 
 
 
     [DevConsoleCommand("save", "Saves all data temporarily", "Debug")]
-    public static (string[], Color?) Save()
+    public static CommandReturn Save()
     {
         SHUU_GlobalsProxy.savingSystemManager.SaveSingletonInfo();
 
 
-        return (new string[] { "Data saved successfully" }, null);
+        return new CommandReturn("Data saved successfully");
     }
 
     [DevConsoleCommand("filesave", "Saves all data to json files", "Debug")]
-    public static (string[], Color?) SaveFile()
+    public static CommandReturn SaveFile()
     {
         SHUU_GlobalsProxy.savingSystemManager.SaveSingletonInfoToFile();
 
 
-        return (new string[] { "Data saved to file successfully" }, null);
+        return new CommandReturn("Data saved to file successfully");
     }
 
 
     [DevConsoleCommand("load", "Loads all temporary data", "Debug")]
-    public static (string[], Color?) Load()
+    public static CommandReturn Load()
     {
         SHUU_GlobalsProxy.savingSystemManager.LoadSingletonInfo();
 
 
-        return (new string[] { "Data loaded successfully" }, null);
+        return new CommandReturn("Data loaded successfully");
     }
 
     [DevConsoleCommand("fileload", "Loads all data from json files", "Debug")]
-    public static (string[], Color?) LoadFile()
+    public static CommandReturn LoadFile()
     {
         SHUU_GlobalsProxy.savingSystemManager.LoadSingletonInfoFromFile();
 
 
-        return (new string[] { "Data loaded from file successfully" }, null);
+        return new CommandReturn("Data loaded from file successfully");
     }
 
 
     [DevConsoleCommand("saveprefs", "Saves all player prefs", "Debug")]
-    public static (string[], Color?) SavePlayerPrefs()
+    public static CommandReturn SavePlayerPrefs()
     {
         PlayerPrefs.Save();
 
 
-        return (new string[] { "PlayerPrefs saved successfully" }, null);
+        return new CommandReturn("PlayerPrefs saved successfully");
     }
 
     [DevConsoleCommand("deleteprefs", "Deletes all player prefs", "Debug")]
-    public static (string[], Color?) DeletePlayerPrefs()
+    public static CommandReturn DeletePlayerPrefs()
     {
         PlayerPrefs.DeleteAll();
 
-        return (new string[] { "PlayerPrefs deleted successfully" }, null);
+        return new CommandReturn("PlayerPrefs deleted successfully");
     }
 
 
 
     [DevConsoleCommand("timescale", "Sets the game's timescale to the specified value", "Utilities")]
-    public static (string[], Color?) SetTimeScale(float timeScale)
+    public static CommandReturn SetTimeScale(float timeScale)
     {
         TimeController.SetTimeScale(timeScale);
 
 
-        return (new string[] { $"Timescale set to {timeScale}" }, null);
+        return new CommandReturn($"Timescale set to {timeScale}");
     }
 
     [DevConsoleCommand("pause", "Toggles the game's timescale between paused and unpaused states", "Utilities")]
-    public static (string[], Color?) Pause()
+    public static CommandReturn Pause()
     {
         TimeController.TogglePause();
 
 
-        return (new string[] { "Timescale paused/unpaused (toggle)" }, null);
+        return new CommandReturn("Timescale paused/unpaused (toggle)");
     }
 
 
 
     [DevConsoleCommand("setsettings", "Sets a field on the global settings data", "Utilities")]
-    public static (string[], Color?) TrySetSettingsValue(string settingsDataName, string fieldName, MutableParameter value)
+    public static CommandReturn TrySetSettingsValue(string settingsDataName, string fieldName, MutableParameter value)
     {
-        (string[], Color?) returnVal = (null, null);
+        CommandReturn returnVal = null;
 
 
         if (value.TryGetValue(out bool b)) returnVal = TrySetFieldValue(settingsDataName, fieldName, b);
@@ -232,27 +233,27 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         else if (value.TryGetValue(out float f)) returnVal = TrySetFieldValue(settingsDataName, fieldName, f);
         else if (value.TryGetValue(out string s)) returnVal = TrySetFieldValue(settingsDataName, fieldName, s);
         else if (value.TryGetValue(out char c)) returnVal = TrySetFieldValue(settingsDataName, fieldName, c);
-        else returnVal = (new string[] { "Unsupported value type" }, Color.red);
+        else returnVal = new CommandReturn(Color.red, "Unsupported value type");
 
 
         return returnVal;
     }
 
 
-    public static (string[], Color?) TrySetFieldValue(string name, string fieldName, object value)
+    public static CommandReturn TrySetFieldValue(string name, string fieldName, object value)
     {
         SettingsData target = SettingsTracker.GetSettingsData(name);
 
-        if (!target.SetField(fieldName, value)) return (new string[] { $"Field '{fieldName}' not found on {target.name} or value {value} invalid for such field." }, Color.red);
+        if (!target.SetField(fieldName, value)) return new CommandReturn(Color.red, $"Field '{fieldName}' not found on {target.name} or value {value} invalid for such field.");
 
 
-        return (null, null);
+        return null;
     }
 
 
 
     [DevConsoleCommand("screenshot", "Takes a screenshot", "Utilities")]
-    public static (string[], Color?) Screenshot(OptionalParameter<bool> _showScreenshot, OptionalParameter<string> _prefix, OptionalParameter<string> _customDir)
+    public static CommandReturn Screenshot(OptionalParameter<bool> _showScreenshot, OptionalParameter<string> _prefix, OptionalParameter<string> _customDir)
     {
         if (!_prefix.TryGetValue(out string prefix)) prefix = null;
         if (!_customDir.TryGetValue(out string customDir)) customDir = null;
@@ -262,18 +263,18 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         {
             ScreenCaptureHelper.Capture(prefix, customDir, false, new GameObject[] { DevConsoleManager.instance.gameObject });
 
-            return (new string[] { "Capturing screenshot..." }, null);
+            return new CommandReturn("Capturing screenshot...");
         }
         else
         {
             ScreenCaptureHelper.Capture(prefix, customDir, showScreenshot, new GameObject[] { DevConsoleManager.instance.gameObject });
 
-            return (new string[] { "Capturing screenshot...", "Opening screenshot..." }, null);
+            return new CommandReturn("Capturing screenshot...", "Opening screenshot...");
         }
     }
 
     [DevConsoleCommand("scaleshot", "Takes a scaled screenshot", "Utilities")]
-    public static (string[], Color?) ScaledScreenshot(int scale, OptionalParameter<bool> _showScreenshot, OptionalParameter<string> _prefix, OptionalParameter<string> _customDir)
+    public static CommandReturn ScaledScreenshot(int scale, OptionalParameter<bool> _showScreenshot, OptionalParameter<string> _prefix, OptionalParameter<string> _customDir)
     {
         if (!_prefix.TryGetValue(out string prefix)) prefix = null;
         if (!_customDir.TryGetValue(out string customDir)) customDir = null;
@@ -282,38 +283,38 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         else ScreenCaptureHelper.CaptureScaled(scale, prefix, customDir, showScreenshot, new GameObject[] { DevConsoleManager.instance.gameObject });
 
 
-        return (new string[] { "Capturing scaled screenshot..." }, null);
+        return new CommandReturn("Capturing scaled screenshot...");
     }
 
 
     [DevConsoleCommand("openshot", "Opens the last saved screenshot in the file browser", "Utilities")]
-    public static (string[], Color?) OpenLastShot()
+    public static CommandReturn OpenLastShot()
     {
-        if (string.IsNullOrEmpty(ScreenCaptureHelper.lastPath)) return (new string[] { "No screenshot has been taken yet"}, Color.red);
+        if (string.IsNullOrEmpty(ScreenCaptureHelper.lastPath)) return new CommandReturn(Color.red, "No screenshot has been taken yet");
 
 
         ScreenCaptureHelper.OpenLastScreenshot();
         
 
-        return (new string[] { "Opening last screenshot..." }, null);
+        return new CommandReturn("Opening last screenshot...");
     }
 
 
     [DevConsoleCommand("shotlocation", "Shows the last saved screenshot's file location", "Information")]
-    public static (string[], Color?) LastShotLocation()
+    public static CommandReturn LastShotLocation()
     {
-        if (string.IsNullOrEmpty(ScreenCaptureHelper.lastPath)) return (new string[] { "No screenshot has been taken yet"}, Color.red);
+        if (string.IsNullOrEmpty(ScreenCaptureHelper.lastPath)) return new CommandReturn(Color.red, "No screenshot has been taken yet");
 
 
-        return (new string[] { $"Last screenshot saved at: {ScreenCaptureHelper.lastPath}" }, null);
+        return new CommandReturn($"Last screenshot saved at: {ScreenCaptureHelper.lastPath}");
     }
 
 
 
     [DevConsoleCommand("pools", "Displays all object pool information", "Information")]
-    public static (string[], Color?) ShowPools()
+    public static CommandReturn ShowPools()
     {
-        if (ObjectPooling.pools.Count == 0) return (new string[] { "No object pools found" }, Color.yellow);
+        if (ObjectPooling.pools.Count == 0) return new CommandReturn(Color.yellow, "No object pools found");
 
 
         string[] lines = new string[ObjectPooling.pools.Count + 1];
@@ -327,34 +328,34 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         }
 
 
-        return (lines, null);
+        return new CommandReturn(lines);
     }
 
 
 
     [DevConsoleCommand("bindcommand", "Binds a Dev Console command to a keycode or mouse button", "Classic Input")]
-    public static (string[], Color?) BindCommand(string _input, params string[] commandData)
+    public static CommandReturn BindCommand(string _input, params string[] commandData)
     {
         (KeyCode?, int?, string) input = InputParser.ParseInput(_input);
-        if (input == (null, null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
+        if (input == (null, null, null)) return new CommandReturn(Color.red, $"Invalid input '{_input}'");
 
 
         BoundCommands.BindCommand(input, commandData);
 
 
-        return (new string[] { $"Command bound to {_input} successfully" }, null);
+        return new CommandReturn($"Command bound to {_input} successfully");
     }
 
     [DevConsoleCommand("unbindcommands", "Unbinds all Dev Console commands previously bound to a keycode or mouse button", "Classic Input")]
-    public static (string[], Color?) UnBindCommands(string _input)
+    public static CommandReturn UnBindCommands(string _input)
     {
         (KeyCode?, int?, string) input = InputParser.ParseInput(_input);
-        if (input == (null, null, null)) return (new string[] { $"Invalid input '{_input}'" }, Color.red);
+        if (input == (null, null, null)) return new CommandReturn(Color.red, $"Invalid input '{_input}'");
 
 
         BoundCommands.UnBindCommands(input);
 
 
-        return (new string[] { $"All commands unbound from {_input} successfully" }, null);
+        return new CommandReturn($"All commands unbound from {_input} successfully");
     }
 }

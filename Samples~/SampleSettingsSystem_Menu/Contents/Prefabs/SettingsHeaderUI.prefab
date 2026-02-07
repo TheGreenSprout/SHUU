@@ -82,9 +82,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 540210483562527807}
-  - component: {fileID: 4878065231827884901}
+  - component: {fileID: -1310171885314741785}
   m_Layer: 5
-  m_Name: MapHeaderUI
+  m_Name: SettingsHeaderUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -111,7 +111,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -16.8017}
   m_SizeDelta: {x: 903.5, y: 113.466}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &4878065231827884901
+--- !u!114 &-1310171885314741785
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3044446382261997453}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4540f6a035d44b4b8ad8d6c12f2ce1f, type: 3}
+  m_Script: {fileID: 11500000, guid: 84e63aeb58245bf44bee80d3515d47aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   label: {fileID: 2680045989303061910}
@@ -160,8 +160,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -119, y: 17.227646}
-  m_SizeDelta: {x: 196.53271, y: 34.4553}
+  m_AnchoredPosition: {x: -127.85443, y: 17.227646}
+  m_SizeDelta: {x: 214.2416, y: 34.4553}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5333333562002487260
 CanvasRenderer:
@@ -245,8 +245,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4878065231827884901}
-        m_TargetAssemblyTypeName: InputRebinding_MapHeader, Assembly-CSharp
+      - m_Target: {fileID: -1310171885314741785}
+        m_TargetAssemblyTypeName: SettingsMenu_Header, Assembly-CSharp
         m_MethodName: ResetToDefault
         m_Mode: 1
         m_Arguments:
@@ -458,7 +458,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Reset to Default
+  m_text: Restore Defaults
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

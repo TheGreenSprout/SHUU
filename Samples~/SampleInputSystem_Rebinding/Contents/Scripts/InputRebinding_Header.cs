@@ -17,11 +17,11 @@ public class InputRebinding_Header : MonoBehaviour
     {
         this.map = map;
 
-        label.text = map.name;
+        label.text = map.mapName;
     }
 
     public void Init(string name) => label.text = name;
 
 
-    public void ResetToDefault() => map?.ResetToDefault();
+    public void ResetToDefault() => map?.RestoreDefaults();
 }

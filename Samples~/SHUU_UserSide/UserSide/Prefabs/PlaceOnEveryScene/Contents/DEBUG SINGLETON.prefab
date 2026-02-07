@@ -63,7 +63,7 @@ GameObject:
   - component: {fileID: 8355383053517965814}
   - component: {fileID: 6303701480847540382}
   - component: {fileID: 513663772477953327}
-  - component: {fileID: 7277522279783697604}
+  - component: {fileID: 7066465111927383874}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -110,7 +110,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f3c0a146f79b3945876e82a39900ce3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugColliders: 0
 --- !u!114 &513663772477953327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,28 +125,29 @@ MonoBehaviour:
   listenForDebugLog: 0
   defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
   logMessagePrefab: {fileID: 6211499101935233359, guid: 02ab36f51432d49479bf67c75b9dd88d, type: 3}
-  content: {fileID: 0}
---- !u!114 &7277522279783697604
+--- !u!114 &7066465111927383874
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6373702377639606796}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 563f00a97ccdf1842b1d847c35311953, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}
-  toggleKey: 282
-  triggerToneMultiplier: 0.75
-  wireThickness: 2
-  defaultFillColor: {r: 0, g: 1, b: 0, a: 0.15}
-  defaultWireColor: {r: 0, g: 1, b: 0, a: 0.55}
-  excludedLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  excludedTags: []
+  colliderVisualizerEnabled: 0
+  beginEnabled: 0
+  matShader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}
+  alwaysRenderWire: 0
+  alwaysRenderFill: 0
+  updateCollidersInterval: 5
+  updateCacheInterval: 0.15
+  maxDistance: 80
+  defaultWireColor: {r: 0, g: 1, b: 0, a: 0.34901962}
+  defaultFillColor: {r: 0, g: 1, b: 0, a: 0.078431375}
+  triggerAlphaMultiplier: 0.6
+  disabledAlphaMultiplier: 0.3
   layerWireColors: []
   tagFillColors: []

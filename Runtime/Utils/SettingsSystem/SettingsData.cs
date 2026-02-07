@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Helpers;
 using UnityEngine;
@@ -41,6 +42,22 @@ namespace SHUU.Utils.SettingsSytem
         }
         #endregion
 
+
+
+        #region Retrieval
+        public Type GetSettingFieldType(string key)
+        {
+            SettingField field = GetSettingField(key);
+
+            if (field == null) return null;
+
+
+            return field.Type();
+        }
+
+
+        public SettingField GetSettingField(string key) => fields.First(x => x.key == key);
+        #endregion
 
 
         #region Getters

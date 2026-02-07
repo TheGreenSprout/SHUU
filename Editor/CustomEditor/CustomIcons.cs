@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using SHUU.Utils.BaseScripts.ScriptableObjs.Audio;
 using SHUU.Utils.InputSystem;
+using SHUU.Utils.RandomSystem;
 using SHUU.Utils.SettingsSytem;
 using UnityEditor;
 using UnityEngine;
@@ -22,6 +23,8 @@ namespace SHUU._Editor._CustomEditor
 
             SetIcon<SfxStorage>("SfxStorage_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/SfxStorage_Icon.png");
             SetIcon<MusicStorage>("MusicStorage_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/MusicStorage_Icon.png");
+
+            SetIcon<RandomProvider_Asset>("RandomProvider_Icon", "Packages/com.sproutinggames.sprouts.huu/Editor/Resources/RandomProvider_Icon.png");
 
 
             EditorApplication.delayCall += EditorApplication.RepaintProjectWindow;

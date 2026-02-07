@@ -614,6 +614,9 @@ namespace SHUU.Utils.Helpers
         {
             return Mathf.RoundToInt(Mathf.Log(mask.value, 2));
         }
+
+
+        public static bool LayerMask_Contains(this LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
         #endregion
 
 

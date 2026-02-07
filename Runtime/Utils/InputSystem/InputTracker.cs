@@ -36,7 +36,16 @@ namespace SHUU.Utils.InputSystem
             BuildDictionary();
         }
 
-        private void OnApplicationQuit() => SaveAll();
+        private void OnDestroy()
+        {
+            foreach (var map in mapsToSave)
+            {
+                map.OnDisable();
+            }
+
+
+            SaveAll();
+        }
 
 
         private void Update()

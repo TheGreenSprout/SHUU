@@ -1,3 +1,11 @@
+/*
+⚠️‼️ AI ASSISTED CODE
+
+This code was written with the assistance of AI.
+*/
+
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,136 +14,6 @@ using UnityEngine;
 
 namespace SHUU.Utils.Developer.Console
 {
-    #region Custom Parameter Classes
-    public class OptionalParameter<T>
-    {
-        private bool hasValue = false;
-        
-        private T value = default;
-
-
-        public OptionalParameter()
-        {
-            hasValue = false;
-
-            value = default;
-        }
-        public OptionalParameter(T val)
-        {
-            hasValue = true;
-
-            value = val;
-        }
-
-        public bool TryGetValue(out T outValue)
-        {
-            outValue = value;
-
-            return hasValue;
-        }
-    }
-
-
-    public class MutableParameter
-    {
-        private enum ValueType
-        {
-            Null,
-            Bool,
-            Int,
-            Float,
-            String,
-            Char
-        }
-        private ValueType valueType = ValueType.Null;
-        
-        public bool? boolValue = null;
-        private int? intValue = null;
-        private float? floatValue = null;
-        private string stringValue = null;
-        private char? charValue = null;
-        
-
-        public MutableParameter(bool val)
-        {
-            valueType = ValueType.Bool;
-
-            boolValue = val;
-        }
-        public MutableParameter(int val)
-        {
-            valueType = ValueType.Int;
-
-            intValue = val;
-        }
-        public MutableParameter(float val)
-        {
-            valueType = ValueType.Float;
-
-            floatValue = val;
-        }
-        public MutableParameter(string val)
-        {
-            valueType = ValueType.String;
-
-            stringValue = val;
-        }
-        public MutableParameter(char val)
-        {
-            valueType = ValueType.Char;
-
-            charValue = val;
-        }
-
-
-        public bool TryGetValue<T>(out T value)
-        {
-            value = default;
-
-            switch (valueType)
-            {
-                case ValueType.Bool when typeof(T) == typeof(bool):
-                    value = (T)(object)boolValue;
-                    return true;
-
-                case ValueType.Int when typeof(T) == typeof(int):
-                    value = (T)(object)intValue;
-                    return true;
-
-                case ValueType.Float when typeof(T) == typeof(float):
-                    value = (T)(object)floatValue;
-                    return true;
-
-                case ValueType.String when typeof(T) == typeof(string):
-                    value = (T)(object)stringValue;
-                    return true;
-
-                case ValueType.Char when typeof(T) == typeof(char):
-                    value = (T)(object)charValue;
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-
-        public Type GetStoredType()
-        {
-            return valueType switch
-            {
-                ValueType.Bool => typeof(bool),
-                ValueType.Int => typeof(int),
-                ValueType.Float => typeof(float),
-                ValueType.String => typeof(string),
-                ValueType.Char => typeof(char),
-                _ => null
-            };
-        }
-    }
-    #endregion
-
-
-
     [RequireComponent(typeof(DevConsoleInput))]
     public class DevConsoleManager : MonoBehaviour
     {
@@ -236,10 +114,8 @@ namespace SHUU.Utils.Developer.Console
                     }
 
                     var result = info.Method.Invoke(null, parsedArgs);
-                    if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null)
-                    {
-                        PrintDelegate(tuple.Item1, tuple.Item2);
-                    }
+                    if (result is CommandReturn ret && ret.output != null) PrintDelegate(ret.output, ret.color);
+                    else if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null) PrintDelegate(tuple.Item1, tuple.Item2);
                 }
                 catch (Exception ex)
                 {
@@ -263,44 +139,41 @@ namespace SHUU.Utils.Developer.Console
         private void ParseParameter(int i, ParameterInfo[] parameters, string[] args, ref object[] parsedArgs)
         {
             ParameterInfo p = parameters[i];
+            Type paramType = p.ParameterType;
 
-            bool isOptionalParam = p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(OptionalParameter<>);
-            bool isMutableParam = p.ParameterType == typeof(MutableParameter);
+            bool isOptionalParam = paramType.IsGenericType && paramType.GetGenericTypeDefinition() == typeof(OptionalParameter<>);
+            bool isMutableParam = paramType == typeof(MutableParameter);
 
+            // No argument provided
             if (i >= args.Length)
             {
-                // No argument provided at all
                 if (isOptionalParam)
                 {
-                    parsedArgs[i] = Activator.CreateInstance(p.ParameterType); // empty OptionalParameter<T>
-                }
-                else
-                {
-                    throw new Exception($"Missing required argument {p.Name}");
+                    parsedArgs[i] = Activator.CreateInstance(paramType);
+                    return;
                 }
 
-                return;
+                throw new Exception($"Missing required argument {p.Name}");
             }
-
 
             string raw = args[i];
 
+            // Optional<T>
             if (isOptionalParam)
             {
                 ParseOptional(i, p, ref parsedArgs, raw);
-
                 return;
             }
 
+            // MutableParameter
             if (isMutableParam)
             {
                 ParseMutable(i, p, ref parsedArgs, raw);
-
                 return;
             }
 
-
-            parsedArgs[i] = Convert.ChangeType(args[i], parameters[i].ParameterType);
+            // Primitive fallback
+            parsedArgs[i] = Convert.ChangeType(raw, paramType);
         }
 
 
@@ -364,10 +237,9 @@ namespace SHUU.Utils.Developer.Console
         }
 
 
-
         public void PrintDelegate(string message, Color? textColor = null)
         {
-            instance.devConsoleUI.Print(message, textColor);
+            if (!string.IsNullOrEmpty(message)) instance.devConsoleUI.Print(message, textColor);
         }
         public void PrintDelegate(string[] message, Color? textColor = null)
         {
