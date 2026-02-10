@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using SHUU.Utils.SceneManagement;
 using SHUU.UserSide.Commons;
 using System.Linq;
+using SHUU.Utils.Helpers;
 
 namespace SHUU.Utils.PersistantInfo.SavingLoading
 {
@@ -21,18 +22,22 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
         [SerializeField] private string customSaveFilesPath = null;
         [Tooltip("If null or empty, the path will be Application.persistentDataPath")]
         [SerializeField] private string customSaveFilesFolder = "/Saves";
+        [SerializeField] private string customBackupFilesFolder = "/Backups";
 
 
 
-        public List<string> saveFiles;
+        [SerializeField] private List<string> saveFiles;
+
+        [SerializeField] private int backupFilesAmmount = 5;
+        private List<LoopingQueue<string>> backupFiles;
 
 
         [SerializeField] private bool autoSaveWhenClosing;
 
 
 
-        private static int _currentSaveFileIndex = 0;
-        public static int currentSaveFileIndex
+        private int _currentSaveFileIndex = 0;
+        public int currentSaveFileIndex
         {
             get => _currentSaveFileIndex;
 
@@ -53,11 +58,13 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
             if (string.IsNullOrEmpty(customSaveFilesPath)) customSaveFilesPath = Application.persistentDataPath;
             else customSaveFilesPath = Path.Combine(Application.persistentDataPath);
 
-            customSaveFilesPath += customSaveFilesFolder;
 
+            customSaveFilesPath += customSaveFilesFolder;
 
             Directory.CreateDirectory(customSaveFilesPath);
 
+
+            HandleBackupsInit();
 
 
             for (int i = 0; i < saveFiles.Count; i++)
@@ -66,10 +73,34 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
             }
             
             
-            
             Persistant_Globals.saveFilesManager = this;
         }
 
+        private void HandleBackupsInit()
+        {
+            string root = customSaveFilesPath + customBackupFilesFolder;
+            Directory.CreateDirectory(root);
+
+
+            backupFiles = new();
+
+            foreach (var save in saveFiles)
+            {
+                string directory = root + save;
+                Directory.CreateDirectory(directory);
+
+
+                LoopingQueue<string> backups = new();
+
+                for (int i = 1; i <= backupFilesAmmount; i++)
+                {
+                    backups.Enqueue(directory + "/Backup" + i + ".json");
+                }
+
+
+                backupFiles.Add(backups);
+            }
+        }
 
 
         void OnApplicationQuit()
@@ -89,21 +120,12 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
         /// <param name="-1">Index of the save file to load info from.</param>
         /// <returns>Returns whether the loading of info was successful.</returns>
         #endregion
-        public bool LoadJsonInfo(int loadIndex = -1)
+        public bool LoadJsonInfo(int fileIndex = -1)
         {
-            if (loadIndex < 0)
-            {
-                loadIndex = currentSaveFileIndex;
-            }
-            else
-            {
-                currentSaveFileIndex = loadIndex;
-            }
+            if (fileIndex < 0 || !saveFiles.IndexIsValid(fileIndex)) fileIndex = currentSaveFileIndex;
+            else currentSaveFileIndex = fileIndex;
             
-            if (!File.Exists(saveFiles[loadIndex]))
-            {
-                return false;
-            }
+            if (!File.Exists(saveFiles[fileIndex])) return false;
 
 
 
@@ -115,7 +137,7 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
                 TypeNameHandling = TypeNameHandling.Auto,
             };
 
-            string json = File.ReadAllText(saveFiles[loadIndex]);
+            string json = File.ReadAllText(saveFiles[fileIndex]);
             //MasterDTO masterDTO = JsonUtility.FromJson<MasterDTO>(json);
             MasterDTO masterDTO = JsonConvert.DeserializeObject<MasterDTO>(json, settings);
 
@@ -141,27 +163,21 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
         /// </summary>
         /// <param name="-1">Index of the save file to save info to.</param>
         #endregion
-        public void SaveJsonInfo(int saveIndex = -1)
+        public void SaveJsonInfo(int fileIndex = -1)
         {
-            if (saveIndex < 0)
-            {
-                saveIndex = currentSaveFileIndex;
-            }
-            else
-            {
-                currentSaveFileIndex = saveIndex;
-            }
+            if (fileIndex < 0 || !saveFiles.IndexIsValid(fileIndex)) fileIndex = currentSaveFileIndex;
+            else currentSaveFileIndex = fileIndex;
             
             
 
             MasterDTO masterDTO = new MasterDTO();
 
 
-            SavingPersistance savingPersistance = GetComponent<SavingPersistance>();
-            savingPersistance.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());
+            /*SavingPersistance savingPersistance = GetComponent<SavingPersistance>();
+            savingPersistance.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());*/
             
             
-            // Get (and save) all your DTO sinletons.
+            // Get (and save) all your DTO singletons.
             foreach (SavingInfo singleton in gameObject.GetComponents<SavingInfo>())
             {
                 if (masterDTO.dataDictionary.ContainsKey(singleton.identifier)) masterDTO.dataDictionary.Remove(singleton.identifier);
@@ -182,7 +198,7 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
 
             //string json = JsonUtility.ToJson(masterDTO, prettyPrint: true);
             string json = JsonConvert.SerializeObject(masterDTO, settings);
-            File.WriteAllText(saveFiles[saveIndex], json);
+            File.WriteAllText(saveFiles[fileIndex], json);
         }
 
 
@@ -193,15 +209,9 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
         /// </summary>
         /// <param name="-1">Index of the save file to delete the info of.</param>
         #endregion
-        public void DeleteSave(int fileIndex = -1){
-            if (fileIndex < 0)
-            {
-                fileIndex = currentSaveFileIndex;
-            }
-            else
-            {
-                currentSaveFileIndex = fileIndex;
-            }
+        public void DeleteSave(int fileIndex = -1)
+        {
+            if (fileIndex < 0 || !saveFiles.IndexIsValid(fileIndex)) fileIndex = currentSaveFileIndex;
 
 
 
@@ -223,6 +233,60 @@ namespace SHUU.Utils.PersistantInfo.SavingLoading
             {
                 Debug.LogWarning($"Save file not found (no need to delete): {fullPath}");
             }
+        }
+
+
+
+        public string Backup(int fileIndex = -1)
+        {
+            if (fileIndex < 0 || !backupFiles.IndexIsValid(fileIndex)) fileIndex = currentSaveFileIndex;
+
+            if (!File.Exists(saveFiles[fileIndex])) return null;
+
+
+            string address = backupFiles[fileIndex].Dequeue();
+            File.WriteAllText(address, File.ReadAllText(saveFiles[fileIndex]));
+
+            return address;
+        }
+
+
+        public void RestoreLatestBackup(int fileIndex = -1)
+        {
+            if (fileIndex < 0 || !backupFiles.IndexIsValid(fileIndex)) fileIndex = currentSaveFileIndex;
+
+            if (!File.Exists(backupFiles[fileIndex].PeekLast())) return;
+
+
+            File.WriteAllText(saveFiles[fileIndex], File.ReadAllText(backupFiles[fileIndex].PeekLast()));
+        }
+
+        public void RestoreBackup(string address, int fileIndex = -1)
+        {
+            if (fileIndex < 0 || !backupFiles.IndexIsValid(fileIndex)) fileIndex = currentSaveFileIndex;
+
+            if (string.IsNullOrEmpty(address) || !File.Exists(address)) return;
+
+
+            File.WriteAllText(saveFiles[fileIndex], File.ReadAllText(address));
+        }
+
+
+        public void DeleteBackups(int fileIndex = -1)
+        {
+            if (fileIndex < 0 || !backupFiles.IndexIsValid(fileIndex)) fileIndex = currentSaveFileIndex;
+
+
+            bool loop = true;
+            string backup = backupFiles[fileIndex].Dequeue();
+            string compare = backup;
+            while (loop)
+            {
+                if (File.Exists(backup)) File.WriteAllText(backup, "");
+
+                backup = backupFiles[fileIndex].Dequeue();
+                if (backup.Equals(compare)) loop = false;
+            }            
         }
     }
 

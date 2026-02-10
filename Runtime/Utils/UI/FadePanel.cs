@@ -17,7 +17,7 @@ namespace SHUU.Utils.UI
 
 
 
-        private FadeManager.FadeOptions fadeOptions;
+        private FadeOptions fadeOptions;
 
 
 
@@ -31,7 +31,7 @@ namespace SHUU.Utils.UI
 
 
 
-        public void NewFade(FadeManager.FadeOptions _fadeOptions)
+        public void NewFade(FadeOptions _fadeOptions)
         {
             if (currentFadeCoroutine != null)
             {
@@ -56,7 +56,7 @@ namespace SHUU.Utils.UI
             EnableSelf();
 
 
-            SHUU_GlobalsProxy.timerManager.Create(fadeOptions.start_delay, StartFade);
+            SHUU_Time.Create(fadeOptions.start_delay, StartFade);
         }
 
         public void StartFade()
@@ -91,7 +91,7 @@ namespace SHUU.Utils.UI
                 fadeImage.enabled = false;
 
 
-            SHUU_GlobalsProxy.timerManager.Create(onComplete_delay, onComplete);
+            SHUU_Time.Create(onComplete_delay, onComplete);
         }
     }
     

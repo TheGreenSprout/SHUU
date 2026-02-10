@@ -24,6 +24,9 @@ namespace SHUU.Utils
         }
 
 
+        protected bool beingHovered = false;
+
+
 
 
         protected virtual void Awake()
@@ -69,6 +72,8 @@ namespace SHUU.Utils
         {
             DynamicCursorInteraction.AddCursorAffector(this.gameObject);
 
+            beingHovered = true;
+
             HoverStartLogic();
         }
         protected virtual void HoverStartLogic() { }
@@ -81,6 +86,8 @@ namespace SHUU.Utils
         public void HoverEnd()
         {
             DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
+
+            beingHovered = false;
 
             HoverEndLogic();
         }

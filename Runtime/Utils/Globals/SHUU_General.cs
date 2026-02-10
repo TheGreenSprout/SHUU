@@ -1,12 +1,8 @@
 using UnityEngine;
-using System;
 using SHUU.Utils.SceneManagement;
-using SHUU.Utils.PersistantInfo;
 using SHUU.Utils.UI;
-using SHUU.Utils.Helpers;
 using System.Collections.Generic;
 //using SHUU.Utils.UI.Dialogue;
-using System.Collections;
 
 namespace SHUU.Utils.Globals
 {
@@ -16,8 +12,12 @@ namespace SHUU.Utils.Globals
     /// Script holding some static variables used by the package, must be in all scenes.
     /// </summary>
     #endregion
-    public class GeneralManager : MonoBehaviour
+    public class SHUU_General : MonoBehaviour
     {
+        private static SHUU_General instance;
+
+
+
         [Header("Dialogue Settings")]
         [SerializeField] private List<GameObject> dialogueBox_PrefabList = new List<GameObject>();
 
@@ -43,7 +43,7 @@ namespace SHUU.Utils.Globals
 
         private void Awake()
         {
-            SHUU_GlobalsProxy.generalManager = this;
+            instance = this;
 
 
 
@@ -55,10 +55,7 @@ namespace SHUU.Utils.Globals
         
         private void Start()
         {
-            if (fadeInAtSceneRoomEnter)
-            {
-                SHUU_GlobalsProxy.fadeManager.CreateFade_In(new FadeManager.FadeOptions { duration = enterFadeIn_duration, start_delay = enterFadeIn_buffer });
-            }
+            if (fadeInAtSceneRoomEnter) SHUU_Fades.CreateFade_In(new FadeOptions { duration = enterFadeIn_duration, start_delay = enterFadeIn_buffer });
         }
 
 
@@ -69,14 +66,15 @@ namespace SHUU.Utils.Globals
         /// <param name="sceneName">Name of the scene to go to.</param>
         /// <param name="fade">Whether to fade in when leaving the scene. If null, uses the default setting.</param>
         #endregion
-        public void GoToScene(string sceneName, bool? fade = null)
+        public static void GoToScene(string sceneName, bool? fade = null) => instance._GoToScene(sceneName, fade);
+        private void _GoToScene(string sceneName, bool? fade = null)
         {
             if (fade == null) fade = fadeInAtSceneRoomLeave;
 
 
             if (fade.Value)
             {
-                FadeManager.FadeOptions fadeOptions = new FadeManager.FadeOptions
+                FadeOptions fadeOptions = new FadeOptions
                 {
                     duration = exitFadeIn_duration,
                     end_delay = exitFadeInBuffer,
@@ -87,7 +85,7 @@ namespace SHUU.Utils.Globals
                     clearOnEnd = false
                 };
 
-                SHUU_GlobalsProxy.fadeManager.CreateFade_Out(fadeOptions);
+                SHUU_Fades.CreateFade_Out(fadeOptions);
             }
             else
             {
@@ -95,10 +93,10 @@ namespace SHUU.Utils.Globals
             }
 
 
-            SHUU_GlobalsProxy.savingSystemManager.OnRoomChange();
+            SHUU_Saving.OnRoomChange();
         }
 
-        public void ReloadScene(bool? fade = null)
+        public static void ReloadScene(bool? fade = null)
         {
             GoToScene(SceneLoader.GetCurrentSceneName(), fade);
         }

@@ -7,48 +7,50 @@ using SHUU.Utils.Helpers;
 using System.Linq;
 using SHUU.Utils.SettingsSytem;
 
-//! Add object pooling option?
-
 namespace SHUU.Utils.Globals
 {
+
+    #region Options
+    public class SFX_Options
+    {
+        public int? priority { get; set; } = null;
+
+        public float? volume { get; set; } = null;
+        public float? pitch { get; set; } = null;
+        public float? stereoPan { get; set; } = null;
+        public float? spatialBlend { get; set; } = null;
+        public float? reverbZoneMix { get; set; } = null;
+
+        public bool? playOnAwake { get; set; } = null;
+        public bool? loop { get; set; } = null;
+        public bool deleteWhenFinished { get; set; } = true;
+
+        public GameObject prefab = null;
+        public AudioMixerGroup mixer = null;
+    }
+
+
+    public class Music_Options
+    {
+        public SFX_Options audioOptions = null;
+
+
+        public bool sectionLooping = false;
+
+        public bool startAtSection = false;
+    }
+    #endregion
+
+    
 
     #region XML doc
     /// <summary>
     /// Manages multiple audio-related functions.
     /// </summary>
     #endregion
-    public class AudioManager : MonoBehaviour
+    public class SHUU_Audio : MonoBehaviour
     {
-        #region Options
-        public class SFX_Options
-        {
-            public int? priority { get; set; } = null;
-
-            public float? volume { get; set; } = null;
-            public float? pitch { get; set; } = null;
-            public float? stereoPan { get; set; } = null;
-            public float? spatialBlend { get; set; } = null;
-            public float? reverbZoneMix { get; set; } = null;
-
-            public bool? playOnAwake { get; set; } = null;
-            public bool? loop { get; set; } = null;
-            public bool deleteWhenFinished { get; set; } = true;
-
-            public GameObject prefab = null;
-            public AudioMixerGroup mixer = null;
-        }
-
-
-        public class Music_Options
-        {
-            public SFX_Options audioOptions = null;
-
-
-            public bool sectionLooping = false;
-
-            public bool startAtSection = false;
-        }
-        #endregion
+        private static SHUU_Audio instance;
 
 
 
@@ -100,11 +102,14 @@ namespace SHUU.Utils.Globals
         #region Init
         private void Awake()
         {
-            SHUU_GlobalsProxy.audioManager = this;
+            instance = this;
 
 
-            settingsData.OnSettingsChanged += SettingsUpdate;
-            SettingsUpdate(null);
+            if (settingsData != null)
+            {
+                settingsData.OnSettingsChanged += SettingsUpdate;
+                SettingsUpdate(null);
+            }
 
 
             if (sfxObjectPool_initialSize == 0) sfxSystem = new Basic_AudioSystem(audioInstance, false);
@@ -114,12 +119,15 @@ namespace SHUU.Utils.Globals
             else musicSystem = new ObjectPool_AudioSystem(audioInstance, true, musicObjectPool_initialSize, musicPoolObjects_parent);
         }
 
-        private void OnDestroy() => settingsData.OnSettingsChanged -= SettingsUpdate;
+        private void OnDestroy()
+        {
+            if (settingsData != null) settingsData.OnSettingsChanged -= SettingsUpdate;
+        }
 
 
         private void SettingsUpdate(string field)
         {
-            if (field != null && field != masterAudio_fieldName && field != sfxAudio_fieldName && field != musicAudio_fieldName) return;
+            if (settingsData == null || field != null && field != masterAudio_fieldName && field != sfxAudio_fieldName && field != musicAudio_fieldName) return;
 
 
             float masterVolume = settingsData.GetFloat(masterAudio_fieldName);
@@ -148,10 +156,11 @@ namespace SHUU.Utils.Globals
 
         #region Manage SFX
 
-        public AudioSource PlaySfxAt(Transform pos, string audio, SFX_Options audioOptions = null){
+        public static AudioSource PlaySfxAt(Transform pos, string audio, SFX_Options audioOptions = null) => instance._PlaySfxAt(pos, audio, audioOptions);
+        private AudioSource _PlaySfxAt(Transform pos, string audio, SFX_Options audioOptions = null){
             if (sfxStorage == null) return null;
 
-            return PlaySfxAt(pos, sfxStorage.GetAudio(audio), audioOptions);
+            return _PlaySfxAt(pos, sfxStorage.GetAudio(audio), audioOptions);
         }
         #region XML doc
         /// <summary>
@@ -161,7 +170,8 @@ namespace SHUU.Utils.Globals
         /// <param name="audio">The audio to play.</param>
         /// <param name="volume">The volume the audio will play at.</param>
         #endregion
-        public AudioSource PlaySfxAt(Transform pos, AudioClip audio, SFX_Options audioOptions = null){
+        public static AudioSource PlaySfxAt(Transform pos, AudioClip audio, SFX_Options audioOptions = null) => instance._PlaySfxAt(pos, audio, audioOptions);
+        private AudioSource _PlaySfxAt(Transform pos, AudioClip audio, SFX_Options audioOptions = null){
             if (audio == null)
             {
                 Debug.LogError("Null AudioClip!");
@@ -215,8 +225,9 @@ namespace SHUU.Utils.Globals
             return theSource;
         }
         
-        public void PlayRandomSfxAt(Transform pos, string[] audio, SFX_Options audioOptions = null){
-            if (sfxStorage == null) return;
+        public static AudioSource PlayRandomSfxAt(Transform pos, string[] audio, SFX_Options audioOptions = null) => instance._PlayRandomSfxAt(pos, audio, audioOptions);
+        private AudioSource _PlayRandomSfxAt(Transform pos, string[] audio, SFX_Options audioOptions = null){
+            if (sfxStorage == null) return null;
 
             List<AudioClip> audioList = new();
 
@@ -225,7 +236,7 @@ namespace SHUU.Utils.Globals
                 audioList.Add(sfxStorage.GetAudio(clip));
             }
 
-            PlayRandomSfxAt(pos, audioList, audioOptions);
+            return _PlayRandomSfxAt(pos, audioList, audioOptions);
         }
         #region XML doc
         /// <summary>
@@ -235,14 +246,15 @@ namespace SHUU.Utils.Globals
         /// <param name="audioList">The list of audios to pick from.</param>
         /// <param name="volume">The volume the audio will play at.</param>
         #endregion
-        public void PlayRandomSfxAt(Transform pos, List<AudioClip> audioList, SFX_Options audioOptions = null)
+        public static AudioSource PlayRandomSfxAt(Transform pos, List<AudioClip> audioList, SFX_Options audioOptions = null) => instance._PlayRandomSfxAt(pos, audioList, audioOptions);
+        private AudioSource _PlayRandomSfxAt(Transform pos, List<AudioClip> audioList, SFX_Options audioOptions = null)
         {
-            if (audioList == null || audioList.Count == 0) return;
+            if (audioList == null || audioList.Count == 0) return null;
 
 
             int voiceline = Random.Range(0, audioList.Count);
 
-            PlaySfxAt(pos, audioList[voiceline], audioOptions);
+            return _PlaySfxAt(pos, audioList[voiceline], audioOptions);
         }
         
         #endregion
@@ -251,7 +263,8 @@ namespace SHUU.Utils.Globals
 
         #region Manage Music
 
-        public AudioSource PlayMusicAt(Transform pos, string audio, Music_Options musicOptions = null){
+        public static AudioSource PlayMusicAt(Transform pos, string audio, Music_Options musicOptions = null) => instance._PlayMusicAt(pos, audio, musicOptions);
+        private AudioSource _PlayMusicAt(Transform pos, string audio, Music_Options musicOptions = null){
             if (sfxStorage == null) return null;
 
             return PlayMusicAt(pos, musicStorage.GetAudio(audio), musicOptions);
@@ -264,7 +277,8 @@ namespace SHUU.Utils.Globals
         /// <param name="audio">The audio to play.</param>
         /// <param name="volume">The volume the audio will play at.</param>
         #endregion
-        public AudioSource PlayMusicAt(Transform pos, Music_Set set, Music_Options musicOptions = null){
+        public static AudioSource PlayMusicAt(Transform pos, Music_Set set, Music_Options musicOptions = null) => instance._PlayMusicAt(pos, set, musicOptions);
+        private AudioSource _PlayMusicAt(Transform pos, Music_Set set, Music_Options musicOptions = null){
             if (set == null || set.music == null)
             {
                 Debug.LogError("Null set or AudioClip!");
@@ -319,8 +333,9 @@ namespace SHUU.Utils.Globals
             return theSource;
         }
         
-        public void PlayRandomMusicAt(Transform pos, string[] audio, Music_Options audioOptions = null){
-            if (sfxStorage == null) return;
+        public static AudioSource PlayRandomMusicAt(Transform pos, string[] audio, Music_Options musicOptions = null) => instance._PlayRandomMusicAt(pos, audio, musicOptions);
+        private AudioSource _PlayRandomMusicAt(Transform pos, string[] audio, Music_Options audioOptions = null){
+            if (sfxStorage == null) return null;
 
             List<Music_Set> audioList = new();
 
@@ -329,7 +344,7 @@ namespace SHUU.Utils.Globals
                 audioList.Add(musicStorage.GetAudio(clip));
             }
 
-            PlayRandomMusicAt(pos, audioList, audioOptions);
+            return PlayRandomMusicAt(pos, audioList, audioOptions);
         }
         #region XML doc
         /// <summary>
@@ -339,14 +354,15 @@ namespace SHUU.Utils.Globals
         /// <param name="audioList">The list of audios to pick from.</param>
         /// <param name="volume">The volume the audio will play at.</param>
         #endregion
-        public void PlayRandomMusicAt(Transform pos, List<Music_Set> setList, Music_Options audioOptions = null)
+        public static AudioSource PlayRandomMusicAt(Transform pos, List<Music_Set> setList, Music_Options musicOptions = null) => instance._PlayRandomMusicAt(pos, setList, musicOptions);
+        private AudioSource _PlayRandomMusicAt(Transform pos, List<Music_Set> setList, Music_Options audioOptions = null)
         {
-            if (setList == null || setList.Count == 0) return;
+            if (setList == null || setList.Count == 0) return null;
 
 
             int voiceline = Random.Range(0, setList.Count);
 
-            PlayMusicAt(pos, setList[voiceline], audioOptions);
+            return PlayMusicAt(pos, setList[voiceline], audioOptions);
         }
         
         #endregion
@@ -361,21 +377,21 @@ namespace SHUU.Utils.Globals
         /// </summary>
         /// <returns>All audios currently playing as an int.</returns>
         #endregion
-        public AudioSource[] GetAllAudio() => GetAllSFX().Concat(GetAllMusic()).ToArray();
+        public static AudioSource[] GetAllAudio() => GetAllSFX().Concat(GetAllMusic()).ToArray();
         #region XML doc
         /// <summary>
         /// Gets all sfx audios currently playing in the game.
         /// </summary>
         /// <returns>All sfx audios currently playing as an int.</returns>
         #endregion
-        public AudioSource[] GetAllSFX() => sfxSystem.GetAllAudio();
+        public static AudioSource[] GetAllSFX() => instance.sfxSystem.GetAllAudio();
         #region XML doc
         /// <summary>
         /// Gets all music audios currently playing in the game.
         /// </summary>
         /// <returns>All music audios currently playing as an int.</returns>
         #endregion
-        public AudioSource[] GetAllMusic() => musicSystem.GetAllAudio();
+        public static AudioSource[] GetAllMusic() => instance.musicSystem.GetAllAudio();
 
         #region XML doc
         /// <summary>
@@ -383,21 +399,21 @@ namespace SHUU.Utils.Globals
         /// </summary>
         /// <returns>The the ammount of audios currently playing as an int.</returns>
         #endregion
-        public int GetAllAudio_Count() => GetAllSFX_Count() + GetAllMusic_Count();
+        public static int GetAllAudio_Count() => GetAllSFX_Count() + GetAllMusic_Count();
         #region XML doc
         /// <summary>
         /// Gets the ammount of sfx audios currently playing in the game.
         /// </summary>
         /// <returns>The the ammount of sfx audios currently playing as an int.</returns>
         #endregion
-        public int GetAllSFX_Count() => sfxSystem.GetAudioCount();
+        public static int GetAllSFX_Count() => instance.sfxSystem.GetAudioCount();
         #region XML doc
         /// <summary>
         /// Gets the ammount of music audios currently playing in the game.
         /// </summary>
         /// <returns>The the ammount of music audios currently playing as an int.</returns>
         #endregion
-        public int GetAllMusic_Count() => musicSystem.GetAudioCount();
+        public static int GetAllMusic_Count() => instance.musicSystem.GetAudioCount();
 
 
         #region XML doc
@@ -405,7 +421,7 @@ namespace SHUU.Utils.Globals
         /// Destroys all audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void ClearAllAudio(){
+        public static void ClearAllAudio(){
             ClearAllSFX();
             ClearAllMusic();
         }
@@ -414,14 +430,14 @@ namespace SHUU.Utils.Globals
         /// Destroys all sfx audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void ClearAllSFX() => ClearAllAudio(sfxSystem);
+        public static void ClearAllSFX() => ClearAllAudio(instance.sfxSystem);
         #region XML doc
         /// <summary>
         /// Destroys all music audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void ClearAllMusic() => ClearAllAudio(sfxSystem);
-        private void ClearAllAudio(AudioSystem audioSystem){
+        public static void ClearAllMusic() => ClearAllAudio(instance.sfxSystem);
+        private static void ClearAllAudio(AudioSystem audioSystem){
             foreach (AudioSource source in audioSystem.GetAllAudio()) if (source.gameObject.TryGetComponent(out AudioSelfDestruct selfDestruct)) selfDestruct.DestroySource();
 
             audioSystem.ClearAudioList();
@@ -432,7 +448,7 @@ namespace SHUU.Utils.Globals
         /// Pauses all audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void PauseAllAudio(){
+        public static void PauseAllAudio(){
             PauseAllSfx();
             PauseAllMusic();
         }
@@ -441,14 +457,14 @@ namespace SHUU.Utils.Globals
         /// Pauses all sfx audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void PauseAllSfx() => PauseAllAudio(sfxSystem);
+        public static void PauseAllSfx() => PauseAllAudio(instance.sfxSystem);
         #region XML doc
         /// <summary>
         /// Pauses all music audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void PauseAllMusic() => PauseAllAudio(musicSystem);
-        private void PauseAllAudio(AudioSystem audioSystem){
+        public static void PauseAllMusic() => PauseAllAudio(instance.musicSystem);
+        private static void PauseAllAudio(AudioSystem audioSystem){
             foreach (AudioSource source in audioSystem.GetAllAudio()) source.Pause();
         }
 
@@ -457,7 +473,7 @@ namespace SHUU.Utils.Globals
         /// Resumes all audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void ResumeAllAudio(){
+        public static void ResumeAllAudio(){
             ResumeAllSfx();
             ResumeAllMusic();
         }
@@ -466,14 +482,14 @@ namespace SHUU.Utils.Globals
         /// Resumes all sfx audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void ResumeAllSfx() => ResumeAllAudio(sfxSystem);
+        public static void ResumeAllSfx() => ResumeAllAudio(instance.sfxSystem);
         #region XML doc
         /// <summary>
         /// Resumes all music audio instances currently playing in the game.
         /// </summary>
         #endregion
-        public void ResumeAllMusic() => ResumeAllAudio(musicSystem);
-        public void ResumeAllAudio(AudioSystem audioSystem){
+        public static void ResumeAllMusic() => ResumeAllAudio(instance.musicSystem);
+        public static void ResumeAllAudio(AudioSystem audioSystem){
             foreach (AudioSource source in audioSystem.GetAllAudio()) source.UnPause();
         }
 

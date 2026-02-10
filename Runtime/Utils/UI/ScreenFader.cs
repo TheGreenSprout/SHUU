@@ -80,7 +80,7 @@ namespace SHUU.Utils.UI
 
             _currentFadeCoroutine = null;
 
-            SHUU_GlobalsProxy.timerManager.Create(onComplete_delay, onComplete);
+            SHUU_Time.Create(onComplete_delay, onComplete);
         }
     }
 

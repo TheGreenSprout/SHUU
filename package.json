@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.21.7",
+  "version": "2.21.9",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -42,7 +42,7 @@
     {
       "displayName": "Settings System Menu",
       "description": "A set of scripts and UI prefabs that make changing settings easy for the player.",
-      "path": "Samples~/SampleSettingsSystem"
+      "path": "Samples~/SampleSettingsSystem_Menu"
     },
     {
       "displayName": "Simple UIRing Mouse Cursor",

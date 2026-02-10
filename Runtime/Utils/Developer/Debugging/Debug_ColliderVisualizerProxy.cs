@@ -241,7 +241,7 @@ namespace SHUU.Utils.Developer.Debugging
             cachedColliders.AddRange(FindObjectsOfType<Collider>(true));
             #endif
 
-            cachedColliders.RemoveAll(x => excludedLayers.LayerMask_Contains(x.gameObject.layer) || excludedTags.Contains(x.gameObject.tag));
+            cachedColliders.RemoveAll(x => excludedLayers.Contains_Layer(x.gameObject.layer) || excludedTags.Contains(x.gameObject.tag));
         }
 
         public void RebuildCache()

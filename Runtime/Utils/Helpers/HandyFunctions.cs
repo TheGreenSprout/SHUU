@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine.UI;
 using System.Collections;
-using SHUU.Utils.SettingsSytem;
 
 
 namespace SHUU.Utils.Helpers
@@ -616,7 +615,7 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        public static bool LayerMask_Contains(this LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
+        public static bool Contains_Layer(this LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
         #endregion
 
 

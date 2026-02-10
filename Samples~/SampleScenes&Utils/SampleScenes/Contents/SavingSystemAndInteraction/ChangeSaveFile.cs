@@ -1,3 +1,4 @@
+using SHUU.Utils.PersistantInfo;
 using SHUU.Utils.PersistantInfo.SavingLoading;
 using TMPro;
 using UnityEngine;
@@ -11,9 +12,9 @@ public class ChangeSaveFile : MonoBehaviour
 
     public void ChangeSaveFileIndex()
     {
-        SaveFilesManager.currentSaveFileIndex++;
+        Persistant_Globals.saveFilesManager.currentSaveFileIndex++;
 
 
-        saveFileText.text = "" + (SaveFilesManager.currentSaveFileIndex + 1);
+        saveFileText.text = "" + (Persistant_Globals.saveFilesManager.currentSaveFileIndex + 1);
     }
 }

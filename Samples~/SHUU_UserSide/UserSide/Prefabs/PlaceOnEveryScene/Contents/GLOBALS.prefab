@@ -125,11 +125,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5790840060925347414}
-  - component: {fileID: 3567198958020279549}
   - component: {fileID: 3794019338242515899}
+  - component: {fileID: 8531355632421192761}
   - component: {fileID: 2206449734289993969}
   - component: {fileID: 3971717330311365469}
-  - component: {fileID: 8531355632421192761}
   - component: {fileID: 8127249037554257894}
   m_Layer: 0
   m_Name: GLOBALS
@@ -158,18 +157,6 @@ Transform:
   - {fileID: 659339856773889130}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3567198958020279549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1545271558169626691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a01b3779422f9a94f8b3f954002d6e47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3794019338242515899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,6 +177,32 @@ MonoBehaviour:
   fadeInAtSceneRoomLeave: 1
   exitFadeInBuffer: 0.05
   exitFadeIn_duration: 1
+--- !u!114 &8531355632421192761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545271558169626691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e141e750533bb4a90634a67a097cd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  masterMixer: {fileID: 24300002, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
+  sfxMixer: {fileID: -1620632772027961612, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
+  musicMixer: {fileID: 7567011435774010195, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
+  sfxStorage: {fileID: 11400000, guid: fa32f6a595a65ae42b75d52da8f4aa43, type: 2}
+  musicStorage: {fileID: 11400000, guid: 0c6d5149963ac384c9fd30a4bc4659a2, type: 2}
+  audioInstance: {fileID: 1010484141545196436, guid: 93e5648037ae91c4c98a163872149b4d, type: 3}
+  settingsData: {fileID: 11400000, guid: 545db8f6e18343e4aa6342fb1cd010fa, type: 2}
+  masterAudio_fieldName: MasterVolume
+  sfxAudio_fieldName: SfxVolume
+  musicAudio_fieldName: MusicVolume
+  sfxObjectPool_initialSize: 10
+  musicObjectPool_initialSize: 0
+  sfxPoolObjects_parent: {fileID: 3896987658163161922}
+  musicPoolObjects_parent: {fileID: 3653081946447600272}
 --- !u!114 &2206449734289993969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,32 +234,6 @@ MonoBehaviour:
   defaultPingPongDuration: 0
   default_solid: {r: 0, g: 0, b: 0, a: 1}
   default_transparent: {r: 0, g: 0, b: 0, a: 0}
---- !u!114 &8531355632421192761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1545271558169626691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5e141e750533bb4a90634a67a097cd4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  masterMixer: {fileID: 24300002, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
-  sfxMixer: {fileID: -1620632772027961612, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
-  musicMixer: {fileID: 7567011435774010195, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
-  sfxStorage: {fileID: 11400000, guid: fa32f6a595a65ae42b75d52da8f4aa43, type: 2}
-  musicStorage: {fileID: 11400000, guid: 0c6d5149963ac384c9fd30a4bc4659a2, type: 2}
-  audioInstance: {fileID: 1010484141545196436, guid: 93e5648037ae91c4c98a163872149b4d, type: 3}
-  settingsData: {fileID: 11400000, guid: 545db8f6e18343e4aa6342fb1cd010fa, type: 2}
-  masterAudio_fieldName: MasterVolume
-  sfxAudio_fieldName: SfxVolume
-  musicAudio_fieldName: MusicVolume
-  sfxObjectPool_initialSize: 10
-  musicObjectPool_initialSize: 0
-  sfxPoolObjects_parent: {fileID: 3896987658163161922}
-  musicPoolObjects_parent: {fileID: 3653081946447600272}
 --- !u!114 &8127249037554257894
 MonoBehaviour:
   m_ObjectHideFlags: 0

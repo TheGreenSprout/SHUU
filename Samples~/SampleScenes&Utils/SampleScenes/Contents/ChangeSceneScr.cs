@@ -8,8 +8,5 @@ public class ChangeSceneScr : MonoBehaviour
 
 
 
-    public void ChangeScene()
-    {
-        SHUU_GlobalsProxy.generalManager.GoToScene(sceneToGoTo);
-    }
+    public void ChangeScene() => SHUU_General.GoToScene(sceneToGoTo);
 }

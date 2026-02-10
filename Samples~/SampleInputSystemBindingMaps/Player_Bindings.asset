@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapName: Player
   enabled: 1
-  lastDefaultSetDateTime: 2026-01-27_23-35-55
+  lastDefaultSetDateTime: 2026-02-09_19-11-06
   defaultData:
     hasValue: 1
     mapName: Player
@@ -24,17 +24,17 @@ MonoBehaviour:
       set:
         enabled: 1
         validSources:
-        - rid: 4908810973655597255
+        - rid: 2160969379105734671
     - name: Jump
       set:
         enabled: 1
         validSources:
-        - rid: 4908810973655597256
+        - rid: 2160969379105734672
     - name: Crouch
       set:
         enabled: 1
         validSources:
-        - rid: 4908810973655597257
+        - rid: 2160969379105734673
     compositeSets_list:
     - name: Movement
       set:
@@ -44,29 +44,29 @@ MonoBehaviour:
             set:
               enabled: 1
               validSources:
-              - rid: 4908810973655597258
-              - rid: 4908810973655597259
+              - rid: 2160969379105734674
+              - rid: 2160969379105734675
           negativeSet:
             name: Left
             set:
               enabled: 1
               validSources:
-              - rid: 4908810973655597260
-              - rid: 4908810973655597261
+              - rid: 2160969379105734676
+              - rid: 2160969379105734677
         - positiveSet:
             name: Forwards
             set:
               enabled: 1
               validSources:
-              - rid: 4908810973655597262
-              - rid: 4908810973655597263
+              - rid: 2160969379105734678
+              - rid: 2160969379105734679
           negativeSet:
             name: Backwards
             set:
               enabled: 1
               validSources:
-              - rid: 4908810973655597264
-              - rid: 4908810973655597265
+              - rid: 2160969379105734680
+              - rid: 2160969379105734681
   inputSets_list:
   - name: Run
     set:
@@ -118,6 +118,50 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 2160969379105734671
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 304
+    - rid: 2160969379105734672
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 32
+    - rid: 2160969379105734673
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 306
+    - rid: 2160969379105734674
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 100
+    - rid: 2160969379105734675
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 275
+    - rid: 2160969379105734676
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 97
+    - rid: 2160969379105734677
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 276
+    - rid: 2160969379105734678
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 119
+    - rid: 2160969379105734679
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 273
+    - rid: 2160969379105734680
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 115
+    - rid: 2160969379105734681
+      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
+      data:
+        key: 274
     - rid: 4908810966755704989
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
@@ -162,47 +206,3 @@ MonoBehaviour:
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
         key: 100
-    - rid: 4908810973655597255
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 304
-    - rid: 4908810973655597256
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 32
-    - rid: 4908810973655597257
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 306
-    - rid: 4908810973655597258
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 100
-    - rid: 4908810973655597259
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 275
-    - rid: 4908810973655597260
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 97
-    - rid: 4908810973655597261
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 276
-    - rid: 4908810973655597262
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 119
-    - rid: 4908810973655597263
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 273
-    - rid: 4908810973655597264
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 115
-    - rid: 4908810973655597265
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 274

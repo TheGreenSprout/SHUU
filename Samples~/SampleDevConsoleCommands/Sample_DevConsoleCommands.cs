@@ -135,12 +135,12 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
     [DevConsoleCommand("loadscene", "Changes the scene to the specified scene name", "Debug")]
-    public static CommandReturn Save(string sceneName)
+    public static CommandReturn LoadScene(string sceneName)
     {
-        SHUU_GlobalsProxy.generalManager.GoToScene(sceneName);
+        SHUU_General.GoToScene(sceneName);
 
 
-        return new CommandReturn($"Scene changed to {sceneName}");
+        return new CommandReturn($"Scene changed to {sceneName}.");
     }
 
 
@@ -148,38 +148,59 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("save", "Saves all data temporarily", "Debug")]
     public static CommandReturn Save()
     {
-        SHUU_GlobalsProxy.savingSystemManager.SaveSingletonInfo();
+        SHUU_Saving.SaveSingletonInfo();
 
 
-        return new CommandReturn("Data saved successfully");
+        return new CommandReturn("Data saved successfully.");
     }
 
     [DevConsoleCommand("filesave", "Saves all data to json files", "Debug")]
     public static CommandReturn SaveFile()
     {
-        SHUU_GlobalsProxy.savingSystemManager.SaveSingletonInfoToFile();
+        SHUU_Saving.SaveSingletonInfoToFile();
 
 
-        return new CommandReturn("Data saved to file successfully");
+        return new CommandReturn("Data saved to file successfully.");
     }
 
 
     [DevConsoleCommand("load", "Loads all temporary data", "Debug")]
     public static CommandReturn Load()
     {
-        SHUU_GlobalsProxy.savingSystemManager.LoadSingletonInfo();
+        SHUU_Saving.LoadSingletonInfo();
 
 
-        return new CommandReturn("Data loaded successfully");
+        return new CommandReturn("Data loaded successfully.");
     }
 
     [DevConsoleCommand("fileload", "Loads all data from json files", "Debug")]
     public static CommandReturn LoadFile()
     {
-        SHUU_GlobalsProxy.savingSystemManager.LoadSingletonInfoFromFile();
+        SHUU_Saving.LoadSingletonInfoFromFile();
 
 
-        return new CommandReturn("Data loaded from file successfully");
+        return new CommandReturn("Data loaded from file successfully.");
+    }
+
+
+    [DevConsoleCommand("backup", "Backs up the save data on the save file (not local)", "Debug")]
+    public static CommandReturn Backup()
+    {
+        SHUU_Saving.Backup();
+
+
+        return new CommandReturn("Data backed up from file successfully.");
+    }
+
+    [DevConsoleCommand("restorebackup", "Restores backed up info into the save file", "Debug")]
+    public static CommandReturn Backup(OptionalParameter<int> index)
+    {
+        int i = index.TryGetValue(out int o) ? o : 0;
+        
+        SHUU_Saving.RestoreBackup(i);
+
+
+        return new CommandReturn("Data restored into file successfully.");
     }
 
 
@@ -189,7 +210,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         PlayerPrefs.Save();
 
 
-        return new CommandReturn("PlayerPrefs saved successfully");
+        return new CommandReturn("PlayerPrefs saved successfully.");
     }
 
     [DevConsoleCommand("deleteprefs", "Deletes all player prefs", "Debug")]
@@ -197,7 +218,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     {
         PlayerPrefs.DeleteAll();
 
-        return new CommandReturn("PlayerPrefs deleted successfully");
+        return new CommandReturn("PlayerPrefs deleted successfully.");
     }
 
 
@@ -205,19 +226,21 @@ public class Sample_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("timescale", "Sets the game's timescale to the specified value", "Utilities")]
     public static CommandReturn SetTimeScale(float timeScale)
     {
-        TimeController.SetTimeScale(timeScale);
+        SHUU_Time.SetTimeScale(timeScale);
 
 
-        return new CommandReturn($"Timescale set to {timeScale}");
+        return new CommandReturn($"Timescale set to {timeScale}.");
     }
 
     [DevConsoleCommand("pause", "Toggles the game's timescale between paused and unpaused states", "Utilities")]
     public static CommandReturn Pause()
     {
-        TimeController.TogglePause();
+        SHUU_Time.TogglePause();
+
+        bool toggle = SHUU_Time.TogglePause();
 
 
-        return new CommandReturn("Timescale paused/unpaused (toggle)");
+        return new CommandReturn("Timescale " + (toggle ? "paused." : "unpaused."));
     }
 
 
@@ -233,7 +256,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         else if (value.TryGetValue(out float f)) returnVal = TrySetFieldValue(settingsDataName, fieldName, f);
         else if (value.TryGetValue(out string s)) returnVal = TrySetFieldValue(settingsDataName, fieldName, s);
         else if (value.TryGetValue(out char c)) returnVal = TrySetFieldValue(settingsDataName, fieldName, c);
-        else returnVal = new CommandReturn(Color.red, "Unsupported value type");
+        else returnVal = new CommandReturn(Color.red, "Unsupported value type.");
 
 
         return returnVal;
@@ -343,7 +366,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         BoundCommands.BindCommand(input, commandData);
 
 
-        return new CommandReturn($"Command bound to {_input} successfully");
+        return new CommandReturn($"Command bound to {_input} successfully.");
     }
 
     [DevConsoleCommand("unbindcommands", "Unbinds all Dev Console commands previously bound to a keycode or mouse button", "Classic Input")]
@@ -356,6 +379,6 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         BoundCommands.UnBindCommands(input);
 
 
-        return new CommandReturn($"All commands unbound from {_input} successfully");
+        return new CommandReturn($"All commands unbound from {_input} successfully.");
     }
 }

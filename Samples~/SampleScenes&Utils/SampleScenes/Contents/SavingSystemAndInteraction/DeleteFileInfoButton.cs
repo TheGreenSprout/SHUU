@@ -3,8 +3,5 @@ using UnityEngine;
 
 public class DeleteFileInfoButton : MonoBehaviour
 {
-    public void Press()
-    {
-        SHUU_GlobalsProxy.savingSystemManager.DeleteSaveInfo();
-    }
+    public void Press() => SHUU_Saving.DeleteSaveInfo();
 }

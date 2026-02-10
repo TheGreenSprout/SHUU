@@ -1,107 +1,111 @@
 using System;
+using SHUU.Utils.UI;
 using UnityEngine;
-using SHUU.Utils.Globals;
 
-namespace SHUU.Utils.UI
+namespace SHUU.Utils.Globals
 {
+
+    #region Option classes
+    public class FadeOptions
+    {
+        public Color? startColor = null;
+        public Color? endColor = null;
+
+
+        public float? duration = null;
+
+        public float start_delay = 0f;
+        public float end_delay = 0f;
+
+
+        public Action end_Action = null;
+
+
+        public bool clearOnEnd = true;
+
+
+
+        public FadeOptions() { }
+        public FadeOptions(FadeOptions other)
+        {
+            startColor = other.startColor;
+            endColor = other.endColor;
+
+
+            duration = other.duration;
+
+            start_delay = other.start_delay;
+            end_delay = other.end_delay;
+
+
+            end_Action = other.end_Action;
+
+
+            clearOnEnd = other.clearOnEnd;
+        }
+    }
+    public class PingPong_FadeOptions
+    {
+        public Color? startColor = null;
+        public Color? middleColor = null;
+        public Color? endColor = null;
+
+
+        public float? firstFade_duration = null;
+        public float? pingPong_duration = null;
+        public float? secondFade_duration = null;
+
+        public float start_delay = 0f;
+        public float end_delay = 0f;
+
+        public float middleAction_delay = 0.05f;
+
+
+        public Action endFirstFade_Action = null;
+        public Action middle_Action = null;
+        public Action startSecondFade_Action = null;
+
+        public Action end_Action = null;
+
+
+
+        public PingPong_FadeOptions() { }
+        public PingPong_FadeOptions(PingPong_FadeOptions other)
+        {
+            startColor = other.startColor;
+            middleColor = other.middleColor;
+            endColor = other.endColor;
+
+
+            firstFade_duration = other.firstFade_duration;
+            pingPong_duration = other.pingPong_duration;
+            secondFade_duration = other.secondFade_duration;
+
+            start_delay = other.start_delay;
+            end_delay = other.end_delay;
+
+            middleAction_delay = other.middleAction_delay;
+
+
+            endFirstFade_Action = other.endFirstFade_Action;
+            middle_Action = other.middle_Action;
+            startSecondFade_Action = other.startSecondFade_Action;
+
+            end_Action = other.end_Action;
+        }
+    }
+    #endregion
+
+
 
     #region XML doc
     /// <summary>
     /// Manages fade-in/outs for scene transitions.
     /// </summary>
     #endregion
-    public class FadeManager : MonoBehaviour
+    public class SHUU_Fades : MonoBehaviour
     {
-        #region Option classes
-        public class FadeOptions
-        {
-            public Color? startColor = null;
-            public Color? endColor = null;
-
-
-            public float? duration = null;
-
-            public float start_delay = 0f;
-            public float end_delay = 0f;
-
-
-            public Action end_Action = null;
-
-
-            public bool clearOnEnd = true;
-
-
-
-            public FadeOptions() { }
-            public FadeOptions(FadeOptions other)
-            {
-                startColor = other.startColor;
-                endColor = other.endColor;
-
-
-                duration = other.duration;
-
-                start_delay = other.start_delay;
-                end_delay = other.end_delay;
-
-
-                end_Action = other.end_Action;
-
-
-                clearOnEnd = other.clearOnEnd;
-            }
-        }
-        public class PingPong_FadeOptions
-        {
-            public Color? startColor = null;
-            public Color? middleColor = null;
-            public Color? endColor = null;
-
-
-            public float? firstFade_duration = null;
-            public float? pingPong_duration = null;
-            public float? secondFade_duration = null;
-
-            public float start_delay = 0f;
-            public float end_delay = 0f;
-
-            public float middleAction_delay = 0.05f;
-
-
-            public Action endFirstFade_Action = null;
-            public Action middle_Action = null;
-            public Action startSecondFade_Action = null;
-
-            public Action end_Action = null;
-
-
-
-            public PingPong_FadeOptions() { }
-            public PingPong_FadeOptions(PingPong_FadeOptions other)
-            {
-                startColor = other.startColor;
-                middleColor = other.middleColor;
-                endColor = other.endColor;
-
-
-                firstFade_duration = other.firstFade_duration;
-                pingPong_duration = other.pingPong_duration;
-                secondFade_duration = other.secondFade_duration;
-
-                start_delay = other.start_delay;
-                end_delay = other.end_delay;
-
-                middleAction_delay = other.middleAction_delay;
-
-
-                endFirstFade_Action = other.endFirstFade_Action;
-                middle_Action = other.middle_Action;
-                startSecondFade_Action = other.startSecondFade_Action;
-
-                end_Action = other.end_Action;
-            }
-        }
-        #endregion
+        private static SHUU_Fades instance;
 
 
 
@@ -124,20 +128,12 @@ namespace SHUU.Utils.UI
 
 
 
-        private void Awake()
-        {
-            SHUU_GlobalsProxy.fadeManager = this;
-        }
-
-
-        private void Start()
-        {
-            currentOptions = null;
-        }
+        private void Awake() => instance = this;
 
 
 
-        public void CreateFade(FadeOptions fadeOptions = null)
+        public static void CreateFade(FadeOptions fadeOptions = null) => instance._CreateFade(fadeOptions);
+        private void _CreateFade(FadeOptions fadeOptions = null)
         {
             if (currentOptions != null) return;
 
@@ -158,7 +154,8 @@ namespace SHUU.Utils.UI
             if (currentOptions != null) fadePanel_scr.NewFade(currentOptions);
         }
 
-        public void CreateFade_In(FadeOptions fadeOptions = null)
+        public static void CreateFade_In(FadeOptions fadeOptions = null) => instance._CreateFade_In(fadeOptions);
+        private void _CreateFade_In(FadeOptions fadeOptions = null)
         {
             FadeOptions localOptions;
             if (fadeOptions == null) localOptions = new FadeOptions();
@@ -171,7 +168,8 @@ namespace SHUU.Utils.UI
 
             CreateFade(localOptions);
         }
-        public void CreateFade_Out(FadeOptions fadeOptions = null)
+        public static void CreateFade_Out(FadeOptions fadeOptions = null) => instance._CreateFade_Out(fadeOptions);
+        private void _CreateFade_Out(FadeOptions fadeOptions = null)
         {
             FadeOptions localOptions;
             if (fadeOptions == null) localOptions = new FadeOptions();
@@ -185,7 +183,8 @@ namespace SHUU.Utils.UI
             CreateFade(localOptions);
         }
 
-        public void CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null)
+        public static void CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null) => instance._CreateFade_PingPong(pingPongOptions);
+        private void _CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null)
         {
             PingPong_FadeOptions localOptions;
             if (pingPongOptions == null) localOptions = new PingPong_FadeOptions();
@@ -229,7 +228,7 @@ namespace SHUU.Utils.UI
                     end_Action = pingPong
                 });
 
-                if (localOptions.middle_Action != null) SHUU_GlobalsProxy.timerManager.Create(localOptions.middleAction_delay, localOptions.middle_Action);
+                if (localOptions.middle_Action != null) SHUU_Time.Create(localOptions.middleAction_delay, localOptions.middle_Action);
                 localOptions.endFirstFade_Action?.Invoke();
             };
 
