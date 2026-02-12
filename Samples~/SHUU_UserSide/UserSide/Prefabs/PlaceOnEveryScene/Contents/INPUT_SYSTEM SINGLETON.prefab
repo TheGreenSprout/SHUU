@@ -48,7 +48,9 @@ MonoBehaviour:
   identifier: InputSystem_Singleton
   scripts: {fileID: 7735901074378759831}
   bridges: -1
-  bannedScenes: []
+  bridgeFree_Scenes:
+  - LoadingScene
+  banned_Scenes: []
 --- !u!1 &7735901074378759831
 GameObject:
   m_ObjectHideFlags: 0
@@ -96,4 +98,4 @@ MonoBehaviour:
   mapsToSave:
   - {fileID: 11400000, guid: 206520c51e327c14cb2e42d439ea2b7a, type: 2}
   - {fileID: 11400000, guid: f32926bd482c11448805252b781f32fe, type: 2}
-  - {fileID: 11400000, guid: fa67c20dfde39954fa220ea4f370c824, type: 2}
+  - {fileID: 11400000, guid: 78899abe3ce06a841a83d03940930016, type: 2}

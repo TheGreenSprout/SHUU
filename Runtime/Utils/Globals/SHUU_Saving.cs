@@ -4,14 +4,28 @@ using SHUU.Utils.PersistantInfo;
 using SHUU.Utils.SceneManagement;
 using UnityEngine;
 
-//! Add a backup system
-
 namespace SHUU.Utils.Globals
 {
 
+    [DefaultExecutionOrder(-10000)]
     public class SHUU_Saving : MonoBehaviour
     {
-        private static SHUU_Saving instance;
+        private static SHUU_Saving _instance;
+        
+        private static SHUU_Saving instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<SHUU_Saving>(FindObjectsInactive.Include);
+
+                    if (_instance == null) Debug.LogError("No SHUU_Saving found in scene.");
+                }
+
+                return _instance;
+            }
+        }
 
 
 
@@ -32,7 +46,10 @@ namespace SHUU.Utils.Globals
 
 
         #region Init
-        private void Awake() => instance = this;
+        private void Awake()
+        {
+            if (_instance == null) _instance = this;
+        }
 
 
         public static void OnRoomChange()

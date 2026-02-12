@@ -2,10 +2,26 @@ using UnityEngine;
 
 namespace SHUU.Utils.Developer.Debugging
 {
+    [DefaultExecutionOrder(-10000)]
     [RequireComponent(typeof(Debug_ScreenLogs), typeof(Debug_ColliderVisualizer))]
     public class SHUU_Debug : MonoBehaviour
     {
-        public static SHUU_Debug instance;
+        private static SHUU_Debug _instance;
+        
+        public static SHUU_Debug instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<SHUU_Debug>(FindObjectsInactive.Include);
+
+                    if (_instance == null) Debug.LogError("No SHUU_Debug found in scene.");
+                }
+
+                return _instance;
+            }
+        }
 
 
 
@@ -18,7 +34,7 @@ namespace SHUU.Utils.Developer.Debugging
 
         private void Awake()
         {
-            instance = this;
+            if (_instance == null) _instance = this;
 
 
             colliderVisualizer = GetComponent<Debug_ColliderVisualizer>();

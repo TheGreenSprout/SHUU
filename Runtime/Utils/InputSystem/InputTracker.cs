@@ -9,6 +9,7 @@ This code was written with the assistance of AI.
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.InputSystem
@@ -31,6 +32,9 @@ namespace SHUU.Utils.InputSystem
 
         private void Awake()
         {
+            mapsToSave.Clean();
+
+            
             LoadAll();
 
             BuildDictionary();

@@ -3,7 +3,8 @@ using System;
 using System.Collections;
 namespace SHUU.Utils.Globals
 {
-
+    
+    [DefaultExecutionOrder(-10000)]
     #region XML doc
     /// <summary>
     /// Manages the creation and behaviour of timers.
@@ -11,7 +12,22 @@ namespace SHUU.Utils.Globals
     #endregion
     public class SHUU_Time : MonoBehaviour
     {
-        private static SHUU_Time instance;
+        private static SHUU_Time _instance;
+        
+        private static SHUU_Time instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<SHUU_Time>(FindObjectsInactive.Include);
+
+                    if (_instance == null) Debug.LogError("No SHUU_Time found in scene.");
+                }
+
+                return _instance;
+            }
+        }
 
 
 
@@ -22,7 +38,10 @@ namespace SHUU.Utils.Globals
 
 
 
-        private void Awake() => instance = this;
+        private void Awake()
+        {
+            if (_instance == null) _instance = this;
+        }
 
 
 
@@ -33,7 +52,17 @@ namespace SHUU.Utils.Globals
         /// <param name="duration">The time the Action will be delayed by.</param>
         /// <param name="onComplete">The Action that will be performed.</param>
         #endregion
-        public static void Create(float duration, Action onComplete) => instance?.StartCoroutine(Run(duration, onComplete));
+        public static void Timer(float duration, Action onComplete)
+        {
+            if (instance == null)
+            {
+                Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
+
+                return;
+            }
+
+            instance.StartCoroutine(Run(duration, onComplete));
+        }
 
         #region XML doc
         /// <summary>

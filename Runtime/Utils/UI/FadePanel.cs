@@ -56,7 +56,7 @@ namespace SHUU.Utils.UI
             EnableSelf();
 
 
-            SHUU_Time.Create(fadeOptions.start_delay, StartFade);
+            SHUU_Time.Timer(fadeOptions.start_delay, StartFade);
         }
 
         public void StartFade()
@@ -91,7 +91,7 @@ namespace SHUU.Utils.UI
                 fadeImage.enabled = false;
 
 
-            SHUU_Time.Create(onComplete_delay, onComplete);
+            SHUU_Time.Timer(onComplete_delay, onComplete);
         }
     }
     

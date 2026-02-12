@@ -7,6 +7,7 @@ using System.Collections.Generic;
 namespace SHUU.Utils.Globals
 {
 
+    [DefaultExecutionOrder(-10000)]
     #region XML doc
     /// <summary>
     /// Script holding some static variables used by the package, must be in all scenes.
@@ -14,7 +15,23 @@ namespace SHUU.Utils.Globals
     #endregion
     public class SHUU_General : MonoBehaviour
     {
-        private static SHUU_General instance;
+        private static SHUU_General _instance;
+        
+        private static SHUU_General instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<SHUU_General>(FindObjectsInactive.Include);
+
+                    if (_instance == null) Debug.LogError("No SHUU_General found in scene.");
+                }
+
+                return _instance;
+            }
+        }
+        
 
 
 
@@ -43,7 +60,7 @@ namespace SHUU.Utils.Globals
 
         private void Awake()
         {
-            instance = this;
+            if (_instance == null) _instance = this;
 
 
 

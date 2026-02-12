@@ -22,13 +22,30 @@ namespace SHUU.Utils.Developer.Debugging
     #endregion
 
 
-
+    
+    [DefaultExecutionOrder(-10000)]
     public class Debug_ColliderVisualizer : MonoBehaviour
     {
-        public static Debug_ColliderVisualizer instance;
+        private static Debug_ColliderVisualizer _instance;
+        
+        public static Debug_ColliderVisualizer instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<Debug_ColliderVisualizer>(FindObjectsInactive.Include);
+
+                    if (_instance == null) Debug.LogError("No Debug_ColliderVisualizer found in scene.");
+                }
+
+                return _instance;
+            }
+        }
 
 
         private Debug_ColliderVisualizerProxy _proxy;
+
         public Debug_ColliderVisualizerProxy proxy
         {
             get => _proxy;
@@ -85,7 +102,10 @@ namespace SHUU.Utils.Developer.Debugging
 
 
 
-        private void Awake() => instance = this;
+        private void Awake()
+        {
+            if (_instance == null) _instance = this;
+        }
 
 
         private void OnProxyAdded(Debug_ColliderVisualizerProxy proxy)

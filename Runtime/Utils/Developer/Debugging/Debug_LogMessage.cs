@@ -29,7 +29,7 @@ namespace SHUU.Utils.Developer.Debugging
             this.color = color;
 
 
-            SHUU_Time.Create(startBuffer, () => go = true);
+            SHUU_Time.Timer(startBuffer, () => go = true);
         }
 
 

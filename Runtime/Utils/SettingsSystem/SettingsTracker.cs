@@ -19,6 +19,8 @@ namespace SHUU.Utils.SettingsSytem
         {
             instance = this;
 
+            tracked_settingsData.Clean();
+
             Load();
         }
 

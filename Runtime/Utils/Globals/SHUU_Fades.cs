@@ -98,6 +98,7 @@ namespace SHUU.Utils.Globals
 
 
 
+    [DefaultExecutionOrder(-10000)]
     #region XML doc
     /// <summary>
     /// Manages fade-in/outs for scene transitions.
@@ -105,7 +106,22 @@ namespace SHUU.Utils.Globals
     #endregion
     public class SHUU_Fades : MonoBehaviour
     {
-        private static SHUU_Fades instance;
+        private static SHUU_Fades _instance;
+        
+        private static SHUU_Fades instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<SHUU_Fades>(FindObjectsInactive.Include);
+
+                    if (_instance == null) Debug.LogError("No SHUU_Fades found in scene.");
+                }
+
+                return _instance;
+            }
+        }
 
 
 
@@ -128,7 +144,10 @@ namespace SHUU.Utils.Globals
 
 
 
-        private void Awake() => instance = this;
+        private void Awake()
+        {
+            if (_instance == null) _instance = this;
+        }
 
 
 
@@ -228,7 +247,7 @@ namespace SHUU.Utils.Globals
                     end_Action = pingPong
                 });
 
-                if (localOptions.middle_Action != null) SHUU_Time.Create(localOptions.middleAction_delay, localOptions.middle_Action);
+                if (localOptions.middle_Action != null) SHUU_Time.Timer(localOptions.middleAction_delay, localOptions.middle_Action);
                 localOptions.endFirstFade_Action?.Invoke();
             };
 

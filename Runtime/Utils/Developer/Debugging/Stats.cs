@@ -12,7 +12,7 @@ namespace SHUU.Utils.Developer.Debugging
 
 
 
-        public static void Update()
+        public void Update()
         {
             frameCount++;
             fpsTimer += Time.unscaledDeltaTime;

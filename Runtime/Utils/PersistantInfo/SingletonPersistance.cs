@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace SHUU.Utils.PersistantInfo
 {
+    [DefaultExecutionOrder(-20000)]
     #region XML doc
     /// <summary>
     /// Handles logic related to keeping track of all the Singleton persistance scripts, and manages them.
