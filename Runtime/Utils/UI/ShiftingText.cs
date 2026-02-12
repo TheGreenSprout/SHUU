@@ -23,7 +23,7 @@ namespace SHUU.Utils.UI
         private TMP_Text text;
 
 
-        public bool invoked = false;
+        private bool invoked = false;
 
 
 
