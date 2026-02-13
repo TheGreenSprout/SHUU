@@ -19,8 +19,42 @@ namespace SHUU.Utils.Globals
         public static float currentTimeScale { get; private set; } = 1f;
 
 
+        private static Action _nextFrameQueue;
+        private static Action _executeQueue;
+
+        /// <summary>
+        /// An event that runs on the next LateUpdate. Use this to run code after all other Update and LateUpdate calls have been made in the current frame.
+        /// </summary>
+        public static event Action onNextFrame
+        {
+            add => _nextFrameQueue += value;
+            remove => _nextFrameQueue -= value;
+        }
 
 
+
+
+        private void Update()
+        {
+            if (_executeQueue != null)
+            {
+                var callback = _executeQueue;
+                _executeQueue = null;
+                callback.Invoke();
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (_nextFrameQueue == null) return;
+
+            _executeQueue = _nextFrameQueue;
+            _nextFrameQueue = null;
+        }
+
+
+
+        #region Timers
         #region XML doc
         /// <summary>
         /// Creates a timer that, after the specified time, runs an Action.
@@ -28,7 +62,7 @@ namespace SHUU.Utils.Globals
         /// <param name="duration">The time the Action will be delayed by.</param>
         /// <param name="onComplete">The Action that will be performed.</param>
         #endregion
-        public static void Timer(float duration, Action onComplete)
+        public static void Timer(float seconds, Action onComplete, bool ignoreTimeScale = false)
         {
             if (instance == null)
             {
@@ -37,8 +71,28 @@ namespace SHUU.Utils.Globals
                 return;
             }
 
-            instance.StartCoroutine(Run(duration, onComplete));
+
+            seconds = Mathf.Max(seconds, 0f);
+
+            if (!ignoreTimeScale) instance.StartCoroutine(Run(seconds, onComplete));
+            else instance.StartCoroutine(Run(seconds, onComplete, x => new WaitForSecondsRealtime(x)));
         }
+
+        public static void Timer(int frames, Action onComplete, bool ignoreTimeScale = false)
+        {
+            if (instance == null)
+            {
+                Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
+
+                return;
+            }
+
+
+            frames = Mathf.Max(frames, 0);
+            
+            instance.StartCoroutine(RunFrames(frames, onComplete, ignoreTimeScale));
+        }
+
 
         #region XML doc
         /// <summary>
@@ -48,14 +102,27 @@ namespace SHUU.Utils.Globals
         /// <param name="onComplete">The Action that will be performed.</param>
         /// <returns>Returns the IEnumerator.</returns>
         #endregion
-        private static IEnumerator Run(float duration, Action onComplete)
+        private static IEnumerator Run(float duration, Action onComplete, Func<float, IEnumerator> enumerator = null)
         {
-            yield return new WaitForSeconds(duration);
+            yield return enumerator != null ? enumerator(duration) : new WaitForSeconds(duration);
 
             onComplete?.Invoke();
         }
 
+        private static IEnumerator RunFrames(int frames, Action onComplete, bool ignoreTimeScale = false)
+        {
+            while (frames > 0)
+            {
+                if (ignoreTimeScale || Time.timeScale > 0f) frames--;
+                yield return null;
+            }
 
+            onComplete?.Invoke();
+        }
+        #endregion
+
+
+        #region Time scale
         public static void SetTimeScale(float scale)
         {
             currentTimeScale = Mathf.Max(scale, 0f);
@@ -87,6 +154,22 @@ namespace SHUU.Utils.Globals
             Time.timeScale = 0f;
             Time.captureFramerate = 0;
         }
+        #endregion
+    
+    
+        #region Helpers
+        public static Coroutine StartCoroutineStatic(IEnumerator routine)
+        {
+            if (instance == null)
+            {
+                Debug.LogError("No SHUU_Time instance found in the scene. Unable to start coroutine. Wait until instance is created.");
+
+                return null;
+            }
+
+            return instance.StartCoroutine(routine);
+        }
+        #endregion
     }
     
 }
