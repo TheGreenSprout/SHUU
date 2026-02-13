@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
+using SHUU.Utils.Helpers;
 using System.Collections;
+
 namespace SHUU.Utils.Globals
 {
     
@@ -10,38 +12,12 @@ namespace SHUU.Utils.Globals
     /// Manages the creation and behaviour of timers.
     /// </summary>
     #endregion
-    public class SHUU_Time : MonoBehaviour
+    public class SHUU_Time : StaticInstance_Monobehaviour<SHUU_Time>
     {
-        private static SHUU_Time _instance;
-        
-        private static SHUU_Time instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<SHUU_Time>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No SHUU_Time found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-
-
-
         public static bool paused { get; private set; }
 
         public static float currentTimeScale { get; private set; } = 1f;
 
-
-
-
-        private void Awake()
-        {
-            if (_instance == null) _instance = this;
-        }
 
 
 

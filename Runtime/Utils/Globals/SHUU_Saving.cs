@@ -8,27 +8,8 @@ namespace SHUU.Utils.Globals
 {
 
     [DefaultExecutionOrder(-10000)]
-    public class SHUU_Saving : MonoBehaviour
+    public class SHUU_Saving : StaticInstance_Monobehaviour<SHUU_Saving>
     {
-        private static SHUU_Saving _instance;
-        
-        private static SHUU_Saving instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<SHUU_Saving>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No SHUU_Saving found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-
-
-
         [Header("AutoSave Settings")]
         [SerializeField] private bool backupWhenSave = true;
 
@@ -46,12 +27,6 @@ namespace SHUU.Utils.Globals
 
 
         #region Init
-        private void Awake()
-        {
-            if (_instance == null) _instance = this;
-        }
-
-
         public static void OnRoomChange()
         {
             if (instance.localSave_OnRoomChange) SaveSingletonInfo();

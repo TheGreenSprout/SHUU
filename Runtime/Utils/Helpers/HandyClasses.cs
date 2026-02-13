@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SHUU.Utils.Helpers
 {
@@ -8,6 +9,7 @@ namespace SHUU.Utils.Helpers
     {
         T value;
     }
+
 
 
 
@@ -103,6 +105,7 @@ namespace SHUU.Utils.Helpers
 
 
 
+
     #region Looping Queue
     public class LoopingQueue<T> : IEnumerable<T>, IReadOnlyCollection<T>
     {
@@ -142,6 +145,7 @@ namespace SHUU.Utils.Helpers
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
     #endregion
+
 
 
 
@@ -198,6 +202,66 @@ namespace SHUU.Utils.Helpers
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    #endregion
+
+
+
+
+    #region Static Instance Scripts
+    public abstract class StaticInstance_Monobehaviour<T> : MonoBehaviour where T : MonoBehaviour
+    {
+        private static T _instance;
+        
+        public static T instance
+        {
+            get
+            {
+                if (_instance == null) _instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
+
+                return _instance;
+            }
+        }
+
+
+
+
+        protected virtual void Awake()
+        {
+            if (_instance == null) _instance = this as T;
+        }
+    }
+
+
+    public abstract class StaticInstance_ScriptableObject<T> : ScriptableObject where T : ScriptableObject
+    {
+        private static T _instance;
+        
+
+        protected abstract string resourcesPath { get; }
+
+        public static T instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    var temp = CreateInstance<T>() as StaticInstance_ScriptableObject<T>;
+                    _instance = Resources.Load<T>(temp.resourcesPath);
+                    DestroyImmediate(temp);
+                }
+
+                return _instance;
+            }
+        }
+
+
+
+
+        protected virtual void OnEnable()
+        {
+            if (_instance == null) _instance = this as T;
+        }
     }
     #endregion
 }

@@ -1108,6 +1108,31 @@ namespace SHUU.Utils.Helpers
 
             return null;
         }
+
+
+        public static float[] Vector3s_To_FloatArray(params Vector3[] vectors)
+        {
+            float[] result = new float[vectors.Length * 3];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                int idx = i * 3;
+                result[idx]     = vectors[i].x;
+                result[idx + 1] = vectors[i].y;
+                result[idx + 2] = vectors[i].z;
+            }
+            return result;
+        }
+
+        public static Vector3[] Floata_To_Vector3Array(float[] data)
+        {
+            Vector3[] result = new Vector3[data.Length / 3];
+            for (int i = 0; i < result.Length; i++)
+            {
+                int idx = i * 3;
+                result[i] = new Vector3(data[idx], data[idx + 1], data[idx + 2]);
+            }
+            return result;
+        }
         #endregion
 
 

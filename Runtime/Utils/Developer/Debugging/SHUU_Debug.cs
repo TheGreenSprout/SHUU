@@ -1,30 +1,12 @@
+using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.Developer.Debugging
 {
     [DefaultExecutionOrder(-10000)]
     [RequireComponent(typeof(Debug_ScreenLogs), typeof(Debug_ColliderVisualizer))]
-    public class SHUU_Debug : MonoBehaviour
+    public class SHUU_Debug : StaticInstance_Monobehaviour<SHUU_Debug>
     {
-        private static SHUU_Debug _instance;
-        
-        public static SHUU_Debug instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<SHUU_Debug>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No SHUU_Debug found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-
-
-
         private Debug_ColliderVisualizer colliderVisualizer;
 
         private Debug_ScreenLogs screenLogs;
@@ -32,9 +14,9 @@ namespace SHUU.Utils.Developer.Debugging
 
 
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (_instance == null) _instance = this;
+            base.Awake();
 
 
             colliderVisualizer = GetComponent<Debug_ColliderVisualizer>();

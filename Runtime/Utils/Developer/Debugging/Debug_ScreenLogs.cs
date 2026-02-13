@@ -5,26 +5,8 @@ namespace SHUU.Utils.Developer.Debugging
 {
 
     [DefaultExecutionOrder(-10000)]
-    public class Debug_ScreenLogs : MonoBehaviour
+    public class Debug_ScreenLogs : StaticInstance_Monobehaviour<Debug_ScreenLogs>
     {
-        private static Debug_ScreenLogs _instance;
-        
-        public static Debug_ScreenLogs instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<Debug_ScreenLogs>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No Debug_ScreenLogs found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-
-
         private Debug_ScreenLogsProxy _proxy;
         
         public Debug_ScreenLogsProxy proxy
@@ -51,12 +33,6 @@ namespace SHUU.Utils.Developer.Debugging
 
 
 
-        private void Awake()
-        {
-            if (_instance == null) _instance = this;
-        }
-
-        
         private void OnProxyAdded(Debug_ScreenLogsProxy proxy)
         {
             if (!proxy || !proxy.content) return;

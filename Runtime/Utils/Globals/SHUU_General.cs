@@ -1,6 +1,6 @@
 using UnityEngine;
 using SHUU.Utils.SceneManagement;
-using SHUU.Utils.UI;
+using SHUU.Utils.Helpers;
 using System.Collections.Generic;
 //using SHUU.Utils.UI.Dialogue;
 
@@ -13,28 +13,8 @@ namespace SHUU.Utils.Globals
     /// Script holding some static variables used by the package, must be in all scenes.
     /// </summary>
     #endregion
-    public class SHUU_General : MonoBehaviour
+    public class SHUU_General : StaticInstance_Monobehaviour<SHUU_General>
     {
-        private static SHUU_General _instance;
-        
-        private static SHUU_General instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<SHUU_General>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No SHUU_General found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-        
-
-
-
         [Header("Dialogue Settings")]
         [SerializeField] private List<GameObject> dialogueBox_PrefabList = new List<GameObject>();
 
@@ -58,9 +38,9 @@ namespace SHUU.Utils.Globals
 
 
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (_instance == null) _instance = this;
+            base.Awake();
 
 
 

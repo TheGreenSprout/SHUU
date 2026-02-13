@@ -1,4 +1,5 @@
 using UnityEngine;
+using SHUU.Utils.Helpers;
 using System.Collections.Generic;
 
 namespace SHUU.Utils.Developer.Debugging
@@ -24,26 +25,8 @@ namespace SHUU.Utils.Developer.Debugging
 
     
     [DefaultExecutionOrder(-10000)]
-    public class Debug_ColliderVisualizer : MonoBehaviour
+    public class Debug_ColliderVisualizer : StaticInstance_Monobehaviour<Debug_ColliderVisualizer>
     {
-        private static Debug_ColliderVisualizer _instance;
-        
-        public static Debug_ColliderVisualizer instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<Debug_ColliderVisualizer>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No Debug_ColliderVisualizer found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-
-
         private Debug_ColliderVisualizerProxy _proxy;
 
         public Debug_ColliderVisualizerProxy proxy
@@ -100,12 +83,6 @@ namespace SHUU.Utils.Developer.Debugging
         [SerializeField] private List<TagFillColor> tagFillColors = new();
 
 
-
-
-        private void Awake()
-        {
-            if (_instance == null) _instance = this;
-        }
 
 
         private void OnProxyAdded(Debug_ColliderVisualizerProxy proxy)

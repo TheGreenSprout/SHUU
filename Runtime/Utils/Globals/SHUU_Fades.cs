@@ -1,5 +1,6 @@
 using System;
 using SHUU.Utils.UI;
+using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.Globals
@@ -104,27 +105,8 @@ namespace SHUU.Utils.Globals
     /// Manages fade-in/outs for scene transitions.
     /// </summary>
     #endregion
-    public class SHUU_Fades : MonoBehaviour
+    public class SHUU_Fades : StaticInstance_Monobehaviour<SHUU_Fades>
     {
-        private static SHUU_Fades _instance;
-        
-        private static SHUU_Fades instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<SHUU_Fades>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No SHUU_Fades found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-
-
-
         [SerializeField] private FadePanel fadePanel_scr;
 
 
@@ -141,13 +123,6 @@ namespace SHUU.Utils.Globals
 
         private FadeOptions currentOptions = null;
 
-
-
-
-        private void Awake()
-        {
-            if (_instance == null) _instance = this;
-        }
 
 
 

@@ -49,27 +49,8 @@ namespace SHUU.Utils.Globals
     /// Manages multiple audio-related functions.
     /// </summary>
     #endregion
-    public class SHUU_Audio : MonoBehaviour
+    public class SHUU_Audio : StaticInstance_Monobehaviour<SHUU_Audio>
     {
-        private static SHUU_Audio _instance;
-        
-        private static SHUU_Audio instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<SHUU_Audio>(FindObjectsInactive.Include);
-
-                    if (_instance == null) Debug.LogError("No SHUU_Audio found in scene.");
-                }
-
-                return _instance;
-            }
-        }
-
-
-
         #region Variables
         private const float MIN_DB = -80f;
 
@@ -116,9 +97,9 @@ namespace SHUU.Utils.Globals
 
         
         #region Init
-        private void Awake()
+        protected override void Awake()
         {
-            if (_instance == null) _instance = this;
+            base.Awake();
 
 
             if (settingsData != null)
