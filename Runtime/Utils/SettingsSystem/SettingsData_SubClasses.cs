@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace SHUU.Utils.SettingsSytem
 {
@@ -9,6 +10,7 @@ namespace SHUU.Utils.SettingsSytem
         Float,
         String
     }
+
 
 
     [Serializable]
@@ -65,5 +67,40 @@ namespace SHUU.Utils.SettingsSytem
 
                                 _ => null
                             };
+    }
+
+
+
+    [Serializable]
+    public class SettingsData_Data
+    {
+        public bool hasValue = false;
+
+        public List<SettingField> fields = new();
+
+
+        public SettingsData_Data() { }
+
+        public SettingsData_Data(SettingsData map)
+        {
+            hasValue = true;
+
+            this.fields = new();
+            foreach (var field in map.fields)
+            {
+                this.fields.Add(new SettingField(field));
+            }
+        }
+
+        public SettingsData_Data(SettingsData_Data other)
+        {
+            hasValue = true;
+
+            this.fields = new();
+            foreach (var field in other.fields)
+            {
+                this.fields.Add(new SettingField(field));
+            }
+        }
     }
 }

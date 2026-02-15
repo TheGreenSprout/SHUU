@@ -265,7 +265,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
     public static CommandReturn TrySetFieldValue(string name, string fieldName, object value)
     {
-        SettingsData target = SettingsTracker.GetSettingsData(name);
+        SettingsData target = SettingsData.GetSettingsData(name);
 
         if (!target.SetField(fieldName, value)) return new CommandReturn(Color.red, $"Field '{fieldName}' not found on {target.name} or value {value} invalid for such field.");
 

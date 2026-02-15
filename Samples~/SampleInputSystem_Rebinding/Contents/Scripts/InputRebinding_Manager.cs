@@ -34,16 +34,4 @@ public class InputRebinding_Manager : MonoBehaviour
             foreach (var set in map.GetAllCompositeSets()) Instantiate(compositeDisplay_prefab, content).Init(map, set, content);
         }
     }
-
-    private void OnApplicationQuit()
-    {
-        OnDestroy();
-    }
-    private void OnDestroy()
-    {
-        foreach (var map in inputBindingMaps)
-        {
-            map.OnDisable();
-        }
-    }
 }

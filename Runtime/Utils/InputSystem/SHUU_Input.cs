@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
 using UnityEngine;
 
@@ -242,8 +243,28 @@ namespace SHUU.Utils.InputSystem
 
 
 
+        public static Dictionary<string, InputBindingMap> allInputBindingMaps = new();
+
+
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Init() => SHUU_Time.onUpdate += Update;
+
+
         public static void Update()
         {
+            foreach (var map in allInputBindingMaps.Values)
+            {
+                foreach (var set in map.inputSets_list)
+                {
+                    foreach (AxisSource source in set.set.validSources.Where(x => x is AxisSource))
+                    {
+                        source.Tick();
+                    }
+                }
+            }
+
+
             UpdateBufferedInputs();
 
             UpdateListeners();
@@ -783,12 +804,12 @@ namespace SHUU.Utils.InputSystem
 
         public static InputBindingMap RetrieveBindingMap(string name)
         {
-            if (InputTracker.allInputBindingMaps == null) return null;
+            if (allInputBindingMaps == null) return null;
 
 
             InputBindingMap _map = null;
 
-            foreach (InputBindingMap map in InputTracker.allInputBindingMaps.Values)
+            foreach (InputBindingMap map in allInputBindingMaps.Values)
             {
                 if (map.mapName.ToLower() == name.ToLower())
                 {

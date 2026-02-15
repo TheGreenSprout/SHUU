@@ -8,8 +8,36 @@ using UnityEngine;
 namespace SHUU.Utils.SettingsSytem
 {
     [CreateAssetMenu(fileName = "SettingsData", menuName = "SHUU/SettingsData")]
-    public class SettingsData : ScriptableObject
+    public class SettingsData : AutoSave_Build_ScriptableObject<SettingsData>
     {
+        private static SettingsData allSettingsData_proxy
+        {
+            set
+            {
+                if (value == null || string.IsNullOrWhiteSpace(value.settingsName)) return;
+
+                foreach (var item in allSettingsData)
+                {
+                    if (item.Value == null) allSettingsData.Remove(item.Key);
+                }
+
+                if (allSettingsData.ContainsKey(value.settingsName)) allSettingsData[value.settingsName] = value;
+                else allSettingsData.Add(value.settingsName, value);
+            }
+        }
+
+        public static Dictionary<string, SettingsData> allSettingsData = new();
+        public static SettingsData GetSettingsData(string name) => allSettingsData.GetValueOrDefault(name);
+
+
+
+        #region Variables
+        protected override SettingsData obj => this;
+
+        protected override string id => this.name;
+
+
+
         public string settingsName;
 
 
@@ -17,26 +45,47 @@ namespace SHUU.Utils.SettingsSytem
 
 
         public string lastDefaultSetDateTime = "No Default Set";
-        public List<SettingField> defaultFields = new();
+        public SettingsData_Data defaultFields;
 
 
         public event Action<string> OnSettingsChanged;
         public void NotifyChanged(string field) => OnSettingsChanged?.Invoke(field);
+        #endregion
 
+
+
+
+        #region Init
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+        
+            allSettingsData_proxy = this;
+        }
+        #endregion
 
 
 
         #region Defaults
         public void RestoreDefaults()
         {
-            fields.CopyFrom_List_CopyContructors(defaultFields, x => new SettingField(x));
+            if (defaultFields == null || !defaultFields.hasValue)
+            {
+                Debug.LogWarning($"SettingsData '{settingsName}' cannot load invalid data.");
+
+                return;
+            }
+
+
+            fields.CopyFrom_List_CopyContructors(defaultFields.fields, x => new SettingField(x));
 
             NotifyChanged(null);
         }
 
         public void SaveAsDefaults()
         {
-            defaultFields.CopyFrom_List_CopyContructors(fields, x => new SettingField(x));
+            defaultFields = new SettingsData_Data(this);
 
             lastDefaultSetDateTime = Stats.timestamp;
         }
@@ -58,6 +107,7 @@ namespace SHUU.Utils.SettingsSytem
 
         public SettingField GetSettingField(string key) => fields.First(x => x.key == key);
         #endregion
+
 
 
         #region Getters

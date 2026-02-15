@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Helpers;
 using UnityEngine;
@@ -7,11 +9,36 @@ using UnityEngine;
 namespace SHUU.Utils.InputSystem
 {
     [CreateAssetMenu(fileName = "New Input Binding Map", menuName = "SHUU/Input System/Input Binding Map")]
-    public class InputBindingMap : ScriptableObject
+    public class InputBindingMap : AutoSave_Build_ScriptableObject<InputBindingMap>
     {
-        public string mapName;
+        private static InputBindingMap allInputBindingMaps_proxy
+        {
+            set
+            {
+                if (value == null || string.IsNullOrWhiteSpace(value.mapName)) return;
 
-        public bool enabled = true;
+                foreach (var item in SHUU_Input.allInputBindingMaps)
+                {
+                    if (item.Value == null) SHUU_Input.allInputBindingMaps.Remove(item.Key);
+                }
+
+                if (SHUU_Input.allInputBindingMaps.ContainsKey(value.mapName)) SHUU_Input.allInputBindingMaps[value.mapName] = value;
+                else SHUU_Input.allInputBindingMaps.Add(value.mapName, value);
+            }
+        }
+
+
+
+        #region Variables
+        [JsonIgnore] protected override InputBindingMap obj => this;
+
+        [JsonIgnore] protected override string id => this.name;
+
+
+
+        [JsonIgnore] public string mapName;
+
+        [JsonIgnore] public bool enabled = true;
 
 
         public string lastDefaultSetDateTime = "No Default Set";
@@ -21,17 +48,44 @@ namespace SHUU.Utils.InputSystem
 
         [Header("Single Input Sets")]
         public List<NAMED_InputSet> inputSets_list = new List<NAMED_InputSet>();
-        [HideInInspector] public Dictionary<string, InputSet> inputSets_dict = null;
+        [HideInInspector] [JsonIgnore] public Dictionary<string, InputSet> inputSets_dict = null;
 
 
         [Header("Composite Input Sets")]
         public List<NAMED_Composite_InputSet> compositeSets_list = new List<NAMED_Composite_InputSet>();
-        [HideInInspector] public Dictionary<string, Composite_InputSet> compositeSets_dict = null;
+        [HideInInspector] [JsonIgnore] public Dictionary<string, Composite_InputSet> compositeSets_dict = null;
+        #endregion
 
 
 
 
-        private void OnEnable()
+        #region Init
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+
+
+            allInputBindingMaps_proxy = this;
+
+
+
+            foreach (var set in inputSets_list)
+            {
+                set.overrideAction = null;
+            }
+
+            foreach (var set in compositeSets_list)
+            {
+                set.overrideAction = null;
+            }
+
+
+            //BuildDictionaries();
+            ForceBuildDictionaries();
+        }
+
+        protected override void OnDisable()
         {
             foreach (var set in inputSets_list)
             {
@@ -44,29 +98,18 @@ namespace SHUU.Utils.InputSystem
             }
 
 
-            BuildDictionaries();
-        }
 
-        public void OnDisable()
-        {
-            foreach (var set in inputSets_list)
-            {
-                set.overrideAction = null;
-            }
-
-            foreach (var set in compositeSets_list)
-            {
-                set.overrideAction = null;
-            }
+            base.OnDisable();
         }
+        #endregion
 
 
 
         #region Cache Dictionaries
         public void ForceBuildDictionaries()
         {
-            inputSets_dict = null;
-            compositeSets_dict = null;
+            if (inputSets_dict != null) inputSets_dict = null;
+            if (compositeSets_dict != null) compositeSets_dict = null;
 
             BuildDictionaries();
         }
@@ -217,8 +260,6 @@ namespace SHUU.Utils.InputSystem
                 return;
             }
 
-
-            this.enabled = data.enabled;
 
             List<NAMED_InputSet> single_copyList = new();
             for (int i = 0; i < data.inputSets_list.Count; i++)

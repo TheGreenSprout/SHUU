@@ -26,17 +26,19 @@ MonoBehaviour:
     intMax: 0
     floatMin: 0
     floatMax: 0
-  lastDefaultSetDateTime: 2026-01-28_13-27-53
+  lastDefaultSetDateTime: 2026-02-15_23-51-15
   defaultFields:
-  - key: CameraSensitivity
-    type: 2
-    boolValue: 0
-    intValue: 0
-    floatValue: 5
-    stringValue: 
-    useMin: 1
-    useMax: 0
-    intMin: 0
-    intMax: 0
-    floatMin: 0
-    floatMax: 0
+    hasValue: 1
+    fields:
+    - key: CameraSensitivity
+      type: 2
+      boolValue: 0
+      intValue: 0
+      floatValue: 5
+      stringValue: 
+      useMin: 1
+      useMax: 0
+      intMin: 0
+      intMax: 0
+      floatMin: 0
+      floatMax: 0

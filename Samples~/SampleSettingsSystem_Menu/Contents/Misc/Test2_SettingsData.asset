@@ -50,41 +50,43 @@ MonoBehaviour:
     intMax: 3
     floatMin: 0
     floatMax: 0
-  lastDefaultSetDateTime: 2026-02-03_12-22-27
+  lastDefaultSetDateTime: 2026-02-15_23-51-05
   defaultFields:
-  - key: Fullscreen
-    type: 0
-    boolValue: 1
-    intValue: 0
-    floatValue: 0
-    stringValue: 
-    useMin: 0
-    useMax: 0
-    intMin: 0
-    intMax: 0
-    floatMin: 0
-    floatMax: 0
-  - key: ResolutionIndex
-    type: 1
-    boolValue: 1
-    intValue: 0
-    floatValue: 0
-    stringValue: 
-    useMin: 1
-    useMax: 0
-    intMin: 0
-    intMax: 0
-    floatMin: 0
-    floatMax: 0
-  - key: QualityIndex
-    type: 1
-    boolValue: 1
-    intValue: 3
-    floatValue: 0
-    stringValue: 
-    useMin: 1
-    useMax: 1
-    intMin: 0
-    intMax: 3
-    floatMin: 0
-    floatMax: 0
+    hasValue: 1
+    fields:
+    - key: Fullscreen
+      type: 0
+      boolValue: 1
+      intValue: 0
+      floatValue: 0
+      stringValue: 
+      useMin: 0
+      useMax: 0
+      intMin: 0
+      intMax: 0
+      floatMin: 0
+      floatMax: 0
+    - key: ResolutionIndex
+      type: 1
+      boolValue: 1
+      intValue: 0
+      floatValue: 0
+      stringValue: 
+      useMin: 1
+      useMax: 0
+      intMin: 0
+      intMax: 0
+      floatMin: 0
+      floatMax: 0
+    - key: QualityIndex
+      type: 1
+      boolValue: 1
+      intValue: 3
+      floatValue: 0
+      stringValue: 
+      useMin: 1
+      useMax: 1
+      intMin: 0
+      intMax: 3
+      floatMin: 0
+      floatMax: 0

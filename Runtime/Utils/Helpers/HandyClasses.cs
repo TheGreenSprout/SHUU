@@ -1,6 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace SHUU.Utils.Helpers
@@ -226,41 +231,145 @@ namespace SHUU.Utils.Helpers
 
 
 
-        protected virtual void Awake()
-        {
-            if (_instance == null) _instance = this as T;
-        }
+        protected virtual void Awake() => _instance = this as T;
     }
 
 
     public abstract class StaticInstance_ScriptableObject<T> : ScriptableObject where T : ScriptableObject
     {
         private static T _instance;
-        
-
-        protected abstract string resourcesPath { get; }
 
         public static T instance
         {
             get
             {
-                if (_instance == null)
-                {
-                    var temp = CreateInstance<T>() as StaticInstance_ScriptableObject<T>;
-                    _instance = Resources.Load<T>(temp.resourcesPath);
-                    DestroyImmediate(temp);
-                }
+                if (_instance == null) _instance = Resources.Load<T>(resourcesPath);
 
                 return _instance;
             }
         }
 
 
+        protected static string resourcesPath => typeof(T).Name;
 
 
-        protected virtual void OnEnable()
+
+
+        protected virtual void OnEnable() => _instance = this as T;
+    }
+    #endregion
+
+
+
+
+    #region AutoSave
+    public abstract class AutoSave_ScriptableObject<T> : ScriptableObject where T : ScriptableObject
+    {
+        [JsonIgnore] protected virtual string filePath
         {
-            if (_instance == null) _instance = this as T;
+            get => Path.Combine(Application.persistentDataPath, $"Data/{id}.json");
+        }
+
+
+        [JsonIgnore] protected abstract T obj { get; }
+
+        [JsonIgnore] protected abstract string id { get; }
+
+
+
+
+        protected virtual void OnEnable() => Load();
+
+        protected virtual void OnDisable() => Save();
+
+
+        protected virtual void Save()
+        {
+            string json = JsonConvert.SerializeObject(
+                obj,
+                Formatting.Indented,
+                new JsonSerializerSettings {
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    ObjectCreationHandling = ObjectCreationHandling.Replace
+                }
+            );
+
+            HandyFunctions.WriteToFile(filePath, json);
+        }
+
+        protected virtual void Load()
+        {
+            if (!HandyFunctions.TryReadFromFile(filePath, out string json)) return;
+
+            JsonConvert.PopulateObject(
+                json,
+                obj,
+                new JsonSerializerSettings {
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    ObjectCreationHandling = ObjectCreationHandling.Replace
+                }
+            );
+        }
+    }
+
+
+    public abstract class AutoSave_PlayMode_ScriptableObject<T> : AutoSave_Build_ScriptableObject<T> where T : ScriptableObject
+    {
+        #if UNITY_EDITOR
+        static AutoSave_PlayMode_ScriptableObject()
+        {
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
+        }
+
+        private static void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.EnteredPlayMode)
+            {
+                var assets = Resources.FindObjectsOfTypeAll<T>();
+
+                foreach (var asset in assets)
+                {
+                    if (asset is AutoSave_PlayMode_ScriptableObject<T> auto) auto.Load();
+                }
+            }
+
+            if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                var assets = Resources.FindObjectsOfTypeAll<T>();
+
+                foreach (var asset in assets)
+                {
+                    if (asset is AutoSave_PlayMode_ScriptableObject<T> auto) auto.Save();
+                }
+            }
+        }
+        #endif
+
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            #if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            #endif
+        }
+    }
+
+    public abstract class AutoSave_Build_ScriptableObject<T> : AutoSave_ScriptableObject<T> where T : ScriptableObject
+    {
+        protected override void OnEnable()
+        {
+            #if !UNITY_EDITOR
+            Load();
+            #endif
+        }
+
+        protected override void OnDisable()
+        {
+            #if !UNITY_EDITOR
+            Save();
+            #endif
         }
     }
     #endregion

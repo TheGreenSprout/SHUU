@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
 {
     [CreateAssetMenu(fileName = "SFX_Storage", menuName = "SHUU/Audio/SFX_Storage")]
-    public class SfxStorage : ScriptableObject
+    public class Sfx_Storage : ScriptableObject
     {
         public SFX_Instance[] allSFX;
         

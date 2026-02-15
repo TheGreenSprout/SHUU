@@ -1,2 +1,0 @@
-When creating a new Input Binding Map, add it to the list of them in the InputTracker script. This script is inside
-the "Input_System Singleton" prefab (on the child object "Scripts") in the OnEveryScene prefab.

@@ -64,8 +64,8 @@ namespace SHUU.Utils.Globals
         [SerializeField] private AudioMixerGroup sfxMixer = null;
         [SerializeField] private AudioMixerGroup musicMixer = null;
 
-        [SerializeField] private SfxStorage sfxStorage;
-        [SerializeField] private MusicStorage musicStorage;
+        [SerializeField] private Sfx_Storage sfxStorage;
+        [SerializeField] private Music_Storage musicStorage;
 
 
         [SerializeField] private GameObject audioInstance = null;

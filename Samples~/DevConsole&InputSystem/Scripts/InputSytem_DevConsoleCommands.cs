@@ -141,9 +141,9 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
     [DevConsoleCommand("allinputmaps", "Displays all input set names of all tracked binding maps", "Input System")]
     public static CommandReturn DisplayAllMaps()
     {
-        if (InputTracker.allInputBindingMaps.Values == null || InputTracker.allInputBindingMaps.Values.Count == 0) return new CommandReturn(Color.red, "No input maps registered.");
+        if (SHUU_Input.allInputBindingMaps.Values == null || SHUU_Input.allInputBindingMaps.Values.Count == 0) return new CommandReturn(Color.red, "No input maps registered.");
 
-        List<InputBindingMap> mapsList = new List<InputBindingMap>(InputTracker.allInputBindingMaps.Values);
+        List<InputBindingMap> mapsList = new List<InputBindingMap>(SHUU_Input.allInputBindingMaps.Values);
         string[] mapNames = new string[mapsList.Count];
 
         for (int i = 0; i < mapsList.Count; i++)

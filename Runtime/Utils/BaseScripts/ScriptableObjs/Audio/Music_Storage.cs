@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
 {
     [CreateAssetMenu(fileName = "Music_Storage", menuName = "SHUU/Audio/Music_Storage")]
-    public class MusicStorage : ScriptableObject
+    public class Music_Storage : ScriptableObject
     {
         public Music_Instance[] alMusic;
 

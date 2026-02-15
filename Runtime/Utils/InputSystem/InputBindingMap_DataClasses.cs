@@ -50,6 +50,7 @@ namespace SHUU.Utils.InputSystem
         public override InputDeviceType DeviceType() => deviceType;
 
 
+        public KeySource() { }
         public KeySource(KeyCode k)
         {
             key = k;
@@ -81,6 +82,7 @@ namespace SHUU.Utils.InputSystem
         public override InputDeviceType DeviceType() => InputDeviceType.KeyboardMouse;
 
 
+        public MouseSource() { }
         public MouseSource(int m) => mouse = m;
         public MouseSource(MouseSource other) => mouse = other.mouse;
 
@@ -108,6 +110,7 @@ namespace SHUU.Utils.InputSystem
         public override InputDeviceType DeviceType() => deviceType;
 
 
+        public AxisSource() { }
         public AxisSource(string axisName, InputDeviceType deviceType, float threshold = 0.5f, bool raw = true)
         {
             this.axisName = axisName;
@@ -656,20 +659,17 @@ namespace SHUU.Utils.InputSystem
     {
         public bool hasValue = false;
 
-        public string mapName = null;
-        public bool enabled = false;
 
         public List<NAMED_InputSet> inputSets_list = null;
         public List<NAMED_Composite_InputSet> compositeSets_list = null;
 
 
 
+        public InputBindingMap_Data() { }
+        
         public InputBindingMap_Data(InputBindingMap map)
         {
             hasValue = true;
-
-            this.mapName = map.mapName;
-            this.enabled = map.enabled;
 
             this.inputSets_list = new List<NAMED_InputSet>();
             foreach (var set in map.inputSets_list)
@@ -686,9 +686,6 @@ namespace SHUU.Utils.InputSystem
         public InputBindingMap_Data(InputBindingMap_Data other)
         {
             hasValue = true;
-
-            this.mapName = other.mapName;
-            this.enabled = other.enabled;
 
             this.inputSets_list = new List<NAMED_InputSet>();
             foreach (var set in other.inputSets_list)

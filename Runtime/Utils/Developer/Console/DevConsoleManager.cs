@@ -108,7 +108,9 @@ namespace SHUU.Utils.Developer.Console
                         Array array = Array.CreateInstance(elementType, args.Length-fixedCount);
 
                         for (int i = fixedCount; i < args.Length; i++)
+                        {
                             array.SetValue(Convert.ChangeType(args[i], elementType), i-fixedCount);
+                        }
 
                         parsedArgs[parsedArgs.Length-1] = array;
                     }

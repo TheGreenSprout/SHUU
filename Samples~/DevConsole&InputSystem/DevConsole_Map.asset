@@ -14,79 +14,67 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapName: Console
   enabled: 1
-  lastDefaultSetDateTime: 2026-01-27_23-35-45
+  lastDefaultSetDateTime: 2026-02-15_23-50-43
   defaultData:
     hasValue: 1
-    mapName: Console
-    enabled: 1
     inputSets_list:
     - name: Toggle
       set:
         enabled: 1
         validSources:
-        - rid: 4908810973655597251
-        - rid: 4908810973655597252
+        - rid: 2160969513149923755
     - name: PreviousCommand
       set:
         enabled: 1
         validSources:
-        - rid: 4908810973655597253
+        - rid: 2160969513149923756
     - name: NextCommand
       set:
         enabled: 1
         validSources:
-        - rid: 4908810973655597254
+        - rid: 2160969513149923757
     compositeSets_list: []
   inputSets_list:
   - name: Toggle
     set:
       enabled: 1
       validSources:
-      - rid: 4908810973655597245
-      - rid: 4908810973655597246
+      - rid: 2160969513149923719
   - name: PreviousCommand
     set:
       enabled: 1
       validSources:
-      - rid: 4908810973655597248
+      - rid: 2160969513149923720
   - name: NextCommand
     set:
       enabled: 1
       validSources:
-      - rid: 4908810973655597250
+      - rid: 2160969513149923721
   compositeSets_list: []
   references:
     version: 2
     RefIds:
-    - rid: 4908810973655597245
+    - rid: 2160969513149923719
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
         key: 283
-    - rid: 4908810973655597246
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 308
-    - rid: 4908810973655597248
+    - rid: 2160969513149923720
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
         key: 273
-    - rid: 4908810973655597250
+    - rid: 2160969513149923721
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
         key: 274
-    - rid: 4908810973655597251
+    - rid: 2160969513149923755
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
         key: 283
-    - rid: 4908810973655597252
-      type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
-      data:
-        key: 308
-    - rid: 4908810973655597253
+    - rid: 2160969513149923756
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
         key: 273
-    - rid: 4908810973655597254
+    - rid: 2160969513149923757
       type: {class: KeySource, ns: SHUU.Utils.InputSystem, asm: SproutingGames.Sprouts.HUU}
       data:
         key: 274

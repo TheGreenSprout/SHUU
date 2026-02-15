@@ -19,12 +19,10 @@ namespace SHUU.Utils.Globals
         public static float currentTimeScale { get; private set; } = 1f;
 
 
+
         private static Action _nextFrameQueue;
         private static Action _executeQueue;
 
-        /// <summary>
-        /// An event that runs on the next LateUpdate. Use this to run code after all other Update and LateUpdate calls have been made in the current frame.
-        /// </summary>
         public static event Action onNextFrame
         {
             add => _nextFrameQueue += value;
@@ -32,10 +30,24 @@ namespace SHUU.Utils.Globals
         }
 
 
+        public event Action onUpdate_Local;
+        public static event Action onUpdate;
+
+        public event Action onLateUpdate_Local;
+        public static event Action onLateUpdate;
+
+        public event Action onFixedUpdate_Local;
+        public static event Action onFixedUpdate;
+
+
 
 
         private void Update()
         {
+            onUpdate?.Invoke();
+            onUpdate_Local?.Invoke();
+
+
             if (_executeQueue != null)
             {
                 var callback = _executeQueue;
@@ -46,10 +58,20 @@ namespace SHUU.Utils.Globals
 
         private void LateUpdate()
         {
+            onLateUpdate?.Invoke();
+            onLateUpdate_Local?.Invoke();
+
+            
             if (_nextFrameQueue == null) return;
 
             _executeQueue = _nextFrameQueue;
             _nextFrameQueue = null;
+        }
+
+        private void FixedUpdate()
+        {
+            onFixedUpdate?.Invoke();
+            onFixedUpdate_Local?.Invoke();
         }
 
 

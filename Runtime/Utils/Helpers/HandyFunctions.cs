@@ -23,7 +23,7 @@ namespace SHUU.Utils.Helpers
         public static string ProjectKey => Application.dataPath.GetHashCode().ToString();
 
 
-        public static string Path => Application.dataPath;
+        public static string ApplicationPath => Application.dataPath;
 
 
 
@@ -825,6 +825,7 @@ namespace SHUU.Utils.Helpers
             return defaultValue;
 #endif
         }
+
         public static T FindFile<T>(this string[] pathArray, T defaultValue = default) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
@@ -843,11 +844,55 @@ namespace SHUU.Utils.Helpers
 #endif
         }
 
+
+        public static void WriteToFile(string filePath, string content)
+        {
+            EnsureDirectoryExists(filePath);
+
+            File.WriteAllText(filePath, content);
+        }
+        public static void AppendToFile(string filePath, string content)
+        {
+            EnsureDirectoryExists(filePath);
+
+            File.AppendAllText(filePath, content);
+        }
+        public static bool TryReadFromFile(string filePath, out string content)
+        {
+            content = null;
+
+            if (!File.Exists(filePath)) return false;
+
+
+            content = File.ReadAllText(filePath);
+
+            return true;
+        }
+
+        private static void EnsureDirectoryExists(string filePath)
+        {
+            string directory = Path.GetDirectoryName(filePath);
+
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+        }
+
+        public static bool DeleteFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+
+                return true;
+            }
+            else return false;
+        }
+
         #endregion
     
         
 
         #region Gizmos
+
         public static void DrawCircle(Transform t, Vector2 offset, float radius, bool filled)
         {
             int segments = 32;
@@ -895,11 +940,13 @@ namespace SHUU.Utils.Helpers
             Gizmos.DrawWireSphere(cap.center - Vector3.up * (cap.height * .5f - cap.radius), cap.radius);
             Gizmos.DrawWireCube(cap.center, new Vector3(cap.radius * 2, cap.height - cap.radius * 2, cap.radius * 2));
         }
+
         #endregion
 
 
 
         #region Interaction System
+
         public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
         {
             bool raycast;
@@ -981,11 +1028,13 @@ namespace SHUU.Utils.Helpers
 
             return false;
         }
+
         #endregion
 
 
 
         #region Misc
+
         public static string GetTypeName(this Type t)
         {
             // Primitive C# types
@@ -1133,6 +1182,7 @@ namespace SHUU.Utils.Helpers
             }
             return result;
         }
+
         #endregion
 
 

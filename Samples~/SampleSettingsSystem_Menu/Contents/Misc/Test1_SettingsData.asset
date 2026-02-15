@@ -50,41 +50,43 @@ MonoBehaviour:
     intMax: 100
     floatMin: 0
     floatMax: 100
-  lastDefaultSetDateTime: 2026-02-02_21-05-20
+  lastDefaultSetDateTime: 2026-02-15_23-51-03
   defaultFields:
-  - key: MasterVolume
-    type: 1
-    boolValue: 0
-    intValue: 100
-    floatValue: 100
-    stringValue: 
-    useMin: 1
-    useMax: 1
-    intMin: 0
-    intMax: 100
-    floatMin: 0
-    floatMax: 100
-  - key: SfxVolume
-    type: 1
-    boolValue: 0
-    intValue: 100
-    floatValue: 100
-    stringValue: 
-    useMin: 1
-    useMax: 1
-    intMin: 0
-    intMax: 100
-    floatMin: 0
-    floatMax: 100
-  - key: MusicVolume
-    type: 1
-    boolValue: 0
-    intValue: 100
-    floatValue: 100
-    stringValue: 
-    useMin: 1
-    useMax: 1
-    intMin: 0
-    intMax: 100
-    floatMin: 0
-    floatMax: 100
+    hasValue: 1
+    fields:
+    - key: MasterVolume
+      type: 1
+      boolValue: 0
+      intValue: 100
+      floatValue: 100
+      stringValue: 
+      useMin: 1
+      useMax: 1
+      intMin: 0
+      intMax: 100
+      floatMin: 0
+      floatMax: 100
+    - key: SfxVolume
+      type: 1
+      boolValue: 0
+      intValue: 100
+      floatValue: 100
+      stringValue: 
+      useMin: 1
+      useMax: 1
+      intMin: 0
+      intMax: 100
+      floatMin: 0
+      floatMax: 100
+    - key: MusicVolume
+      type: 1
+      boolValue: 0
+      intValue: 100
+      floatValue: 100
+      stringValue: 
+      useMin: 1
+      useMax: 1
+      intMin: 0
+      intMax: 100
+      floatMin: 0
+      floatMax: 100
