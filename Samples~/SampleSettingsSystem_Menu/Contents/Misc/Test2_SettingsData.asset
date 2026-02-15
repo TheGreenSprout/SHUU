@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb4bd47d1e6a491498fd70b06924411b, type: 3}
   m_Name: Test2_SettingsData
   m_EditorClassIdentifier: 
-  settingsName: Graphics
+  settingsName: Test2
   fields:
   - key: Fullscreen
     type: 0

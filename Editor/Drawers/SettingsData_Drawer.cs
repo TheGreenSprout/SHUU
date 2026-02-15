@@ -439,8 +439,7 @@ namespace SHUU._Editor.Drawers
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var data = AssetDatabase.LoadAssetAtPath<SettingsData>(path);
-                if (data != null)
-                    result.Add(data);
+                if (data != null) result.Add(data);
             }
 
             return result;
@@ -461,7 +460,7 @@ namespace SHUU._Editor.Drawers
 
                 sb.AppendLine($"    public static class {className}");
                 sb.AppendLine("    {");
-                sb.AppendLine($"        private static SettingsData Data => SettingsTracker.GetSettingsData(\"{data.settingsName}\");");
+                sb.AppendLine($"        private static SettingsData Data => SettingsData.GetSettingsData(\"{data.settingsName}\");");
                 sb.AppendLine();
 
                 foreach (var field in data.fields)
