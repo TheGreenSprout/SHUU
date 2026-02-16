@@ -261,7 +261,6 @@ namespace SHUU.Utils.Helpers
 
 
 
-
     #region AutoSave
     public abstract class AutoSave_ScriptableObject<T> : ScriptableObject where T : ScriptableObject
     {
@@ -283,33 +282,32 @@ namespace SHUU.Utils.Helpers
         protected virtual void OnDisable() => Save();
 
 
-        protected virtual void Save()
-        {
-            string json = JsonConvert.SerializeObject(
-                obj,
-                Formatting.Indented,
-                new JsonSerializerSettings {
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    ObjectCreationHandling = ObjectCreationHandling.Replace
-                }
-            );
 
-            HandyFunctions.WriteToFile(filePath, json);
+        protected void Save() => HandyFunctions.WriteToFile(filePath, ToJson());
+
+        protected virtual string ToJson() => JsonConvert.SerializeObject(
+                                                obj,
+                                                Formatting.Indented,
+                                                new JsonSerializerSettings {
+                                                    TypeNameHandling = TypeNameHandling.Auto,
+                                                    ObjectCreationHandling = ObjectCreationHandling.Replace
+                                                }
+                                            );
+
+
+        protected void Load()
+        {
+            if (HandyFunctions.TryReadFromFile(filePath, out string json)) FromJson(json);
         }
 
-        protected virtual void Load()
-        {
-            if (!HandyFunctions.TryReadFromFile(filePath, out string json)) return;
-
-            JsonConvert.PopulateObject(
-                json,
-                obj,
-                new JsonSerializerSettings {
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    ObjectCreationHandling = ObjectCreationHandling.Replace
-                }
-            );
-        }
+        protected virtual void FromJson(string json) => JsonConvert.PopulateObject(
+                                                            json,
+                                                            obj,
+                                                            new JsonSerializerSettings {
+                                                                TypeNameHandling = TypeNameHandling.Auto,
+                                                                ObjectCreationHandling = ObjectCreationHandling.Replace
+                                                            }
+                                                        );
     }
 
 
@@ -371,6 +369,70 @@ namespace SHUU.Utils.Helpers
             Save();
             #endif
         }
+    }
+    #endregion
+
+
+
+    #region Static Instance + AutoSave
+    public abstract class StaticInstance_AutoSave_ScriptableObject<T> : StaticInstance_ScriptableObject<T> where T : ScriptableObject
+    {
+        [JsonIgnore] protected virtual string filePath
+        {
+            get => Path.Combine(Application.persistentDataPath, $"Data/{id}.json");
+        }
+
+
+        [JsonIgnore] protected abstract T obj { get; }
+
+        [JsonIgnore] protected abstract string id { get; }
+
+
+
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            #if !UNITY_EDITOR
+            Load();
+            #endif
+        }
+
+        protected virtual void OnDisable()
+        {
+            #if !UNITY_EDITOR
+            Save();
+            #endif
+        }
+
+
+
+        protected void Save() => HandyFunctions.WriteToFile(filePath, ToJson());
+
+        protected virtual string ToJson() => JsonConvert.SerializeObject(
+                                                obj,
+                                                Formatting.Indented,
+                                                new JsonSerializerSettings {
+                                                    TypeNameHandling = TypeNameHandling.Auto,
+                                                    ObjectCreationHandling = ObjectCreationHandling.Replace
+                                                }
+                                            );
+
+
+        protected void Load()
+        {
+            if (HandyFunctions.TryReadFromFile(filePath, out string json)) FromJson(json);
+        }
+
+        protected virtual void FromJson(string json) => JsonConvert.PopulateObject(
+                                                            json,
+                                                            obj,
+                                                            new JsonSerializerSettings {
+                                                                TypeNameHandling = TypeNameHandling.Auto,
+                                                                ObjectCreationHandling = ObjectCreationHandling.Replace
+                                                            }
+                                                        );
     }
     #endregion
 }

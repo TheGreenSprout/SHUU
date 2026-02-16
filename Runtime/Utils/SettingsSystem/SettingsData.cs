@@ -30,14 +30,13 @@ namespace SHUU.Utils.SettingsSytem
         public static SettingsData GetSettingsData(string name) => allSettingsData.GetValueOrDefault(name);
 
 
-
-        #region Variables
         protected override SettingsData obj => this;
 
         protected override string id => this.name;
 
 
 
+        #region Variables
         public string settingsName;
 
 

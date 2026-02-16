@@ -28,14 +28,13 @@ namespace SHUU.Utils.InputSystem
         }
 
 
-
-        #region Variables
         [JsonIgnore] protected override InputBindingMap obj => this;
 
         [JsonIgnore] protected override string id => this.name;
 
 
 
+        #region Variables
         [JsonIgnore] public string mapName;
 
         [JsonIgnore] public bool enabled = true;
