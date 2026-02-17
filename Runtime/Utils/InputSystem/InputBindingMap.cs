@@ -17,10 +17,20 @@ namespace SHUU.Utils.InputSystem
             {
                 if (value == null || string.IsNullOrWhiteSpace(value.mapName)) return;
 
-                foreach (var item in SHUU_Input.allInputBindingMaps)
+
+                var dict = SHUU_Input.allInputBindingMaps;
+                List<string> keysToRemove = new List<string>();
+
+                foreach (var item in dict)
                 {
-                    if (item.Value == null) SHUU_Input.allInputBindingMaps.Remove(item.Key);
+                    if (item.Value == null) keysToRemove.Add(item.Key);
                 }
+
+                foreach (var key in keysToRemove)
+                {
+                    dict.Remove(key);
+                }
+
 
                 if (SHUU_Input.allInputBindingMaps.ContainsKey(value.mapName)) SHUU_Input.allInputBindingMaps[value.mapName] = value;
                 else SHUU_Input.allInputBindingMaps.Add(value.mapName, value);

@@ -9,6 +9,7 @@ namespace SHUU.UserSide
     {
         [SerializeField] private InputBindingMap map;
 
+
         [SerializeField] private string toggle_setName = "Toggle";
 
         [SerializeField] private string previousCommand_setName = "PreviousCommand";

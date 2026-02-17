@@ -20,8 +20,8 @@ namespace SHUU.Utils.Developer.Console
         public static DevConsoleManager instance;
 
 
-        public static bool devConsole_On => instance.input.devConsole_On;
-        public static bool canToggle_devConsole => instance.input.canToggle_devConsole;
+        public static bool devConsole_On => DevConsoleInput.devConsole_On;
+        public static bool canToggle_devConsole => DevConsoleInput.canToggle_devConsole;
 
 
 
