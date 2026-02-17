@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -95,3 +96,4 @@ namespace SHUU._Editor._CustomEditor.InspectorCreation
         }
     }
 }
+#endif
