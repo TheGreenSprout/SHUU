@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -90,19 +91,32 @@ namespace SHUU.Utils.Helpers
             get => this[K2(key)];
             set => this[K2(key)] = value;
         }
+        public TValue this[TKey1 key1, TKey2 key2]
+        {
+            get => this[(key1, key2)];
+            set => this[(key1, key2)] = value;
+        }
+
+
+        public TKey2 GetKey2(TKey1 key) => Keys.First(k => EqualityComparer<TKey1>.Default.Equals(k.Item1, key)).Item2;
+        public TKey1 GetKey1(TKey2 key) => Keys.First(k => EqualityComparer<TKey2>.Default.Equals(k.Item2, key)).Item1;
 
 
         public void Add(TKey1 key, TValue value) => Add(K1(key), value);
         public void Add(TKey2 key, TValue value) => Add(K2(key), value);
+        public void Add(TKey1 key1, TKey2 key2, TValue value) => Add((key1, key2), value);
 
         public bool ContainsKey(TKey1 key) => ContainsKey(K1(key));
         public bool ContainsKey(TKey2 key) => ContainsKey(K2(key));
+        public bool ContainsKey(TKey1 key1, TKey2 key2) => ContainsKey((key1, key2));
 
         public bool TryGetValue(TKey1 key, out TValue value) => TryGetValue(K1(key), out value);
         public bool TryGetValue(TKey2 key, out TValue value) => TryGetValue(K2(key), out value);
+        public bool TryGetValue(TKey1 key1, TKey2 key2, out TValue value) => TryGetValue((key1, key2), out value);
 
         public bool Remove(TKey1 key) => Remove(K1(key));
         public bool Remove(TKey2 key) => Remove(K2(key));
+        public bool Remove(TKey1 key1, TKey2 key2) => Remove((key1, key2));
         
         #endregion
     }
@@ -121,6 +135,7 @@ namespace SHUU.Utils.Helpers
         public int Count => data.Count;
 
 
+        private bool hasLast = false;
         private T last;
 
 
@@ -134,6 +149,8 @@ namespace SHUU.Utils.Helpers
 
 
             last = data.Dequeue();
+            hasLast = true;
+
             data.Enqueue(last);
             
             return last;
@@ -141,13 +158,51 @@ namespace SHUU.Utils.Helpers
 
 
         public T Peek() => data.Peek();
-        public T PeekLast() => last;
+        public T PeekLast() => hasLast ? last : throw new InvalidOperationException("LoopingQueue has no last item.");
 
 
 
         public IEnumerator<T> GetEnumerator() => data.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+
+
+        #region Queue implemented methods
+        public void Clear() => data.Clear();
+
+        public bool Contains(T item) => data.Contains(item);
+
+
+        public T[] ToArray() => data.ToArray();
+
+        public void CopyTo(T[] array, int arrayIndex) => data.CopyTo(array, arrayIndex);
+
+
+        public bool TryDequeue(out T result)
+        {
+            if (data.Count == 0)
+            {
+                result = default!;
+                return false;
+            }
+
+            result = Dequeue();
+            return true;
+        }
+
+        public bool TryPeek(out T result)
+        {
+            if (data.Count == 0)
+            {
+                result = default!;
+                return false;
+            }
+
+            result = data.Peek();
+            return true;
+        }
+        #endregion
     }
     #endregion
 
