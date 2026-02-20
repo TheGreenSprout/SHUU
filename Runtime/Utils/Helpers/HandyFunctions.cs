@@ -947,7 +947,7 @@ namespace SHUU.Utils.Helpers
 
         #region Interaction System
 
-        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
+        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
         {
             bool raycast;
             RaycastHit hitInfo;
@@ -962,18 +962,18 @@ namespace SHUU.Utils.Helpers
                 {
                     if (previousInact != null)
                     {
-                        previousInact.HoverEnd();
+                        previousInact.HoverEnd(modifyDynamicCursor);
                     }
 
                     previousInact = inact;
 
 
-                    inact.HoverStart();
+                    inact.HoverStart(modifyDynamicCursor);
                 }
             }
             else if (previousInact != null)
             {
-                previousInact.HoverEnd();
+                previousInact.HoverEnd(modifyDynamicCursor);
 
                 previousInact = null;
             }
@@ -981,7 +981,7 @@ namespace SHUU.Utils.Helpers
 
             return raycast;
         }
-        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Camera camera, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
+        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Camera camera, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
         {
             if (camera == null)
             {
@@ -989,6 +989,7 @@ namespace SHUU.Utils.Helpers
                     ref previousInact,
                     interactionRange,
                     interactionLayers,
+                    modifyDynamicCursor,
                     tags
                 );
             }
@@ -999,16 +1000,18 @@ namespace SHUU.Utils.Helpers
                 camera.ScreenPointToRay(Input.mousePosition),
                 interactionRange,
                 interactionLayers,
+                modifyDynamicCursor,
                 tags
             );
         }
-        public static bool InteractionRaycast(ref IfaceInteractable previousInact, float interactionRange, LayerMask? interactionLayers = null, params string[] tags)
+        public static bool InteractionRaycast(ref IfaceInteractable previousInact, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
         {
             return InteractionRaycast(
                 ref previousInact,
                 Camera.main.ScreenPointToRay(Input.mousePosition),
                 interactionRange,
                 interactionLayers,
+                modifyDynamicCursor,
                 tags
             );
         }

@@ -28,13 +28,13 @@ public interface IfaceInteractable
     /// This runs when the interactable starts being hovered over.
     /// </summary>
     #endregion
-    public void HoverStart();
+    public void HoverStart(bool _modifyDynamicCursor = true);
     #region XML doc
     /// <summary>
     /// This runs when the interactable stops being hovered over.
     /// </summary>
     #endregion
-    public void HoverEnd();
+    public void HoverEnd(bool _modifyDynamicCursor = true);
 }
 
 }

@@ -24,6 +24,9 @@ namespace SHUU.Utils
         }
 
 
+        [SerializeField] protected bool modifyDynamicCursor = true;
+
+
         protected bool beingHovered = false;
 
 
@@ -68,9 +71,9 @@ namespace SHUU.Utils
         /// This runs when the interactable starts being hovered over.
         /// </summary>
         #endregion
-        public void HoverStart()
+        public void HoverStart(bool _modifyDynamicCursor = true)
         {
-            DynamicCursorInteraction.AddCursorAffector(this.gameObject);
+            if (modifyDynamicCursor && _modifyDynamicCursor) DynamicCursorInteraction.AddCursorAffector(this.gameObject);
 
             beingHovered = true;
 
@@ -83,9 +86,9 @@ namespace SHUU.Utils
         /// This runs when the interactable stops being hovered over.
         /// </summary>
         #endregion
-        public void HoverEnd()
+        public void HoverEnd(bool _modifyDynamicCursor = true)
         {
-            DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
+            if (modifyDynamicCursor && _modifyDynamicCursor) DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
 
             beingHovered = false;
 

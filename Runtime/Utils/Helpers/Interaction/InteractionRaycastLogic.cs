@@ -7,9 +7,13 @@ namespace SHUU.Utils.Helpers.Interaction
         [SerializeField] protected Camera cam;
 
 
+        [SerializeField] protected bool modifyDynamicCursor = true;
+
+
         [SerializeField] protected float interactionRange;
 
         [SerializeField] protected LayerMask interactablesMask;
+        [SerializeField] protected string[] tagMask = new string[0];
 
 
 
@@ -25,7 +29,7 @@ namespace SHUU.Utils.Helpers.Interaction
         protected virtual void Update() => CastRay();
 
         
-        protected virtual void CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, interactablesMask);
+        protected virtual void CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, interactablesMask, modifyDynamicCursor, tagMask);
 
         protected virtual void Interact() => previousInact?.Interact();
     }
