@@ -956,7 +956,7 @@ namespace SHUU.Utils.Helpers
             else raycast = Physics.Raycast(ray, out hitInfo, interactionRange);
 
 
-            if (raycast && hitInfo.InteractionRaycast_Check(out IfaceInteractable inact))
+            if (raycast && hitInfo.InteractionRaycast_Check(out IfaceInteractable inact, tags))
             {
                 if (previousInact != inact)
                 {
