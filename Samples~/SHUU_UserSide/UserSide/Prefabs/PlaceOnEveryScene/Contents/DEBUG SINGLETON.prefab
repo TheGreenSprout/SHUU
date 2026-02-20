@@ -62,6 +62,7 @@ GameObject:
   - component: {fileID: 5886737878205337909}
   - component: {fileID: 8355383053517965814}
   - component: {fileID: 6303701480847540382}
+  - component: {fileID: 2873910112985950174}
   - component: {fileID: 513663772477953327}
   - component: {fileID: 7066465111927383874}
   m_Layer: 0
@@ -110,6 +111,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f3c0a146f79b3945876e82a39900ce3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2873910112985950174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6373702377639606796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5a16bf8ce7fa934b84778264a00cc27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.Developer.Debugging.Debug_MethodBind
+  active: 0
 --- !u!114 &513663772477953327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,6 +153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   colliderVisualizerEnabled: 0
   beginEnabled: 0
+  activationKey: 0
   matShader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}
   alwaysRenderWire: 0
   alwaysRenderFill: 0
@@ -149,5 +164,9 @@ MonoBehaviour:
   defaultFillColor: {r: 0, g: 1, b: 0, a: 0.078431375}
   triggerAlphaMultiplier: 0.6
   disabledAlphaMultiplier: 0.3
+  excludedLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  excludedTags: []
   layerWireColors: []
   tagFillColors: []

@@ -16,10 +16,20 @@ namespace SHUU.Utils.SettingsSytem
             {
                 if (value == null || string.IsNullOrWhiteSpace(value.settingsName)) return;
 
-                foreach (var item in allSettingsData)
+
+                var dict = allSettingsData;
+                List<string> keysToRemove = new List<string>();
+
+                foreach (var item in dict)
                 {
-                    if (item.Value == null) allSettingsData.Remove(item.Key);
+                    if (item.Value == null) keysToRemove.Add(item.Key);
                 }
+
+                foreach (var key in keysToRemove)
+                {
+                    dict.Remove(key);
+                }
+
 
                 if (allSettingsData.ContainsKey(value.settingsName)) allSettingsData[value.settingsName] = value;
                 else allSettingsData.Add(value.settingsName, value);

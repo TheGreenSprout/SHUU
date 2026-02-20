@@ -39,12 +39,16 @@ namespace SHUU.Utils.Developer.Debugging
 
 
 
-    [InitializeOnLoad]
-    public static class Debug_MethodBind
+    public class Debug_MethodBind : MonoBehaviour
     {
-        static Debug_MethodBind()
+        [SerializeField] private bool active = false;
+
+
+
+
+        private void Awake()
         {
-            EditorApplication.update += OnEditorUpdate;
+            if (active) EditorApplication.update += OnEditorUpdate;
         }
 
         private static void OnEditorUpdate()
@@ -54,9 +58,9 @@ namespace SHUU.Utils.Developer.Debugging
 
             MonoBehaviour[] behaviours;
             #if UNITY_2023_1_OR_NEWER
-            behaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+            behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             #else
-            behaviours = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
+            behaviours = FindObjectsOfType<MonoBehaviour>();
             #endif
             foreach (var obj in behaviours)
             {
