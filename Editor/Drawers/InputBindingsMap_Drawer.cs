@@ -14,6 +14,8 @@ using SHUU.Utils.Helpers;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using SHUU.UserSide;
+using SHUU.UserSide.Commons;
 
 namespace SHUU._Editor.Drawers
 {
@@ -445,12 +447,23 @@ namespace SHUU._Editor.Drawers
             var result = new List<InputBindingMap>();
             var guids = AssetDatabase.FindAssets("t:InputBindingMap");
 
+            var loader = Resources.Load<ScriptableObjectLoader>("ScriptableObjectLoader_Asset");
+
             foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var map = AssetDatabase.LoadAssetAtPath<InputBindingMap>(path);
                 if (map != null)
+                {
                     result.Add(map);
+
+                    if (loader != null)
+                    {
+                        loader.Track(map);
+
+                        AssetDatabase.SaveAssets();
+                    }
+                }
             }
 
             return result;

@@ -10,6 +10,7 @@ This code was written with the assistance of AI.
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using SHUU.UserSide.Commons;
 using SHUU.Utils.SettingsSytem;
 using UnityEditor;
 using UnityEngine;
@@ -435,11 +436,23 @@ namespace SHUU._Editor.Drawers
             var result = new List<SettingsData>();
             var guids = AssetDatabase.FindAssets("t:SettingsData");
 
+            var loader = Resources.Load<ScriptableObjectLoader>("ScriptableObjectLoader_Asset");
+
             foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var data = AssetDatabase.LoadAssetAtPath<SettingsData>(path);
-                if (data != null) result.Add(data);
+                if (data != null)
+                {
+                    result.Add(data);
+
+                    if (loader != null)
+                    {
+                        loader.Track(data);
+
+                        AssetDatabase.SaveAssets();
+                    }
+                }
             }
 
             return result;

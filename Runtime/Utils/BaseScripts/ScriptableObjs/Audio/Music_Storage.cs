@@ -6,7 +6,7 @@ namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
     [CreateAssetMenu(fileName = "Music_Storage", menuName = "SHUU/Audio/Music_Storage")]
     public class Music_Storage : ScriptableObject
     {
-        public Music_Instance[] alMusic;
+        public Music_Instance[] allMusic;
 
 
         private Dictionary<string, Music_Set> allMusic_dict;
@@ -18,9 +18,9 @@ namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
         {
             allMusic_dict = new();
 
-            if (alMusic != null)
+            if (allMusic != null)
             {
-                foreach (var audio in alMusic)
+                foreach (var audio in allMusic)
                 {
                     if (audio != null && audio.music != null && !string.IsNullOrEmpty(audio.IDENTIFIER))
                     {
