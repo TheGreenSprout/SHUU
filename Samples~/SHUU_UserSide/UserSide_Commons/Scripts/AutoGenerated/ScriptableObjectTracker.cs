@@ -14,7 +14,15 @@ namespace SHUU.UserSide.Commons
 
 
 
-        private void OnEnable()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Init()
+        {
+            var loader = Resources.Load<ScriptableObjectLoader>("ScriptableObjectLoader_Asset");
+
+            if (loader != null) loader._Init();
+        }
+
+        public void _Init()
         {
             for (int i = 0; i < tracked.Count; i++)
             {

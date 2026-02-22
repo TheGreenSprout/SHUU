@@ -290,7 +290,7 @@ namespace SHUU.Utils.Helpers
     }
 
 
-    public abstract class StaticInstance_ScriptableObject<T> : ScriptableObject where T : ScriptableObject
+    public abstract class StaticInstance_ScriptableObject<T> : ScriptableObject where T : StaticInstance_ScriptableObject<T>
     {
         private static T _instance;
 
@@ -298,15 +298,25 @@ namespace SHUU.Utils.Helpers
         {
             get
             {
-                if (_instance == null) _instance = Resources.Load<T>(resourcesPath);
+                if (_instance == null) _instance = Resources.Load<T>(GetResourcesPath());
 
                 return _instance;
             }
         }
 
 
-        protected static string resourcesPath => typeof(T).Name;
+        protected virtual string resourcesPath => typeof(T).Name;
 
+        private static string GetResourcesPath()
+        {
+            var temp = CreateInstance<T>();
+            var path = temp.resourcesPath;
+
+            DestroyImmediate(temp);
+            _instance = null;
+            
+            return path;
+        }
 
 
 
@@ -430,7 +440,7 @@ namespace SHUU.Utils.Helpers
 
 
     #region Static Instance + AutoSave
-    public abstract class StaticInstance_AutoSave_ScriptableObject<T> : StaticInstance_ScriptableObject<T> where T : ScriptableObject
+    public abstract class StaticInstance_AutoSave_ScriptableObject<T> : StaticInstance_ScriptableObject<T> where T : StaticInstance_ScriptableObject<T>
     {
         [JsonIgnore] protected virtual string filePath
         {
