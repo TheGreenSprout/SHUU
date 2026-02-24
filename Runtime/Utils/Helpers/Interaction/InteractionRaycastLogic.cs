@@ -32,24 +32,33 @@ namespace SHUU.Utils.Helpers.Interaction
 
         protected virtual void Update()
         {
-            HoldInteractCheck();
+            InteractCheck();
             
             CastRay();
         }
 
         
-        protected virtual void CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, layerMask, modifyDynamicCursor, tagMask);
+        protected virtual bool CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, layerMask, modifyDynamicCursor, tagMask);
 
-        protected virtual void Interact() => previousInact?.Interact();
-
-        protected virtual void ReleaseInteract() => previousInact?.ReleaseInteract();
-
-
-        protected virtual void HoldInteractCheck()
+        protected virtual void Interact()
         {
-            if (previousInact != null && previousInact.HoldInteract()) holdInact = previousInact;
+            previousInact?.Interact();
 
-            if (holdInact != null)
+            if (previousInact != null && previousInact.HoldInteract()) holdInact = previousInact;
+        }
+
+        protected virtual void ReleaseInteract()
+        {
+            if (holdInact != null && previousInact == null) holdInact?.ReleaseInteract();
+            else previousInact?.ReleaseInteract();
+
+            if (holdInact != null) holdInact = null;
+        }
+
+
+        protected virtual void InteractCheck()
+        {
+            if (previousInact != null)
             {
                 bool? inact = previousInact?.InteractKey();
                 inact = inact ?? InteractKey();
@@ -58,6 +67,18 @@ namespace SHUU.Utils.Helpers.Interaction
                 {
                     if (inact.Value) Interact();
                     else ReleaseInteract();
+                }
+            }
+            else if (holdInact != null)
+            {
+                bool? inact = holdInact?.InteractKey();
+                inact = inact ?? InteractKey();
+
+                if (inact != null && !inact.Value)
+                {
+                    ReleaseInteract();
+
+                    holdInact = null;
                 }
             }
         }
