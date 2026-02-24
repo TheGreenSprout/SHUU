@@ -20,6 +20,8 @@ namespace SHUU.Utils.Helpers.Interaction
 
 
         protected IfaceInteractable previousInact;
+        
+        protected IfaceInteractable holdInact;
 
 
 
@@ -30,19 +32,8 @@ namespace SHUU.Utils.Helpers.Interaction
 
         protected virtual void Update()
         {
-            if (previousInact != null)
-            {
-                bool? inact = previousInact?.InteractKey();
-                inact = inact ?? InteractKey();
-
-                if (inact != null)
-                {
-                    if (inact.Value) Interact();
-                    else ReleaseInteract();
-                }
-            }
+            HoldInteractCheck();
             
-
             CastRay();
         }
 
@@ -53,6 +44,23 @@ namespace SHUU.Utils.Helpers.Interaction
 
         protected virtual void ReleaseInteract() => previousInact?.ReleaseInteract();
 
+
+        protected virtual void HoldInteractCheck()
+        {
+            if (previousInact != null && previousInact.HoldInteract()) holdInact = previousInact;
+
+            if (holdInact != null)
+            {
+                bool? inact = previousInact?.InteractKey();
+                inact = inact ?? InteractKey();
+
+                if (inact != null)
+                {
+                    if (inact.Value) Interact();
+                    else ReleaseInteract();
+                }
+            }
+        }
 
         protected virtual bool? InteractKey() => null;
     }

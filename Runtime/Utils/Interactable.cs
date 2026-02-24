@@ -25,6 +25,8 @@ namespace SHUU.Utils
 
         [SerializeField] private bool holdInteract = false;
 
+        [SerializeField] private bool stopHoldOnHoverEnd = false;
+
 
         [SerializeField] protected bool modifyDynamicCursor = true;
 
@@ -109,6 +111,8 @@ namespace SHUU.Utils
         public void HoverEnd(bool _modifyDynamicCursor = true)
         {
             if (modifyDynamicCursor && _modifyDynamicCursor) DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
+
+            if (stopHoldOnHoverEnd) ReleaseInteract();
 
             beingHovered = false;
 
