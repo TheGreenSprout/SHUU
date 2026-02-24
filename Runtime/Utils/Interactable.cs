@@ -23,11 +23,15 @@ namespace SHUU.Utils
             }
         }
 
+        [SerializeField] private bool holdInteract = false;
+
 
         [SerializeField] protected bool modifyDynamicCursor = true;
 
 
         protected bool beingHovered = false;
+
+        protected bool beingInteracted = false;
 
 
 
@@ -50,8 +54,9 @@ namespace SHUU.Utils
         {
             return canBeInteracted;
         }
-
         protected virtual void CanBeInteracted_Changed() { }
+
+        public bool HoldInteract() => holdInteract;
 
         #region XML doc
         /// <summary>
@@ -60,10 +65,25 @@ namespace SHUU.Utils
         #endregion
         public void Interact()
         {
-            if (CanBeInteracted()) InteractLogic();
-        }
+            if (!CanBeInteracted()) return;
 
+
+            InteractLogic();
+
+            if (holdInteract) beingInteracted = true;
+        }
         protected virtual void InteractLogic() { }
+
+        public void ReleaseInteract()
+        {
+            if (!holdInteract || !beingInteracted) return;
+
+
+            ReleaseInteractLogic();
+
+            beingInteracted = false;
+        }
+        protected virtual void ReleaseInteractLogic() { }
 
 
         #region XML doc
@@ -95,6 +115,9 @@ namespace SHUU.Utils
             HoverEndLogic();
         }
         protected virtual void HoverEndLogic() { }
+
+
+        public virtual bool? InteractKey() => null;
     }
 
 }

@@ -4,6 +4,7 @@ namespace SHUU.Utils.Helpers.Interaction
 {
     public class InteractionRaycastLogic : MonoBehaviour
     {
+        [Header("Raycast Settings")]
         [SerializeField] protected Camera cam;
 
 
@@ -12,8 +13,9 @@ namespace SHUU.Utils.Helpers.Interaction
 
         [SerializeField] protected float interactionRange;
 
-        [SerializeField] protected LayerMask interactablesMask;
+        [SerializeField] protected LayerMask layerMask;
         [SerializeField] protected string[] tagMask = new string[0];
+        [Space(15)]
 
 
 
@@ -26,11 +28,28 @@ namespace SHUU.Utils.Helpers.Interaction
 
 
 
-        protected virtual void Update() => CastRay();
+        protected virtual void Update()
+        {
+            if (previousInact != null)
+            {
+                bool? inact = previousInact?.InteractKey() != null ? previousInact?.InteractKey() : InteractKey();
+
+                if (inact.Value) Interact();
+                else ReleaseInteract();
+            }
+            
+
+            CastRay();
+        }
 
         
-        protected virtual void CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, interactablesMask, modifyDynamicCursor, tagMask);
+        protected virtual void CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, layerMask, modifyDynamicCursor, tagMask);
 
         protected virtual void Interact() => previousInact?.Interact();
+
+        protected virtual void ReleaseInteract() => previousInact?.ReleaseInteract();
+
+
+        protected virtual bool? InteractKey() => null;
     }
 }

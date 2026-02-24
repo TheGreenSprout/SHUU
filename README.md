@@ -51,44 +51,9 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.21.28
-### - Update Date: 22-02-2026
+### + Current Version: 2.21.30
+### - Update Date: 24-02-2026
 ### - Creation Date: 24-03-2025
-***
-<br><br><br><br>
-
-***
-# Features (check 'Documentation/SCRIPT_INFORMATION' for detailed information on each class and method):
-##      + Data management:
-###         - Data saving and loading (txt and json files)<br>
-
-###         - Data encryption (RSA, AES, and Base64)<br>
-
-###         - File explorer interaction (windows only)
----
-<br><br>
----
-
-##      + Handy functions:
-###         - String manipulation<br>
-
-###         - Enum handling<br>
-
-###         - List manipulation
----
-<br><br>
----
-
-##      + Audio management:
-###         - Customizable creation of sound effects<br>
-
-###         - Automatically keeps track of each sound
----
-<br><br>
----
-
-##      + Timer manager:
-###         - Creation of custom dynamic timers.
 ***
 <br><br><br><br>
 

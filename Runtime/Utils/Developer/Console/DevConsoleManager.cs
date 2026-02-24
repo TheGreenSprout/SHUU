@@ -118,6 +118,7 @@ namespace SHUU.Utils.Developer.Console
                     var result = info.Method.Invoke(null, parsedArgs);
                     if (result is CommandReturn ret && ret.output != null) PrintDelegate(ret.output, ret.color);
                     else if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null) PrintDelegate(tuple.Item1, tuple.Item2);
+                    else PrintDelegate("Command executed successfully.");
                 }
                 catch (Exception ex)
                 {

@@ -15,6 +15,9 @@ public interface IfaceInteractable
     /// <returns>Returns wether the interactable can be interacted with or not.</returns>
     #endregion
     public bool CanBeInteracted() => true;
+
+    public bool HoldInteract() => false;
+
     
     #region XML doc
     /// <summary>
@@ -22,6 +25,7 @@ public interface IfaceInteractable
     /// </summary>
     #endregion
     public void Interact();
+    public void ReleaseInteract();
     
     #region XML doc
     /// <summary>
@@ -35,6 +39,9 @@ public interface IfaceInteractable
     /// </summary>
     #endregion
     public void HoverEnd(bool _modifyDynamicCursor = true);
+
+
+    public bool? InteractKey() => null;
 }
 
 }

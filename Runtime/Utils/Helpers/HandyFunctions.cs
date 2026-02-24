@@ -156,6 +156,17 @@ namespace SHUU.Utils.Helpers
             }
         }
 
+
+        public static bool NonLINQ_Contains<E>(this IList<E> list, E item)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Equals(item)) return true;
+            }
+
+            return false;
+        }
+
         public static T[] CleanArray<T>(this T[] array)
         {
             if (array == null) return Array.Empty<T>();
@@ -960,10 +971,7 @@ namespace SHUU.Utils.Helpers
             {
                 if (previousInact != inact)
                 {
-                    if (previousInact != null)
-                    {
-                        previousInact.HoverEnd(modifyDynamicCursor);
-                    }
+                    ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
                     previousInact = inact;
 
@@ -971,12 +979,7 @@ namespace SHUU.Utils.Helpers
                     inact.HoverStart(modifyDynamicCursor);
                 }
             }
-            else if (previousInact != null)
-            {
-                previousInact.HoverEnd(modifyDynamicCursor);
-
-                previousInact = null;
-            }
+            else ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
 
             return raycast;
@@ -1026,10 +1029,18 @@ namespace SHUU.Utils.Helpers
             if (!inact.CanBeInteracted()) return false;
 
             if (tags == null || tags.Length == 0) return true;
-            foreach (string tag in tags) if (hit.collider.CompareTag(tag)) return true;
+            else if (!tags.NonLINQ_Contains(hit.collider.tag)) return false;
 
 
-            return false;
+            return true;
+        }
+
+        public static void ClearInteractHover(ref IfaceInteractable previousInact, bool modifyDynamicCursor)
+        {
+            if (previousInact == null) return;
+
+            previousInact.HoverEnd(modifyDynamicCursor);
+            previousInact = null;
         }
 
         #endregion
