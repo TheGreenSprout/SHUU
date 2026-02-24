@@ -17,9 +17,9 @@ namespace SHUU.Utils
             protected get => _canBeInteracted;
             set
             {
-                CanBeInteracted_Changed();
-
                 _canBeInteracted = value;
+
+                CanBeInteracted_Changed();
             }
         }
 

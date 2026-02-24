@@ -32,10 +32,14 @@ namespace SHUU.Utils.Helpers.Interaction
         {
             if (previousInact != null)
             {
-                bool? inact = previousInact?.InteractKey() != null ? previousInact?.InteractKey() : InteractKey();
+                bool? inact = previousInact?.InteractKey();
+                inact = inact ?? InteractKey();
 
-                if (inact.Value) Interact();
-                else ReleaseInteract();
+                if (inact != null)
+                {
+                    if (inact.Value) Interact();
+                    else ReleaseInteract();
+                }
             }
             
 
