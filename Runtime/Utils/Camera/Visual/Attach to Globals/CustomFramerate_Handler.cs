@@ -1,47 +1,25 @@
 using System.Collections.Generic;
+using SHUU.Utils.Cameras.Visual.AddOns;
+using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.Cameras.Visual.Handlers
 {
-    public class CustomFramerate_Handler : MonoBehaviour
+    public class CustomFramerate_Handler : StaticInstance_Monobehaviour<CustomFramerate_Handler>
     {
-        public static List<Camera> camerasToRender;
-
-        public float refreshRate = 0.1f;
-
-        private int currentIteration;
+        private Dictionary<string, CustomFramerate_Camera> trackedCameras = new();
 
 
 
 
-        private void Start()
+        public void Add(string id, CustomFramerate_Camera instance) => trackedCameras.Add(id, instance);
+
+        public void Remove(string id)
         {
-            currentIteration = -1;
-
-            foreach (var cam in camerasToRender) cam.enabled = false;
-
-
-            RenderCamera();
+            if (trackedCameras.ContainsKey(id)) trackedCameras.Remove(id);
         }
 
 
-        private void RenderCamera()
-        {
-            currentIteration++;
-
-            if (currentIteration == camerasToRender.Count)
-            {
-                currentIteration = -1;
-
-                Invoke(nameof(RenderCamera), refreshRate);
-
-                return;
-            }
-
-            camerasToRender[currentIteration].Render();
-
-
-            Invoke(nameof(RenderCamera), 0.01f);
-        }
+        public bool TryGet(string id, out CustomFramerate_Camera item) => trackedCameras.TryGetValue(id, out item);
     }
 }

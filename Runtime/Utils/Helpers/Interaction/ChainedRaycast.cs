@@ -1,11 +1,13 @@
 using System.Linq;
+using SHUU.Utils.UI;
+using UnityEditor.EditorTools;
 using UnityEngine;
 
 namespace SHUU.Utils.Helpers.Interaction
 {
     public class ChainedRaycast : InteractionRaycastLogic
     {
-        [Header("Chained raycast Settings")]
+        [Header("Chained Raycast Settings")]
         [SerializeField] private Camera renderTexture_cam;
 
 
@@ -25,6 +27,11 @@ namespace SHUU.Utils.Helpers.Interaction
 
         [SerializeField] protected bool flipX = false;
         [SerializeField] protected bool flipY = false;
+
+
+
+        [Tooltip("If not null, the input module will use this raycast.")]
+        [SerializeField] protected ChainedInputModule chainedInputModule;
 
 
 
@@ -53,8 +60,11 @@ namespace SHUU.Utils.Helpers.Interaction
 
                     float x = flipX ? (1f - uv.x) : uv.x;
                     float y = flipY ? (1f - uv.y) : uv.y;
-                    /*renderTexturePoint = new Vector2(x * renderTexture.width, y * renderTexture.height);*/
-                    renderTexturePoint = new Vector2(x * renderTexture_cam.pixelWidth, y * renderTexture_cam.pixelHeight);
+
+                    renderTexturePoint = new Vector2(x * renderTexture.width, y * renderTexture.height);
+
+
+                    chainedInputModule?.SetExternalRaycast(true, renderTexturePoint);
 
 
                     Ray renderTextureRay = renderTexture_cam.ScreenPointToRay(renderTexturePoint);
@@ -83,12 +93,16 @@ namespace SHUU.Utils.Helpers.Interaction
                 {
                     HandyFunctions.ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
+                    chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
+                    
                     return false;
                 }
             }
             else
             {
                 HandyFunctions.ClearInteractHover(ref previousInact, modifyDynamicCursor);
+
+                chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
 
                 return false;
             }
