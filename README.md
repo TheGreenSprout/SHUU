@@ -21,16 +21,6 @@ To install it:
   - In the samples for this package (SHUU), install the one called "SHUU_UserSide (Required)"
 <br><br>
 
-⚠️ This package requires Newtonsoft JSON and TextMeshPro.
-To install it:
-  - Open [Window > Package Manager]
-    1.
-    - Click the "+" sign and "Install package by name..."
-    - Install "com.unity.nuget.newtonsoft-json"
-    2.
-    - Search and install "TextMeshPro" (and import it's dependencies if needed)
-<br><br>
-
 ️️⚠️ For a bunch of the implemented systems to work, you'll need a few objects/scripts in every scene:
     - In your assets folder go to [SHUU_Userside > Prefabs > PlaceOnEveryScene > OnEveryScene]
     - If you are using the custom input system (classic or otherwise), use the OnEveryScene present in their respective folders.
@@ -51,8 +41,8 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.21.35
-### - Update Date: 28-02-2026
+### + Current Version: 2.22.3
+### - Update Date: 16-04-2026
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>

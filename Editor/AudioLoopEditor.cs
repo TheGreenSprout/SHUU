@@ -11,6 +11,10 @@ using UnityEditor;
 using UnityEngine;
 using System.Reflection;
 
+using SETB;
+using static SETB.EditorGUI_Base;
+using static SETB.HandyEditorFunctions;
+
 namespace SHUU._Editor
 {
     public class AudioLoopEditor : EditorWindow
@@ -33,7 +37,7 @@ namespace SHUU._Editor
         // Window
         // =========================
 
-        [MenuItem("Tools/Sprout's Handy Unity Utils/Audio/Audio Loop Editor")]
+        //[MenuItem("Tools/Sprout's Handy Unity Utils/Audio/Audio Loop Editor")]
         static void Open()
         {
             GetWindow<AudioLoopEditor>("Audio Loop Editor");

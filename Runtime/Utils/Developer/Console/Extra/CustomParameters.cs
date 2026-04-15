@@ -1,32 +1,47 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using SHUU.Utils.Helpers;
 using UnityEngine;
 
 namespace SHUU.Utils.Developer.Console
 {
+    #region Return
     public class CommandReturn
     {
         public string[] output = null;
         public Color? color = null;
+
+
 
         public CommandReturn(Color? color, params string[] output)
         {
             this.output = output;
             this.color = color;
         }
+
         public CommandReturn(params string[] output) => this.output = output;
-        public CommandReturn(bool result) : this(result ? null : Color.red, result ? "Command successfully executed." : "Something went wrong, command aborted.") { }
+        public CommandReturn(bool result)
+            : this(result ? null : Color.red, result ? "Command successfully executed." : "Something went wrong, command aborted.") { }
+
+        public CommandReturn(params CommandReturn[] returns)
+        {
+            this.color = returns[0]?.color;
+
+            List<string> output = new();
+            foreach (var ret in returns)
+            {
+                if (ret == null) continue;
+
+                if (ret.output != null) output.AddRange(ret.output);  
+            }
+            this.output = output.ToArray();
+        }
     }
+    #endregion
 
 
 
 
+    #region Parameters
     public class OptionalParameter<T>
     {
         private bool hasValue = false;
@@ -53,8 +68,13 @@ namespace SHUU.Utils.Developer.Console
 
             return hasValue;
         }
-    }
 
+        public override string ToString()
+        {
+            if (!hasValue) return DevConsoleManager.instance.optionalParameter_consoleInterpreters[0];
+            else return value.ToString();
+        }
+    }
 
 
 
@@ -117,22 +137,32 @@ namespace SHUU.Utils.Developer.Console
             switch (valueType)
             {
                 case ValueType.Bool when typeof(T) == typeof(bool):
+                    if (boolValue == null) return false;
+
                     value = (T)(object)boolValue;
                     return true;
 
                 case ValueType.Int when typeof(T) == typeof(int):
+                    if (intValue == null) return false;
+
                     value = (T)(object)intValue;
                     return true;
 
                 case ValueType.Float when typeof(T) == typeof(float):
+                    if (floatValue == null) return false;
+
                     value = (T)(object)floatValue;
                     return true;
 
                 case ValueType.String when typeof(T) == typeof(string):
+                    if (stringValue == null) return false;
+
                     value = (T)(object)stringValue;
                     return true;
 
                 case ValueType.Char when typeof(T) == typeof(char):
+                    if (charValue == null) return false;
+
                     value = (T)(object)charValue;
                     return true;
 
@@ -153,7 +183,19 @@ namespace SHUU.Utils.Developer.Console
                 _ => null
             };
         }
+
+        public override string ToString()
+        {
+            if (boolValue != null) return boolValue.ToString();
+            else if (intValue != null) return intValue.ToString();
+            else if (floatValue != null) return floatValue.ToString();
+            else if (stringValue != null) return stringValue;
+            else if (charValue != null) return charValue.ToString();
+            
+            else return "";
+        }
     }
+    #endregion
 
 
 

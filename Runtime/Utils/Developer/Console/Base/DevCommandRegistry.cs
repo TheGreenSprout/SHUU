@@ -13,7 +13,10 @@ namespace SHUU.Utils.Developer.Console
             public string Description;
 
             public string Tag;
+
+            public int Order;
         }
+        private static int orderCounter = 0;
 
         private static Dictionary<string, DevCommandInfo> commands = new();
 
@@ -35,7 +38,8 @@ namespace SHUU.Utils.Developer.Console
                             {
                                 Method = method,
                                 Description = attr.description,
-                                Tag = attr.tag
+                                Tag = attr.tag,
+                                Order = orderCounter++
                             };
                         }
                     }

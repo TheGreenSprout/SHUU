@@ -20,12 +20,11 @@ namespace SHUU.Utils.Helpers
     {
         #region Variables
 
-        public static string ProjectKey => Application.dataPath.GetHashCode().ToString();
-
-
         public static string ApplicationPath => Application.dataPath;
 
+        public static string ProjectKey => ApplicationPath.GetHashCode().ToString();
 
+        
 
         public static event Action<CursorLockMode> OnCursorStateChange;
         
@@ -775,7 +774,7 @@ namespace SHUU.Utils.Helpers
             Cursor.lockState = state;
 
 
-            if (cursorVisible != null) ChangeCursorVisibility((bool)cursorVisible);
+            if (cursorVisible != null) ChangeMouseVisibility((bool)cursorVisible);
 
 
             OnCursorStateChange?.Invoke(state);
@@ -812,10 +811,36 @@ namespace SHUU.Utils.Helpers
         }
     
     
-        public static void ChangeCursorVisibility(bool? cursorVisible = null)
+        public static void ChangeMouseVisibility(bool? cursorVisible = null)
         {
             if (cursorVisible == null) Cursor.visible = !Cursor.visible;
             else Cursor.visible = (bool)cursorVisible;
+        }
+
+        private static bool? savedCursorVisibility = null;
+        public static bool ChangeMouseVisibility_Temporary(bool cursorVisible)
+        {
+            if (savedCursorVisibility != null) return false;
+
+
+            savedCursorVisibility = Cursor.visible;
+
+            ChangeMouseVisibility(cursorVisible);
+
+
+            return true;
+        }
+        public static bool ReturnMouseVisibility_FromTemporary()
+        {
+            if (savedCursorVisibility == null) return false;
+
+
+            ChangeMouseVisibility(savedCursorVisibility);
+
+            savedCursorState = null;
+
+
+            return true;
         }
 
         #endregion

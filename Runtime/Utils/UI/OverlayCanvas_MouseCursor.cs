@@ -47,7 +47,7 @@ namespace SHUU.Utils.UI
 
 
 
-            if (manageCursorVisibility) HandyFunctions.ChangeCursorVisibility(false);
+            if (manageCursorVisibility) HandyFunctions.ChangeMouseVisibility(false);
         }
 
         private void OnDisable()
@@ -59,7 +59,7 @@ namespace SHUU.Utils.UI
             transform.localPosition = Vector3.zero;
 
 
-            if (manageCursorVisibility) HandyFunctions.ChangeCursorVisibility(true);
+            if (manageCursorVisibility) HandyFunctions.ChangeMouseVisibility(true);
         }
 
         private void CursorStateChanged(CursorLockMode state)

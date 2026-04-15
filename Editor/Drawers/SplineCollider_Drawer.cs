@@ -1,34 +1,31 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 #if UNITY_EDITOR
 using SHUU.Utils.Helpers;
 using UnityEditor;
-using UnityEngine;
+
+using SETB;
+using static SETB.EditorGUI_Base;
+using static SETB.HandyEditorFunctions;
 
 namespace SHUU._Editor.Drawers
 {
     [CustomEditor(typeof(SplineCollider))]
-    public class SplineCollider_Drawer : Editor
+    public class SplineCollider_Drawer : Editor_Base<SplineCollider_Drawer>
     {
-        public override void OnInspectorGUI()
+        protected override void DrawInspector()
         {
-            DrawDefaultInspector();
+            base.DrawInspector();
+
 
             SplineCollider sc = (SplineCollider)target;
 
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Utilities", EditorStyles.boldLabel);
 
-            if (GUILayout.Button("Rebuild Collider Mesh"))
-            {
+            Space(6f);
+            
+            DrawLabel("Utilities", EditorStyles.boldLabel);
+
+            DrawButton("Rebuild Collider Mesh", () => {
                 sc.Rebuild();
-            }
+            });
         }
     }
 }

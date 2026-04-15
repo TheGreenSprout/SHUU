@@ -1,10 +1,12 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.21.35",
+  "version": "2.22.3",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
+    "com.sproutinggames.sprouts.etb": "https://github.com/TheGreenSprout/SETB.git#v2.4.3",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.textmeshpro": "3.0.6",
     "com.unity.inputsystem": "1.14.2",
     "com.unity.splines": "2.7.2"
   },

@@ -25,7 +25,7 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-        [SerializeField] private List<string> optionalParameter_consoleInterpreters = new List<string>() { "-", "~" };
+        public List<string> optionalParameter_consoleInterpreters = new List<string>() { "-", "~" };
 
 
         [Tooltip("The higher on the list (closer to index 0) the tag is, the higher the priority")]
@@ -55,6 +55,7 @@ namespace SHUU.Utils.Developer.Console
             instance = this;
 
 
+
             DevCommandRegistry.RegisterCommands();
 
 
@@ -64,22 +65,27 @@ namespace SHUU.Utils.Developer.Console
         }
 
 
-        private void OnDestroy()
-        {
-            input.toggle -= devConsoleUI.Toggle;
-        }
+        private void OnDestroy() => input.toggle -= devConsoleUI.Toggle;
 
 
 
         public static bool ProcessConsoleInput(string input, (string[], Color?)? printOutput = null)
-        {
-            return instance.ProcessInput(input, printOutput);
-        }
+            => instance.ProcessInput(input, printOutput);
         public bool ProcessInput(string input, (string[], Color?)? printOutput = null)
         {
             if (string.IsNullOrWhiteSpace(input)) return false;
 
             PrintDelegate($"> {input}");
+
+            if (!input.ToLower().StartsWith("setvar"))
+            {
+                while (input.Contains("$"))
+                {
+                    input = SavedConsoleVariables.ParseVariable(input, out CommandReturn varError);
+
+                    if (varError != null) PrintDelegate(varError.output, varError.color);
+                }
+            }
 
             string[] parts = input.Split(' ');
             string cmd = parts[0];
@@ -115,9 +121,12 @@ namespace SHUU.Utils.Developer.Console
                         parsedArgs[parsedArgs.Length-1] = array;
                     }
 
+
                     var result = info.Method.Invoke(null, parsedArgs);
+
                     if (result is CommandReturn ret && ret.output != null) PrintDelegate(ret.output, ret.color);
-                    else if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null) PrintDelegate(tuple.Item1, tuple.Item2);
+                    else if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null)
+                        PrintDelegate(tuple.Item1, tuple.Item2);
                     else PrintDelegate("Command executed successfully.");
                 }
                 catch (Exception ex)

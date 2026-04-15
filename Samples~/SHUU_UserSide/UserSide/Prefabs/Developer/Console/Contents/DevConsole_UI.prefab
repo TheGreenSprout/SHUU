@@ -104,6 +104,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -291,7 +292,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 0
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 5
   m_Viewport: {fileID: 2188761553725986185}
   m_HorizontalScrollbar: {fileID: 2952465672682698740}
   m_VerticalScrollbar: {fileID: 5421397527257008702}
@@ -358,8 +359,6 @@ MonoBehaviour:
   inputField: {fileID: 9066003603143422491}
   scrollRect: {fileID: 6176812751844655733}
   outputText: {fileID: 2446867204434373777}
-  previousCommand: 273
-  nextCommand: 274
 --- !u!222 &7877807810934322847
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -537,6 +536,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -748,6 +748,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

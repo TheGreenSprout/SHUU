@@ -11,58 +11,65 @@ namespace SHUU.Utils.InputSystem
     [CreateAssetMenu(fileName = "New Input Binding Map", menuName = "SHUU/Input System/Input Binding Map")]
     public class InputBindingMap : AutoSave_Build_ScriptableObject<InputBindingMap>
     {
-        private static InputBindingMap allInputBindingMaps_proxy
-        {
-            set
-            {
-                if (value == null || string.IsNullOrWhiteSpace(value.mapName)) return;
-
-
-                var dict = SHUU_Input.allInputBindingMaps;
-                List<string> keysToRemove = new List<string>();
-
-                foreach (var item in dict)
-                {
-                    if (item.Value == null) keysToRemove.Add(item.Key);
-                }
-
-                foreach (var key in keysToRemove)
-                {
-                    dict.Remove(key);
-                }
-
-
-                if (SHUU_Input.allInputBindingMaps.ContainsKey(value.mapName)) SHUU_Input.allInputBindingMaps[value.mapName] = value;
-                else SHUU_Input.allInputBindingMaps.Add(value.mapName, value);
-            }
-        }
-
-
-        [JsonIgnore] protected override InputBindingMap obj => this;
-
-        [JsonIgnore] protected override string id => this.name;
-
-
-
         #region Variables
-        [JsonIgnore] public string mapName;
-
-        [JsonIgnore] public bool enabled = true;
-
-
-        public string lastDefaultSetDateTime = "No Default Set";
-        [SerializeField] private InputBindingMap_Data defaultData = null;
-
+            #region Static
+            private static InputBindingMap allInputBindingMaps_proxy
+            {
+                set
+                {
+                    if (value == null || string.IsNullOrWhiteSpace(value.mapName)) return;
 
 
-        [Header("Single Input Sets")]
-        public List<NAMED_InputSet> inputSets_list = new List<NAMED_InputSet>();
-        [HideInInspector] [JsonIgnore] public Dictionary<string, InputSet> inputSets_dict = null;
+                    var dict = SHUU_Input.allInputBindingMaps;
+                    List<string> keysToRemove = new List<string>();
+
+                    foreach (var item in dict)
+                    {
+                        if (item.Value == null) keysToRemove.Add(item.Key);
+                    }
+
+                    foreach (var key in keysToRemove)
+                    {
+                        dict.Remove(key);
+                    }
 
 
-        [Header("Composite Input Sets")]
-        public List<NAMED_Composite_InputSet> compositeSets_list = new List<NAMED_Composite_InputSet>();
-        [HideInInspector] [JsonIgnore] public Dictionary<string, Composite_InputSet> compositeSets_dict = null;
+                    if (SHUU_Input.allInputBindingMaps.ContainsKey(value.mapName)) SHUU_Input.allInputBindingMaps[value.mapName] = value;
+                    else SHUU_Input.allInputBindingMaps.Add(value.mapName, value);
+                }
+            }
+            #endregion
+
+
+
+            #region Overrides
+            [JsonIgnore] protected override InputBindingMap obj => this;
+
+            [JsonIgnore] protected override string id => this.name;
+            #endregion
+
+
+
+            #region Variables
+            [JsonIgnore] public string mapName;
+
+            [JsonIgnore] public bool enabled = true;
+
+
+            public string lastDefaultSetDateTime = "No Default Set";
+            [SerializeField] private InputBindingMap_Data defaultData = null;
+
+
+
+            [Header("Single Input Sets")]
+            public List<NAMED_InputSet> inputSets_list = new List<NAMED_InputSet>();
+            [HideInInspector] [JsonIgnore] public Dictionary<string, InputSet> inputSets_dict = null;
+
+
+            [Header("Composite Input Sets")]
+            public List<NAMED_Composite_InputSet> compositeSets_list = new List<NAMED_Composite_InputSet>();
+            [HideInInspector] [JsonIgnore] public Dictionary<string, Composite_InputSet> compositeSets_dict = null;
+            #endregion
         #endregion
 
 

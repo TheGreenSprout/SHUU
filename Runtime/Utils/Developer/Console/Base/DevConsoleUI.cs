@@ -130,6 +130,9 @@ namespace SHUU.Utils.Developer.Console
 
         public void Print(string message, Color? textColor = null)
         {
+            if (string.IsNullOrEmpty(message)) return;
+
+            
             (string, string) colortag = ("", "");
             if (textColor != null) colortag = (textColor.Value.GetColorOpenTag_RichText(), "</color>");
 
