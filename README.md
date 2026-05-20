@@ -16,9 +16,13 @@ Enjoy :D
 <br><br><br><br>
 
 ***
-⚠️ This package requires SHUU_UserSide.
-To install it:
+⚠️ This package requires SHUU_UserSide and SETB.
+To install SHUU_UserSide:
   - In the samples for this package (SHUU), install the one called "SHUU_UserSide (Required)"
+To install SETB:
+  - Inside the Package Manager, click the "+" icon.
+  - Then click on "Add package from git URL".
+  - Type "https://github.com/TheGreenSprout/SETB.git" and click "Install".
 <br><br>
 
 ️️⚠️ For a bunch of the implemented systems to work, you'll need a few objects/scripts in every scene:
@@ -41,7 +45,7 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 3.5.0
+### + Current Version: 3.5.1
 ### - Update Date: 20-05-2026
 ### - Creation Date: 24-03-2025
 ***
