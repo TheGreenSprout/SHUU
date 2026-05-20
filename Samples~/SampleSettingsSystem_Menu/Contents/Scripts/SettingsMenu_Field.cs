@@ -1,44 +1,13 @@
 using System;
-using SHUU.Utils.SettingsSytem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-
-#region Exposed elements
-[Serializable]
-public struct SettingsMenu_BoolElement
-{
-    public GameObject root;
-    public TMP_Text label;
-}
-
-[Serializable]
-public struct SettingsMenu_NumElement
-{
-    public GameObject root;
-    public TMP_InputField input;
-}
-
-[Serializable]
-public struct SettingsMenu_SliderElement
-{
-    public GameObject root;
-    public TMP_InputField label;
-    public Slider slider;
-}
-
-[Serializable]
-public struct SettingsMenu_StringElement
-{
-    public GameObject root;
-    public TMP_InputField input;
-}
-#endregion
-
+using SHUU.Utils.SettingsSytem;
 
 public class SettingsMenu_Field : MonoBehaviour
 {
+    #region Variables
     [SerializeField] private TMP_Text label;
 
 
@@ -55,10 +24,12 @@ public class SettingsMenu_Field : MonoBehaviour
 
 
     private SettingsMenu_IFieldModule module = null;
+    #endregion
 
     
 
 
+    #region Main
     public void Init(SettingsData data, string field)
     {
         this.data = data;
@@ -86,7 +57,11 @@ public class SettingsMenu_Field : MonoBehaviour
                 break;
         }
     }
+    #endregion
 
+
+
+    #region Logic
     private void NumField(Type type)
     {
         SettingField f = data.GetSettingField(field);
@@ -110,7 +85,9 @@ public class SettingsMenu_Field : MonoBehaviour
     }
 
     public void Refresh() => module?.Refresh(data.GetSettingField(field));
+    #endregion
 }
+
 
 
 
@@ -144,10 +121,7 @@ public class SettingsMenu_BoolModule : SettingsMenu_IFieldModule
     }
 
 
-    public override void Refresh(SettingField field)
-    {
-        label.text = field.boolValue ? "True" : "False";
-    }
+    public override void Refresh(SettingField field) => label.text = field.boolValue ? "True" : "False";
 
     public override void Fetch(SettingField field, bool check = true)
     {
@@ -174,10 +148,7 @@ public class SettingsMenu_StringModule : SettingsMenu_IFieldModule
     }
 
 
-    public override void Refresh(SettingField field)
-    {
-        input.text = field.stringValue;
-    }
+    public override void Refresh(SettingField field) => input.text = field.stringValue;
 
     public override void Fetch(SettingField field, bool check = true)
     {
@@ -374,5 +345,39 @@ public class SettingsMenu_SliderModule : SettingsMenu_IFieldModule
 
         Refresh(field);
     }
+}
+#endregion
+
+
+
+
+#region Exposed elements
+[Serializable]
+public struct SettingsMenu_BoolElement
+{
+    public GameObject root;
+    public TMP_Text label;
+}
+
+[Serializable]
+public struct SettingsMenu_NumElement
+{
+    public GameObject root;
+    public TMP_InputField input;
+}
+
+[Serializable]
+public struct SettingsMenu_SliderElement
+{
+    public GameObject root;
+    public TMP_InputField label;
+    public Slider slider;
+}
+
+[Serializable]
+public struct SettingsMenu_StringElement
+{
+    public GameObject root;
+    public TMP_InputField input;
 }
 #endregion

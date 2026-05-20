@@ -4,17 +4,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
+
+using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
+using SHUU.Utils.SceneManagement;
+
+using static SHUU.Utils.Data.DataManager;
 
 namespace SHUU.Utils.Helpers
 {
-    public class Box<T>
-    {
-        T value;
-    }
+    public class Box<T> { T value; }
 
 
 
@@ -125,8 +130,8 @@ namespace SHUU.Utils.Helpers
 
 
 
-    #region Looping Queue
-    public class LoopingQueue<T> : IEnumerable<T>, IReadOnlyCollection<T>
+    #region Circular Queue
+    public class CircularQueue<T> : IEnumerable<T>, IReadOnlyCollection<T>
     {
         private readonly Queue<T> data = new Queue<T>();
 
@@ -145,7 +150,7 @@ namespace SHUU.Utils.Helpers
 
         public T Dequeue()
         {
-            if (data.Count == 0) throw new InvalidOperationException("LoopingQueue is empty.");
+            if (data.Count == 0) throw new InvalidOperationException("CircularQueue is empty.");
 
 
             last = data.Dequeue();
@@ -158,7 +163,7 @@ namespace SHUU.Utils.Helpers
 
 
         public T Peek() => data.Peek();
-        public T PeekLast() => hasLast ? last : throw new InvalidOperationException("LoopingQueue has no last item.");
+        public T PeekLast() => hasLast ? last : throw new InvalidOperationException("CircularQueue has no last item.");
 
 
 
@@ -269,9 +274,15 @@ namespace SHUU.Utils.Helpers
 
 
     #region Static Instance Scripts
-    public abstract class StaticInstance_Monobehaviour<T> : MonoBehaviour where T : MonoBehaviour
+
+    #region MonoBehaviour
+
+    #region General
+    [DefaultExecutionOrder(-20000)]
+    public abstract class Singleton_MonoBehaviour<T> : MonoBehaviour where T : Singleton_MonoBehaviour<T>
     {
-        private static T _instance;
+        #region Variables
+        protected static T _instance;
         
         public static T instance
         {
@@ -285,14 +296,148 @@ namespace SHUU.Utils.Helpers
 
 
 
+        protected abstract bool PersistantSingleton();
 
-        protected virtual void Awake() => _instance = this as T;
+        protected virtual UnityEvent _onCreation => null;
+
+
+        [Header("Singleton Settings")]
+        [SerializeField] protected bool handleGameobject = true;
+        #endregion
+
+
+
+
+        #region Main
+        protected virtual void Awake()
+        {
+            if (_instance != null && _instance != this)
+            {
+                if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest instance...");
+                Dispose();
+
+                return;
+            }
+
+
+            _instance = this as T;
+
+            if (PersistantSingleton())
+            {
+                transform.parent = null;
+
+                DontDestroyOnLoad(gameObject);
+            }
+
+            OnCreation();
+            _onCreation?.Invoke();
+        }
+
+        protected virtual void OnCreation() { }
+
+
+        protected void Dispose() => Destroy(handleGameobject ? gameObject : this);
+        #endregion
     }
+    #endregion
 
 
-    public abstract class StaticInstance_ScriptableObject<T> : ScriptableObject where T : StaticInstance_ScriptableObject<T>
+
+    #region Complex Singletons
+    [DefaultExecutionOrder(-20000)]
+    public abstract class ComplexSingleton<T> : Singleton_MonoBehaviour<T> where T : ComplexSingleton<T>
     {
-        private static T _instance;
+        #region Variables
+        protected override bool PersistantSingleton() => true;
+
+
+        
+        [Tooltip("If set  to 0 or more, after that ammount of scene changes, on the next scene change the object will be destroyed.")]
+        [Min(-1)] public int bridges = -1;
+        [Tooltip("These scenes won't cost a bridge to enter.")]
+        [SerializeField] private List<string> bridgeFree_Scenes = new List<string>() {"LoadingScene"};
+        private bool initialized = false;
+
+
+        [Tooltip("If the singleton enters one of these scenes it will be deleted.")]
+        [SerializeField] private List<string> banned_Scenes = new List<string>();
+        #endregion
+
+
+
+
+        #region Main
+        protected override void Awake()
+        {
+            base.Awake();
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.activeSceneChanged += OnSceneChanged;
+        }
+
+
+        public void DestroySingleton()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.activeSceneChanged -= OnSceneChanged;
+
+           _instance = null;
+
+            
+            Dispose();
+        }
+        #endregion
+
+
+
+        #region Logic
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (banned_Scenes.Contains(SceneLoader.GetCurrentSceneName()))
+            {
+                if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] Banned scene entered. Destroying singleton...");
+
+                DestroySingleton();
+
+                return;
+            }
+        }
+
+        private void OnSceneChanged(Scene oldScene, Scene newScene)
+        {
+            if (!initialized)
+            {
+                initialized = true;
+
+                return;
+            }
+
+            
+            if (bridges > -1)
+            {
+                if (bridges == 0)
+                {
+                    if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] All bridges burnt. Destroying singleton...");
+
+                    DestroySingleton();
+                }
+                
+                if (!bridgeFree_Scenes.Contains(newScene.name)) bridges--;
+            }
+        }
+        #endregion
+    }
+    #endregion
+
+    #endregion
+
+
+
+    #region Scriptable object
+    public abstract class Singleton_ScriptableObject<T> : ScriptableObject where T : Singleton_ScriptableObject<T>
+    {
+        #region Variables
+        protected static T _instance;
 
         public static T instance
         {
@@ -305,30 +450,184 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        protected virtual string resourcesPath => typeof(T).Name;
+        protected virtual string resourcesPath => name;
 
+        private static string cachedPath;
         private static string GetResourcesPath()
         {
+            if (cachedPath != null) return cachedPath;
+
             var temp = CreateInstance<T>();
-            var path = temp.resourcesPath;
-
+            cachedPath = temp.resourcesPath;
             DestroyImmediate(temp);
-            _instance = null;
-            
-            return path;
+
+            return cachedPath;
         }
+        #endregion
 
 
 
-        protected virtual void OnEnable() => _instance = this as T;
+
+        #region Main
+        protected virtual void OnEnable()
+        {
+            if (_instance != null && _instance != this)
+            {
+                if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest instance...");
+
+                Destroy(this);
+                return;
+            }
+
+            _instance = this as T;
+        }
+        #endregion
     }
+    #endregion
+    
     #endregion
 
 
 
     #region AutoSave
+
+    #region MonoBehaviour
+
+    #region String
+    public abstract class AutoSave_String_MonoBehaviour : MonoBehaviour
+    {
+        #region Main
+        protected virtual void Awake() => LoadFile();
+
+
+        private bool finalSave = false;
+
+        protected virtual void OnDestroy()
+        {
+            if (finalSave) return;
+
+            finalSave = true;
+            SaveFile();
+        }
+
+        protected virtual void OnApplicationQuit()
+        {
+            if (finalSave) return;
+
+            finalSave = true;
+            SaveFile();
+        }
+        #endregion
+
+
+
+        #region Override points
+        protected virtual string FileAddress() => Path.Combine(Application.persistentDataPath, $"Data/{name}.json");
+
+
+        protected abstract IEnumerable<string> SaveData();
+        protected abstract void LoadData(IEnumerable<string> data);
+
+        public virtual void SaveFile() => WriteText_ToFile(FileAddress(), SaveData());
+        public virtual void LoadFile() => LoadData(ReadTextArray_FromFile(FileAddress()));
+        #endregion
+    }
+
+
+    public abstract class AutoSave_String_Build_MonoBehaviour : AutoSave_String_MonoBehaviour
+    {
+        #region Main
+        protected override void Awake()
+        {
+            #if !UNITY_EDITOR
+            base.Awake();
+            #endif
+        }
+
+
+        protected override void OnDestroy()
+        {
+            #if !UNITY_EDITOR
+            base.OnDestroy();
+            #endif
+        }
+
+        protected override void OnApplicationQuit()
+        {
+            #if !UNITY_EDITOR
+            base.OnApplicationQuit();
+            #endif
+        }
+        #endregion
+    }
+    #endregion
+
+
+
+    #region Json
+    public abstract class AutoSave_Json_MonoBehaviour<T> : MonoBehaviour
+    {
+        #region Main
+        protected virtual void Awake() => LoadFile();
+
+
+        protected virtual void OnDestroy() => Dispose();
+        protected virtual void OnApplicationQuit() => Dispose();
+
+        private bool disposed = false;
+        protected virtual void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            
+            SaveFile();
+        }
+        #endregion
+
+
+
+        #region Override points
+        protected virtual string FileAddress() => Path.Combine(Application.persistentDataPath, $"Data/{name}.json");
+
+
+        protected abstract T SaveData();
+        protected abstract void LoadData(T data);
+
+        public virtual void SaveFile() => SaveJsonFile(SaveData(), FileAddress(), false);
+        public virtual void LoadFile() => LoadData(LoadJsonFile<T>(FileAddress(), false));
+        #endregion
+    }
+
+
+    public abstract class AutoSave_Json_Build_MonoBehaviour<T> : AutoSave_Json_MonoBehaviour<T>
+    {
+        #region Main
+        protected override void Awake()
+        {
+            #if !UNITY_EDITOR
+            base.Awake();
+            #endif
+        }
+
+
+        protected override void OnDestroy()
+        {
+            #if !UNITY_EDITOR
+            base.OnDestroy();
+            #endif
+        }
+        #endregion
+    }
+    #endregion
+
+    #endregion
+
+    
+
+    #region Scriptable Objects
     public abstract class AutoSave_ScriptableObject<T> : ScriptableObject where T : ScriptableObject
     {
+        #region Variables
         [JsonIgnore] protected virtual string filePath
         {
             get => Path.Combine(Application.persistentDataPath, $"Data/{id}.json");
@@ -338,17 +637,347 @@ namespace SHUU.Utils.Helpers
         [JsonIgnore] protected abstract T obj { get; }
 
         [JsonIgnore] protected abstract string id { get; }
+        #endregion
 
 
 
 
-        protected virtual void OnEnable() => Load();
+        #region Main
+        protected virtual void OnEnable() => LoadFile();
+
+        protected virtual void OnDisable() => SaveFile();
+        #endregion
+
+
+
+        #region Override points
+        public virtual void LoadFile() => WriteText_ToFile(filePath, SaveData());
+
+        public void SaveFile()
+        {
+            if (TryReadText_FromFile(filePath, out string json)) LoadData(json);
+        }
+
+
+        protected virtual string SaveData() => JsonConvert.SerializeObject(
+                                                obj,
+                                                Formatting.Indented,
+                                                new JsonSerializerSettings {
+                                                    TypeNameHandling = TypeNameHandling.Auto,
+                                                    ObjectCreationHandling = ObjectCreationHandling.Replace
+                                                }
+                                            );
+
+        protected virtual void LoadData(string json) => JsonConvert.PopulateObject(
+                                                            json,
+                                                            obj,
+                                                            new JsonSerializerSettings {
+                                                                TypeNameHandling = TypeNameHandling.Auto,
+                                                                ObjectCreationHandling = ObjectCreationHandling.Replace
+                                                            }
+                                                        );
+        #endregion
+    }
+
+
+    public abstract class AutoSave_Build_ScriptableObject<T> : AutoSave_ScriptableObject<T> where T : ScriptableObject
+    {
+        #region Main
+        protected override void OnEnable()
+        {
+            #if !UNITY_EDITOR
+            base.OnEnable();
+            #endif
+        }
+
+        protected override void OnDisable()
+        {
+            #if !UNITY_EDITOR
+            base.OnDisable();
+            #endif
+        }
+        #endregion
+    }
+
+    public abstract class AutoSave_PlayMode_ScriptableObject<T> : AutoSave_Build_ScriptableObject<T> where T : ScriptableObject
+    {
+        #region Static
+        #if UNITY_EDITOR
+        static AutoSave_PlayMode_ScriptableObject() => EditorApplication.playModeStateChanged += OnPlayModeChanged;
+
+        private static void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.EnteredPlayMode)
+            {
+                var assets = Resources.FindObjectsOfTypeAll<T>();
+
+                foreach (var asset in assets)
+                {
+                    if (asset is AutoSave_PlayMode_ScriptableObject<T> auto) auto.LoadFile();
+                }
+            }
+
+            if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                var assets = Resources.FindObjectsOfTypeAll<T>();
+
+                foreach (var asset in assets)
+                {
+                    if (asset is AutoSave_PlayMode_ScriptableObject<T> auto) auto.SaveFile();
+                }
+            }
+        }
+        #endif
+        #endregion
+
+
+
+        #region Main
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            #if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            #endif
+        }
+        #endregion
+    }
+    #endregion
+
+    #endregion
+
+
+
+    #region Static Instance + AutoSave
+
+    #region MonoBehaviour
+
+    #region String
+    public abstract class Singleton_AutoSave_String_MonoBehaviour<T> : Singleton_MonoBehaviour<T> where T : Singleton_MonoBehaviour<T>
+    {
+        #region Main
+        protected override void Awake()
+        {
+            base.Awake();
+            
+            LoadFile();
+        }
+
+
+        private bool finalSave = false;
+
+        protected virtual void OnDestroy()
+        {
+            if (finalSave) return;
+
+            finalSave = true;
+            SaveFile();
+        }
+
+        protected virtual void OnApplicationQuit()
+        {
+            if (finalSave) return;
+
+            finalSave = true;
+            SaveFile();
+        }
+        #endregion
+
+
+
+        #region Override points
+        protected virtual string FileAddress() => Path.Combine(Application.persistentDataPath, $"Data/{name}.json");
+
+
+        protected abstract IEnumerable<string> SaveData();
+        protected abstract void LoadData(IEnumerable<string> data);
+
+        protected virtual void SaveFile() => WriteText_ToFile(FileAddress(), SaveData());
+        protected virtual void LoadFile() => LoadData(ReadTextArray_FromFile(FileAddress()));
+        #endregion
+    }
+
+
+    public abstract class Singleton_AutoSave_String_Build_MonoBehaviour<T> : Singleton_AutoSave_String_MonoBehaviour<T> where T : Singleton_MonoBehaviour<T>
+    {
+        #region Override points
+        protected override void SaveFile()
+        {
+            #if !UNITY_EDITOR
+            base.SaveFile();
+            #endif
+        }
+
+
+        protected override void LoadFile()
+        {
+            #if !UNITY_EDITOR
+            base.LoadFile();
+            #endif
+        }
+        #endregion
+    }
+    #endregion
+
+
+
+    #region Json
+    public abstract class Singleton_AutoSave_Json_MonoBehaviour<T> : Singleton_MonoBehaviour<T> where T : Singleton_MonoBehaviour<T>
+    {
+        #region Main
+        protected override void Awake()
+        {
+            base.Awake();
+            
+            LoadFile();
+        }
+
+
+        private bool finalSave = false;
+
+        protected virtual void OnDestroy()
+        {
+            if (finalSave) return;
+
+            finalSave = true;
+            SaveFile();
+        }
+
+        protected virtual void OnApplicationQuit()
+        {
+            if (finalSave) return;
+
+            finalSave = true;
+            SaveFile();
+        }
+        #endregion
+
+
+
+        #region Override points
+        protected virtual string FileAddress() => Path.Combine(Application.persistentDataPath, $"Data/{name}.json");
+
+
+        protected abstract T SaveData();
+        protected abstract void LoadData(T data);
+
+        protected virtual void SaveFile() => SaveJsonFile(SaveData(), FileAddress(), false);
+        protected virtual void LoadFile() => LoadData(LoadJsonFile<T>(FileAddress(), false));
+        #endregion
+    }
+    public abstract class Singleton_AutoSave_Json_MonoBehaviour<T, E> : Singleton_MonoBehaviour<T> where T : Singleton_MonoBehaviour<T>
+    {
+        #region Main
+        protected override void Awake()
+        {
+            base.Awake();
+            
+            LoadFile();
+        }
+
+
+        protected virtual void OnDestroy() => SaveFile();
+        #endregion
+
+
+
+        #region Override points
+        protected virtual string FileAddress() => Path.Combine(Application.persistentDataPath, $"Data/{name}.json");
+
+
+        protected abstract E SaveData();
+        protected abstract void LoadData(E data);
+
+        protected virtual void SaveFile() => SaveJsonFile(SaveData(), FileAddress(), false);
+        protected virtual void LoadFile() => LoadData(LoadJsonFile<E>(FileAddress(), false));
+        #endregion
+    }
+
+
+    public abstract class Singleton_AutoSave_Json_Build_MonoBehaviour<T> : Singleton_AutoSave_Json_MonoBehaviour<T> where T : Singleton_MonoBehaviour<T>
+    {
+        #region Override points
+        protected override void SaveFile()
+        {
+            #if !UNITY_EDITOR
+            base.SaveFile();
+            #endif
+        }
+
+
+        protected override void LoadFile()
+        {
+            #if !UNITY_EDITOR
+            base.LoadFile();
+            #endif
+        }
+        #endregion
+    }
+    public abstract class Singleton_AutoSave_Json_Build_MonoBehaviour<T, E> : Singleton_AutoSave_Json_MonoBehaviour<T, E> where T : Singleton_MonoBehaviour<T>
+    {
+        #region Override points
+        protected override void SaveFile()
+        {
+            #if !UNITY_EDITOR
+            base.SaveFile();
+            #endif
+        }
+
+
+        protected override void LoadFile()
+        {
+            #if !UNITY_EDITOR
+            base.LoadFile();
+            #endif
+        }
+        #endregion
+    }
+    #endregion
+
+    #endregion
+
+
+
+    #region Scriptable object
+    public abstract class Singleton_AutoSave_ScriptableObject<T> : Singleton_ScriptableObject<T> where T : Singleton_ScriptableObject<T>
+    {
+        #region Variables
+        [JsonIgnore] protected virtual string filePath
+        {
+            get => Path.Combine(Application.persistentDataPath, $"Data/{id}.json");
+        }
+
+
+        [JsonIgnore] protected abstract T obj { get; }
+
+        [JsonIgnore] protected abstract string id { get; }
+        #endregion
+
+
+
+
+        #region Main
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            Load();
+        }
 
         protected virtual void OnDisable() => Save();
+        #endregion
 
 
 
-        protected void Save() => HandyFunctions.WriteToFile(filePath, ToJson());
+        #region Override points
+        protected void Save() => WriteText_ToFile(filePath, ToJson());
+
+        protected void Load()
+        {
+            if (TryReadText_FromFile(filePath, out string json)) FromJson(json);
+        }
+
 
         protected virtual string ToJson() => JsonConvert.SerializeObject(
                                                 obj,
@@ -359,12 +988,6 @@ namespace SHUU.Utils.Helpers
                                                 }
                                             );
 
-
-        protected void Load()
-        {
-            if (HandyFunctions.TryReadFromFile(filePath, out string json)) FromJson(json);
-        }
-
         protected virtual void FromJson(string json) => JsonConvert.PopulateObject(
                                                             json,
                                                             obj,
@@ -373,75 +996,13 @@ namespace SHUU.Utils.Helpers
                                                                 ObjectCreationHandling = ObjectCreationHandling.Replace
                                                             }
                                                         );
+        #endregion
     }
 
 
-    public abstract class AutoSave_PlayMode_ScriptableObject<T> : AutoSave_Build_ScriptableObject<T> where T : ScriptableObject
+    public abstract class Singleton_AutoSave_Build_ScriptableObject<T> : Singleton_ScriptableObject<T> where T : Singleton_ScriptableObject<T>
     {
-        #if UNITY_EDITOR
-        static AutoSave_PlayMode_ScriptableObject()
-        {
-            EditorApplication.playModeStateChanged += OnPlayModeChanged;
-        }
-
-        private static void OnPlayModeChanged(PlayModeStateChange state)
-        {
-            if (state == PlayModeStateChange.EnteredPlayMode)
-            {
-                var assets = Resources.FindObjectsOfTypeAll<T>();
-
-                foreach (var asset in assets)
-                {
-                    if (asset is AutoSave_PlayMode_ScriptableObject<T> auto) auto.Load();
-                }
-            }
-
-            if (state == PlayModeStateChange.ExitingPlayMode)
-            {
-                var assets = Resources.FindObjectsOfTypeAll<T>();
-
-                foreach (var asset in assets)
-                {
-                    if (asset is AutoSave_PlayMode_ScriptableObject<T> auto) auto.Save();
-                }
-            }
-        }
-        #endif
-
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            #if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
-            #endif
-        }
-    }
-
-    public abstract class AutoSave_Build_ScriptableObject<T> : AutoSave_ScriptableObject<T> where T : ScriptableObject
-    {
-        protected override void OnEnable()
-        {
-            #if !UNITY_EDITOR
-            Load();
-            #endif
-        }
-
-        protected override void OnDisable()
-        {
-            #if !UNITY_EDITOR
-            Save();
-            #endif
-        }
-    }
-    #endregion
-
-
-
-    #region Static Instance + AutoSave
-    public abstract class StaticInstance_AutoSave_ScriptableObject<T> : StaticInstance_ScriptableObject<T> where T : StaticInstance_ScriptableObject<T>
-    {
+        #region Variables
         [JsonIgnore] protected virtual string filePath
         {
             get => Path.Combine(Application.persistentDataPath, $"Data/{id}.json");
@@ -451,10 +1012,12 @@ namespace SHUU.Utils.Helpers
         [JsonIgnore] protected abstract T obj { get; }
 
         [JsonIgnore] protected abstract string id { get; }
+        #endregion
 
 
 
 
+        #region Main
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -470,10 +1033,18 @@ namespace SHUU.Utils.Helpers
             Save();
             #endif
         }
+        #endregion
 
 
 
-        protected void Save() => HandyFunctions.WriteToFile(filePath, ToJson());
+        #region Override points
+        protected void Save() => WriteText_ToFile(filePath, ToJson());
+
+        protected void Load()
+        {
+            if (TryReadText_FromFile(filePath, out string json)) FromJson(json);
+        }
+
 
         protected virtual string ToJson() => JsonConvert.SerializeObject(
                                                 obj,
@@ -484,12 +1055,6 @@ namespace SHUU.Utils.Helpers
                                                 }
                                             );
 
-
-        protected void Load()
-        {
-            if (HandyFunctions.TryReadFromFile(filePath, out string json)) FromJson(json);
-        }
-
         protected virtual void FromJson(string json) => JsonConvert.PopulateObject(
                                                             json,
                                                             obj,
@@ -498,6 +1063,54 @@ namespace SHUU.Utils.Helpers
                                                                 ObjectCreationHandling = ObjectCreationHandling.Replace
                                                             }
                                                         );
+        #endregion
     }
+    
+    public abstract class Singleton_AutoSave_PlayMode_ScriptableObject<T> : Singleton_AutoSave_Build_ScriptableObject<T> where T : Singleton_ScriptableObject<T>
+    {
+        #region Static
+        #if UNITY_EDITOR
+        static Singleton_AutoSave_PlayMode_ScriptableObject() => EditorApplication.playModeStateChanged += OnPlayModeChanged;
+
+        private static void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.EnteredPlayMode)
+            {
+                var assets = Resources.FindObjectsOfTypeAll<T>();
+
+                foreach (var asset in assets)
+                {
+                    if (asset is Singleton_AutoSave_PlayMode_ScriptableObject<T> auto) auto.Load();
+                }
+            }
+
+            if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                var assets = Resources.FindObjectsOfTypeAll<T>();
+
+                foreach (var asset in assets)
+                {
+                    if (asset is Singleton_AutoSave_PlayMode_ScriptableObject<T> auto) auto.Save();
+                }
+            }
+        }
+        #endif
+        #endregion
+
+
+
+        #region Main
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            #if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            #endif
+        }
+        #endregion
+    }
+    #endregion
+    
     #endregion
 }

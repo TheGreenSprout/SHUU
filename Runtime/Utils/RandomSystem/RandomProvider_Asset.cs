@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
+
 namespace SHUU.Utils.RandomSystem
 {
     [CreateAssetMenu(fileName = "RandomProvider", menuName = "SHUU/RandomProvider")]
     public class RandomProvider_Asset : ScriptableObject
     {
+        #region Variables
         public string assetName;
 
 
@@ -16,11 +19,26 @@ namespace SHUU.Utils.RandomSystem
 
 
 
+        private static bool debugLogEmission => SHUU_Preferences.instance.randomSystem_debugLogEmission;
+        #endregion
 
+
+
+
+        #region Main
         private void OnEnable() => CacheDictionary();
 
 
+        private void OnValidate()
+        {
+            foreach (var entry in startProviders)
+                entry.ValidateType();
+        }
+        #endregion
 
+
+
+        #region Logic
         public void CacheDictionary()
         {
             #if UNITY_EDITOR
@@ -34,56 +52,97 @@ namespace SHUU.Utils.RandomSystem
 
             foreach (var entry in startProviders)
             {
-                if (string.IsNullOrEmpty(entry.name) && entry.seed == 0)
-                {
-                    Debug.LogWarning($"Invalid entry detected on RandomProvider_Asset '{assetName}'.");
-
-                    continue;
-                }
-                else if (string.IsNullOrEmpty(entry.name)) entry.name = entry.seed.ToString();
-
-                if (provider_dict.ContainsKey(entry.name))
-                {
-                    Debug.LogWarning($"Repeated key entry detected on RandomProvider_Asset '{assetName}'.");
-
-                    continue;
-                }
+                RandomProvider provider = entry.Provider();
 
 
-                RandomProvider provider = null;
+                if (provider_dict.ContainsKey(entry.GetName()) && debugLogEmission)
+                    Debug.LogError($"Duplicate provider name detected in {assetName} asset. Name: {entry.GetName()}");
 
-                switch (entry.seedType)
-                {
-                    case SeedType.Generate:
-                        provider = new RandomProvider();
-                        break;
-                }
-
-                provider_dict.Add(entry.name, provider);
+                provider_dict[entry.GetName()] = provider;
             }
         }
 
 
-        public RandomProvider GetProvider(string name) => provider_dict.TryGetValue(name, out var result) ? result : null;
-        public RandomProvider GetProvider(int seed) => GetProvider(seed.ToString());
+        public RandomProvider GetProvider(string name) => provider_dict[name];
+        #endregion
     }
 
 
 
+
+    #region Helper classes
     public enum SeedType
     {
         Generate,
-        Name,
+        String,
         Int
     }
+
+
     [Serializable]
     public class ProviderEntry
     {
-        public string name = null;
+        public SeedType seedType = SeedType.Generate;
 
-        public int seed;
+        [SerializeReference]
+        public ProviderEntryVariables variables = new Generate_ProviderEntryVariables();
 
 
-        public SeedType seedType;
+
+        public string GetName() => variables.name;
+
+        public RandomProvider Provider() => variables.Provider();
+
+
+
+
+        public void ValidateType()
+        {
+            switch (seedType)
+            {
+                case SeedType.Generate:
+                    if (variables is not Generate_ProviderEntryVariables) variables = new Generate_ProviderEntryVariables();
+                    break;
+
+                case SeedType.String:
+                    if (variables is not String_ProviderEntryVariables) variables = new String_ProviderEntryVariables();
+                    break;
+
+                case SeedType.Int:
+                    if (variables is not Int_ProviderEntryVariables) variables = new Int_ProviderEntryVariables();
+                    break;
+            }
+        }
+
+
+
+        [Serializable]
+        public abstract class ProviderEntryVariables
+        {
+            public string name = null;
+
+            public abstract RandomProvider Provider();
+        }
+
+        [Serializable]
+        public class Generate_ProviderEntryVariables : ProviderEntryVariables
+        {
+            public override RandomProvider Provider() => new RandomProvider(name);
+        }
+        [Serializable]
+        public class String_ProviderEntryVariables : ProviderEntryVariables
+        {
+            [SerializeField] protected string seedString = null;
+
+            public override RandomProvider Provider() => new RandomProvider(seedString, name);
+        }
+        [Serializable]
+        public class Int_ProviderEntryVariables : ProviderEntryVariables
+        {
+            [SerializeField] protected int seedInt = 0;
+
+            public override RandomProvider Provider() => new RandomProvider(seedInt, name);
+        }
     }
+    #endregion
 }

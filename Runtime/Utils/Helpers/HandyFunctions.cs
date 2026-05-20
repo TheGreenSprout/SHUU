@@ -2,15 +2,12 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-using System.IO;
 using System.Linq;
 using UnityEngine.UI;
 using System.Collections;
 
-
 namespace SHUU.Utils.Helpers
 {
-
     #region XML doc
     /// <summary>
     /// Contains handy functions to handle all sorts of small things.
@@ -19,7 +16,6 @@ namespace SHUU.Utils.Helpers
     public static class HandyFunctions
     {
         #region Variables
-
         public static string ApplicationPath => Application.dataPath;
 
         public static string ProjectKey => ApplicationPath.GetHashCode().ToString();
@@ -27,14 +23,12 @@ namespace SHUU.Utils.Helpers
         
 
         public static event Action<CursorLockMode> OnCursorStateChange;
-        
         #endregion
 
 
 
 
         #region Strings
-
         #region XML doc
         /// <summary>
         /// Checks a string for a substring, and in some cases deletes the substring when found.
@@ -66,83 +60,91 @@ namespace SHUU.Utils.Helpers
         /// <param name="key">The string to be localized.</param>
         /// <returns>Returns the localized string.</returns>
         #endregion
-        public static string LocalizeString(this string str)
-        {
-            return ProjectKey + "_" + str;
-        }
+        public static string LocalizeString(this string str) => ProjectKey + "_" + str;
 
 
         public static void CopyToClipboard(this string str)
         {
-            #if UNITY_2017_1_OR_NEWER
-                GUIUtility.systemCopyBuffer = str;
-            #else
-                TextEditor textEditor = new TextEditor { text = str };
+#if UNITY_2017_1_OR_NEWER
+            GUIUtility.systemCopyBuffer = str;
+#else
+            TextEditor textEditor = new TextEditor { text = str };
 
-                textEditor.SelectAll();
-                textEditor.Copy();
-            #endif
+            textEditor.SelectAll();
+            textEditor.Copy();
+#endif
         }
 
         public static string PasteFromClipboard()
         {
-            #if UNITY_2017_1_OR_NEWER
-                return GUIUtility.systemCopyBuffer;
-            #else
-                Debug.LogWarning("Pasting from clipboard is not supported in Unity versions older than 2017.1");
+#if UNITY_2017_1_OR_NEWER
+            return GUIUtility.systemCopyBuffer;
+#else
+            Debug.LogWarning("Pasting from clipboard is not supported in Unity versions older than 2017.1");
 
-                return "";
-            #endif
+            return "";
+#endif
         }
 
 
         public static string GetColorOpenTag_RichText(this Color color) => "<color=#" + ColorUtility.ToHtmlStringRGBA(color) + ">";
 
         public static string EncloseInColorTags_RichText(this string text, Color color) => color.GetColorOpenTag_RichText() + text + "</color>";
-
         #endregion
 
 
 
         #region Enums
+        public static int GetEnumValFromString<enumType>(this string name) where enumType : Enum => (int)Enum.Parse(typeof(enumType), name);
 
-        public static int GetEnumValFromString<enumType>(this string name) where enumType : Enum
-        {
-            return (int)Enum.Parse(typeof(enumType), name);
-        }
-
-        public static string GetEnumNameFromVal<enumType>(this int val) where enumType : Enum
-        {
-            return Enum.GetName(typeof(enumType), val);
-        }
+        public static string GetEnumNameFromVal<enumType>(this int val) where enumType : Enum => Enum.GetName(typeof(enumType), val);
 
 
-        public static int GetEnumLength<enumType>() where enumType : Enum
-        {
-            return Enum.GetValues(typeof(enumType)).Length;
-        }
-
+        public static int GetEnumLength<enumType>() where enumType : Enum => Enum.GetValues(typeof(enumType)).Length;
         #endregion
 
 
 
         #region Lists
-
-        public static bool IndexIsValid<E>(this IReadOnlyList<E> list, int index)
+        public static int Count<E>(this IEnumerable<E> source)
         {
-            return !(index < 0 || index >= list.Count);
+            if (source == null) return 0;
+
+            if (source is ICollection<E> collection) return collection.Count;
+            else
+            {
+                int count = 0;
+                foreach (var item in source) count++;
+                return count;
+            }
         }
 
-        public static bool IndexIsValidAndNotNull<E>(this IReadOnlyList<E> list, int index)
+        public static E ElementAt<E>(this IEnumerable<E> source, int index)
         {
-            return list.IndexIsValid(index) && list[index] != null;
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            if (source is IList<E> list) return list[index];
+            else
+            {
+                int currentIndex = 0;
+                foreach (var item in source)
+                {
+                    if (currentIndex == index) return item;
+                    currentIndex++;
+                }
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
         }
+        
+
+        public static bool IndexIsValid<E>(this IEnumerable<E> list, int index) => !(index < 0 || index >= list.Count());
+
+        public static bool IndexIsValidAndNotNull<E>(this IEnumerable<E> list, int index) => list.IndexIsValid(index) && list.ElementAt(index) != null;
 
 
         public static void Clean<E>(this IList<E> list)
         {
             if (list is Array) return;
-
 
             for (int i = 0; i < list.Count; i++)
             {
@@ -155,31 +157,19 @@ namespace SHUU.Utils.Helpers
             }
         }
 
-
-        public static bool NonLINQ_Contains<E>(this IList<E> list, E item)
+        public static IEnumerable<E> Clean<E>(this IEnumerable<E> source)
         {
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (list[i].Equals(item)) return true;
-            }
-
-            return false;
+            foreach (var item in source)
+                if (item != null) yield return item;
         }
 
-        public static T[] CleanArray<T>(this T[] array)
+
+        public static bool NonLINQ_Contains<E>(this IEnumerable<E> source, E item)
         {
-            if (array == null) return Array.Empty<T>();
+            foreach (var x in source)
+                if (Equals(x, item)) return true;
 
-            int count = 0;
-
-            for (int i = 0; i < array.Length; i++) if (array[i] != null) count++;
-
-            T[] result = new T[count];
-
-            int index = 0;
-            for (int i = 0; i < array.Length; i++) if (array[i] != null) result[index++] = array[i];
-
-            return result;
+            return false;
         }
 
 
@@ -216,54 +206,11 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        public static IList<E> MergeLists<E>(params IList<E>[] lists)
+        public static IEnumerable<T> Merge<T>(params IEnumerable<T>[] sources)
         {
-            bool arrayPresent = false;
-            foreach (var list in lists)
-            {
-                if (list is Array)
-                {
-                    arrayPresent = true;
-
-                    break;
-                }
-            }
-            if (arrayPresent) return MergeArrays(lists.Select(l => l.ToArray()).ToArray());
-
-
-            List<E> result = new List<E>();
-
-            foreach (var list in lists)
-            {
-                if (list is Array) continue;
-
-                foreach (var item in list) result.Add(item);
-            }
-
-            return result;
-        }
-
-        public static T[] MergeArrays<T>(params T[][] arrays)
-        {
-            if (arrays is not Array) return null;
-
-
-            int totalLength = 0;
-            foreach (var array in arrays) totalLength += array.Length;
-
-
-            T[] result = new T[totalLength];
-
-            int index = 0;
-            foreach (var array in arrays)
-            {
-                foreach (var item in array)
-                {
-                    result[index++] = item;
-                }
-            }
-            
-            return result;
+            foreach (var source in sources)
+                foreach (var item in source)
+                    yield return item;
         }
 
 
@@ -360,191 +307,19 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        public static T RandomElement<T>(this IReadOnlyList<T> list)
+        public static T RandomElement<T>(this IReadOnlyList<T> list) => list[UnityEngine.Random.Range(0, list.Count)];
+        public static T RandomElement<T>(this IEnumerable<T> source)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var list = source as IList<T> ?? source.ToList();
             return list[UnityEngine.Random.Range(0, list.Count)];
         }
-
-        #endregion
-
-
-
-        #region Manage PlayerPrefs
-
-        #region XML doc
-        /// <summary>
-        /// Checks if an PlayerPref exists.
-        /// </summary>
-        /// <param name="key">The PlayerPref's key (aka their "name").</param>
-        /// <returns>Returns whether the PlayerPref exists.</returns>
-        #endregion
-        public static bool PlayerPrefExists(this string key)
-        {
-            return PlayerPrefs.HasKey(key);
-        }
-
-
-        #region XML doc
-        /// <summary>
-        /// Saves an PlayerPref.
-        /// </summary>
-        /// <param name="key">The PlayerPref's key (aka their "name").</param>
-        /// <param name="value">The value to save.</param>
-        #endregion
-        public static void SetPlayerPref<T>(this string key, T value)
-        {
-            if (typeof(T) == typeof(string))
-            {
-                PlayerPrefs.SetString(key, (string)(object)value);
-            }
-            else if (typeof(T) == typeof(bool))
-            {
-                string bool_str = (bool)(object)value ? bool.TrueString : bool.FalseString;
-                PlayerPrefs.SetString(key, bool_str);
-            }
-            else if (typeof(T) == typeof(int))
-            {
-                PlayerPrefs.SetInt(key, (int)(object)value);
-            }
-            else if (typeof(T) == typeof(float))
-            {
-                PlayerPrefs.SetFloat(key, (float)(object)value);
-            }
-            else if (typeof(T) == typeof(Vector2))
-            {
-                SetPlayerPref(key + "_x", ((Vector2)(object)value).x);
-                SetPlayerPref(key + "_y", ((Vector2)(object)value).y);
-            }
-            else if (typeof(T) == typeof(Vector3))
-            {
-                SetPlayerPref(key + "_x", ((Vector3)(object)value).x);
-                SetPlayerPref(key + "_y", ((Vector3)(object)value).y);
-                SetPlayerPref(key + "_z", ((Vector3)(object)value).z);
-            }
-            else if (typeof(T) == typeof(Color))
-            {
-                string hex = ColorUtility.ToHtmlStringRGBA((Color)(object)value);
-
-                SetPlayerPref(key, hex);
-            }
-            else if (typeof(T).IsEnum)
-            {
-                PlayerPrefs.SetString(key, (string)(object)value);
-            }
-            else if (!typeof(T).IsSerializable)
-            {
-                string json = JsonUtility.ToJson(value);
-                PlayerPrefs.SetString(key, json);
-            }
-            else throw new NotSupportedException($"Type {typeof(T)} is not supported by SetPlayerPref and isn't Serializable.");
-        }
-
-        #region XML doc
-        /// <summary>
-        /// Retrieves an PlayerPref's value.
-        /// </summary>
-        /// <param name="key">The PlayerPref's key (aka their "name").</param>
-        /// <param name="defaultValue">The default value of this PlayerPref.</param>
-        /// <returns>Returns the value of the PlayerPref.</returns>
-        #endregion
-        public static T GetPlayerPref<T>(this string key, T defaultValue = default)
-        {
-            if (!key.PlayerPrefExists()) return default;
-
-
-            if (typeof(T) == typeof(string))
-            {
-                return (T)(object)PlayerPrefs.GetString(key, (string)(object)defaultValue);
-            }
-            else if (typeof(T) == typeof(bool))
-            {
-                string bool_defaultVal_str = (bool)(object)defaultValue ? bool.TrueString : bool.FalseString;
-                string bool_str = PlayerPrefs.GetString(key, bool_defaultVal_str);
-
-                bool bool_val = bool_str == bool.TrueString ? true : false;
-
-                return (T)(object)bool_val;
-            }
-            else if (typeof(T) == typeof(int))
-            {
-                return (T)(object)PlayerPrefs.GetInt(key, (int)(object)defaultValue);
-            }
-            else if (typeof(T) == typeof(float))
-            {
-                return (T)(object)PlayerPrefs.GetFloat(key, (float)(object)defaultValue);
-            }
-            else if (typeof(T) == typeof(Vector2))
-            {
-                float x = GetPlayerPref(key + "_x", ((Vector2)(object)defaultValue).x);
-                float y = GetPlayerPref(key + "_y", ((Vector2)(object)defaultValue).y);
-                return (T)(object)new Vector2(x, y);
-            }
-            else if (typeof(T) == typeof(Vector3))
-            {
-                float x = GetPlayerPref(key + "_x", ((Vector3)(object)defaultValue).x);
-                float y = GetPlayerPref(key + "_y", ((Vector3)(object)defaultValue).y);
-                float z = GetPlayerPref(key + "_z", ((Vector3)(object)defaultValue).z);
-                return (T)(object)new Vector3(x, y, z);
-            }
-            else if (typeof(T) == typeof(Color))
-            {
-                string hex = GetPlayerPref(key, ((Color)(object)defaultValue).ToString());
-
-                if (ColorUtility.TryParseHtmlString("#" + hex, out var color))
-                {
-                    return (T)(object)color;
-                }
-
-                return defaultValue;
-            }
-            else if (typeof(T).IsEnum)
-            {
-                string str = PlayerPrefs.GetString(key, defaultValue.ToString());
-
-                try
-                {
-                    return (T)Enum.Parse(typeof(T), str);
-                }
-                catch
-                {
-                    return defaultValue;
-                }
-            }
-            else if (typeof(T).IsSerializable)
-            {
-                string json = PlayerPrefs.GetString(key, "");
-                if (string.IsNullOrEmpty(json)) return defaultValue;
-
-                try { return JsonUtility.FromJson<T>(json); }
-                catch { return defaultValue; }
-            }
-            else
-            {
-                throw new NotSupportedException($"Type {typeof(T)} is not supported by GetPlayerPref and isn't Serializable.");
-            }
-        }
-
-
-        #region XML doc
-        /// <summary>
-        /// Deletes an PlayerPref.
-        /// </summary>
-        /// <param name="key">The PlayerPref's key (aka their "name").</param>
-        #endregion
-        public static void DeletePlayerPref(this string key)
-        {
-            if (!key.PlayerPrefExists()) return;
-
-
-            PlayerPrefs.DeleteKey(key);
-        }
-
         #endregion
 
 
 
         #region Recursion
-
         public static T SearchComponent_InSelfAndParents<T>(this Transform start) where T : Component
         {
             Transform current = start;
@@ -554,16 +329,13 @@ namespace SHUU.Utils.Helpers
             {
                 T found = current.GetComponent<T>();
 
-                if (found != null)
-                {
-                    return found;
-                }
+                if (found != null) return found;
 
                 current = current.parent;
             }
 
 
-            return null; // Not found
+            return null;
         }
 
         public static T SearchComponent_InSelfAndChildren<T>(this Transform start) where T : Component
@@ -587,14 +359,11 @@ namespace SHUU.Utils.Helpers
             }
 
 
-            return null; // Not found
+            return null;
         }
 
 
-        public static void SetLayer_InSelfAndChildren(this GameObject start, LayerMask newLayer)
-        {
-            SetLayer_InSelfAndChildren(start, newLayer.ToLayerIndex());
-        }
+        public static void SetLayer_InSelfAndChildren(this GameObject start, LayerMask newLayer) => SetLayer_InSelfAndChildren(start, newLayer.ToLayerIndex());
         public static void SetLayer_InSelfAndChildren(this GameObject start, int newLayer)
         {
             Queue<GameObject> queue = new Queue<GameObject>();
@@ -613,16 +382,12 @@ namespace SHUU.Utils.Helpers
                 foreach (Transform child in current.transform) queue.Enqueue(child.gameObject);
             }
         }
-        
         #endregion
 
 
 
         #region Layers
-        public static int ToLayerIndex(this LayerMask mask)
-        {
-            return Mathf.RoundToInt(Mathf.Log(mask.value, 2));
-        }
+        public static int ToLayerIndex(this LayerMask mask) => Mathf.RoundToInt(Mathf.Log(mask.value, 2));
 
 
         public static bool Contains_Layer(this LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
@@ -631,7 +396,6 @@ namespace SHUU.Utils.Helpers
 
 
         #region Screen Resolution
-
         public static Vector2Int GetClosestAspectRatio(this Vector2Int screenValues, bool exactScreenSize = true)
         {
             if (exactScreenSize)
@@ -751,13 +515,11 @@ namespace SHUU.Utils.Helpers
             return new Vector2Int(Mathf.RoundToInt(rect.width), Mathf.RoundToInt(rect.height));
         }
 #endif
-
         #endregion
 
 
 
         #region Mouse
-
         public static Vector2 GetMouseScreenCoords(this RectTransform canvasRect, Camera cam = null)
         {
             Vector2 mousePos;
@@ -842,93 +604,11 @@ namespace SHUU.Utils.Helpers
 
             return true;
         }
-
         #endregion
 
 
-
-        #region Files
-
-        public static T FindFile<T>(this string path, T defaultValue = default) where T : UnityEngine.Object
-        {
-#if UNITY_EDITOR
-            if (!File.Exists(path)) return defaultValue;
-            else
-            {
-                return AssetDatabase.LoadAssetAtPath<T>(path);
-            }
-#else
-            return defaultValue;
-#endif
-        }
-
-        public static T FindFile<T>(this string[] pathArray, T defaultValue = default) where T : UnityEngine.Object
-        {
-#if UNITY_EDITOR
-            for (int i = 0; i < pathArray.Length; i++)
-            {
-                if (!File.Exists(pathArray[i])) continue;
-                else
-                {
-                    return AssetDatabase.LoadAssetAtPath<T>(pathArray[i]);
-                }
-            }
-
-            return defaultValue;
-#else
-            return defaultValue;
-#endif
-        }
-
-
-        public static void WriteToFile(string filePath, string content)
-        {
-            EnsureDirectoryExists(filePath);
-
-            File.WriteAllText(filePath, content);
-        }
-        public static void AppendToFile(string filePath, string content)
-        {
-            EnsureDirectoryExists(filePath);
-
-            File.AppendAllText(filePath, content);
-        }
-        public static bool TryReadFromFile(string filePath, out string content)
-        {
-            content = null;
-
-            if (!File.Exists(filePath)) return false;
-
-
-            content = File.ReadAllText(filePath);
-
-            return true;
-        }
-
-        private static void EnsureDirectoryExists(string filePath)
-        {
-            string directory = Path.GetDirectoryName(filePath);
-
-            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
-        }
-
-        public static bool DeleteFile(string filePath)
-        {
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-
-                return true;
-            }
-            else return false;
-        }
-
-        #endregion
-    
-        
 
         #region Gizmos
-
         public static void DrawCircle(Transform t, Vector2 offset, float radius, bool filled)
         {
             int segments = 32;
@@ -941,10 +621,8 @@ namespace SHUU.Utils.Helpers
                 float angle = (float)i / segments * Mathf.PI * 2f;
                 Vector3 next = center + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
 
-                if (!filled)
-                    Gizmos.DrawLine(prev, next);
-                else
-                    Gizmos.DrawLine(center, next);
+                if (!filled) Gizmos.DrawLine(prev, next);
+                else Gizmos.DrawLine(center, next);
 
                 prev = next;
             }
@@ -961,28 +639,23 @@ namespace SHUU.Utils.Helpers
                     Vector3 a = t.TransformPoint(path[i]);
                     Vector3 b = t.TransformPoint(path[(i + 1) % path.Length]);
 
-                    if (!filled)
-                        Gizmos.DrawLine(a, b);
-                    else
-                        Gizmos.DrawLine(t.TransformPoint(Vector2.zero), a);
+                    if (!filled) Gizmos.DrawLine(a, b);
+                    else Gizmos.DrawLine(t.TransformPoint(Vector2.zero), a);
                 }
             }
         }
 
-        public static void DrawCapsule(CapsuleCollider cap, bool filled)
+        public static void DrawCapsule(CapsuleCollider cap)
         {
-            // Draw as sphere + box (good enough for visualization)
             Gizmos.DrawWireSphere(cap.center + Vector3.up * (cap.height * .5f - cap.radius), cap.radius);
             Gizmos.DrawWireSphere(cap.center - Vector3.up * (cap.height * .5f - cap.radius), cap.radius);
             Gizmos.DrawWireCube(cap.center, new Vector3(cap.radius * 2, cap.height - cap.radius * 2, cap.radius * 2));
         }
-
         #endregion
 
 
 
         #region Interaction System
-
         public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
         {
             bool raycast;
@@ -1011,16 +684,13 @@ namespace SHUU.Utils.Helpers
         }
         public static bool InteractionRaycast(ref IfaceInteractable previousInact, Camera camera, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
         {
-            if (camera == null)
-            {
-                return InteractionRaycast(
-                    ref previousInact,
-                    interactionRange,
-                    interactionLayers,
-                    modifyDynamicCursor,
-                    tags
-                );
-            }
+            if (camera == null) return InteractionRaycast(
+                                    ref previousInact,
+                                    interactionRange,
+                                    interactionLayers,
+                                    modifyDynamicCursor,
+                                    tags
+                                );
 
 
             return InteractionRaycast(
@@ -1067,13 +737,11 @@ namespace SHUU.Utils.Helpers
             previousInact.HoverEnd(modifyDynamicCursor);
             previousInact = null;
         }
-
         #endregion
 
 
 
         #region Misc
-
         public static string GetTypeName(this Type t)
         {
             // Primitive C# types
@@ -1184,15 +852,10 @@ namespace SHUU.Utils.Helpers
         private static string DetectInput()
         {
             foreach (KeyCode k in Enum.GetValues(typeof(KeyCode)))
-            {
                 if (Input.GetKeyDown(k)) return InputParser.InputToString(k);
-            }
                 
             for (int i = 0; i <= 6; i++)
-            {
                 if (Input.GetMouseButtonDown(i)) return InputParser.InputToString(i);
-            }
-                
 
             return null;
         }
@@ -1221,7 +884,6 @@ namespace SHUU.Utils.Helpers
             }
             return result;
         }
-
         #endregion
 
 
@@ -1246,5 +908,4 @@ namespace SHUU.Utils.Helpers
         }
         #endregion*/
     }
-
 }

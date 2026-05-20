@@ -1,20 +1,22 @@
-using SHUU.Utils.PersistantInfo;
-using SHUU.Utils.PersistantInfo.SavingLoading;
 using TMPro;
 using UnityEngine;
 
-public class ChangeSaveFile : MonoBehaviour
+using SHUU.Utils.PersistantInfo.SavingLoading;
+
+namespace SHUU.Samples.SampleScenesAndUtils.SavingSystemAndInteraction
 {
-    public TMP_Text saveFileText;
-
-
-
-
-    public void ChangeSaveFileIndex()
+    public class ChangeSaveFile : MonoBehaviour
     {
-        Persistant_Globals.saveFilesManager.currentSaveFileIndex++;
+        [SerializeField] private TMP_Text saveFileText;
 
 
-        saveFileText.text = "" + (Persistant_Globals.saveFilesManager.currentSaveFileIndex + 1);
+
+
+        public void ChangeSaveFileIndex()
+        {
+            SavingManager.instance.currentSaveFileIndex++;
+
+            saveFileText.text = "" + (SavingManager.instance.currentSaveFileIndex + 1);
+        }
     }
 }

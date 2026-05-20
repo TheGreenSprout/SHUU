@@ -6,70 +6,61 @@ using UnityEngine.UI;
 
 namespace SHUU.Utils.SceneManagement
 {
-
-public class LoadingScreen : MonoBehaviour
-{
-    [SerializeField] private Slider progressBar;
-
-    [SerializeField] private TMP_Text progressText;
-
-
-    private string sceneToLoad;
-
-
-
-
-    private void Start()
+    public class LoadingScreen : MonoBehaviour
     {
-        sceneToLoad = SceneLoader.nextScene;
+        #region Variables
+        [SerializeField] private Slider progressBar;
 
-        SceneLoader.nextScene = null;
+        [SerializeField] private TMP_Text progressText;
 
 
-        if (sceneToLoad == null || sceneToLoad == "")
+        private string sceneToLoad;
+        #endregion
+
+
+
+        
+        #region Main
+        private void Awake()
         {
-            sceneToLoad = "ErrorScene";
+            sceneToLoad = SceneLoader.nextScene;
+
+            SceneLoader.nextScene = null;
+
+
+            if (sceneToLoad == null || sceneToLoad == "") sceneToLoad = "ErrorScene";
+
+
+            StartCoroutine(LoadAsyncScene());
         }
 
 
-        StartCoroutine(LoadAsyncScene());
-    }
-
-
-    private IEnumerator LoadAsyncScene()
-    {
-        AsyncOperation op = SceneManager.LoadSceneAsync(sceneToLoad);
-
-        op.allowSceneActivation = false;
-
-
-        while (!op.isDone)
+        private IEnumerator LoadAsyncScene()
         {
-            float progress = Mathf.Clamp01(op.progress / 0.9f);
-            
-            
-            if (progressBar != null)
+            AsyncOperation op = SceneManager.LoadSceneAsync(sceneToLoad);
+
+            op.allowSceneActivation = false;
+
+
+            while (!op.isDone)
             {
+                float progress = Mathf.Clamp01(op.progress / 0.9f);
+                
                 if (progressBar != null) progressBar.value = progress;
-            }
-            
-            if (progressText != null)
-            {
                 if (progressText != null) progressText.text = $"Loading… {(int)(progress * 100f)}%";
+
+                if (op.progress >= 0.9f && ProgressScene()) op.allowSceneActivation = true;
+
+
+                yield return null;
             }
-            
-
-
-            if (op.progress >= 0.9f)
-            {
-                // Optionally perform something before moving scenes, like "Press any button" or something like that.
-                op.allowSceneActivation = true;
-            }
-
-
-            yield return null;
         }
-    }
-}
+        #endregion
 
+
+
+        #region Override Points
+        protected virtual bool ProgressScene() => true;
+        #endregion
+    }
 }

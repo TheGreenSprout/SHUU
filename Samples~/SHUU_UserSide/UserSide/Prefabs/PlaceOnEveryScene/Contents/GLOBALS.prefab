@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49e08f04a02f73f4a829c2ece29f43f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueBox_PrefabList: []
+  handleGameobject: 0
   dialogueCanvas: {fileID: 4930977789235210553}
   fadeInAtSceneRoomEnter: 1
   enterFadeIn_buffer: 0.05
@@ -189,6 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5e141e750533bb4a90634a67a097cd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handleGameobject: 0
   masterMixer: {fileID: 24300002, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
   sfxMixer: {fileID: -1620632772027961612, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
   musicMixer: {fileID: 7567011435774010195, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
@@ -215,8 +216,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bf7a6a34d2bdfa468129ce0b318dfea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handleGameobject: 0
+  backupWhenSave: 1
+  localSave_OnRoomChange: 1
   saveToFile_OnRoomChange: 0
+  localSave_OnApplicationQuit: 1
   saveToFile_OnApplicationQuit: 0
+  pathsAsset: {fileID: 11400000, guid: 28a946f15bb08ca4caa8dcb0dc879354, type: 2}
 --- !u!114 &3971717330311365469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,6 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36341af37d69514399f912cd880b2ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handleGameobject: 0
   fadePanel_scr: {fileID: 8768271028095985983}
   defaultFadeDuration: 0.5
   defaultPingPongDuration: 0
@@ -246,6 +253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f98eb8d5b179c1148ac6765450be2dee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handleGameobject: 0
 --- !u!1 &2093164103080531723
 GameObject:
   m_ObjectHideFlags: 0

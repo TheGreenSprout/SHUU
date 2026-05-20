@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace SHUU.Utils.SettingsSytem
 {
+    #region Helper classes
     public enum SettingType
     {
         Bool,
@@ -68,9 +69,12 @@ namespace SHUU.Utils.SettingsSytem
                                 _ => null
                             };
     }
+    #endregion
 
 
+    
 
+    #region Data class
     [Serializable]
     public class SettingsData_Data
     {
@@ -87,9 +91,7 @@ namespace SHUU.Utils.SettingsSytem
 
             this.fields = new();
             foreach (var field in map.fields)
-            {
                 this.fields.Add(new SettingField(field));
-            }
         }
 
         public SettingsData_Data(SettingsData_Data other)
@@ -98,9 +100,8 @@ namespace SHUU.Utils.SettingsSytem
 
             this.fields = new();
             foreach (var field in other.fields)
-            {
                 this.fields.Add(new SettingField(field));
-            }
         }
     }
+    #endregion
 }

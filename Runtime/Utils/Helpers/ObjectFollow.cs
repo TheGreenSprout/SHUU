@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace SHUU.Utils.Helpers
 {
-    
     public class ObjectFollow : MonoBehaviour
     {
+        #region Variables
         [Header("Control variables")]
         [SerializeField] private bool positionFollow = true;
         [SerializeField] private bool rotationFollow = true;
@@ -31,18 +31,17 @@ namespace SHUU.Utils.Helpers
 
 
         [SerializeField] private float positionSmoothTime = 0.3f;
+        #endregion
 
 
 
 
+        #region Main
         private void LateUpdate()
         {
             if (target == null) return;
 
-            if (followSmoothTime == 0f)
-            {
-                if (positionFollow) transform.position = target.position;
-            }
+            if (followSmoothTime == 0f) if (positionFollow) transform.position = target.position;
             else
             {
                 if (positionFollow)
@@ -55,9 +54,7 @@ namespace SHUU.Utils.Helpers
                     if (maxDistance > 0f && distance > maxDistance) transform.position = target.position - toTarget.normalized * maxDistance;
 
                     if (distance > minDistance || snapToMinDistance)
-                    {
                         transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _posVelocity, positionSmoothTime);
-                    }
                 }
             }
         }
@@ -66,18 +63,14 @@ namespace SHUU.Utils.Helpers
         {
             if (target == null) return;
 
-            if (followSmoothTime == 0f)
-            {
-                if (rotationFollow) transform.rotation = target.rotation;
-            }
+            if (followSmoothTime == 0f) if (rotationFollow) transform.rotation = target.rotation;
             else
             {
                 float t = 1f - Mathf.Exp(-Time.deltaTime / followSmoothTime);
 
-
                 if (rotationFollow) transform.rotation = Quaternion.Slerp(transform.rotation, target.rotation, t);
             }
         }
+        #endregion
     }
-
 }

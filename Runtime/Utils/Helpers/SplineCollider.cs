@@ -21,6 +21,7 @@ namespace SHUU.Utils.Helpers
     [RequireComponent(typeof(MeshCollider))]
     public class SplineCollider : MonoBehaviour
     {
+        #region Variables
         [Header("Spline")]
         public SplineContainer splineContainer;
 
@@ -37,10 +38,12 @@ namespace SHUU.Utils.Helpers
         private MeshCollider meshCollider;
         private bool dirty;
         private bool originalEnabled = false;
+        #endregion
 
-        // -------------------------------------------------
-        // UNITY LIFECYCLE
-        // -------------------------------------------------
+
+
+
+        #region Main
         private void Awake()
         {
             EnsureCollider();
@@ -81,24 +84,24 @@ namespace SHUU.Utils.Helpers
 
         private void LateUpdate()
         {
-            if (!dirty)
-                return;
+            if (!dirty) return;
 
             Rebuild();
             dirty = false;
         }
+        #endregion
 
-        // -------------------------------------------------
-        // PUBLIC API
-        // -------------------------------------------------
-        public void MarkDirty()
-        {
-            dirty = true;
-        }
 
-        // -------------------------------------------------
-        // CORE LOGIC
-        // -------------------------------------------------
+
+        #region Logic
+
+        #region API
+        public void MarkDirty() => dirty = true;
+        #endregion
+
+        
+
+        #region General
         private void EnsureCollider()
         {
             if (!meshCollider) meshCollider = GetComponent<MeshCollider>() ?? gameObject.AddComponent<MeshCollider>();
@@ -113,8 +116,7 @@ namespace SHUU.Utils.Helpers
         {
             ClearCompoundColliders();
 
-            if (!IsSplineValid())
-                return;
+            if (!IsSplineValid()) return;
 
             Mesh mesh = GenerateVolumeMesh();
 
@@ -129,24 +131,18 @@ namespace SHUU.Utils.Helpers
             }
         }
 
-        private bool IsSplineValid()
-        {
-            return splineContainer != null &&
-                splineContainer.Spline != null &&
-                splineContainer.Spline.Closed;
-        }
+        private bool IsSplineValid() => splineContainer != null && splineContainer.Spline != null && splineContainer.Spline.Closed;
+        #endregion
 
-        // ----------------------------
-        // REPLACEMENT: MESH GENERATION
-        // ----------------------------
+        
+
+        #region Mesh Generation
         private Mesh GenerateVolumeMesh()
         {
             // Collect base spline points
             List<Vector3> baseVerts = new();
             for (int i = 0; i < resolution; i++)
-            {
                 baseVerts.Add(Evaluate(i / (float)resolution) + HeightOffset);
-            }
 
             int vertCount = baseVerts.Count;
             List<Vector3> verts = new List<Vector3>();
@@ -203,10 +199,8 @@ namespace SHUU.Utils.Helpers
             // Assign to mesh
             for (int i = 0; i < indices.Length; i += 3)
             {
-                if (top)
-                    tris.AddRange(new[] { indices[i] * 2 + 1, indices[i + 1] * 2 + 1, indices[i + 2] * 2 + 1 });
-                else
-                    tris.AddRange(new[] { indices[i] * 2, indices[i + 2] * 2, indices[i + 1] * 2 });
+                if (top) tris.AddRange(new[] { indices[i] * 2 + 1, indices[i + 1] * 2 + 1, indices[i + 2] * 2 + 1 });
+                else tris.AddRange(new[] { indices[i] * 2, indices[i + 2] * 2, indices[i + 1] * 2 });
             }
         }
 
@@ -245,8 +239,7 @@ namespace SHUU.Utils.Helpers
                 if (count > 5000) break; // prevent infinite loop
             }
 
-            if (V.Count == 3)
-                indices.AddRange(V);
+            if (V.Count == 3) indices.AddRange(V);
 
             return indices.ToArray();
         }
@@ -287,33 +280,27 @@ namespace SHUU.Utils.Helpers
             return mesh;
         }
 
-        private Vector3 Evaluate(float t)
-        {
-            return splineContainer.EvaluatePosition(t);
-        }
+        private Vector3 Evaluate(float t) => splineContainer.EvaluatePosition(t);
 
         private void ClearCompoundColliders()
         {
             foreach (Transform c in transform)
-                if (c.name.StartsWith("SplineCollider_Segment_"))
-                    DestroyImmediate(c.gameObject);
+                if (c.name.StartsWith("SplineCollider_Segment_")) DestroyImmediate(c.gameObject);
         }
+        #endregion
 
-        // -------------------------------------------------
-        // GIZMOS
-        // -------------------------------------------------
-    #if UNITY_EDITOR
+        
+
+        #region Gizmos
+#if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            if (!drawGizmos || !IsSplineValid())
-                return;
+            if (!drawGizmos || !IsSplineValid()) return;
 
             Handles.color = gizmoColor;
 
-            if (height <= 0f)
-                DrawPlaneGizmo();
-            else
-                DrawVolumeGizmo();
+            if (height <= 0f) DrawPlaneGizmo();
+            else DrawVolumeGizmo();
         }
 
         private void DrawPlaneGizmo()
@@ -346,6 +333,9 @@ namespace SHUU.Utils.Helpers
                 prevT = t;
             }
         }
-    #endif
+#endif
+        #endregion
+
+        #endregion
     }
 }

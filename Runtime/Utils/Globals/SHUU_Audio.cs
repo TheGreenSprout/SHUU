@@ -1,57 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using System.Linq;
+
 using SHUU.Utils.BaseScripts.Audio;
 using SHUU.Utils.BaseScripts.ScriptableObjs.Audio;
 using SHUU.Utils.Helpers;
-using System.Linq;
 using SHUU.Utils.SettingsSytem;
 
 namespace SHUU.Utils.Globals
 {
-
-    #region Options
-    public class SFX_Options
-    {
-        public int? priority { get; set; } = null;
-
-        public float? volume { get; set; } = null;
-        public float? pitch { get; set; } = null;
-        public float? stereoPan { get; set; } = null;
-        public float? spatialBlend { get; set; } = null;
-        public float? reverbZoneMix { get; set; } = null;
-
-        public bool? playOnAwake { get; set; } = null;
-        public bool? loop { get; set; } = null;
-        public bool deleteWhenFinished { get; set; } = true;
-
-        public GameObject prefab = null;
-        public AudioMixerGroup mixer = null;
-    }
-
-
-    public class Music_Options
-    {
-        public SFX_Options audioOptions = null;
-
-
-        public bool sectionLooping = false;
-
-        public bool startAtSection = false;
-    }
-    #endregion
-
-    
-
     [DefaultExecutionOrder(-10000)]
     #region XML doc
     /// <summary>
     /// Manages multiple audio-related functions.
     /// </summary>
     #endregion
-    public class SHUU_Audio : StaticInstance_Monobehaviour<SHUU_Audio>
+    public class SHUU_Audio : Singleton_MonoBehaviour<SHUU_Audio>
     {
         #region Variables
+        protected override bool PersistantSingleton() => false;
+
+
+
         private const float MIN_DB = -80f;
 
 
@@ -96,7 +67,7 @@ namespace SHUU.Utils.Globals
 
 
         
-        #region Init
+        #region Main
         protected override void Awake()
         {
             base.Awake();
@@ -151,14 +122,16 @@ namespace SHUU.Utils.Globals
 
 
 
-        #region Manage SFX
+        #region Logic
 
+        #region Manage SFX
         public static AudioSource PlaySfxAt(Transform pos, string audio, SFX_Options audioOptions = null) => instance._PlaySfxAt(pos, audio, audioOptions);
         private AudioSource _PlaySfxAt(Transform pos, string audio, SFX_Options audioOptions = null){
             if (sfxStorage == null) return null;
 
             return _PlaySfxAt(pos, sfxStorage.GetAudio(audio), audioOptions);
         }
+
         #region XML doc
         /// <summary>
         /// Creates a default audio instance (with custom volume) at a position.
@@ -222,6 +195,7 @@ namespace SHUU.Utils.Globals
             return theSource;
         }
         
+
         public static AudioSource PlayRandomSfxAt(Transform pos, string[] audio, SFX_Options audioOptions = null) => instance._PlayRandomSfxAt(pos, audio, audioOptions);
         private AudioSource _PlayRandomSfxAt(Transform pos, string[] audio, SFX_Options audioOptions = null){
             if (sfxStorage == null) return null;
@@ -235,6 +209,7 @@ namespace SHUU.Utils.Globals
 
             return _PlayRandomSfxAt(pos, audioList, audioOptions);
         }
+
         #region XML doc
         /// <summary>
         /// Creates a default random audio instance from a list (with custom volume) at a position.
@@ -253,19 +228,18 @@ namespace SHUU.Utils.Globals
 
             return _PlaySfxAt(pos, audioList[voiceline], audioOptions);
         }
-        
         #endregion
 
 
 
         #region Manage Music
-
         public static AudioSource PlayMusicAt(Transform pos, string audio, Music_Options musicOptions = null) => instance._PlayMusicAt(pos, audio, musicOptions);
         private AudioSource _PlayMusicAt(Transform pos, string audio, Music_Options musicOptions = null){
             if (sfxStorage == null) return null;
 
             return PlayMusicAt(pos, musicStorage.GetAudio(audio), musicOptions);
         }
+
         #region XML doc
         /// <summary>
         /// Creates a default audio instance (with custom volume) at a position.
@@ -330,6 +304,7 @@ namespace SHUU.Utils.Globals
             return theSource;
         }
         
+
         public static AudioSource PlayRandomMusicAt(Transform pos, string[] audio, Music_Options musicOptions = null) => instance._PlayRandomMusicAt(pos, audio, musicOptions);
         private AudioSource _PlayRandomMusicAt(Transform pos, string[] audio, Music_Options audioOptions = null){
             if (sfxStorage == null) return null;
@@ -343,6 +318,7 @@ namespace SHUU.Utils.Globals
 
             return PlayRandomMusicAt(pos, audioList, audioOptions);
         }
+
         #region XML doc
         /// <summary>
         /// Creates a default random audio instance from a list (with custom volume) at a position.
@@ -361,13 +337,11 @@ namespace SHUU.Utils.Globals
 
             return PlayMusicAt(pos, setList[voiceline], audioOptions);
         }
-        
         #endregion
 
 
 
-        #region Audio list stuff
-
+        #region Tracking
         #region XML doc
         /// <summary>
         /// Gets all audios currently playing in the game.
@@ -440,6 +414,7 @@ namespace SHUU.Utils.Globals
             audioSystem.ClearAudioList();
         }
 
+
         #region XML doc
         /// <summary>
         /// Pauses all audio instances currently playing in the game.
@@ -464,6 +439,7 @@ namespace SHUU.Utils.Globals
         private static void PauseAllAudio(AudioSystem audioSystem){
             foreach (AudioSource source in audioSystem.GetAllAudio()) source.Pause();
         }
+        
 
         #region XML doc
         /// <summary>
@@ -489,7 +465,8 @@ namespace SHUU.Utils.Globals
         public static void ResumeAllAudio(AudioSystem audioSystem){
             foreach (AudioSource source in audioSystem.GetAllAudio()) source.UnPause();
         }
-
+        #endregion
+        
         #endregion
     }
 
@@ -564,7 +541,7 @@ namespace SHUU.Utils.Globals
         {
             isMusic = _isMusic;
 
-            pool = new SHUU_ObjectPool<AudioSource>(_prefab.GetComponent<AudioSource>(), initialPoolSize, parent);
+            pool = new SHUU_ObjectPool<AudioSource>(_prefab.GetComponent<AudioSource>(), initialPoolSize, parent, true, false);
         }
 
         public override AudioSource InstantiateAudio(Transform pos, GameObject overridePrefab)
@@ -599,6 +576,40 @@ namespace SHUU.Utils.Globals
 
         public override AudioSource[] GetAllAudio() => pool.GetActives();
         public override int GetAudioCount() => pool.activesCount;
+    }
+    #endregion
+
+
+
+
+    #region Option classes
+    public class SFX_Options
+    {
+        public int? priority { get; set; } = null;
+
+        public float? volume { get; set; } = null;
+        public float? pitch { get; set; } = null;
+        public float? stereoPan { get; set; } = null;
+        public float? spatialBlend { get; set; } = null;
+        public float? reverbZoneMix { get; set; } = null;
+
+        public bool? playOnAwake { get; set; } = null;
+        public bool? loop { get; set; } = null;
+        public bool deleteWhenFinished { get; set; } = true;
+
+        public GameObject prefab = null;
+        public AudioMixerGroup mixer = null;
+    }
+
+
+    public class Music_Options
+    {
+        public SFX_Options audioOptions = null;
+
+
+        public bool sectionLooping = false;
+
+        public bool startAtSection = false;
     }
     #endregion
 }

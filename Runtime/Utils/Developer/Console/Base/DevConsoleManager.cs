@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +9,7 @@ namespace SHUU.Utils.Developer.Console
     [RequireComponent(typeof(DevConsoleInput))]
     public class DevConsoleManager : MonoBehaviour
     {
+        #region Variables
         public static DevConsoleManager instance;
 
 
@@ -45,37 +38,44 @@ namespace SHUU.Utils.Developer.Console
         [HideInInspector] public bool inputFieldActive => devConsoleUI.inputFieldActive;
 
 
-        [HideInInspector] public DevConsoleInput input;
+        [HideInInspector] public DevConsoleInput inputModule;
+        #endregion
 
 
 
 
+        #region Main
         private void Awake()
         {
             instance = this;
 
 
-
             DevCommandRegistry.RegisterCommands();
 
 
-            input = GetComponent<DevConsoleInput>();
+            inputModule = GetComponent<DevConsoleInput>();
 
-            input.toggle += devConsoleUI.Toggle;
+            inputModule.toggle += devConsoleUI.Toggle;
         }
 
 
-        private void OnDestroy() => input.toggle -= devConsoleUI.Toggle;
+        private void OnDestroy() => inputModule.toggle -= devConsoleUI.Toggle;
+        #endregion
 
 
 
-        public static bool ProcessConsoleInput(string input, (string[], Color?)? printOutput = null)
-            => instance.ProcessInput(input, printOutput);
-        public bool ProcessInput(string input, (string[], Color?)? printOutput = null)
+        #region Logic
+
+        #region Input processing
+        public static bool ProcessConsoleInput(string input) => instance.ProcessInput(input);
+        public bool ProcessInput(string input)
         {
-            if (string.IsNullOrWhiteSpace(input)) return false;
+            if (input == null) return false;
 
             PrintDelegate($"> {input}");
+
+            if (string.IsNullOrWhiteSpace(input)) return false;
+
 
             if (!input.ToLower().StartsWith("setvar"))
             {
@@ -101,13 +101,13 @@ namespace SHUU.Utils.Developer.Console
                     bool hasParamsArray = parameters.Length > 0 && Attribute.IsDefined(parameters[parameters.Length-1], typeof(ParamArrayAttribute));
                     int fixedCount = hasParamsArray ? parameters.Length - 1 : parameters.Length;
 
-                    // Runs for every parameter that isnt part of the params array
+
                     for (int i = 0; i < fixedCount; i++)
                     {
                         ParseParameter(i, parameters, args, ref parsedArgs);
                     }
 
-                    // Only runs if theres a param array at the end.
+
                     if (fixedCount != parameters.Length)
                     {
                         Type elementType = parameters[parameters.Length-1].ParameterType.GetElementType();
@@ -125,9 +125,8 @@ namespace SHUU.Utils.Developer.Console
                     var result = info.Method.Invoke(null, parsedArgs);
 
                     if (result is CommandReturn ret && ret.output != null) PrintDelegate(ret.output, ret.color);
-                    else if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null)
-                        PrintDelegate(tuple.Item1, tuple.Item2);
-                    else PrintDelegate("Command executed successfully.");
+                    else if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null) PrintDelegate(tuple.Item1, tuple.Item2);
+                    else PrintDelegate("Command executed successfully.", Color.green);
                 }
                 catch (Exception ex)
                 {
@@ -146,8 +145,11 @@ namespace SHUU.Utils.Developer.Console
 
             return true;
         }
+        #endregion
 
 
+
+        #region Parsing
         private void ParseParameter(int i, ParameterInfo[] parameters, string[] args, ref object[] parsedArgs)
         {
             ParameterInfo p = parameters[i];
@@ -156,7 +158,7 @@ namespace SHUU.Utils.Developer.Console
             bool isOptionalParam = paramType.IsGenericType && paramType.GetGenericTypeDefinition() == typeof(OptionalParameter<>);
             bool isMutableParam = paramType == typeof(MutableParameter);
 
-            // No argument provided
+            // No argument
             if (i >= args.Length)
             {
                 if (isOptionalParam)
@@ -184,7 +186,7 @@ namespace SHUU.Utils.Developer.Console
                 return;
             }
 
-            // Primitive fallback
+            // Primitive
             parsedArgs[i] = Convert.ChangeType(raw, paramType);
         }
 
@@ -193,7 +195,6 @@ namespace SHUU.Utils.Developer.Console
         {
             Type innerType = p.ParameterType.GetGenericArguments()[0];
 
-            // Explicit "no value"
             if (instance.optionalParameter_consoleInterpreters.Contains(raw))
             {
                 parsedArgs[i] = Activator.CreateInstance(p.ParameterType);
@@ -216,53 +217,50 @@ namespace SHUU.Utils.Developer.Console
 
         private void ParseMutable(int i, ParameterInfo p, ref object[] parsedArgs, string raw)
         {
-            // Try bool
             if (bool.TryParse(raw, out bool b))
             {
                 parsedArgs[i] = new MutableParameter(b);
                 return;
             }
 
-            // Try int
             if (int.TryParse(raw, out int intVal))
             {
                 parsedArgs[i] = new MutableParameter(intVal);
                 return;
             }
 
-            // Try float
             if (float.TryParse(raw, out float floatVal))
             {
                 parsedArgs[i] = new MutableParameter(floatVal);
                 return;
             }
 
-            // Try char (single character only)
             if (raw.Length == 1)
             {
                 parsedArgs[i] = new MutableParameter(raw[0]);
                 return;
             }
 
-            // Fallback: string
             parsedArgs[i] = new MutableParameter(raw);
         }
+        #endregion
 
 
+
+        #region Print
         public void PrintDelegate(string message, Color? textColor = null)
         {
             if (!string.IsNullOrEmpty(message)) instance.devConsoleUI.Print(message, textColor);
         }
-        public void PrintDelegate(string[] message, Color? textColor = null)
-        {
-            foreach (string line in message)
-            {
-                instance.devConsoleUI.Print(line, textColor);
-            }
-        }
+        public void PrintDelegate(string[] message, Color? textColor = null) => instance.devConsoleUI.Print(textColor, message);
+        public void PrintDelegate(params (string, Color?)[] message) => instance.devConsoleUI.Print(message);
+
 
         public static void PrintOnConsole(string message, Color? textColor = null) => instance.PrintDelegate(message, textColor);
         public static void PrintOnConsole(string[] message, Color? textColor = null) => instance.PrintDelegate(message, textColor);
+        public static void PrintOnConsole(params (string, Color?)[] message) => instance.PrintDelegate(message);
+        #endregion
+    
+        #endregion
     }
-
 }

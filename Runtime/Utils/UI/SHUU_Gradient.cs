@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,14 +8,17 @@ namespace SHUU.Utils.UI
     [DisallowMultipleComponent]
     public class SHUU_Gradient : BaseMeshEffect
     {
+        #region Variables
         [SerializeField] public int subdivisions = 6;
 
 
         [SerializeReference] public GradientType gradientType = null;
+        #endregion
 
 
 
 
+        #region Main
         public override void ModifyMesh(VertexHelper vh)
         {
             if (!IsActive() || gradientType == null || !enabled) return;
@@ -26,10 +28,18 @@ namespace SHUU.Utils.UI
 
             gradientType.ModifyMesh_Call(vh, subdivisions);
         }
+        #endregion
 
 
 
 
+        #region Helpers
+
+        /*
+        ⚠️‼️ AI ASSISTED CODE
+
+        This code was written with the assistance of AI.
+        */
         #region Gradient Types
         [Serializable]
         public abstract class GradientType {
@@ -468,6 +478,8 @@ namespace SHUU.Utils.UI
                 }
             }
         }
+        #endregion
+
         #endregion
     }
 }

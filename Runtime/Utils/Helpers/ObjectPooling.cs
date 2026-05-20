@@ -1,45 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace SHUU.Utils.Helpers
 {
-    public static class ObjectPooling
-    {
-        public static Transform default_parent = null;
-
-
-        public static List<IObjectPool> pools = new();
-    }
-
-    
-
-    public class ObjectPoolNode<T> where T : Component
-    {
-        public T instance;
-        public bool canRecycle = true;
-
-
-        public ObjectPoolNode(T instance)
-        {
-            this.instance = instance;
-        }
-    }
-
-
-    public interface IObjectPool
-    {
-        System.Type GetItemType();
-
-
-        int totalCount { get; }
-        int poolCount { get; }
-
-        string name { get; }
-    }
-
     public class SHUU_ObjectPool<T> : IObjectPool where T : Component
     {
+        #region Variables
         public System.Type GetItemType() => typeof(T);
 
         public int totalCount => poolCount + activesCount;
@@ -61,62 +29,99 @@ namespace SHUU.Utils.Helpers
 
         private readonly bool autoExpand;
 
+        private readonly bool autoRestore;
+
 
         private string poolName = null;
+        #endregion
 
 
 
 
-        public SHUU_ObjectPool(T prefab, int initialSize, Transform parent = null, bool autoExpand = true, string _name = null)
+        #region Main
+        public SHUU_ObjectPool(T prefab, int initialSize, Transform parent = null, bool autoExpand = true, bool autoRestore = true, string _name = null)
         {
             ObjectPooling.pools.Add(this);
 
 
-
             if (parent == null && ObjectPooling.default_parent != null) parent = ObjectPooling.default_parent;
-            if (string.IsNullOrEmpty(name)) _name = prefab.name;
+            if (string.IsNullOrEmpty(_name)) _name = prefab.name;
 
 
             poolName = _name;
 
-
             this.prefab = prefab;
             this.parent = parent;
             this.autoExpand = autoExpand;
+            this.autoRestore = autoRestore;
+
 
             for (int i = 0; i < initialSize; i++) AddObject();
         }
 
 
+        public void Dispose()
+        {
+            foreach (var node in available)
+                Object.Destroy(node.instance.gameObject);
+            
+            foreach (var node in inUse)
+                Object.Destroy(node.instance.gameObject);
+        }
+        #endregion
 
+
+
+        #region Logic
+
+        #region Pool Handling
         private ObjectPoolNode<T> AddObject()
         {
             T obj = Object.Instantiate(prefab, parent);
+
+            string json = null;
+            if (obj is IObjectPoolable) ((IObjectPoolable)obj).SaveDefaults();
+            else if (autoRestore)
+            {
+                try
+                {
+                    json = JsonConvert.SerializeObject(
+                        obj,
+                        Formatting.Indented,
+                        new JsonSerializerSettings {
+                            TypeNameHandling = TypeNameHandling.Auto,
+                            ObjectCreationHandling = ObjectCreationHandling.Replace
+                        }
+                    );
+                }
+                catch { Debug.LogError($"[{poolName}] Failed to serialize object pool item '{obj.name}'."); }
+            }
+
             obj.gameObject.SetActive(false);
 
-            var node = new ObjectPoolNode<T>(obj);
-
+            var node = new ObjectPoolNode<T>(obj, json);
             available.Enqueue(node);
-
 
             return node;
         }
         public ObjectPoolNode<T> ForceAdd_Active(T obj)
         {
             var node = new ObjectPoolNode<T>(obj);
-
             inUse.Add(node);
-
 
             return node;
         }
 
         public void Expand(int add)
         {
-            for (int i = 0; i < add; i++) AddObject();
+            for (int i = 0; i < add; i++)
+                AddObject();
         }
+        #endregion
 
 
+
+        #region Fetching
         public T Get()
         {
             ObjectPoolNode<T> node;
@@ -142,10 +147,7 @@ namespace SHUU.Utils.Helpers
             T[] array = new T[arrayBridge.Length];
 
             for (int i = 0; i < arrayBridge.Length; i++)
-            {
                 array[i] = arrayBridge[i].instance;
-            }
-
 
             return array;
         }
@@ -155,14 +157,10 @@ namespace SHUU.Utils.Helpers
             T[] array = new T[arrayBridge.Length];
 
             for (int i = 0; i < arrayBridge.Length; i++)
-            {
                 array[i] = arrayBridge[i].instance;
-            }
             
-
             return array;
         }
-
 
         private T GetOldestRecyclable()
         {
@@ -172,14 +170,16 @@ namespace SHUU.Utils.Helpers
 
                 node.instance.gameObject.SetActive(true);
 
-
                 return node.instance;
             }
 
-
             return null;
         }
+        #endregion
 
+
+
+        #region Return
         public void Return(T instance)
         {
             ObjectPoolNode<T> found = null;
@@ -202,16 +202,36 @@ namespace SHUU.Utils.Helpers
                 return;
             }
 
-
             inUse.Remove(found);
             instance.gameObject.SetActive(false);
             instance.transform.SetParent(parent, false);
 
+
+            if (instance is IObjectPoolable) ((IObjectPoolable)instance).RestoreDefaults();
+            else if (autoRestore && !string.IsNullOrWhiteSpace(found.json))
+            {
+                try
+                {
+                    JsonConvert.PopulateObject(
+                        found.json,
+                        instance,
+                        new JsonSerializerSettings {
+                            TypeNameHandling = TypeNameHandling.Auto,
+                            ObjectCreationHandling = ObjectCreationHandling.Replace
+                        }
+                    );
+                }
+                catch { Debug.LogError($"[{poolName}] Failed to deserialize object pool item '{instance.name}'."); }
+            }
+
             available.Enqueue(found);
         }
+        #endregion
 
 
-        public void SetCanRecycle(T instance, bool value)
+
+        #region Item Handling
+        public bool SetCanRecycle(T instance, bool value)
         {
             foreach (var node in inUse)
             {
@@ -219,9 +239,67 @@ namespace SHUU.Utils.Helpers
                 {
                     node.canRecycle = value;
 
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
+        #endregion
+    
+        #endregion
     }
+
+
+
+
+    #region Helper Classes
+        #region Tracking
+        public static class ObjectPooling
+        {
+            public static Transform default_parent = null;
+
+
+            public static List<IObjectPool> pools = new();
+        }
+
+
+        public interface IObjectPool
+        {
+            System.Type GetItemType();
+
+
+            int totalCount { get; }
+            int poolCount { get; }
+
+            string name { get; }
+        }
+        #endregion
+
+        
+        
+        #region Inner workings
+        public class ObjectPoolNode<T> where T : Component
+        {
+            public T instance;
+            public bool canRecycle = true;
+
+            public string json = null;
+
+
+            public ObjectPoolNode(T instance, string json = null)
+            {
+                this.instance = instance;
+                this.json = json;
+            }
+        }
+
+
+        public interface IObjectPoolable
+        {
+            public void SaveDefaults();
+            public void RestoreDefaults();
+        }
+        #endregion
+    #endregion
 }

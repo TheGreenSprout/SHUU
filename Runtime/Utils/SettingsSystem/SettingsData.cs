@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Helpers;
-using UnityEngine;
 
 namespace SHUU.Utils.SettingsSytem
 {
@@ -11,78 +12,81 @@ namespace SHUU.Utils.SettingsSytem
     public class SettingsData : AutoSave_Build_ScriptableObject<SettingsData>
     {
         #region Variables
-            #region Static
-            private static SettingsData allSettingsData_proxy
+
+        #region Static
+        private static SettingsData allSettingsData_proxy
+        {
+            set
             {
-                set
+                if (value == null || string.IsNullOrWhiteSpace(value.settingsName)) return;
+
+
+                var dict = allSettingsData;
+                List<string> keysToRemove = new List<string>();
+
+                foreach (var item in dict)
                 {
-                    if (value == null || string.IsNullOrWhiteSpace(value.settingsName)) return;
-
-
-                    var dict = allSettingsData;
-                    List<string> keysToRemove = new List<string>();
-
-                    foreach (var item in dict)
-                    {
-                        if (item.Value == null) keysToRemove.Add(item.Key);
-                    }
-
-                    foreach (var key in keysToRemove)
-                    {
-                        dict.Remove(key);
-                    }
-
-
-                    if (allSettingsData.ContainsKey(value.settingsName)) allSettingsData[value.settingsName] = value;
-                    else allSettingsData.Add(value.settingsName, value);
+                    if (item.Value == null) keysToRemove.Add(item.Key);
                 }
+
+                foreach (var key in keysToRemove)
+                {
+                    dict.Remove(key);
+                }
+
+
+                if (allSettingsData.ContainsKey(value.settingsName)) allSettingsData[value.settingsName] = value;
+                else allSettingsData.Add(value.settingsName, value);
             }
+        }
 
 
-            public static Dictionary<string, SettingsData> allSettingsData = new();
-            public static SettingsData GetSettingsData(string name) => allSettingsData.GetValueOrDefault(name);
-            #endregion
-
-
-
-            #region Overrides
-            protected override SettingsData obj => this;
-
-            protected override string id => this.name;
-            #endregion
+        public static Dictionary<string, SettingsData> allSettingsData = new();
+        public static SettingsData GetSettingsData(string name) => allSettingsData.GetValueOrDefault(name);
+        #endregion
 
 
 
-            #region General
-            public string settingsName;
+        #region Overrides
+        protected override SettingsData obj => this;
+
+        protected override string id => this.name;
+        #endregion
 
 
-            public List<SettingField> fields = new();
+
+        #region General
+        public string settingsName;
 
 
-            public string lastDefaultSetDateTime = "No Default Set";
-            public SettingsData_Data defaultFields;
+        public List<SettingField> fields = new();
 
 
-            public event Action<string> OnSettingsChanged;
-            public void NotifyChanged(string field) => OnSettingsChanged?.Invoke(field);
-            #endregion
+        public string lastDefaultSetDateTime = "No Default Set";
+        public SettingsData_Data defaultFields;
+
+
+        public event Action<string> OnSettingsChanged;
+        public void NotifyChanged(string field) => OnSettingsChanged?.Invoke(field);
+        #endregion
+
         #endregion
 
 
 
 
-        #region Init
+        #region Main
         protected override void OnEnable()
         {
             base.OnEnable();
-
         
             allSettingsData_proxy = this;
         }
         #endregion
 
 
+
+        #region Logic
 
         #region Defaults
         public void RestoreDefaults()
@@ -201,6 +205,8 @@ namespace SHUU.Utils.SettingsSytem
             NotifyChanged(key);
             return true;
         }
+        #endregion
+
         #endregion
     }
 }

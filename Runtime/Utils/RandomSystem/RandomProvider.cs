@@ -7,21 +7,25 @@ namespace SHUU.Utils.RandomSystem
     [Serializable]
     public class RandomProvider
     {
+        #region Variables
         public string providerName {get; private set;}
 
 
 
         public int seed {get; private set;}
 
-        private System.Random rng = null;
-
-
-        private int calls = 0;
+        private Pcg32 rng;
 
 
 
+        private ulong state => rng.state;
+        private ulong increment => rng.increment;
+        #endregion
 
-        #region Setup
+
+
+
+        #region Main
         public RandomProvider(int seed, string name = null)
         {
             if (string.IsNullOrEmpty(name)) providerName = seed.ToString();
@@ -30,30 +34,22 @@ namespace SHUU.Utils.RandomSystem
 
             this.seed = seed;
 
-            rng = new System.Random(this.seed);
+            rng = new Pcg32((ulong)this.seed);
         }
 
-
-        public RandomProvider() : this(GenerateSeed()) { }
-
-        public RandomProvider(string seedString) : this(GenerateSeed(seedString), seedString) { }
+        public RandomProvider(string name = null) : this(GenerateSeed(), name) { }
+        public RandomProvider(string seedString, string name = null) : this(GenerateSeed(seedString), name ?? seedString) { }
         #endregion
 
 
 
         #region Logic
-        public int Range(int min, int max)
-        {
-            calls++;
-            return rng.Next(min, max);
-        }
 
-        public float NextFloat() => (float)NextDouble();
-        private double NextDouble()
-        {
-            calls++;
-            return rng.NextDouble();
-        }
+        #region Random Gen
+        public uint NextUInt() => rng.NextUInt();
+        public float NextFloat() => rng.NextFloat();
+
+        public int Range(int min, int max) => rng.Range(min, max);
 
 
         public bool Chance01(float probability) => NextFloat() < probability;
@@ -63,14 +59,13 @@ namespace SHUU.Utils.RandomSystem
 
 
         public T Pick<T>(IList<T> list) => list[Range(0, list.Count)];
+        public T Pick<T>(params T[] items) => Pick((IList<T>)items);
 
         public T PickWeighted<T>(IList<T> items, IList<float> weights)
         {
             float total = 0f;
             for (int i = 0; i < weights.Count; i++)
-            {
                 total += weights[i];
-            }
 
             float roll = NextFloat() * total;
 
@@ -81,6 +76,35 @@ namespace SHUU.Utils.RandomSystem
             }
 
             return items[^1];
+        }
+        public T PickWeighted<T>(IList<WeightedItem<T>> items)
+        {
+            float total = 0f;
+
+            for (int i = 0; i < items.Count; i++)
+                total += items[i].weight;
+
+            float roll = NextFloat() * total;
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                roll -= items[i].weight;
+
+                if (roll <= 0f)
+                    return items[i].item;
+            }
+
+            return items[^1].item;
+        }
+        public T PickWeighted<T>(params WeightedItem<T>[] items) => PickWeighted(items);
+        public T PickWeighted<T>(params (T, int)[] items)
+        {
+            var weightedItems = new WeightedItem<T>[items.Length];
+
+            for (int i = 0; i < items.Length; i++)
+                weightedItems[i] = new WeightedItem<T>(items[i].Item1, items[i].Item2);
+
+            return PickWeighted(weightedItems);
         }
 
         public List<T> PickUniques<T>(IList<T> source, int count)
@@ -98,7 +122,7 @@ namespace SHUU.Utils.RandomSystem
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }
-        public List<T> Shuffle_NonMutable<T>(IEnumerable<T> source)
+        public List<T> ToShuffled<T>(IEnumerable<T> source)
         {
             var list = new List<T>(source);
             Shuffle(list);
@@ -107,7 +131,7 @@ namespace SHUU.Utils.RandomSystem
         }
 
 
-        public float Noise2D(int x, int y)
+        public float CoordinateHash2D(int x, int y)
         {
             unchecked
             {
@@ -118,7 +142,7 @@ namespace SHUU.Utils.RandomSystem
             }
         }
 
-        public float HashNoise(int x, int y, int z = 0)
+        public float CoordinateHash3D(int x, int y, int z = 0)
         {
             unchecked
             {
@@ -133,15 +157,14 @@ namespace SHUU.Utils.RandomSystem
 
         public static Texture2D Noise2D_Texture(int width, int height, Func<int, int, float> sampler)
         {
-            var tex = new Texture2D(width, height);
-            tex.filterMode = FilterMode.Point;
+            var tex = new Texture2D(width, height) { filterMode = FilterMode.Point };
 
             for (int y = 0; y < height; y++)
-            for (int x = 0; x < width; x++)
-            {
-                float v = sampler(x, y);
-                tex.SetPixel(x, y, new Color(v, v, v));
-            }
+                for (int x = 0; x < width; x++)
+                {
+                    float v = sampler(x, y);
+                    tex.SetPixel(x, y, new Color(v, v, v));
+                }
 
             tex.Apply();
             return tex;
@@ -151,23 +174,32 @@ namespace SHUU.Utils.RandomSystem
 
 
         #region Misc
-        public RandomProvider Fork(int offset) => new RandomProvider(seed + offset);
+        public int GetSeed() => seed;
+
+        
+        public void Reset() => rng = new Pcg32((ulong)GenerateSeed());
+        public void Reset(int seed) => rng = new Pcg32((ulong)seed);
+        public void Reset(string seedString) => rng = new Pcg32((ulong)GenerateSeed(seedString));
+
+        
+        public RandomProvider Fork(int offset) => new RandomProvider((int)(ulong)(seed ^ (offset * 0x9E3779B9)));
         public RandomProvider Fork(string channel) => new RandomProvider(seed + GenerateSeed(channel));
 
-        public RandomProvider Clone() => new RandomProvider(seed);
-
-
-        public int GetState() => calls;
-
-        public void RestoreState(int callCount)
+        public RandomProvider CloneSeed() => new RandomProvider(seed);
+        public RandomProvider CloneState()
         {
-            rng = new System.Random(seed);
+            var clone = new RandomProvider(seed);
+            clone.RestoreState(GetState());
+            return clone;
+        }
 
-            calls = 0;
-            for (int i = 0; i < callCount; i++)
-            {
-                rng.Next();
-            }
+
+        public RandomState GetState() => new RandomState { state = state, increment = increment };
+
+        public void RestoreState(RandomState saved)
+        {
+            rng.state = saved.state;
+            rng.increment = saved.increment;
         }
         #endregion
 
@@ -183,6 +215,7 @@ namespace SHUU.Utils.RandomSystem
                 int hash = 17;
                 hash = hash * 31 + Environment.TickCount;
                 hash = hash * 31 + DateTime.Now.Millisecond;
+
                 return hash;
             }
         }
@@ -194,10 +227,76 @@ namespace SHUU.Utils.RandomSystem
                 int hash = 23;
                 foreach (char c in value)
                     hash = hash * 31 + c;
+
                 return hash;
             }
         }
         #endregion
+
+        #endregion
+    }
+
+
+
+
+    #region Helper classes
+    public class Pcg32
+    {
+        internal ulong state;
+        internal ulong increment;
+
+        public Pcg32(ulong seed, ulong sequence = 1)
+        {
+            increment = (sequence << 1) | 1UL;
+
+            state = 0;
+            NextUInt();
+
+            state += seed;
+            NextUInt();
+        }
+
+        public uint NextUInt()
+        {
+            ulong oldState = state;
+
+            state = oldState * 6364136223846793005UL + increment;
+
+            uint xorShifted = (uint)(((oldState >> 18) ^ oldState) >> 27);
+            int rot = (int)(oldState >> 59);
+
+            return (xorShifted >> rot) | (xorShifted << ((-rot) & 31));
+        }
+
+        public int Range(int min, int max)
+        {
+            if (max <= min) throw new ArgumentException("max must be greater than min");
+            
+            return (int)(NextUInt() % (uint)(max - min)) + min;
+        }
+
+        public float NextFloat() => (NextUInt() >> 8) * (1f / (1 << 24));
+    }
+
+
+    public struct RandomState
+    {
+        public ulong state;
+        public ulong increment;
+    }
+
+
+
+    public class WeightedItem<T>
+    {
+        public T item;
+        public float weight;
+
+        public WeightedItem(T item, float weight)
+        {
+            this.item = item;
+            this.weight = weight;
+        }
     }
 
 
@@ -253,4 +352,5 @@ namespace SHUU.Utils.RandomSystem
             return map;
         }
     }
+    #endregion
 }

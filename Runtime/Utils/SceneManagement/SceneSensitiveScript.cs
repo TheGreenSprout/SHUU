@@ -3,39 +3,35 @@ using System.Collections.Generic;
 
 namespace SHUU.Utils.SceneManagement
 {
-
-#region XML doc
-/// <summary>
-/// Makes it's child object only run in certain scenes.
-/// </summary>
-#endregion
-public class SceneSensitiveScript : MonoBehaviour
-{
-    [SerializeField] protected List<string> excludedScenes;
-
-
-
-
     #region XML doc
     /// <summary>
-    /// Checks if the script can run in this scene.
+    /// Makes it's child object only run in certain scenes.
     /// </summary>
-    /// <param name="sceneName">Name of the current scene.</param>
-    /// <returns>Wether the script can run in this scene.</returns>
     #endregion
-    protected virtual bool IsValidScene(string sceneName)
+    public class SceneSensitiveScript : MonoBehaviour
     {
-        foreach (string name in excludedScenes)
+        #region Variables
+        [SerializeField] protected List<string> excludedScenes;
+        #endregion
+
+
+
+
+        #region Logic
+        #region XML doc
+        /// <summary>
+        /// Checks if the script can run in this scene.
+        /// </summary>
+        /// <param name="sceneName">Name of the current scene.</param>
+        /// <returns>Wether the script can run in this scene.</returns>
+        #endregion
+        protected bool IsValidScene(string sceneName)
         {
-            if (sceneName == name)
-            {
-                return false;
-            }
+            foreach (string name in excludedScenes)
+                if (sceneName == name) return false;
+
+            return true;
         }
-
-
-        return true;
+        #endregion
     }
-}
-
 }

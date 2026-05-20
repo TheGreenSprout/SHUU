@@ -1,13 +1,14 @@
 using System.IO;
 using System.Threading.Tasks;
-using SHUU.Utils.Developer.Debugging;
-using SHUU.Utils.Globals;
 using UnityEngine;
+
+using SHUU.Utils.Developer.Debugging;
 
 namespace SHUU.Utils.Helpers
 {
     public static class ScreenCaptureHelper
     {
+        #region Variables
         public static string lastPath { get; private set; }
 
 
@@ -15,10 +16,14 @@ namespace SHUU.Utils.Helpers
 
 
         private static GameObject[] cache_objs;
+        #endregion
 
 
 
 
+        #region Logic
+
+        #region File Path
         private static string GetFileName(string prefix, string extension)
         {
             if (!string.IsNullOrEmpty(prefix)) return $"{prefix}_{Stats.timestamp}.{extension}";
@@ -47,9 +52,11 @@ namespace SHUU.Utils.Helpers
 
             return Path.Combine(dir, fileName);
         }
+        #endregion
 
 
 
+        #region Toggle GameObjects
         public static void HideUI(GameObject[] objs)
         {
             cache_objs = objs;
@@ -60,16 +67,17 @@ namespace SHUU.Utils.Helpers
         public static async void ShowUI()
         {
             await Task.Delay(50);
-
-
+            
 
             if (cache_objs == null) return;
 
             foreach (var c in cache_objs) c.SetActive(true);
         }
+        #endregion
 
 
 
+        #region Capture
         public static void Capture(string prefix = null, string customDir = null, bool showScreenshot = false, GameObject[] hideUI = null)
         {
             string path = BuildFullPath(prefix, customDir, "png");
@@ -145,9 +153,11 @@ namespace SHUU.Utils.Helpers
             Texture2D tex = CaptureCamera(cam, w, h);
             return jpg ? tex.EncodeToJPG(95) : tex.EncodeToPNG();
         }
+        #endregion
 
 
-
+        
+        #region Last Screenshot
         private static async void Delayed_OpenLastScreenshot()
         {
             await Task.Delay(200);
@@ -155,10 +165,7 @@ namespace SHUU.Utils.Helpers
         }
         public static void OpenLastScreenshot()
         {
-            if (!string.IsNullOrEmpty(lastPath) && File.Exists(lastPath))
-            {
-                Application.OpenURL(lastPath);
-            }
+            if (!string.IsNullOrEmpty(lastPath) && File.Exists(lastPath)) Application.OpenURL(lastPath);
         }
 
 
@@ -176,9 +183,9 @@ namespace SHUU.Utils.Helpers
             return tex;
         }
 
-        public static Texture2D GetLastScreenshotTexture()
-        {
-            return lastScreenshotTexture;
-        }
+        public static Texture2D GetLastScreenshotTexture() => lastScreenshotTexture;
+        #endregion
+
+        #endregion
     }
 }

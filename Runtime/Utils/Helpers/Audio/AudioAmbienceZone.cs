@@ -7,6 +7,7 @@ namespace SHUU.Utils.Helpers.Audio
 {
     public class AudioAmbienceZone : MonoBehaviour
     {
+        #region Variables
         public enum AmbienceZoneType
         {
             Collider,
@@ -14,15 +15,18 @@ namespace SHUU.Utils.Helpers.Audio
         }
         public AmbienceZoneType ambienceZoneType = AmbienceZoneType.Collider;
 
+
         [SerializeReference] public IAudioAmbienceZone_Data data;
 
 
         [SerializeField] private Transform player;
         [SerializeField] private Transform ambience;
+        #endregion
 
 
 
 
+        #region Main
         private void Awake()
         {
             EnsureCorrectData();
@@ -33,6 +37,17 @@ namespace SHUU.Utils.Helpers.Audio
         private void OnValidate() => EnsureCorrectData();
 
 
+        private void Update()
+        {
+            if (data == null || player == null || ambience == null) return;
+
+            ambience.position = data.Logic(player);
+        }
+        #endregion
+
+
+
+        #region Logic
         private void EnsureCorrectData()
         {
             Type wantedType = ambienceZoneType switch
@@ -46,19 +61,13 @@ namespace SHUU.Utils.Helpers.Audio
 
             if (data == null || data.GetType() != wantedType) data = (IAudioAmbienceZone_Data)Activator.CreateInstance(wantedType);
         }
-
-
-        private void Update()
-        {
-            if (data == null || player == null || ambience == null) return;
-
-            ambience.position = data.Logic(player);
-        }
+        #endregion
     }
 
 
 
 
+    #region Data classes
     public interface IAudioAmbienceZone_Data
     {
         public abstract void Setup();
@@ -140,4 +149,5 @@ namespace SHUU.Utils.Helpers.Audio
             return splineContainer.transform.TransformPoint((Vector3)nearestLocal);
         }
     }
+    #endregion
 }

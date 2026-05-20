@@ -1,3 +1,11 @@
+/*
+⚠️‼️ AI ASSISTED CODE
+
+This code was written with the assistance of AI.
+*/
+
+
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,12 +14,19 @@ namespace SHUU.Utils.UI
     [RequireComponent(typeof(CanvasRenderer))]
     public class UIRing : MaskableGraphic
     {
-        [Range(3, 360)]
-        public int segments = 100;
+        #region Variables
+        [Range(3, 360)] [SerializeField] private int segments = 100;
 
-        public float radius = 100f;
-        public float thickness = 10f;   // stays constant
 
+        [SerializeField] private float radius = 100f;
+
+        [SerializeField] private float thickness = 10f;
+        #endregion
+
+
+
+
+        #region Main
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();
@@ -41,11 +56,19 @@ namespace SHUU.Utils.UI
                 vh.AddTriangle(startIndex + 2, startIndex + 3, startIndex + 0);
             }
         }
+        #endregion
 
+
+
+        #region Logic
         public void SetRadius(float r)
         {
             radius = r;
+
             SetVerticesDirty();
         }
+
+        public float GetRadius() => radius;
+        #endregion
     }
 }

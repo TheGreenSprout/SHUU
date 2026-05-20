@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+
+using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
-using UnityEngine;
 
 namespace SHUU.Utils.InputSystem
 {
@@ -130,9 +132,7 @@ namespace SHUU.Utils.InputSystem
             DynamicInput[] inputs = new DynamicInput[input.Length];
 
             for (int i = 0; i < input.Length; i++)
-            {
                 inputs[i] = new DynamicInput(input[i]);
-            }
 
             return inputs;
         }
@@ -142,9 +142,7 @@ namespace SHUU.Utils.InputSystem
             DynamicInput[] inputs = new DynamicInput[input.Length];
 
             for (int i = 0; i < input.Length; i++)
-            {
                 inputs[i] = new DynamicInput(InputParser.InputToString(input[i]));
-            }
 
             return inputs;
         }
@@ -153,14 +151,12 @@ namespace SHUU.Utils.InputSystem
             DynamicInput[] inputs = new DynamicInput[input.Length];
 
             for (int i = 0; i < input.Length; i++)
-            {
                 inputs[i] = new DynamicInput(InputParser.InputToString(input[i]));
-            }
 
             return inputs;
         }
 
-        public static DynamicInput[] CreateDynamicInputArray(params DynamicInput[][] input) => HandyFunctions.MergeArrays(input);
+        public static DynamicInput[] CreateDynamicInputArray(params DynamicInput[][] input) => HandyFunctions.Merge(input).ToArray();
 
 
         public struct InputValue
@@ -171,10 +167,7 @@ namespace SHUU.Utils.InputSystem
 
 
 
-            public InputValue(params float[] values)
-            {
-                this.values = values;
-            }
+            public InputValue(params float[] values) => this.values = values;
 
 
             public bool HasValue() => AmountOfValues > 0;
@@ -243,10 +236,21 @@ namespace SHUU.Utils.InputSystem
 
 
 
+
+        #region Variables
         public static Dictionary<string, InputBindingMap> allInputBindingMaps = new();
 
 
 
+        private static bool debugLogEmission => SHUU_Preferences.instance.inputSystem_debugLogEmission;
+
+        private static bool disabledWarning_debugLogEmission => SHUU_Preferences.instance.inputSystem_mapDisabledWarning_debugLogEmission;
+        #endregion
+
+
+
+
+        #region Main
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init() => SHUU_Time.onUpdate += Update;
 
@@ -254,23 +258,20 @@ namespace SHUU.Utils.InputSystem
         public static void Update()
         {
             foreach (var map in allInputBindingMaps.Values)
-            {
                 foreach (var set in map.inputSets_list)
-                {
                     foreach (AxisSource source in set.set.validSources.Where(x => x is AxisSource))
-                    {
                         source.Tick();
-                    }
-                }
-            }
 
 
             UpdateBufferedInputs();
 
             UpdateListeners();
         }
+        #endregion
 
 
+
+        #region Logic
 
         #region Buffered Inputs
         private static Dictionary<InputBindingMap, List<BufferedInput>> down_buffereds = new();
@@ -525,7 +526,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return false;
             }
@@ -544,7 +545,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return new InputValue();
             }
@@ -552,17 +553,12 @@ namespace SHUU.Utils.InputSystem
 
             IInputSet iInputSet = RetrieveInputSet(map, set);
 
-            if (iInputSet is InputSet singleSet)
-            {
-                return new InputValue(singleSet.GetInputValue(requiresAllBindsDown));
-            }
+            if (iInputSet is InputSet singleSet) return new InputValue(singleSet.GetInputValue(requiresAllBindsDown));
             else if (iInputSet is Composite_InputSet compositeSet)
             {
                 float[] axesValues = new float[compositeSet.axisCount];
                 for (int i = 0; i < compositeSet.axisCount; i++)
-                {
                     axesValues[i] = compositeSet.GetAxisValue(i, requiresAllBindsDown);
-                }
                 
                 return new InputValue(axesValues);
             }
@@ -577,7 +573,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return false;
             }
@@ -597,7 +593,7 @@ namespace SHUU.Utils.InputSystem
         {
             if (!map.enabled)
             {
-                //Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
 
                 return false;
             }
@@ -623,7 +619,7 @@ namespace SHUU.Utils.InputSystem
 
             if (setInterface == null)
             {
-                Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
+                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
                 return;
             }
@@ -673,7 +669,7 @@ namespace SHUU.Utils.InputSystem
 
             if (setInterface == null)
             {
-                Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
+                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
                 return;
             }
@@ -687,15 +683,13 @@ namespace SHUU.Utils.InputSystem
             if (setInterface is InputSet singleSet)
             {
                 foreach (DynamicInput bind in binds)
-                {
                     singleSet.RemoveBinding(bind);
-                }
             }
             else if (setInterface is Composite_InputSet compositeSet)
             {
                 if (compositeSet.axisCount == 0 || binds.Length % compositeSet.axisCount != 0)
                 {
-                    Debug.LogWarning($"SHUU_Input: Amount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
+                    if (debugLogEmission) Debug.LogWarning($"SHUU_Input: Amount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
 
                     return;
                 }
@@ -712,7 +706,7 @@ namespace SHUU.Utils.InputSystem
                     if (count == sectorCap) index++;
                 }
             }
-            else Debug.LogWarning($"SHUU_Input: InputSet is invalid.");
+            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet is invalid.");
         }
 
 
@@ -723,7 +717,7 @@ namespace SHUU.Utils.InputSystem
 
             if (setInterface == null)
             {
-                Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
+                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
                 return;
             }
@@ -740,7 +734,7 @@ namespace SHUU.Utils.InputSystem
 
             if (setInterface == null)
             {
-                Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
+                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
                 
                 return;
             }
@@ -762,11 +756,8 @@ namespace SHUU.Utils.InputSystem
         #region Misc
         public static InputSet RetrieveSingleInputSet(this InputBindingMap map, string name)
         {
-            if (map.TryGetSingleSet(name, out InputSet singleSet))
-            {
-                return singleSet;
-            }
-            else Debug.LogWarning($"SHUU_Input: Single InputSet '{name}' not found in map '{map.mapName}'.");
+            if (map.TryGetSingleSet(name, out InputSet singleSet)) return singleSet;
+            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: Single InputSet '{name}' not found in map '{map.mapName}'.");
 
 
             return null;
@@ -774,11 +765,8 @@ namespace SHUU.Utils.InputSystem
 
         public static Composite_InputSet RetrieveCompositeInputSet(this InputBindingMap map, string name)
         {
-            if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet))
-            {
-                return compositeSet;
-            }
-            else Debug.LogWarning($"SHUU_Input: Composite InputSet '{name}' not found in map '{map.mapName}'.");
+            if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet)) return compositeSet;
+            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: Composite InputSet '{name}' not found in map '{map.mapName}'.");
 
 
             return null;
@@ -787,15 +775,9 @@ namespace SHUU.Utils.InputSystem
 
         public static IInputSet RetrieveInputSet(this InputBindingMap map, string name)
         {
-            if (map.TryGetSingleSet(name, out InputSet singleSet))
-            {
-                return singleSet;
-            }
-            else if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet))
-            {
-                return compositeSet;
-            }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
+            if (map.TryGetSingleSet(name, out InputSet singleSet)) return singleSet;
+            else if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet)) return compositeSet;
+            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
 
 
             return null;
@@ -810,15 +792,12 @@ namespace SHUU.Utils.InputSystem
             InputBindingMap _map = null;
 
             foreach (InputBindingMap map in allInputBindingMaps.Values)
-            {
-                if (map.mapName.ToLower() == name.ToLower())
-                {
-                    _map = map;
-                }
-            }
+                if (map.mapName.ToLower() == name.ToLower()) _map = map;
 
             return _map;
         }
+        #endregion
+
         #endregion
     }
 }

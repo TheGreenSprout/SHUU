@@ -6,17 +6,21 @@ namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
     [CreateAssetMenu(fileName = "SFX_Storage", menuName = "SHUU/Audio/SFX_Storage")]
     public class Sfx_Storage : ScriptableObject
     {
+        #region Variables
         public SFX_Instance[] allSFX;
         
 
         private Dictionary<string, AudioClip> allSFX_dict;
+        #endregion
 
 
 
 
+        #region Main
         private void OnEnable()
         {
             allSFX_dict = new();
+
 
             if (allSFX != null)
             {
@@ -25,6 +29,7 @@ namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
                     if (audio != null && audio.soundEffect != null && !string.IsNullOrEmpty(audio.IDENTIFIER))
                     {
                         if (!allSFX_dict.ContainsKey(audio.IDENTIFIER)) allSFX_dict.Add(audio.IDENTIFIER, audio.soundEffect);
+
                         #if UNITY_EDITOR
                         else Debug.LogWarning($"Duplicate audio identifier: {audio.IDENTIFIER}");
                         #endif
@@ -32,8 +37,11 @@ namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
                 }
             }
         }
+        #endregion
 
 
+
+        #region Logic
         public AudioClip GetAudio(string id)
         {
             if (allSFX_dict == null) return null;
@@ -43,5 +51,6 @@ namespace SHUU.Utils.BaseScripts.ScriptableObjs.Audio
 
             return null;
         }
+        #endregion
     }
 }

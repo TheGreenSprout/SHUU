@@ -1,67 +1,57 @@
-using System;
-using SHUU.Utils;
 using UnityEngine;
 
-#region XML doc
-/// <summary>
-/// Example script of how to code basic interaction logic using SproutsHUU's interaction system.
-/// </summary>
-#endregion
-public class InteractionScript : Interactable
+using SHUU.Utils;
+
+namespace SHUU.Samples.SampleScenesAndUtils.SampleUtils
 {
-    public Material mat1;
-    public Material mat2;
-
-
-    private MeshRenderer meshRenderer;
-
-
-
-
-    protected override void Awake()
+    #region XML doc
+    /// <summary>
+    /// Example script of how to code basic interaction logic using SproutsHUU's interaction system.
+    /// </summary>
+    #endregion
+    public class InteractionScript : Interactable
     {
-        base.Awake();
+        #region Logic
+        public Material mat1;
+        public Material mat2;
 
 
-        meshRenderer = GetComponent<MeshRenderer>();
-    }
+        private MeshRenderer meshRenderer;
+        #endregion
 
 
 
-    protected override void InteractLogic()
-    {
-        if (meshRenderer.sharedMaterial == mat1)
+
+        #region Logic
+        protected override void Awake()
         {
-            meshRenderer.material = mat2;
+            base.Awake();
+
+            meshRenderer = GetComponent<MeshRenderer>();
         }
-        else
-        {
-            meshRenderer.material = mat1;
-        }
-    }
+        #endregion
 
 
-    public void SetMaterialFromBool(bool b)
-    {
-        if (b)
-        {
-            meshRenderer.material = mat1;
-        }
-        else
-        {
-            meshRenderer.material = mat2;
-        }
-    }
 
-    public bool GetBooleanFromCurrentMaterial()
-    {
-        if (meshRenderer.sharedMaterial == mat1)
+        #region Logic
+        protected override void InteractLogic()
         {
-            return true;
+            if (meshRenderer.sharedMaterial == mat1) meshRenderer.material = mat2;
+            else meshRenderer.material = mat1;
         }
-        else
+
+
+        public void SetMaterialFromBool(bool b)
         {
-            return false;
+            if (b) meshRenderer.material = mat1;
+            else meshRenderer.material = mat2;
         }
+
+        public bool GetBooleanFromCurrentMaterial()
+        {
+            if (meshRenderer.sharedMaterial == mat1) return true;
+            else return false;
+        }
+        #endregion
     }
 }

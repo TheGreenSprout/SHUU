@@ -1,31 +1,37 @@
-using SHUU.Utils.Helpers;
 using UnityEngine;
+
+using SHUU.Utils.Helpers;
+using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
 
 namespace SHUU.Utils.UI
 {
-    public class Mouse_Cursor : MonoBehaviour
+    public class OverlayCanvas_MouseCursor : MonoBehaviour
     {
+        #region Variables
         private Canvas canvas;
-
         private RectTransform canvasRect;
         private Camera canvasCam;
 
-
         private RectTransform rectTransform;
-
 
 
         [SerializeField] private bool manageCursorVisibility = true;
 
 
 
+        private static bool debugLogEmission => SHUU_Preferences.instance.ui_debugLogEmission;
+        #endregion
 
+
+
+
+        #region Main
         private void Awake()
         {
             if (!canvas) canvas = transform.SearchComponent_InSelfAndParents<Canvas>();
             if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
             {
-                Debug.LogError("OverlayCanvas_MouseCursor can't be used in a canvas that isn't RenderMode 'Screen Space - Overlay'.");
+                if (debugLogEmission) Debug.LogError("OverlayCanvas_MouseCursor can't be used in a canvas that isn't RenderMode 'Screen Space - Overlay'.");
 
                 Destroy(this);
             }
@@ -46,7 +52,6 @@ namespace SHUU.Utils.UI
             HandyFunctions.OnCursorStateChange += CursorStateChanged;
 
 
-
             if (manageCursorVisibility) HandyFunctions.ChangeMouseVisibility(false);
         }
 
@@ -55,19 +60,10 @@ namespace SHUU.Utils.UI
             HandyFunctions.OnCursorStateChange += CursorStateChanged;
 
 
-            
             transform.localPosition = Vector3.zero;
-
 
             if (manageCursorVisibility) HandyFunctions.ChangeMouseVisibility(true);
         }
-
-        private void CursorStateChanged(CursorLockMode state)
-        {
-            if (state == CursorLockMode.Locked) this.enabled = false;
-            else this.enabled = true;
-        }
-
 
 
         private void Update()
@@ -76,5 +72,16 @@ namespace SHUU.Utils.UI
 
             rectTransform.anchoredPosition = mousePos;
         }
+        #endregion
+
+
+        
+        #region Logic
+        private void CursorStateChanged(CursorLockMode state)
+        {
+            if (state == CursorLockMode.Locked) this.enabled = false;
+            else this.enabled = true;
+        }
+        #endregion
     }
 }

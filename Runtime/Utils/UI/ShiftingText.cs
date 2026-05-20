@@ -1,13 +1,15 @@
 using System.Collections.Generic;
-using SHUU.Utils.Globals;
 using TMPro;
 using UnityEngine;
+
+using SHUU.Utils.Globals;
 
 namespace SHUU.Utils.UI
 {
     [RequireComponent(typeof(TMP_Text))]
     public class ShiftingText : MonoBehaviour
     {
+        #region Variables
         [SerializeField] private List<string> textVariations = new();
 
         [SerializeField] private float shiftInterval = .5f;
@@ -24,10 +26,12 @@ namespace SHUU.Utils.UI
 
 
         private bool invoked = false;
+        #endregion
 
 
 
 
+        #region Main
         private void Awake()
         {
             text = GetComponent<TMP_Text>();
@@ -57,9 +61,11 @@ namespace SHUU.Utils.UI
                 SHUU_Time.Timer(shiftInterval, Shift);
             }
         }
+        #endregion
 
 
 
+        #region Logic
         private void Shift()
         {
             if (!this.gameObject.activeInHierarchy)
@@ -98,5 +104,6 @@ namespace SHUU.Utils.UI
 
             SHUU_Time.Timer(shiftInterval, Shift);
         }
+        #endregion
     }
 }

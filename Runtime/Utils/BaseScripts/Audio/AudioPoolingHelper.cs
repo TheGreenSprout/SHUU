@@ -5,43 +5,17 @@ namespace SHUU.Utils.BaseScripts.Audio
     [RequireComponent(typeof(AudioSource))]
     public class AudioPoolingHelper : MonoBehaviour
     {
-        private struct AudioSourceSnapshot
-        {
-            // Playback
-            public AudioClip clip;
-            public bool playOnAwake;
-            public bool loop;
-            public int priority;
-            public float volume;
-            public float pitch;
-            public float panStereo;
-            public float spatialBlend;
-
-            // 3D Sound
-            public float dopplerLevel;
-            public float spread;
-            public AudioRolloffMode rolloffMode;
-            public float minDistance;
-            public float maxDistance;
-
-            // Effects
-            public bool mute;
-            public bool bypassEffects;
-            public bool bypassListenerEffects;
-            public bool bypassReverbZones;
-            public float reverbZoneMix;
-
-            // Output
-            public UnityEngine.Audio.AudioMixerGroup outputAudioMixerGroup;
-        }
+        #region Variables
         private AudioSourceSnapshot? snapshot = null;
 
 
         private AudioSource source = null;
+        #endregion
 
 
 
 
+        #region Main
         public void Setup()
         {
             source = GetComponent<AudioSource>();
@@ -76,16 +50,7 @@ namespace SHUU.Utils.BaseScripts.Audio
                 outputAudioMixerGroup = source.outputAudioMixerGroup
             };
         }
-
-
-        private void OnDisable()
-        {
-            ResetSource();
-
-            if (gameObject.TryGetComponent(out AudioSelfDestruct selfDestruct)) Destroy(selfDestruct);
-            if (gameObject.TryGetComponent(out MusicLooper looper)) Destroy(looper);
-        }
-
+        
         public void ResetSource()
         {
             if (source == null || snapshot == null) return;
@@ -119,5 +84,50 @@ namespace SHUU.Utils.BaseScripts.Audio
             // Output
             source.outputAudioMixerGroup = snapshot.Value.outputAudioMixerGroup;
         }
+
+
+        private void OnDisable()
+        {
+            ResetSource();
+
+            if (gameObject.TryGetComponent(out AudioSelfDestruct selfDestruct)) Destroy(selfDestruct);
+            if (gameObject.TryGetComponent(out MusicLooper looper)) Destroy(looper);
+        }
+        #endregion
+
+
+
+
+        #region Helper class
+        private struct AudioSourceSnapshot
+        {
+            // Playback
+            public AudioClip clip;
+            public bool playOnAwake;
+            public bool loop;
+            public int priority;
+            public float volume;
+            public float pitch;
+            public float panStereo;
+            public float spatialBlend;
+
+            // 3D Sound
+            public float dopplerLevel;
+            public float spread;
+            public AudioRolloffMode rolloffMode;
+            public float minDistance;
+            public float maxDistance;
+
+            // Effects
+            public bool mute;
+            public bool bypassEffects;
+            public bool bypassListenerEffects;
+            public bool bypassReverbZones;
+            public float reverbZoneMix;
+
+            // Output
+            public UnityEngine.Audio.AudioMixerGroup outputAudioMixerGroup;
+        }
+        #endregion
     }
 }

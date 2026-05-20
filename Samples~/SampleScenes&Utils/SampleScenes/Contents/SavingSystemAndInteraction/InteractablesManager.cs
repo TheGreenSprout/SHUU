@@ -1,7 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractablesManager : MonoBehaviour
+using SHUU.Samples.SampleScenesAndUtils.SampleUtils;
+
+namespace SHUU.Samples.SampleScenesAndUtils.SavingSystemAndInteraction
 {
-    public List<InteractionScript> itemList;
+    public class InteractablesManager : MonoBehaviour
+    {
+        public List<InteractionScript> itemList;
+    }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PointAndClickCameraMovement : MonoBehaviour
 {
+    #region Variables
     [SerializeField] private float sensitivity = 0.1f;
 
 
@@ -21,10 +22,12 @@ public class PointAndClickCameraMovement : MonoBehaviour
 
 
     private Vector2 screenCenter;
+    #endregion
 
 
 
 
+    #region Main
     private void Awake()
     {
         screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
@@ -71,7 +74,6 @@ public class PointAndClickCameraMovement : MonoBehaviour
     }
 
 
-
     private void Update()
     {
         if (smoothTime > 0f)
@@ -84,10 +86,7 @@ public class PointAndClickCameraMovement : MonoBehaviour
 
             influence = Mathf.Clamp01(influence);
         }
-        else
-        {
-            influence = targetInfluence;
-        }
+        else influence = targetInfluence;
 
 
         if (influence <= 0f && disable)
@@ -109,4 +108,5 @@ public class PointAndClickCameraMovement : MonoBehaviour
 
         transform.localRotation = Quaternion.Euler(targetRotationX * influence, targetRotationY * influence, 0f);
     }
+    #endregion
 }

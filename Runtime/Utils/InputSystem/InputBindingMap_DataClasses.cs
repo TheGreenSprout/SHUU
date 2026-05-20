@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SHUU.Utils.Helpers;
 using UnityEngine;
+
+using SHUU.Utils.Helpers;
 
 namespace SHUU.Utils.InputSystem
 {
@@ -236,27 +237,21 @@ namespace SHUU.Utils.InputSystem
         private bool ContainsBind(KeyCode key)
         {
             foreach (var source in validSources)
-            {
                 if (source is KeySource s && s.key == key) return true;
-            }
 
             return false;
         }
         private bool ContainsBind(int mouse)
         {
             foreach (var source in validSources)
-            {
                 if (source is MouseSource s && s.mouse == mouse) return true;
-            }
 
             return false;
         }
         private bool ContainsBind(string axisName)
         {
             foreach (var source in validSources)
-            {
                 if (source is AxisSource s && s.axisName == axisName) return true;
-            }
 
             return false;
         }
@@ -315,18 +310,9 @@ namespace SHUU.Utils.InputSystem
             if (!bind.IsValid()) return;
 
             
-            if (bind.TryGetKey(out KeyCode key))
-            {
-                RemoveBinding(key);
-            }
-            else if (bind.TryGetMouse(out int mouse))
-            {
-                RemoveBinding(mouse);
-            }
-            else if (bind.TryGetAxis(out string axis))
-            {
-                RemoveBinding(axis);
-            }
+            if (bind.TryGetKey(out KeyCode key)) RemoveBinding(key);
+            else if (bind.TryGetMouse(out int mouse)) RemoveBinding(mouse);
+            else if (bind.TryGetAxis(out string axis)) RemoveBinding(axis);
             else Debug.LogError("Invalid Dynamic Input on RemoveBind().");
         }
         public void RemoveBinding(KeyCode bind) => validSources = validSources.Where(x => !(x is KeySource s && s.key == bind)).ToList();
@@ -360,9 +346,7 @@ namespace SHUU.Utils.InputSystem
             bool result = false;
 
             foreach (var input in validSources)
-            {
                 result |= input.GetDown();
-            }
 
 
             if (requiresAllBindsDown) result &= GetInput(true);
@@ -377,9 +361,7 @@ namespace SHUU.Utils.InputSystem
             bool result = false;
 
             foreach (var input in validSources)
-            {
                 result |= input.GetUp();
-            }
 
 
             if (requiresAllBindsDown) result &= GetInput(true);
@@ -420,16 +402,15 @@ namespace SHUU.Utils.InputSystem
             get
             {
                 foreach (Composite_Axis axis in axes)
-                {
                     if (!axis.enabled) return false;
-                }
 
                 return true;
             }
 
             set
             {
-                foreach (Composite_Axis axis in axes) axis.enabled = value;
+                foreach (Composite_Axis axis in axes)
+                    axis.enabled = value;
             }
         }
 
@@ -442,14 +423,10 @@ namespace SHUU.Utils.InputSystem
                 if (value > 4) value = 4;
 
                 while (axes.Count < value)
-                {
                     axes.Add(new Composite_Axis());
-                }
 
                 while (axes.Count > value)
-                {
                     axes.RemoveAt(axes.Count - 1);
-                }
             }
         }
 
@@ -469,14 +446,8 @@ namespace SHUU.Utils.InputSystem
             if (!bind.IsValid() || !axes.IndexIsValid(index) || bind.IsAxis()) return;
 
             
-            if (bind.TryGetKey(out KeyCode key))
-            {
-                AddBinding(key, index, bind.direction);
-            }
-            else if (bind.TryGetMouse(out int mouse))
-            {
-                AddBinding(mouse, index, bind.direction);
-            }
+            if (bind.TryGetKey(out KeyCode key)) AddBinding(key, index, bind.direction);
+            else if (bind.TryGetMouse(out int mouse)) AddBinding(mouse, index, bind.direction);
             else Debug.LogError("Invalid Dynamic Input on Composite AddBinding().");
         }
         public void AddBinding(KeyCode bind, int index, bool direction) => axes[index].AddBinding(bind, direction);
@@ -487,14 +458,8 @@ namespace SHUU.Utils.InputSystem
             if (!bind.IsValid() || !axes.IndexIsValid(index)) return;
 
             
-            if (bind.TryGetKey(out KeyCode key))
-            {
-                RemoveBinding(key, index, bind.direction);
-            }
-            else if (bind.TryGetMouse(out int mouse))
-            {
-                RemoveBinding(mouse, index, bind.direction);
-            }
+            if (bind.TryGetKey(out KeyCode key)) RemoveBinding(key, index, bind.direction);
+            else if (bind.TryGetMouse(out int mouse)) RemoveBinding(mouse, index, bind.direction);
             else Debug.LogError("Invalid Dynamic Input on Composite RemoveBinding().");
         }
         public void RemoveBinding(KeyCode bind, int index, bool direction) => axes[index].RemoveBinding(bind, direction);
@@ -502,7 +467,8 @@ namespace SHUU.Utils.InputSystem
 
         public void ClearBindings()
         {
-            foreach (Composite_Axis axis in axes) axis.ClearBindings();
+            foreach (Composite_Axis axis in axes)
+                axis.ClearBindings();
         }
 
 
@@ -514,9 +480,7 @@ namespace SHUU.Utils.InputSystem
             bool result = false;
 
             foreach (Composite_Axis axis in axes)
-            {
                 result |= axis.GetInput(requiresAllBindsDown);
-            }
 
             return result;
         }
@@ -529,9 +493,7 @@ namespace SHUU.Utils.InputSystem
             bool result = false;
 
             foreach (Composite_Axis axis in axes)
-            {
                 result |= axis.GetInputDown(requiresAllBindsDown);
-            }
 
             return result;
         }
@@ -544,9 +506,7 @@ namespace SHUU.Utils.InputSystem
             bool result = false;
 
             foreach (Composite_Axis axis in axes)
-            {
                 result |= axis.GetInputUp(requiresAllBindsDown);
-            }
 
             return result;
         }
@@ -654,6 +614,7 @@ namespace SHUU.Utils.InputSystem
 
 
 
+    #region Map Data
     [Serializable]
     public class InputBindingMap_Data
     {
@@ -699,4 +660,5 @@ namespace SHUU.Utils.InputSystem
             }
         }
     }
+    #endregion
 }

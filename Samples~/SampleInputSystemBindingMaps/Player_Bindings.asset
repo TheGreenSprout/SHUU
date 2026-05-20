@@ -113,6 +113,29 @@ MonoBehaviour:
             validSources:
             - rid: 2248526815845941455
             - rid: 2248526815845941456
+  - name: New Composite
+    set:
+      axes:
+      - positiveSet:
+          name: Positive
+          set:
+            enabled: 1
+            validSources: []
+        negativeSet:
+          name: Negative
+          set:
+            enabled: 1
+            validSources: []
+      - positiveSet:
+          name: Positive
+          set:
+            enabled: 1
+            validSources: []
+        negativeSet:
+          name: Negative
+          set:
+            enabled: 1
+            validSources: []
   references:
     version: 2
     RefIds:

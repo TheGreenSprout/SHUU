@@ -1,13 +1,14 @@
-using SHUU.Utils.Cameras.Visual.Handlers;
 using UnityEngine;
+
+using SHUU.Utils.Cameras.Visual.Handlers;
 
 namespace SHUU.Utils.Cameras.Visual.AddOns
 {
     [RequireComponent(typeof(Camera))]
     public class CustomFramerate_Camera : MonoBehaviour
     {
+        #region Variables
         [SerializeField] private string identifier = "Camera1";
-
 
 
         [SerializeField] private float refreshRate = 0.2f;
@@ -21,10 +22,12 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
         private bool paused;
         public bool isPaused => paused;
+        #endregion
 
 
 
 
+        #region Main
         private void Awake()
         {
             cam = GetComponent<Camera>();
@@ -33,8 +36,8 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             CustomFramerate_Handler.instance?.Add(identifier, this);
         }
 
-        private void OnDestroy() => CustomFramerate_Handler.instance?.Remove(identifier);
 
+        private void OnDestroy() => CustomFramerate_Handler.instance?.Remove(identifier);
 
 
         private void Update()
@@ -51,8 +54,11 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
                 cam.Render();
             }
         }
+        #endregion
 
 
+
+        #region Logic
         public void Pause() => paused = true;
         public void Resume() => paused = false;
 
@@ -65,5 +71,6 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
 
             timer = 0f;
         }
+        #endregion
     }
 }

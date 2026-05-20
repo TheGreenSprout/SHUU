@@ -1,10 +1,12 @@
-using SHUU.Utils.InputSystem;
 using UnityEngine;
+
+using SHUU.Utils.InputSystem;
 
 namespace SHUU.Utils.Helpers
 {
     public static class InputParser
     {
+        #region Input
         public static (KeyCode?, int?, string) ParseInput(string input)
         {
             input = input.ToLower();
@@ -36,9 +38,11 @@ namespace SHUU.Utils.Helpers
         public static string InputToString(int mouse) => "Mouse" + mouse.ToString();
 
         public static string InputToString(string axis) => "Axis_" + axis;
+        #endregion
 
 
 
+        #region Axis
         public enum AxisNames
         {
             Horizontal,
@@ -139,6 +143,7 @@ namespace SHUU.Utils.Helpers
                 _ => null
             };
         }
+        #endregion
 
         
         

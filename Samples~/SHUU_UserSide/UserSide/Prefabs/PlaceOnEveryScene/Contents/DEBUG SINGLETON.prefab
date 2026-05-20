@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6203220487025301188}
-  - component: {fileID: 4909998624276760453}
+  - component: {fileID: 8092968795114564850}
   m_Layer: 0
   m_Name: DEBUG SINGLETON
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   - {fileID: 5886737878205337909}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4909998624276760453
+--- !u!114 &8092968795114564850
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,11 +42,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 5445380086444364875}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 126a80fe8d633af4ab7cdf62ef0c4a4d, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a8d9ffd14cdb01448e584b3a0021922, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.PersistantInfo.IdentifierSingleton
   identifier: Debug_Singleton
-  scripts: {fileID: 6373702377639606796}
+  persistantSingleton: 1
+  handleGameobject: 1
+  onCreation:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6373702377639606796}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   bridges: -1
   bridgeFree_Scenes:
   - LoadingScene
@@ -111,6 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f3c0a146f79b3945876e82a39900ce3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handleGameobject: 1
 --- !u!114 &2873910112985950174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,9 +153,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 456e9f9f32654bd428060a084764d9af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  listenForDebugLog: 0
+  handleGameobject: 1
+  listenForDebugLogs: 0
+  listenForNormalLogs: 1
+  listenForWarningLogs: 1
+  listenForErrorLogs: 1
+  listenForExceptionLogs: 1
+  listenForAssertLogs: 1
   defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
   logMessagePrefab: {fileID: 6211499101935233359, guid: 02ab36f51432d49479bf67c75b9dd88d, type: 3}
+  logsPool_initialSize: 10
 --- !u!114 &7066465111927383874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,14 +170,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6373702377639606796}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 563f00a97ccdf1842b1d847c35311953, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colliderVisualizerEnabled: 0
+  handleGameobject: 1
   beginEnabled: 0
-  activationKey: 0
+  activationKey: 282
   matShader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}
   alwaysRenderWire: 0
   alwaysRenderFill: 0

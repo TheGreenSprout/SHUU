@@ -3,107 +3,84 @@ using SHUU.UserSide.Commons;
 using SHUU.Utils.PersistantInfo.SavingLoading;
 using UnityEngine;
 
-namespace SHUU.Samples
+namespace SHUU.Samples.SampleScenesAndUtils.SavingSystemAndInteraction
 {
-
-#region XML doc
-/// <summary>
-/// Example of how to create your own info singletons.
-/// </summary>
-#endregion
-public class ExampleSavingInfo : SavingInfo
-{
-    [SerializeField] private Dictionary<int, bool> colorOfItems = new Dictionary<int, bool>();
-
-
-
-
-    #region Save info
     #region XML doc
     /// <summary>
-    /// Saves info (temporary).
+    /// Example of how to create your own info singletons.
     /// </summary>
-    /// <param name="sceneName">Current scene name.</param>
     #endregion
-    public override void SaveInfo(string sceneName)
+    public class ExampleSavingInfo : SavingInfo<DTO_ExampleInfo>
     {
-        if (!IsValidScene(sceneName))
+        [SerializeField] private Dictionary<int, bool> colorOfItems = new Dictionary<int, bool>();
+
+
+
+
+        #region Save info
+        #region XML doc
+        /// <summary>
+        /// Saves info (temporary).
+        /// </summary>
+        /// <param name="sceneName">Current scene name.</param>
+        #endregion
+        protected override void SaveInfo()
         {
-            return;
+            colorOfItems = new Dictionary<int, bool>();
+
+
+            InteractablesManager interactablesManager = GameObject.FindGameObjectWithTag("Player").GetComponent<InteractablesManager>();
+
+            for (int i = 0; i < interactablesManager.itemList.Count; i++)
+            {
+                colorOfItems.Add(i, interactablesManager.itemList[i].GetBooleanFromCurrentMaterial());
+            }
         }
+        #endregion
 
 
-
-        colorOfItems = new Dictionary<int, bool>();
-
-
-        InteractablesManager interactablesManager = GameObject.FindGameObjectWithTag("Player").GetComponent<InteractablesManager>();
-
-        for (int i = 0; i < interactablesManager.itemList.Count; i++)
+        #region Load info
+        #region XML doc
+        /// <summary>
+        /// Loads info (temporary).
+        /// </summary>
+        /// <param name="sceneName">Current scene name.</param>
+        #endregion
+        protected override void LoadInfo()
         {
-            colorOfItems.Add(i, interactablesManager.itemList[i].GetBooleanFromCurrentMaterial());
+            InteractablesManager interactablesManager = GameObject.FindGameObjectWithTag("Player").GetComponent<InteractablesManager>();
+
+            foreach (KeyValuePair<int, bool> info in colorOfItems)
+            {
+                interactablesManager.itemList[info.Key].SetMaterialFromBool(info.Value);
+            }
         }
-    }
-    #endregion
+        #endregion
 
 
-    #region Load info
-    #region XML doc
-    /// <summary>
-    /// Loads info (temporary).
-    /// </summary>
-    /// <param name="sceneName">Current scene name.</param>
-    #endregion
-    public override void LoadInfo(string sceneName)
-    {
-        if (!IsValidScene(sceneName))
+
+        #region DTO import/export
+        #region XML doc
+        /// <summary>
+        /// Exports info to DTO (DTO is contained in the MasterDTO, that will then get serialized to a save file).
+        /// </summary>
+        /// <param name="masterDTO">MasterDTO reference.</param>
+        #endregion
+        protected override DTO_ExampleInfo ExportDTO() => new DTO_ExampleInfo { colorOfItems = colorOfItems };
+
+
+        #region XML doc
+        /// <summary>
+        /// Imports info from DTO contained in the MasterDTO.
+        /// </summary>
+        /// <param name="dto">DTO that corresponds to this singleton.</param>
+        #endregion
+        protected override void ImportDTO(DTO_ExampleInfo dto)
         {
-            return;
+            DTO_ExampleInfo exampleDTO = (DTO_ExampleInfo)dto;
+
+            colorOfItems = exampleDTO.colorOfItems;
         }
-
-
-
-        InteractablesManager interactablesManager = GameObject.FindGameObjectWithTag("Player").GetComponent<InteractablesManager>();
-
-        foreach (KeyValuePair<int, bool> info in colorOfItems)
-        {
-            interactablesManager.itemList[info.Key].SetMaterialFromBool(info.Value);
-        }
+        #endregion
     }
-    #endregion
-
-
-
-    #region DTO import/export
-    #region XML doc
-    /// <summary>
-    /// Exports info to DTO (DTO is contained in the MasterDTO, that will then get serialized to a save file).
-    /// </summary>
-    /// <param name="masterDTO">MasterDTO reference.</param>
-    #endregion
-    public override DTO_Info ExportDTO()
-    {
-        return new DTO_ExampleInfo
-        {
-            colorOfItems = colorOfItems
-        };
-    }
-
-
-    #region XML doc
-    /// <summary>
-    /// Imports info from DTO contained in the MasterDTO.
-    /// </summary>
-    /// <param name="dto">DTO that corresponds to this singleton.</param>
-    #endregion
-    public override void ImportDTO(DTO_Info dto)
-    {
-        DTO_ExampleInfo exampleDTO = (DTO_ExampleInfo)dto;
-
-
-        colorOfItems = exampleDTO.colorOfItems;
-    }
-    #endregion
-}
-
 }

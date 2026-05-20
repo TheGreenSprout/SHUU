@@ -1,7 +1,11 @@
-using SHUU.Utils.Globals;
 using UnityEngine;
 
-public class SaveButton : MonoBehaviour
+using SHUU.Utils.Globals;
+
+namespace SHUU.Samples.SampleScenesAndUtils.SavingSystemAndInteraction
 {
-    public void Press() => SHUU_Saving.SaveSingletonInfo();
+    public class SaveButton : MonoBehaviour
+    {
+        public void Press() => SHUU_Saving.SaveInfo();
+    }
 }

@@ -6,10 +6,7 @@ namespace SHUU.Utils.Helpers
 {
     public static class Sorter
     {
-        private static bool CanBeSorted<E>(this IList<E> list)
-        {
-            return !(list.Count <= 1 || list == null);
-        }
+        private static bool CanBeSorted<E>(this IList<E> list) => !(list.Count <= 1 || list == null);
 
 
 

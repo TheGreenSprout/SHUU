@@ -1,12 +1,11 @@
-using System.Linq;
 using SHUU.Utils.UI;
-using UnityEditor.EditorTools;
 using UnityEngine;
 
 namespace SHUU.Utils.Helpers.Interaction
 {
     public class ChainedRaycast : InteractionRaycastLogic
     {
+        #region Variables
         [Header("Chained Raycast Settings")]
         [SerializeField] private Camera renderTexture_cam;
 
@@ -32,10 +31,12 @@ namespace SHUU.Utils.Helpers.Interaction
 
         [Tooltip("If not null, the input module will use this raycast.")]
         [SerializeField] protected ChainedInputModule chainedInputModule;
+        #endregion
 
 
 
 
+        #region Logic
         protected override bool CastRay()
         {
             if (!cam || !renderTexture_cam || !rendererPlane || !renderTexture)
@@ -46,10 +47,8 @@ namespace SHUU.Utils.Helpers.Interaction
             }
 
 
-
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-
 
             if (Physics.Raycast(ray, out hit, renderPlane_interactionRange, renderPlane_layerMask) && (renderPlane_tagMask == null || renderPlane_tagMask.Length == 0 || renderPlane_tagMask.NonLINQ_Contains(hit.collider.tag)))
             {
@@ -110,5 +109,6 @@ namespace SHUU.Utils.Helpers.Interaction
 
             return true;
         }
+        #endregion
     }
 }

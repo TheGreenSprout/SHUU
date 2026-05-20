@@ -1,7 +1,11 @@
-using SHUU.Utils.Globals;
 using UnityEngine;
 
-public class LoadFromFileButton : MonoBehaviour
+using SHUU.Utils.Globals;
+
+namespace SHUU.Samples.SampleScenesAndUtils.SavingSystemAndInteraction
 {
-    public void Press() => SHUU_Saving.FullLoad();
+    public class LoadFromFileButton : MonoBehaviour
+    {
+        public void Press() => SHUU_Saving.FullLoad();
+    }
 }

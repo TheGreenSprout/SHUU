@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using SHUU.UserSide.Commons;
-using SHUU.Utils.SettingsSytem;
 using UnityEditor;
 using UnityEngine;
 
+using SHUU.UserSide.Commons;
+using SHUU.Utils.SettingsSytem;
+
 using SETB;
+using SETB.SuperClasses;
 using static SETB.EditorGUI_Base;
 using static SETB.HandyEditorFunctions;
 
@@ -99,250 +101,255 @@ namespace SHUU._Editor.Drawers
         #endregion
 
 
-
-        #region Drawing
-            #region UI
-            private void DrawDefaultsButtons()
-            {
-                Horizontal(() =>
+        
+        #region Logic
+            #region Drawing
+                #region UI
+                private void DrawDefaultsButtons()
                 {
-                    DrawButton("Save Current As Defaults", () =>
+                    Horizontal(() =>
                     {
-                        RecordTarget("Save Defaults");
+                        DrawButton("Save Current As Defaults", () =>
+                        {
+                            RecordTarget("Save Defaults");
 
-                        settingsData.SaveAsDefaults();
+                            settingsData.SaveAsDefaults();
 
-                        UtilitySetDirty(target);
+                            UtilitySetDirty(target);
+                        });
+
+
+                        DrawButton("Restore Defaults", () =>
+                        {
+                            RecordTarget("Restore Defaults");
+
+                            settingsData.RestoreDefaults();
+
+                            UtilitySetDirty(target);
+                        });
+                    });
+                }
+
+                private void DrawFieldList(SerializedProperty list)
+                {
+                    Horizontal(() =>
+                    {
+                        DrawButton("Expand All", () => SetAllFoldouts(true));
+                        DrawButton("Collapse All", () => SetAllFoldouts(false));
+                    });
+
+                    Space(4);
+
+                    for (int i = 0; i < list.arraySize; i++)
+                    {
+                        SerializedProperty field = list.GetArrayElementAtIndex(i);
+                        SerializedProperty keyProp = PropRelative(field, "key");
+
+                        string key = keyProp.stringValue;
+                        if (string.IsNullOrEmpty(key)) key = $"Field_{i}";
+
+                        string foldKey = $"{settingsData.GetInstanceID()}_{key}";
+                        bool open = GetEditorPref(foldKey, true);
+                        
+
+                        bool brk = false;
+                        Vertical(() =>  
+                        {
+                            bool newOpen = open;
+                            Horizontal(() =>
+                            {
+                                DrawFoldout(key, ref newOpen, null, null, true);
+                                keyProp.stringValue = DrawInputString(null, keyProp.stringValue);
+
+
+                                DrawButton("X", () =>
+                                {
+                                    list.DeleteArrayElementAtIndex(i);
+                                    DeleteEditorPref(foldKey);
+
+                                    brk = true;
+                                }, null, GUILayout.Width(22));
+                            });
+                            if (brk) return;
+
+
+                            if (newOpen != open) SetEditorPref(foldKey, newOpen);
+
+                            if (newOpen)
+                            {
+                                SerializedProperty type = PropRelative(field, "type");
+                                DrawInputProperty(null, type);
+
+                                DrawValue(field, (SettingType)type.enumValueIndex);
+                                DrawMinMaxControls(field, (SettingType)type.enumValueIndex);
+                            }
+                        }, "box");
+
+                        if (brk) break;
+
+
+                        Space(4);
+                    }
+                }
+                #endregion
+
+
+                
+                #region Values
+                private void DrawValue(SerializedProperty field, SettingType type)
+                {
+                    switch (type)
+                    {
+                        case SettingType.Bool:
+                            DrawInputProperty(null, PropRelative(field, "boolValue"));
+                            break;
+
+                        case SettingType.String:
+                            DrawInputProperty(null, PropRelative(field, "stringValue"));
+                            break;
+
+                        case SettingType.Int:
+                            DrawIntValue(field);
+                            break;
+
+                        case SettingType.Float:
+                            DrawFloatValue(field);
+                            break;
+                    }
+                }
+                
+
+                private void DrawIntValue(SerializedProperty field)
+                {
+                    var value = PropRelative(field, "intValue");
+                    var useMin = PropRelative(field, "useMin");
+                    var useMax = PropRelative(field, "useMax");
+                    var min = PropRelative(field, "intMin");
+                    var max = PropRelative(field, "intMax");
+
+
+                    try
+                    {
+                        if (useMin.boolValue && useMax.boolValue)
+                        {
+                            int minVal = min.intValue;
+                            int maxVal = max.intValue;
+
+                            if (minVal >= maxVal)
+                            {
+                                DrawHelpBox("Min must be less than Max", MessageType.Warning);
+
+                                return;
+                            }
+
+
+                            value.intValue = Mathf.Clamp(value.intValue, minVal, maxVal);
+
+                            value.intValue = DrawLabeledSlider("Value", value.intValue, minVal, maxVal);
+                        }
+                        else
+                        {
+                            DrawInputProperty(null, value);
+
+                            if (useMin.boolValue) value.intValue = Mathf.Max(value.intValue, min.intValue);
+                            if (useMax.boolValue) value.intValue = Mathf.Min(value.intValue, max.intValue);
+                        }
+                    }
+                    catch { }
+                }
+
+                private void DrawFloatValue(SerializedProperty field)
+                {
+                    var value = PropRelative(field, "floatValue");
+                    var useMin = PropRelative(field, "useMin");
+                    var useMax = PropRelative(field, "useMax");
+                    var min = PropRelative(field, "floatMin");
+                    var max = PropRelative(field, "floatMax");
+
+                    
+                    try
+                    {
+                        if (useMin.boolValue && useMax.boolValue)
+                        {
+                            float minVal = min.floatValue;
+                            float maxVal = max.floatValue;
+
+                            if (float.IsNaN(minVal) || float.IsNaN(maxVal)) return;
+
+
+                            if (minVal >= maxVal)
+                            {
+                                DrawHelpBox("Min must be less than Max", MessageType.Warning);
+
+                                return;
+                            }
+
+                            value.floatValue = Mathf.Clamp(value.floatValue, minVal, maxVal);
+
+                            value.floatValue = DrawLabeledSlider("Value", value.floatValue, minVal, maxVal);
+                        }
+                        else
+                        {
+                            DrawInputProperty(null, value);
+
+                            if (useMin.boolValue) value.floatValue = Mathf.Max(value.floatValue, min.floatValue);
+                            if (useMax.boolValue) value.floatValue = Mathf.Min(value.floatValue, max.floatValue);
+                        }
+                    }
+                    catch { }
+                }
+                #endregion
+
+
+                
+                #region Misc
+                private void DrawMinMaxControls(SerializedProperty field, SettingType type)
+                {
+                    if (type != SettingType.Int && type != SettingType.Float) return;
+
+
+                    var useMin = PropRelative(field, "useMin");
+                    var useMax = PropRelative(field, "useMax");
+
+
+                    Horizontal(() =>
+                    {
+                        DrawInputProperty("Min", useMin);
+                        DrawInputProperty("Max", useMax);
                     });
 
 
-                    DrawButton("Restore Defaults", () =>
+                    if (type == SettingType.Int)
                     {
-                        RecordTarget("Restore Defaults");
+                        if (useMin.boolValue) DrawInputProperty(null, PropRelative(field, "intMin"));
+                        if (useMax.boolValue) DrawInputProperty(null, PropRelative(field, "intMax"));
+                    }
+                    else
+                    {
+                        if (useMin.boolValue) DrawInputProperty(null, PropRelative(field, "floatMin"));
+                        if (useMax.boolValue) DrawInputProperty(null, PropRelative(field, "floatMax"));
+                    }
+                }
+                #endregion
+            #endregion
 
-                        settingsData.RestoreDefaults();
+            
 
-                        UtilitySetDirty(target);
-                    });
-                });
-            }
-
-            private void DrawFieldList(SerializedProperty list)
+            #region Helpers
+            private void SetAllFoldouts(bool expand)
             {
-                Horizontal(() =>
+                if (fields == null) return;
+
+                for (int i = 0; i < fields.arraySize; i++)
                 {
-                    DrawButton("Expand All", () => SetAllFoldouts(true));
-                    DrawButton("Collapse All", () => SetAllFoldouts(false));
-                });
-
-                Space(4);
-
-                for (int i = 0; i < list.arraySize; i++)
-                {
-                    SerializedProperty field = list.GetArrayElementAtIndex(i);
-                    SerializedProperty keyProp = PropRelative(field, "key");
-
-                    string key = keyProp.stringValue;
+                    string key = PropRelative(fields.GetArrayElementAtIndex(i), "key")?.stringValue;
                     if (string.IsNullOrEmpty(key)) key = $"Field_{i}";
 
                     string foldKey = $"{settingsData.GetInstanceID()}_{key}";
-                    bool open = GetEditorPref(foldKey, true);
-                    
-
-                    bool brk = false;
-                    Vertical(() =>  
-                    {
-                        bool newOpen = open;
-                        Horizontal(() =>
-                        {
-                            DrawFoldout(key, ref newOpen, null, null, true);
-                            keyProp.stringValue = DrawInputString(null, keyProp.stringValue);
-
-
-                            DrawButton("X", () =>
-                            {
-                                list.DeleteArrayElementAtIndex(i);
-                                DeleteEditorPref(foldKey);
-
-                                brk = true;
-                            }, null, GUILayout.Width(22));
-                        });
-                        if (brk) return;
-
-
-                        if (newOpen != open) SetEditorPref(foldKey, newOpen);
-
-                        if (newOpen)
-                        {
-                            SerializedProperty type = PropRelative(field, "type");
-                            DrawInputProperty(null, type);
-
-                            DrawValue(field, (SettingType)type.enumValueIndex);
-                            DrawMinMaxControls(field, (SettingType)type.enumValueIndex);
-                        }
-                    }, "box");
-
-                    if (brk) break;
-
-
-                    Space(4);
+                    SetEditorPref(foldKey, expand);
                 }
             }
             #endregion
-
-            
-            #region Values
-            private void DrawValue(SerializedProperty field, SettingType type)
-            {
-                switch (type)
-                {
-                    case SettingType.Bool:
-                        DrawInputProperty(null, PropRelative(field, "boolValue"));
-                        break;
-
-                    case SettingType.String:
-                        DrawInputProperty(null, PropRelative(field, "stringValue"));
-                        break;
-
-                    case SettingType.Int:
-                        DrawIntValue(field);
-                        break;
-
-                    case SettingType.Float:
-                        DrawFloatValue(field);
-                        break;
-                }
-            }
-
-            private void DrawIntValue(SerializedProperty field)
-            {
-                var value = PropRelative(field, "intValue");
-                var useMin = PropRelative(field, "useMin");
-                var useMax = PropRelative(field, "useMax");
-                var min = PropRelative(field, "intMin");
-                var max = PropRelative(field, "intMax");
-
-
-                try
-                {
-                    if (useMin.boolValue && useMax.boolValue)
-                    {
-                        int minVal = min.intValue;
-                        int maxVal = max.intValue;
-
-                        if (minVal >= maxVal)
-                        {
-                            DrawHelpBox("Min must be less than Max", MessageType.Warning);
-
-                            return;
-                        }
-
-
-                        value.intValue = Mathf.Clamp(value.intValue, minVal, maxVal);
-
-                        value.intValue = DrawLabeledSlider("Value", value.intValue, minVal, maxVal);
-                    }
-                    else
-                    {
-                        DrawInputProperty(null, value);
-
-                        if (useMin.boolValue) value.intValue = Mathf.Max(value.intValue, min.intValue);
-                        if (useMax.boolValue) value.intValue = Mathf.Min(value.intValue, max.intValue);
-                    }
-                }
-                catch { }
-            }
-
-            private void DrawFloatValue(SerializedProperty field)
-            {
-                var value = PropRelative(field, "floatValue");
-                var useMin = PropRelative(field, "useMin");
-                var useMax = PropRelative(field, "useMax");
-                var min = PropRelative(field, "floatMin");
-                var max = PropRelative(field, "floatMax");
-
-                
-                try
-                {
-                    if (useMin.boolValue && useMax.boolValue)
-                    {
-                        float minVal = min.floatValue;
-                        float maxVal = max.floatValue;
-
-                        if (float.IsNaN(minVal) || float.IsNaN(maxVal)) return;
-
-
-                        if (minVal >= maxVal)
-                        {
-                            DrawHelpBox("Min must be less than Max", MessageType.Warning);
-
-                            return;
-                        }
-
-                        value.floatValue = Mathf.Clamp(value.floatValue, minVal, maxVal);
-
-                        value.floatValue = DrawLabeledSlider("Value", value.floatValue, minVal, maxVal);
-                    }
-                    else
-                    {
-                        DrawInputProperty(null, value);
-
-                        if (useMin.boolValue) value.floatValue = Mathf.Max(value.floatValue, min.floatValue);
-                        if (useMax.boolValue) value.floatValue = Mathf.Min(value.floatValue, max.floatValue);
-                    }
-                }
-                catch { }
-            }
-            #endregion
-
-            
-            #region Misc
-            private void DrawMinMaxControls(SerializedProperty field, SettingType type)
-            {
-                if (type != SettingType.Int && type != SettingType.Float) return;
-
-
-                var useMin = PropRelative(field, "useMin");
-                var useMax = PropRelative(field, "useMax");
-
-
-                Horizontal(() =>
-                {
-                    DrawInputProperty("Min", useMin);
-                    DrawInputProperty("Max", useMax);
-                });
-
-
-                if (type == SettingType.Int)
-                {
-                    if (useMin.boolValue) DrawInputProperty(null, PropRelative(field, "intMin"));
-                    if (useMax.boolValue) DrawInputProperty(null, PropRelative(field, "intMax"));
-                }
-                else
-                {
-                    if (useMin.boolValue) DrawInputProperty(null, PropRelative(field, "floatMin"));
-                    if (useMax.boolValue) DrawInputProperty(null, PropRelative(field, "floatMax"));
-                }
-            }
-            #endregion
-        #endregion
-
-        
-
-        #region Helpers
-        private void SetAllFoldouts(bool expand)
-        {
-            if (fields == null) return;
-
-            for (int i = 0; i < fields.arraySize; i++)
-            {
-                string key = PropRelative(fields.GetArrayElementAtIndex(i), "key")?.stringValue;
-                if (string.IsNullOrEmpty(key)) key = $"Field_{i}";
-
-                string foldKey = $"{settingsData.GetInstanceID()}_{key}";
-                SetEditorPref(foldKey, expand);
-            }
-        }
         #endregion
     }
 

@@ -1,17 +1,22 @@
 using System.Collections.Generic;
-using SHUU.Utils.Helpers;
-using SHUU.Utils.PersistantInfo;
-using SHUU.Utils.SceneManagement;
 using UnityEngine;
+
+using SHUU.Utils.Helpers;
+using SHUU.Utils.SceneManagement;
+using SHUU.Utils.PersistantInfo.SavingLoading;
 
 namespace SHUU.Utils.Globals
 {
-
     [DefaultExecutionOrder(-10000)]
-    public class SHUU_Saving : StaticInstance_Monobehaviour<SHUU_Saving>
+    public class SHUU_Saving : Singleton_MonoBehaviour<SHUU_Saving>
     {
-        [Header("AutoSave Settings")]
-        [SerializeField] private bool backupWhenSave = true;
+        #region Variables
+        protected override bool PersistantSingleton() => false;
+
+
+
+        [Header("Saving Settings")]
+        [SerializeField] private bool backupBeforeSave = true;
 
         [SerializeField] private bool localSave_OnRoomChange = true;
         [SerializeField] private bool saveToFile_OnRoomChange = false;
@@ -22,26 +27,40 @@ namespace SHUU.Utils.Globals
 
 
         private Dictionary<int, InvertedList<string>> backups = new();
+        #endregion
 
 
 
 
-        #region Init
-        public static void OnRoomChange()
+        #region Main
+        protected override void Awake()
         {
-            if (instance.localSave_OnRoomChange) SaveSingletonInfo();
-            if (instance.saveToFile_OnRoomChange) SaveSingletonInfoToFile();
+            base.Awake();
+
+            SHUU_General.OnSceneChange += OnRoomChange;
+        }
+
+        public void OnRoomChange() => FullSave(localSave_OnRoomChange, saveToFile_OnRoomChange);
+
+
+        private void OnApplicationQuit()
+        {
+            SHUU_General.OnSceneChange -= OnRoomChange;
+
+            FullSave(localSave_OnApplicationQuit, saveToFile_OnApplicationQuit);
         }
 
 
-        private void OnDestroy()
+        public static void FullSave(bool localSave, bool saveToFile)
         {
-            if (localSave_OnApplicationQuit) SaveSingletonInfo();
-            if (saveToFile_OnApplicationQuit) SaveSingletonInfoToFile();
+            if (localSave) SaveInfo();
+            if (saveToFile) SaveInfoToFile();
         }
         #endregion
 
 
+
+        #region Logic
 
         #region Save
         #region XML doc
@@ -49,19 +68,20 @@ namespace SHUU.Utils.Globals
         /// Triggers all singletons to save their information.
         /// </summary>
         #endregion
-        public static void SaveSingletonInfo() => Persistant_Globals.savingInfo?.SaveAllSingletonInfo(SceneLoader.GetCurrentSceneName());
+        public static void SaveInfo() => SavingManager.instance?.SaveLocalInfo(SceneLoader.GetCurrentSceneName());
         
         #region XML doc
         /// <summary>
         /// Saves all singleton info to a file.
         /// </summary>
         #endregion
-        public static void SaveSingletonInfoToFile()
+        public static void SaveInfoToFile()
         {
-            Persistant_Globals.saveFilesManager?.SaveJsonInfo();
+            if (instance.backupBeforeSave) Backup();
 
-            if (instance.backupWhenSave) Backup();
+            SavingManager.instance?.SaveJsonInfo();
         }
+
 
         #region XML doc
         /// <summary>
@@ -70,11 +90,12 @@ namespace SHUU.Utils.Globals
         #endregion
         public static void FullSave()
         {
-            SaveSingletonInfo();
-            SaveSingletonInfoToFile();
+            SaveInfo();
+            SaveInfoToFile();
         }
         #endregion
 
+        
         
         #region Load
         #region XML doc
@@ -82,7 +103,7 @@ namespace SHUU.Utils.Globals
         /// Triggers all singletons to load their information.
         /// </summary>
         #endregion
-        public static void LoadSingletonInfo() => Persistant_Globals.savingInfo?.LoadAllSingletonInfo(SceneLoader.GetCurrentSceneName());
+        public static void LoadInfo() => SavingManager.instance?.LoadLocalInfo(SceneLoader.GetCurrentSceneName());
         
         #region XML doc
         /// <summary>
@@ -90,8 +111,9 @@ namespace SHUU.Utils.Globals
         /// </summary>
         /// <returns>Returns wether the load was successful.</returns>
         #endregion
-        public static bool LoadSingletonInfoFromFile() => Persistant_Globals.saveFilesManager?.LoadJsonInfo() ?? false;
-        
+        public static bool LoadInfoFromFile() => SavingManager.instance?.LoadJsonInfo() ?? false;
+
+
         #region XML doc
         /// <summary>
         /// Loads all singleton info from a file and then triggers all singletons to load their information.
@@ -100,9 +122,9 @@ namespace SHUU.Utils.Globals
         #endregion
         public static bool FullLoad()
         {
-            if (LoadSingletonInfoFromFile())
+            if (LoadInfoFromFile())
             {
-                LoadSingletonInfo();
+                LoadInfo();
 
                 return true;
             }
@@ -111,14 +133,15 @@ namespace SHUU.Utils.Globals
         #endregion
         
 
+
         #region Backup
         public static string Backup()
         {
-            int i = Persistant_Globals.saveFilesManager?.currentSaveFileIndex ?? -1;
+            int i = SavingManager.instance?.currentSaveFileIndex ?? -1;
             if (!instance.backups.ContainsKey(i)) instance.backups.Add(i, new());
 
 
-            string b = Persistant_Globals.saveFilesManager?.Backup();
+            string b = SavingManager.instance?.Backup();
 
             instance.backups[i].RemoveAll(x => x.Equals(b));
             instance.backups[i].Add(b);
@@ -126,10 +149,12 @@ namespace SHUU.Utils.Globals
             return b;
         }
 
-        public static void RestoreLatestBackup() => Persistant_Globals.saveFilesManager?.RestoreLatestBackup();
+
+        public static void RestoreLatestBackup() => SavingManager.instance?.RestoreLatestBackup();
+
         public static void RestoreBackup(int index)
         {
-            int i = Persistant_Globals.saveFilesManager?.currentSaveFileIndex ?? -1;
+            int i = SavingManager.instance?.currentSaveFileIndex ?? -1;
             if (!instance.backups.ContainsKey(i)) instance.backups.Add(i, new());
 
 
@@ -138,11 +163,12 @@ namespace SHUU.Utils.Globals
             if (!instance.backups[i].IndexIsValid(index)) index = 0;
 
 
-            Persistant_Globals.saveFilesManager?.RestoreBackup(instance.backups[i][index]);
+            SavingManager.instance?.RestoreBackup(instance.backups[i][index]);
         }
         #endregion
 
         
+
         #region Delete
         #region XML doc
         /// <summary>
@@ -150,33 +176,37 @@ namespace SHUU.Utils.Globals
         /// </summary>
         /// <param name="-1">Index of the save file to delete.</param>
         #endregion
-        public static void DeleteSaveInfo(int fileIndex = -1) => Persistant_Globals.saveFilesManager?.DeleteSave(fileIndex);
+        public static void DeleteSaveInfo(int fileIndex = -1) => SavingManager.instance?.DeleteSave(fileIndex);
         
+
         public static void DeleteBackupInfo(int fileIndex = -1)
         {
-            Persistant_Globals.saveFilesManager?.DeleteBackups(fileIndex);
+            SavingManager.instance?.DeleteBackups(fileIndex);
 
-            int i = Persistant_Globals.saveFilesManager?.currentSaveFileIndex ?? -1;
+            int i = SavingManager.instance?.currentSaveFileIndex ?? -1;
             if (instance.backups.ContainsKey(i)) instance.backups[i].Clear();
         }
         #endregion
 
 
-        #region Misc
-        public static void Change_CurrentSaveFileIndex(int changeIndex)
-        {
-            if (Persistant_Globals.saveFilesManager == null) return;
 
-            Persistant_Globals.saveFilesManager.currentSaveFileIndex += changeIndex;
+        #region Misc
+        public static void Iterate_CurrentSaveFileIndex(int changeIndex)
+        {
+            if (SavingManager.instance == null) return;
+
+            SavingManager.instance.currentSaveFileIndex += changeIndex;
         }
 
-        public static void Override_CurrentSaveFileIndex(int newIndex)
-        {
-            if (Persistant_Globals.saveFilesManager == null) return;
 
-            Persistant_Globals.saveFilesManager.currentSaveFileIndex = newIndex;
+        public static void Set_CurrentSaveFileIndex(int newIndex)
+        {
+            if (SavingManager.instance == null) return;
+
+            SavingManager.instance.currentSaveFileIndex = newIndex;
         }
         #endregion
+        
+        #endregion
     }
-
 }

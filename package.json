@@ -1,10 +1,10 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "2.22.3",
+  "version": "3.5.0",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
-    "com.sproutinggames.sprouts.etb": "https://github.com/TheGreenSprout/SETB.git#v2.4.3",
+    "com.sproutinggames.sprouts.etb": "https://github.com/TheGreenSprout/SETB.git#v2.5.8",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.inputsystem": "1.14.2",
@@ -22,9 +22,14 @@
       "path": "Samples~/SHUU_UserSide"
     },
     {
-      "displayName": "Dev Console & Input System",
+      "displayName": "Basic Dev Console",
+      "description": "Prefabs and scripts that implement the basic developer console.",
+      "path": "Samples~/Basic_DevConsole"
+    },
+    {
+      "displayName": "Input System Dev Console",
       "description": "Prefabs and scripts that implement the input system onto the developer console (commands included).",
-      "path": "Samples~/DevConsole&InputSystem"
+      "path": "Samples~/InputSystem_DevConsole"
     },
     {
       "displayName": "Sample Dev Console Commands",

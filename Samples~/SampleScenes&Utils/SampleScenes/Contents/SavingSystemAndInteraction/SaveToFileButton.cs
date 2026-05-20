@@ -1,7 +1,11 @@
-using SHUU.Utils.Globals;
 using UnityEngine;
 
-public class SaveToFileButton : MonoBehaviour
+using SHUU.Utils.Globals;
+
+namespace SHUU.Samples.SampleScenesAndUtils.SavingSystemAndInteraction
 {
-    public void Press() => SHUU_Saving.FullSave();
+    public class SaveToFileButton : MonoBehaviour
+    {
+        public void Press() => SHUU_Saving.FullSave();
+    }
 }

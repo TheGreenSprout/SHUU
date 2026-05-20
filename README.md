@@ -41,15 +41,16 @@ To install it:
 <br><br><br><br>
 
 ***
-### + Current Version: 2.22.3
-### - Update Date: 16-04-2026
+### + Current Version: 3.5.0
+### - Update Date: 20-05-2026
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>
 
 ***
 ## CREDITS:
-###      + CodeMonkey: Some of the data saving file explorer interaction logic.<br>
+###      + gkngkc: The base file explorer interaction logic (I added methods for ease of use).
+####         - Link: https://github.com/gkngkc/UnityStandaloneFileBrowser/tree/master<br>
 
 ---
 
@@ -58,8 +59,8 @@ To install it:
 
 ---
 
-###      + Tanha Game Dev - Game & XR maker: The base scripts for the UI gradients.
-####         - Link: https://youtu.be/IssaURYlo-M?si=fOXuW6a_3IiMxFDI<br>
+###      + Tanha Game Dev - Game & XR maker: The base logic for the UI gradients.
+####         - Link: https://www.youtube.com/watch?v=IssaURYlo-M<br>
 
 ---
 

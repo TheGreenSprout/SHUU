@@ -1,112 +1,24 @@
 using System;
+using UnityEngine;
+
 using SHUU.Utils.UI;
 using SHUU.Utils.Helpers;
-using UnityEngine;
 
 namespace SHUU.Utils.Globals
 {
-
-    #region Option classes
-    public class FadeOptions
-    {
-        public Color? startColor = null;
-        public Color? endColor = null;
-
-
-        public float? duration = null;
-
-        public float start_delay = 0f;
-        public float end_delay = 0f;
-
-
-        public Action end_Action = null;
-
-
-        public bool clearOnEnd = true;
-
-
-
-        public FadeOptions() { }
-        public FadeOptions(FadeOptions other)
-        {
-            startColor = other.startColor;
-            endColor = other.endColor;
-
-
-            duration = other.duration;
-
-            start_delay = other.start_delay;
-            end_delay = other.end_delay;
-
-
-            end_Action = other.end_Action;
-
-
-            clearOnEnd = other.clearOnEnd;
-        }
-    }
-    public class PingPong_FadeOptions
-    {
-        public Color? startColor = null;
-        public Color? middleColor = null;
-        public Color? endColor = null;
-
-
-        public float? firstFade_duration = null;
-        public float? pingPong_duration = null;
-        public float? secondFade_duration = null;
-
-        public float start_delay = 0f;
-        public float end_delay = 0f;
-
-        public float middleAction_delay = 0.05f;
-
-
-        public Action endFirstFade_Action = null;
-        public Action middle_Action = null;
-        public Action startSecondFade_Action = null;
-
-        public Action end_Action = null;
-
-
-
-        public PingPong_FadeOptions() { }
-        public PingPong_FadeOptions(PingPong_FadeOptions other)
-        {
-            startColor = other.startColor;
-            middleColor = other.middleColor;
-            endColor = other.endColor;
-
-
-            firstFade_duration = other.firstFade_duration;
-            pingPong_duration = other.pingPong_duration;
-            secondFade_duration = other.secondFade_duration;
-
-            start_delay = other.start_delay;
-            end_delay = other.end_delay;
-
-            middleAction_delay = other.middleAction_delay;
-
-
-            endFirstFade_Action = other.endFirstFade_Action;
-            middle_Action = other.middle_Action;
-            startSecondFade_Action = other.startSecondFade_Action;
-
-            end_Action = other.end_Action;
-        }
-    }
-    #endregion
-
-
-
     [DefaultExecutionOrder(-10000)]
     #region XML doc
     /// <summary>
     /// Manages fade-in/outs for scene transitions.
     /// </summary>
     #endregion
-    public class SHUU_Fades : StaticInstance_Monobehaviour<SHUU_Fades>
+    public class SHUU_Fades : Singleton_MonoBehaviour<SHUU_Fades>
     {
+        #region Variables
+        protected override bool PersistantSingleton() => false;
+
+
+
         [SerializeField] private FadePanel fadePanel_scr;
 
 
@@ -122,11 +34,26 @@ namespace SHUU.Utils.Globals
 
 
         private FadeOptions currentOptions = null;
+        #endregion
 
 
 
 
+        #region Main
         public static void CreateFade(FadeOptions fadeOptions = null) => instance._CreateFade(fadeOptions);
+
+        public static void CreateFade_In(FadeOptions fadeOptions = null) => instance._CreateFade_In(fadeOptions);
+        public static void CreateFade_Out(FadeOptions fadeOptions = null) => instance._CreateFade_Out(fadeOptions);
+
+
+        public static void CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null) => instance._CreateFade_PingPong(pingPongOptions);
+        #endregion
+
+
+
+        #region Logic
+
+        #region Normal
         private void _CreateFade(FadeOptions fadeOptions = null)
         {
             if (currentOptions != null) return;
@@ -148,7 +75,7 @@ namespace SHUU.Utils.Globals
             if (currentOptions != null) fadePanel_scr.NewFade(currentOptions);
         }
 
-        public static void CreateFade_In(FadeOptions fadeOptions = null) => instance._CreateFade_In(fadeOptions);
+        
         private void _CreateFade_In(FadeOptions fadeOptions = null)
         {
             FadeOptions localOptions;
@@ -162,7 +89,7 @@ namespace SHUU.Utils.Globals
 
             CreateFade(localOptions);
         }
-        public static void CreateFade_Out(FadeOptions fadeOptions = null) => instance._CreateFade_Out(fadeOptions);
+        
         private void _CreateFade_Out(FadeOptions fadeOptions = null)
         {
             FadeOptions localOptions;
@@ -176,8 +103,11 @@ namespace SHUU.Utils.Globals
 
             CreateFade(localOptions);
         }
+        #endregion
 
-        public static void CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null) => instance._CreateFade_PingPong(pingPongOptions);
+
+
+        #region Custom
         private void _CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null)
         {
             PingPong_FadeOptions localOptions;
@@ -234,13 +164,127 @@ namespace SHUU.Utils.Globals
                 end_Action = holdColor
             });
         }
+        #endregion
 
 
+
+        #region Misc
         private Color GetOppositeAlpha(Color color)
         {
             if (color.a > 0) return new Color(color.r, color.g, color.b, 0f);
             else return new Color(color.r, color.g, color.b, 1f);
         }
+        #endregion
+    
+        #endregion
     }
 
+
+
+
+    #region Option classes
+        #region Normal
+        public class FadeOptions
+        {
+            #region Variables
+            public Color? startColor = null;
+            public Color? endColor = null;
+
+
+            public float? duration = null;
+
+            public float start_delay = 0f;
+            public float end_delay = 0f;
+
+
+            public Action end_Action = null;
+
+
+            public bool clearOnEnd = true;
+            #endregion
+
+
+
+            #region Main
+            public FadeOptions() { }
+            public FadeOptions(FadeOptions other)
+            {
+                startColor = other.startColor;
+                endColor = other.endColor;
+
+
+                duration = other.duration;
+
+                start_delay = other.start_delay;
+                end_delay = other.end_delay;
+
+
+                end_Action = other.end_Action;
+
+
+                clearOnEnd = other.clearOnEnd;
+            }
+            #endregion
+        }
+        #endregion
+
+
+
+        #region PingPong
+        public class PingPong_FadeOptions
+        {
+            #region Variables
+            public Color? startColor = null;
+            public Color? middleColor = null;
+            public Color? endColor = null;
+
+
+            public float? firstFade_duration = null;
+            public float? pingPong_duration = null;
+            public float? secondFade_duration = null;
+
+            public float start_delay = 0f;
+            public float end_delay = 0f;
+
+            public float middleAction_delay = 0.05f;
+
+
+            public Action endFirstFade_Action = null;
+            public Action middle_Action = null;
+            public Action startSecondFade_Action = null;
+
+            public Action end_Action = null;
+            #endregion
+
+
+
+            #region Main
+            public PingPong_FadeOptions() { }
+            public PingPong_FadeOptions(PingPong_FadeOptions other)
+            {
+                startColor = other.startColor;
+                middleColor = other.middleColor;
+                endColor = other.endColor;
+
+
+                firstFade_duration = other.firstFade_duration;
+                pingPong_duration = other.pingPong_duration;
+                secondFade_duration = other.secondFade_duration;
+
+                start_delay = other.start_delay;
+                end_delay = other.end_delay;
+
+                middleAction_delay = other.middleAction_delay;
+
+
+                endFirstFade_Action = other.endFirstFade_Action;
+                middle_Action = other.middle_Action;
+                startSecondFade_Action = other.startSecondFade_Action;
+
+                end_Action = other.end_Action;
+            }
+            #endregion
+        }
+        #endregion
+    #endregion
 }

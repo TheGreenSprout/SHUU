@@ -1,15 +1,17 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-using SHUU.Utils.InputSystem;
-using SHUU.Utils.Helpers;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
-using SHUU.UserSide.Commons;
 using System;
 
+using SHUU.Utils.InputSystem;
+using SHUU.Utils.Helpers;
+using SHUU.UserSide.Commons;
+
 using SETB;
+using SETB.SuperClasses;
 using static SETB.EditorGUI_Base;
 using static SETB.HandyEditorFunctions;
 
@@ -79,358 +81,367 @@ namespace SHUU._Editor.Drawers
 
 
 
-        #region Drawing
-            #region General
-            private new void DrawHeader()
-            {
-                DrawLabel("Input Binding Map", EditorStyles.boldLabel);
-
-
-                var oldName = map.mapName;
-                DrawInputString("Map Name", ref map.mapName);
-                if (map.mapName != oldName)
+        #region Logic
+            #region Drawing
+                #region General
+                private new void DrawHeader()
                 {
-                    var from = editorPrefID_localID;
-                    editorPrefID_localID = new EditorPrefID(editorPrefID_owner, editorPrefID_owner, map.mapName);
-
-                    MoveAndDeleteEditorPrefs(from, editorPrefID_localID);
-                } 
-
-                DrawToggle("Enabled", ref map.enabled);
-
-                Space(10);
-            }
-            #endregion
+                    DrawLabel("Input Binding Map", EditorStyles.boldLabel);
 
 
-            #region Sets
-            private void DrawInputSet(InputSet set, bool allowAxis, string label = null)
-            {
-                if (!string.IsNullOrEmpty(label)) DrawLabel(label, EditorStyles.miniBoldLabel);
-
-                for (int i = 0; i < set.validSources.Count; i++)
-                {
-                    DrawBindingRow(set, i, allowAxis);
-                }
-
-                DrawButton("+ Add Binding", () => set.validSources.Add(new KeySource(KeyCode.None)));
-            }
-            
-            private void DrawSingleSets()
-            {
-                Horizontal(() =>
-                {
-                    DrawLabel("Single Input Sets", EditorStyles.boldLabel);
-                    DrawButton("+ Add Input Set", () => map.inputSets_list.Add(new NAMED_InputSet { name = "New Set" }));
-                });
-
-
-                for (int i = 0; i < map.inputSets_list.Count; i++)
-                {
-                    var named = map.inputSets_list[i];
-                    string foldKey = GetFoldKey("Single", named.name, i);
-
-
-                    bool ret = false;
-
-                    Vertical(() =>
+                    var oldName = map.mapName;
+                    DrawInputString("Map Name", ref map.mapName);
+                    if (map.mapName != oldName)
                     {
-                        bool open = false;
+                        var from = editorPrefID_localID;
+                        editorPrefID_localID = new EditorPrefID(editorPrefID_owner, editorPrefID_owner, map.mapName);
 
-                        Horizontal(() =>
-                        {
-                            open = false;
-                            QuickFoldout(foldKey, named.name, ref open);
+                        MoveAndDeleteEditorPrefs(from, editorPrefID_localID);
+                    } 
 
-                            DrawInputString(null, ref named.name);
-                            DrawToggleLeft("Enabled", ref named.set.enabled, null, GUILayout.Width(80));
+                    DrawToggle("Enabled", ref map.enabled);
 
-                            DrawButton("X", () =>
-                            {
-                                map.inputSets_list.RemoveAt(i);
-
-                                ret = true;
-                            }, null, GUILayout.Width(22));
-                        });
-                        if (ret) return;
-
-                        if (open) DrawInputSet(named.set, true);
-                    }, "box");
-
-                    if (ret) return;
+                    Space(10);
                 }
-            }
+                #endregion
 
-            private void DrawCompositeSets()
-            {
-                Horizontal(() =>
+
+
+                #region Sets
+                private void DrawInputSet(InputSet set, bool allowAxis, string label = null)
                 {
-                    DrawLabel("Composite Input Sets", EditorStyles.boldLabel);
-                    DrawButton("+ Add Composite Set", () => map.compositeSets_list.Add(new NAMED_Composite_InputSet { name = "New Composite" }));
-                });
+                    if (!string.IsNullOrEmpty(label)) DrawLabel(label, EditorStyles.miniBoldLabel);
 
-            
-                for (int i = 0; i < map.compositeSets_list.Count; i++)
-                {
-                    var named = map.compositeSets_list[i];
-                    string foldKey = GetFoldKey("Composite", named.name, i);
-
-                    
-                    bool ret = false;
-
-                    Vertical(() =>
+                    for (int i = 0; i < set.validSources.Count; i++)
                     {
-                        bool open = false;
-
-                        Horizontal(() =>
-                        {
-                            open = false;
-                            QuickFoldout(foldKey, named.name, ref open);
-
-                            named.set.enabled = DrawToggleLeft("Enabled", named.set.enabled, null, GUILayout.Width(80));
-
-
-                            DrawButton("X", () =>
-                            {
-                                map.compositeSets_list.RemoveAt(i);
-
-                                ret = true;
-                            }, null, GUILayout.Width(22));
-                        });
-                        if (ret) return;
-
-                        if (open) Indent(() =>
-                        {
-                            named.set.axisCount = DrawLabeledSlider("Axis Count", named.set.axisCount, 0, 4);
-
-                            for (int ax = 0; ax < named.set.axes.Count; ax++)
-                            {
-                                var axis = named.set.axes[ax];
-
-                                string axisKey = GetFoldKey("Axis", named.name, ax);
-
-
-                                Vertical(() =>
-                                {
-                                    bool axisOpen = false;
-                                    QuickFoldout(axisKey, $"Axis {ax}", ref axisOpen);
-
-                                    if (axisOpen)
-                                    {
-                                        DrawInputSet(axis.positiveSet.set, false, "Positive");
-                                        DrawInputSet(axis.negativeSet.set, false, "Negative");
-                                    }
-                                }, "helpbox");
-                            }
-                        });
-                    }, "box");
-
-                    if (ret) return;
-                }
-            }
-            #endregion
-
-
-            #region Misc
-            private void DrawBindingRow(InputSet set, int index, bool allowAxis)
-            {
-                var src = set.validSources[index];
-
-                Horizontal(() =>
-                {
-                    BindingKind kind = GetKind(src);
-                    DrawSelectionPopup(ref kind, null, target, GUILayout.Width(70));
-
-                    if (src.GetType() != GetSourceType(kind))
-                    {
-                        set.validSources[index] = CreateSource(kind, allowAxis);
-
-                        return;
+                        DrawBindingRow(set, i, allowAxis);
                     }
 
-                    if (src is KeySource key) DrawSelectionPopup(ref key.key);
-                    else if (src is MouseSource mouse) DrawSelectionPopup(ref mouse.mouse, new[] { "Left", "Right", "Middle", "Button 3", "Button 4", "Button 5" });
-                    else if (src is AxisSource axis && allowAxis)
+                    DrawButton("+ Add Binding", () => set.validSources.Add(new KeySource(KeyCode.None)));
+                }
+
+                
+                private void DrawSingleSets()
+                {
+                    Horizontal(() =>
                     {
+                        DrawLabel("Single Input Sets", EditorStyles.boldLabel);
+                        DrawButton("+ Add Input Set", () => map.inputSets_list.Add(new NAMED_InputSet { name = $"New Set {map.inputSets_list.Count+1}" }));
+                    });
+
+
+                    for (int i = 0; i < map.inputSets_list.Count; i++)
+                    {
+                        var named = map.inputSets_list[i];
+                        string foldKey = GetFoldKey("Single", named.name, i);
+
+
+                        bool ret = false;
+
                         Vertical(() =>
                         {
-                            InputParser.AxisNames currentEnum = InputParser.ParseAxisEnum(axis.axisName) ?? InputParser.AxisNames.Horizontal;
-                            DrawSelectionPopup(ref currentEnum);
+                            bool open = false;
 
-                            axis.axisName = new AxisSource(currentEnum, axis.threshold, axis.raw).axisName;
+                            Horizontal(() =>
+                            {
+                                open = false;
+                                QuickFoldout(foldKey, named.name, ref open);
 
-                            DrawLabeledSlider("Threshold", ref axis.threshold, 0f, 1f);
-                            DrawToggleLeft("Raw", ref axis.raw, null, GUILayout.Width(50));
+                                DrawInputString(null, ref named.name);
+                                DrawToggleLeft("Enabled", ref named.set.enabled, null, GUILayout.Width(80));
+
+                                DrawButton("X", () =>
+                                {
+                                    map.inputSets_list.RemoveAt(i);
+
+                                    ret = true;
+                                }, null, GUILayout.Width(22));
+                            });
+                            if (ret) return;
+
+                            if (open) DrawInputSet(named.set, true);
+                        }, "box");
+
+                        if (ret) return;
+                    }
+                }
+
+                private void DrawCompositeSets()
+                {
+                    Horizontal(() =>
+                    {
+                        DrawLabel("Composite Input Sets", EditorStyles.boldLabel);
+                        DrawButton("+ Add Composite Set", () => map.compositeSets_list.Add(new NAMED_Composite_InputSet { name = $"New Composite {map.compositeSets_list.Count+1}" }));
+                    });
+
+                
+                    for (int i = 0; i < map.compositeSets_list.Count; i++)
+                    {
+                        var named = map.compositeSets_list[i];
+                        string foldKey = GetFoldKey("Composite", named.name, i);
+
+                        
+                        bool ret = false;
+
+                        Vertical(() =>
+                        {
+                            bool open = false;
+
+                            Horizontal(() =>
+                            {
+                                open = false;
+                                QuickFoldout(foldKey, named.name, ref open);
+
+                                DrawInputString(null, ref named.name);
+                                named.set.enabled = DrawToggleLeft("Enabled", named.set.enabled, null, GUILayout.Width(80));
+
+
+                                DrawButton("X", () =>
+                                {
+                                    map.compositeSets_list.RemoveAt(i);
+
+                                    ret = true;
+                                }, null, GUILayout.Width(22));
+                            });
+                            if (ret) return;
+
+                            if (open) Indent(() =>
+                            {
+                                named.set.axisCount = DrawLabeledSlider("Axis Count", named.set.axisCount, 0, 4);
+
+                                for (int ax = 0; ax < named.set.axes.Count; ax++)
+                                {
+                                    var axis = named.set.axes[ax];
+
+                                    string axisKey = GetFoldKey("Axis", named.name, ax);
+
+
+                                    Vertical(() =>
+                                    {
+                                        bool axisOpen = false;
+                                        QuickFoldout(axisKey, $"Axis {ax}", ref axisOpen);
+
+                                        if (axisOpen)
+                                        {
+                                            DrawInputSet(axis.positiveSet.set, false, "Positive");
+                                            DrawInputSet(axis.negativeSet.set, false, "Negative");
+                                        }
+                                    }, "helpbox");
+                                }
+                            });
+                        }, "box");
+
+                        if (ret) return;
+                    }
+                }
+                #endregion
+
+
+
+                #region Misc
+                private void DrawBindingRow(InputSet set, int index, bool allowAxis)
+                {
+                    var src = set.validSources[index];
+
+                    Horizontal(() =>
+                    {
+                        BindingKind kind = GetKind(src);
+                        DrawSelectionPopup(ref kind, null, target, GUILayout.Width(70));
+
+                        if (src.GetType() != GetSourceType(kind))
+                        {
+                            set.validSources[index] = CreateSource(kind, allowAxis);
+
+                            return;
+                        }
+
+                        if (src is KeySource key) DrawSelectionPopup(ref key.key);
+                        else if (src is MouseSource mouse) DrawSelectionPopup(ref mouse.mouse, new[] { "Left", "Right", "Middle", "Button 3", "Button 4", "Button 5" });
+                        else if (src is AxisSource axis && allowAxis)
+                        {
+                            Vertical(() =>
+                            {
+                                InputParser.AxisNames currentEnum = InputParser.ParseAxisEnum(axis.axisName) ?? InputParser.AxisNames.Horizontal;
+                                DrawSelectionPopup(ref currentEnum);
+
+                                axis.axisName = new AxisSource(currentEnum, axis.threshold, axis.raw).axisName;
+
+                                DrawLabeledSlider("Threshold", ref axis.threshold, 0f, 1f);
+                                DrawToggleLeft("Raw", ref axis.raw, null, GUILayout.Width(50));
+                            });
+                        }
+
+                        DrawButton("🎧", () =>
+                        {
+                            isListening = true;
+                            listeningSet = set;
+                            listeningIndex = index;
+
+                            listeningControlId = GUIUtility.GetControlID(FocusType.Passive);
+                            GUIUtility.hotControl = listeningControlId;
+                        }, null, GUILayout.Width(30));
+
+                        DrawButton("X", () => set.validSources.RemoveAt(index), null, GUILayout.Width(22));
+                    }, "box");
+                }
+
+                private void DrawDefaults()
+                {
+                    Space(10);
+
+
+                    DrawLabel("Defaults", EditorStyles.boldLabel);
+
+                    DrawLabel( "Last Default Set:", string.IsNullOrEmpty(map.lastDefaultSetDateTime) ? "Never" : map.lastDefaultSetDateTime);
+
+
+                    Horizontal(() =>
+                    {
+                        DrawButton("Set Default Data", () =>
+                        {
+                            Record(map, "Set Default Input Data");
+
+                            map.SaveDefaults();
+
+                            UtilitySetDirty(map);
                         });
-                    }
-
-                    DrawButton("🎧", () =>
-                    {
-                        isListening = true;
-                        listeningSet = set;
-                        listeningIndex = index;
-
-                        listeningControlId = GUIUtility.GetControlID(FocusType.Passive);
-                        GUIUtility.hotControl = listeningControlId;
-                    }, null, GUILayout.Width(30));
-
-                    DrawButton("X", () => set.validSources.RemoveAt(index), null, GUILayout.Width(22));
-                }, "box");
-            }
-
-            private void DrawDefaults()
-            {
-                Space(10);
 
 
-                DrawLabel("Defaults", EditorStyles.boldLabel);
+                        DrawButton("Reset To Default", () =>
+                        {
+                            Record(map, "Reset Input Map To Default");
 
-                DrawLabel( "Last Default Set:", string.IsNullOrEmpty(map.lastDefaultSetDateTime) ? "Never" : map.lastDefaultSetDateTime);
+                            map.RestoreDefaults();
 
-
-                Horizontal(() =>
-                {
-                    DrawButton("Set Default Data", () =>
-                    {
-                        Record(map, "Set Default Input Data");
-
-                        map.SaveDefaults();
-
-                        UtilitySetDirty(map);
+                            UtilitySetDirty(map);
+                        });
                     });
-
-
-                    DrawButton("Reset To Default", () =>
-                    {
-                        Record(map, "Reset Input Map To Default");
-
-                        map.RestoreDefaults();
-
-                        UtilitySetDirty(map);
-                    });
-                });
-            }
+                }
+                #endregion
             #endregion
-        #endregion
 
 
 
-        #region Helpers
-            #region Listening
-            private void HandleListening()
-            {
-                if (!isListening) return;
-
-
-                DrawHelpBox(
-                    "Listening for key or mouse input… (Esc to cancel)",
-                    MessageType.Info
-                );
-
-
-                Event e = Event.current;
-                if (e == null) return;
-
-
-                if (e.isMouse) GUIUtility.hotControl = listeningControlId;
-
-                if (e.type == EventType.KeyDown)
+            #region Helpers
+                #region Listening
+                private void HandleListening()
                 {
-                    if (e.keyCode == KeyCode.Escape)
-                    {
-                        StopListening();
-                        e.Use();
+                    if (!isListening) return;
 
-                        return;
+
+                    DrawHelpBox(
+                        "Listening for key or mouse input… (Esc to cancel)",
+                        MessageType.Info
+                    );
+
+
+                    Event e = Event.current;
+                    if (e == null) return;
+
+
+                    if (e.isMouse) GUIUtility.hotControl = listeningControlId;
+
+                    if (e.type == EventType.KeyDown)
+                    {
+                        if (e.keyCode == KeyCode.Escape)
+                        {
+                            StopListening();
+                            e.Use();
+
+                            return;
+                        }
+
+                        if (e.keyCode != KeyCode.None)
+                        {
+                            listeningSet.validSources[listeningIndex] = new KeySource(e.keyCode);
+
+                            StopListening();
+                            e.Use();
+
+                            return;
+                        }
                     }
 
-                    if (e.keyCode != KeyCode.None)
+                    if (e.type == EventType.MouseDown)
                     {
-                        listeningSet.validSources[listeningIndex] = new KeySource(e.keyCode);
+                        listeningSet.validSources[listeningIndex] = new MouseSource(e.button);
 
                         StopListening();
                         e.Use();
-
-                        return;
                     }
                 }
 
-                if (e.type == EventType.MouseDown)
+                private void StopListening()
                 {
-                    listeningSet.validSources[listeningIndex] = new MouseSource(e.button);
+                    isListening = false;
+                    listeningSet = null;
+                    listeningIndex = -1;
 
-                    StopListening();
-                    e.Use();
+                    GUIUtility.hotControl = 0;
                 }
-            }
-
-            private void StopListening()
-            {
-                isListening = false;
-                listeningSet = null;
-                listeningIndex = -1;
-
-                GUIUtility.hotControl = 0;
-            }
-            #endregion
-
-        
-            #region Foldouts
-            private bool QuickFoldout(string key, string label, ref bool open, Action logic = null)
-            {
-                open = GetEditorPref(key, false);
-
-                bool newOpen = open;
-                DrawFoldout(label, ref newOpen, logic, null, true);
+                #endregion
 
 
-                if (newOpen != open) SetEditorPref(key, newOpen);
-
-                return newOpen;
-            }
-
-            private string GetFoldKey(string type, string name, int index) => $"{map.GetInstanceID()}_{type}_{index}_{name}";
-            #endregion
-
-        
-            #region Fetching
-            private BindingKind GetKind(InputSource src)
-            {
-                if (src is KeySource) return BindingKind.Key;
-                if (src is MouseSource) return BindingKind.Mouse;
-                if (src is AxisSource) return BindingKind.Axis;
-
-                return BindingKind.Key;
-            }
-
-            private Type GetSourceType(BindingKind kind)
-            {
-                return kind switch
+            
+                #region Foldouts
+                private bool QuickFoldout(string key, string label, ref bool open, Action logic = null)
                 {
-                    BindingKind.Key => typeof(KeySource),
-                    BindingKind.Mouse => typeof(MouseSource),
-                    BindingKind.Axis => typeof(AxisSource),
-                    _ => typeof(KeySource)
-                };
-            }
+                    open = GetEditorPref(key, false);
 
-            private InputSource CreateSource(BindingKind kind, bool allowAxis)
-            {
-                return kind switch
+                    bool newOpen = open;
+                    DrawFoldout(label, ref newOpen, logic, null, true);
+
+
+                    if (newOpen != open) SetEditorPref(key, newOpen);
+
+                    return newOpen;
+                }
+
+                private string GetFoldKey(string type, string name, int index) => $"{map.GetInstanceID()}_{type}_{index}_{name}";
+                #endregion
+
+            
+
+                #region Fetching
+                private BindingKind GetKind(InputSource src)
                 {
-                    BindingKind.Key => new KeySource(KeyCode.None),
-                    BindingKind.Mouse => new MouseSource(0),
-                    BindingKind.Axis when allowAxis => new AxisSource(InputParser.AxisNames.Horizontal),
-                    _ => new KeySource(KeyCode.None)
-                };
-            }
+                    if (src is KeySource) return BindingKind.Key;
+                    if (src is MouseSource) return BindingKind.Mouse;
+                    if (src is AxisSource) return BindingKind.Axis;
+
+                    return BindingKind.Key;
+                }
+
+                private Type GetSourceType(BindingKind kind)
+                {
+                    return kind switch
+                    {
+                        BindingKind.Key => typeof(KeySource),
+                        BindingKind.Mouse => typeof(MouseSource),
+                        BindingKind.Axis => typeof(AxisSource),
+                        _ => typeof(KeySource)
+                    };
+                }
+
+
+                private InputSource CreateSource(BindingKind kind, bool allowAxis)
+                {
+                    return kind switch
+                    {
+                        BindingKind.Key => new KeySource(KeyCode.None),
+                        BindingKind.Mouse => new MouseSource(0),
+                        BindingKind.Axis when allowAxis => new AxisSource(InputParser.AxisNames.Horizontal),
+                        _ => new KeySource(KeyCode.None)
+                    };
+                }
+                #endregion
             #endregion
         #endregion
     }
 
 
 
-    
+
     /*
     ⚠️‼️ AI ASSISTED CODE
 

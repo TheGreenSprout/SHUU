@@ -1,0 +1,14 @@
+{
+    "name": "SproutingGames.Sprouts.HUU.PluginsPackages",
+    "rootNamespace": "SHUU.PluginsPackages",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

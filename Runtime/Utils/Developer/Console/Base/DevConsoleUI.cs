@@ -1,14 +1,16 @@
 using System.Collections.Generic;
-using SHUU.Utils.Helpers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+
+using SHUU.Utils.Helpers;
 
 namespace SHUU.Utils.Developer.Console
 {
 
     public class DevConsoleUI : MonoBehaviour
     {
+        #region Variables
         [Header("References")]
         private DevConsoleManager controller;
 
@@ -22,36 +24,48 @@ namespace SHUU.Utils.Developer.Console
 
 
         // Internal
-        private List<string> previousCommands;
+        private static List<string> previousCommands = new();
 
 
-        private int previousCommandIndex = -1;
+        private static int previousCommandIndex = -1;
+        #endregion
 
 
 
 
+        #region Main
         private void Awake()
         {
             controller = HandyFunctions.SearchComponent_InSelfAndParents<DevConsoleManager>(this.transform);
 
             inputField.onSubmit.AddListener(SubmitCommand);
-
-
-            previousCommands = new List<string>();
         }
+
 
         private void OnEnable()
         {
-            controller.input.previousCommand += PreviousCommand;
-            controller.input.nextCommand += NextCommand;
+            controller.inputModule.previousCommand += PreviousCommand;
+            controller.inputModule.nextCommand += NextCommand;
         }
+        
         private void OnDisable()
         {
-            controller.input.previousCommand -= PreviousCommand;
-            controller.input.nextCommand -= NextCommand;
+            controller.inputModule.previousCommand -= PreviousCommand;
+            controller.inputModule.nextCommand -= NextCommand;
         }
 
 
+        private void Update()
+        {
+            if (previousCommands.Count == 0) return;
+        }
+        #endregion
+
+
+
+        #region Logic
+        
+        #region General
         public void Toggle()
         {
             gameObject.SetActive(!gameObject.activeInHierarchy);
@@ -61,12 +75,22 @@ namespace SHUU.Utils.Developer.Console
 
             if (gameObject.activeInHierarchy) inputField.ActivateInputField();
         }
+        #endregion
 
 
 
-        private void Update()
+        #region Command recalling
+        private void NextCommand()
         {
             if (previousCommands.Count == 0) return;
+
+            if (previousCommandIndex > 0)
+            {
+                previousCommandIndex--;
+                inputField.text = previousCommands[previousCommands.Count - 1 - previousCommandIndex];
+                inputField.caretPosition = inputField.text.Length;
+            }
+            else ResetPreviousCommandIndex();
         }
 
         private void PreviousCommand()
@@ -80,21 +104,6 @@ namespace SHUU.Utils.Developer.Console
                 inputField.caretPosition = inputField.text.Length;
             }
         }
-        private void NextCommand()
-        {
-            if (previousCommands.Count == 0) return;
-
-            if (previousCommandIndex > 0)
-            {
-                previousCommandIndex--;
-                inputField.text = previousCommands[previousCommands.Count - 1 - previousCommandIndex];
-                inputField.caretPosition = inputField.text.Length;
-            }
-            else
-            {
-                ResetPreviousCommandIndex();
-            }
-        }
 
 
         private void ResetPreviousCommandIndex()
@@ -102,13 +111,15 @@ namespace SHUU.Utils.Developer.Console
             if (previousCommandIndex != -1) previousCommandIndex = -1;
             inputField.text = "";
         }
+        #endregion
 
 
 
+        #region Command submission
+        public void Button_SubmitCommand() => SubmitCommand(inputField.text);
         public void SubmitCommand(string text)
         {
-            if (string.IsNullOrWhiteSpace(text)) return;
-
+            if (string.IsNullOrEmpty(text)) return;
 
 
             if (controller.ProcessInput(text))
@@ -118,19 +129,14 @@ namespace SHUU.Utils.Developer.Console
                 previousCommands.Add(text);
             }
 
-
             ResetPreviousCommandIndex();
             inputField.ActivateInputField();
         }
-        public void Button_SubmitCommand()
-        {
-            SubmitCommand(inputField.text);
-        }
-
-
+        
+        
         public void Print(string message, Color? textColor = null)
         {
-            if (string.IsNullOrEmpty(message)) return;
+            if (message == null) return;
 
             
             (string, string) colortag = ("", "");
@@ -145,6 +151,23 @@ namespace SHUU.Utils.Developer.Console
             
             scrollRect.verticalNormalizedPosition = 0f;
         }
+        public void Print(Color? textColor = null, params string[] message)
+        {
+            foreach (string line in message)
+            {
+                Print(line, textColor);
+            }
+        }
+        public void Print(params (string, Color?)[] message)
+        {
+            foreach ((string line, Color? color) input in message)
+            {
+                Print(input.line, input.color);
+            }
+        }
+        #endregion
+    
+        #endregion
     }
 
 }

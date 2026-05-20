@@ -1,7 +1,11 @@
-using SHUU.Utils.Globals;
 using UnityEngine;
 
-public class DeleteFileInfoButton : MonoBehaviour
+using SHUU.Utils.Globals;
+
+namespace SHUU.Samples.SampleScenesAndUtils.SavingSystemAndInteraction
 {
-    public void Press() => SHUU_Saving.DeleteSaveInfo();
+    public class DeleteFileInfoButton : MonoBehaviour
+    {
+        public void Press() => SHUU_Saving.DeleteSaveInfo();
+    }
 }

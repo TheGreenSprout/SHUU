@@ -4,11 +4,17 @@ namespace SHUU.Utils.Developer.Debugging
 {
     public class Debug_ScreenLogsProxy : MonoBehaviour
     {
-        public Transform content;
+        #region Variables
+        public RectTransform content;
+
+
+        public Transform poolParent;
+        #endregion
 
 
 
 
+        #region Main
         private void OnEnable()
         {
             if (Debug_ScreenLogs.instance) Debug_ScreenLogs.instance.proxy = this;
@@ -19,5 +25,6 @@ namespace SHUU.Utils.Developer.Debugging
         {
             if (Debug_ScreenLogs.instance) Debug_ScreenLogs.instance.proxy = null;
         }
+        #endregion
     }
 }

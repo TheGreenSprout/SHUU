@@ -10,16 +10,17 @@ Shader "Debug/GLDebug"
 {
     Properties
     {
-        _ZTest("ZTest Mode", Int) = 8 // Default to LessEqual
+        _ZTest("ZTest Mode", Int) = 4 // LessEqual
     }
 
     SubShader
     {
         Tags { "Queue"="Overlay" "RenderType"="Overlay" }
+
         Pass
         {
             ZWrite Off
-            ZTest [_ZTest]        // ← dynamically controlled from C#
+            ZTest [_ZTest]
             Cull Off
             Blend SrcAlpha OneMinusSrcAlpha
 
@@ -43,7 +44,10 @@ Shader "Debug/GLDebug"
             v2f vert(appdata v)
             {
                 v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
+
+                // ✅ FIX: world-space vertex → clip space
+                o.pos = mul(UNITY_MATRIX_VP, v.vertex);
+
                 o.color = v.color;
                 return o;
             }

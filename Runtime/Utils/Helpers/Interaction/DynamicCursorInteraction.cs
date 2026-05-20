@@ -6,6 +6,7 @@ namespace SHUU.Utils.Helpers.Interaction
 {
     public static class DynamicCursorInteraction
     {
+        #region Variables
         public static event Action<bool, GameObject> alternateCursorState = null;
 
         public static bool cursorActive => ammountOfInteracts.Count != 0;
@@ -15,10 +16,12 @@ namespace SHUU.Utils.Helpers.Interaction
         private static List<GameObject> ammountOfInteracts = new();
 
         private static bool actionCalled = false;
+        #endregion
 
 
 
 
+        #region Logic
         public static void AddCursorAffector(GameObject id)
         {
             if (ammountOfInteracts.Contains(id)) return;
@@ -29,7 +32,6 @@ namespace SHUU.Utils.Helpers.Interaction
             UpdateState();
         }
 
-
         public static void RemoveCursorAffector(GameObject id)
         {
             if (!ammountOfInteracts.Contains(id)) return;
@@ -39,7 +41,6 @@ namespace SHUU.Utils.Helpers.Interaction
 
             UpdateState();
         }
-
 
 
         private static void UpdateState()
@@ -66,5 +67,6 @@ namespace SHUU.Utils.Helpers.Interaction
                 }
             }
         }
+        #endregion
     }
 }

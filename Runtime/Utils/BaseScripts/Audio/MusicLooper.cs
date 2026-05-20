@@ -1,11 +1,13 @@
-using SHUU.Utils.BaseScripts.ScriptableObjs.Audio;
 using UnityEngine;
+
+using SHUU.Utils.BaseScripts.ScriptableObjs.Audio;
 
 namespace SHUU.Utils.BaseScripts.Audio
 {
 
     public class MusicLooper : MonoBehaviour
     {
+        #region Variables
         private AudioClip clip;
         [HideInInspector] public AudioSource source;
 
@@ -19,10 +21,12 @@ namespace SHUU.Utils.BaseScripts.Audio
 
         private double nextLoopDspTime;
         private bool scheduled = false;
+        #endregion
 
 
 
 
+        #region Main
         public void Setup(AudioSource _source, Music_LoopSections sections, bool _jumpStart)
         {
             source = _source;
@@ -49,7 +53,6 @@ namespace SHUU.Utils.BaseScripts.Audio
         }
 
 
-
         private void Update()
         {
             if (!source.isPlaying || scheduled) return;
@@ -62,8 +65,11 @@ namespace SHUU.Utils.BaseScripts.Audio
         {
             if (scheduled && AudioSettings.dspTime >= nextLoopDspTime) scheduled = false;
         }
+        #endregion
 
 
+
+        #region Logic
         private void ScheduleLoop()
         {
             double timeRemaining = loopSections.endPoint - source.time;
@@ -79,5 +85,6 @@ namespace SHUU.Utils.BaseScripts.Audio
 
             scheduled = true;
         }
+        #endregion
     }
 }

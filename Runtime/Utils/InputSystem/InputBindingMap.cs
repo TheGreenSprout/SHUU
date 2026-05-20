@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json;
+using UnityEngine;
+
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Helpers;
-using UnityEngine;
 
 namespace SHUU.Utils.InputSystem
 {
@@ -75,26 +75,20 @@ namespace SHUU.Utils.InputSystem
 
 
 
-        #region Init
+        #region Main
         protected override void OnEnable()
         {
             base.OnEnable();
 
 
-
             allInputBindingMaps_proxy = this;
 
 
-
             foreach (var set in inputSets_list)
-            {
                 set.overrideAction = null;
-            }
 
             foreach (var set in compositeSets_list)
-            {
                 set.overrideAction = null;
-            }
 
 
             //BuildDictionaries();
@@ -104,15 +98,10 @@ namespace SHUU.Utils.InputSystem
         protected override void OnDisable()
         {
             foreach (var set in inputSets_list)
-            {
                 set.overrideAction = null;
-            }
 
             foreach (var set in compositeSets_list)
-            {
                 set.overrideAction = null;
-            }
-
 
 
             base.OnDisable();
@@ -120,6 +109,8 @@ namespace SHUU.Utils.InputSystem
         #endregion
 
 
+
+        #region Logic
 
         #region Cache Dictionaries
         public void ForceBuildDictionaries()
@@ -213,9 +204,7 @@ namespace SHUU.Utils.InputSystem
         public NAMED_InputSet GetSingleSet(string name)
         {
             foreach (NAMED_InputSet namedSet in inputSets_list)
-            {
                 if (namedSet.name.ToLower().Equals(name.ToLower())) return namedSet;
-            }
 
 
             Debug.LogWarning($"No InputSet named '{name}' found in InputBindingMap '{mapName}'.");
@@ -225,9 +214,7 @@ namespace SHUU.Utils.InputSystem
         public NAMED_Composite_InputSet GetCompositeSet(string name)
         {
             foreach (NAMED_Composite_InputSet namedSet in compositeSets_list)
-            {
                 if (namedSet.name.ToLower().Equals(name.ToLower())) return namedSet;
-            }
 
 
             Debug.LogWarning($"No Composite InputSet named '{name}' found in InputBindingMap '{mapName}'.");
@@ -299,6 +286,8 @@ namespace SHUU.Utils.InputSystem
 
             ForceBuildDictionaries();
         }
+        #endregion
+
         #endregion
     }
 }

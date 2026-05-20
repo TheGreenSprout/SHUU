@@ -2,26 +2,32 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
+
 using SHUU.Utils.Globals;
+using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
 
 namespace SHUU.Utils.UI
 {
-
     [RequireComponent(typeof(RawImage))]
     public class FadePanel : MonoBehaviour
     {
+        #region Variables
         private RawImage fadeImage;
 
-
         private Coroutine currentFadeCoroutine = null;
-
 
 
         private FadeOptions fadeOptions;
 
 
 
+        private static bool debugLogEmission => SHUU_Preferences.instance.ui_debugLogEmission;
+        #endregion
 
+
+
+
+        #region Main
         private void Awake()
         {
             fadeImage = GetComponent<RawImage>();
@@ -30,21 +36,22 @@ namespace SHUU.Utils.UI
         }
 
 
+        private void EnableSelf() { fadeImage.enabled = true; }
+        private void DisableSelf() {  fadeImage.enabled = false; }
+
 
         public void NewFade(FadeOptions _fadeOptions)
         {
             if (currentFadeCoroutine != null)
             {
-                Debug.LogError("Unable to perform multiple SHUU fades at the same time.");
+                if (debugLogEmission) Debug.LogError("Unable to perform multiple SHUU fades at the same time.");
 
                 return;
             }
 
 
             fadeOptions = _fadeOptions;
-
             fadeImage.color = fadeOptions.startColor.Value;
-
 
             if (fadeOptions.clearOnEnd)
             {
@@ -52,23 +59,22 @@ namespace SHUU.Utils.UI
                 fadeOptions.end_Action += () => currentFadeCoroutine = null; 
             }
             
-
             EnableSelf();
-
 
             SHUU_Time.Timer(fadeOptions.start_delay, StartFade);
         }
 
         public void StartFade()
-        {
-            currentFadeCoroutine = StartCoroutine(FadeCoroutine(fadeOptions.startColor.Value, fadeOptions.endColor.Value, fadeOptions.duration.Value, fadeOptions.end_Action, fadeOptions.end_delay));
-        }
+            => currentFadeCoroutine = StartCoroutine(FadeCoroutine(fadeOptions.startColor.Value,
+                                                                    fadeOptions.endColor.Value,
+                                                                    fadeOptions.duration.Value,
+                                                                    fadeOptions.end_Action,
+                                                                    fadeOptions.end_delay));
+        #endregion
 
 
-        private void EnableSelf() { fadeImage.enabled = true; }
-        private void DisableSelf() {  fadeImage.enabled = false; }
 
-
+        #region Logic
         private IEnumerator FadeCoroutine(Color startColor, Color endColor, float time, Action onComplete, float onComplete_delay)
         {
             float elapsed = 0f;
@@ -83,16 +89,13 @@ namespace SHUU.Utils.UI
                 yield return null;
             }
 
-            // Final exact color
             fadeImage.color = endColor;
 
-            // Auto-hide if fully transparent
-            if (Mathf.Approximately(endColor.a, 0f))
-                fadeImage.enabled = false;
+            if (Mathf.Approximately(endColor.a, 0f)) fadeImage.enabled = false;
 
 
             SHUU_Time.Timer(onComplete_delay, onComplete);
         }
+        #endregion
     }
-    
 }

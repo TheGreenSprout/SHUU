@@ -1,19 +1,24 @@
 using UnityEngine;
 using System;
-using SHUU.Utils.Helpers;
 using System.Collections;
+
+using SHUU.Utils.Helpers;
 
 namespace SHUU.Utils.Globals
 {
-    
     [DefaultExecutionOrder(-10000)]
     #region XML doc
     /// <summary>
     /// Manages the creation and behaviour of timers.
     /// </summary>
     #endregion
-    public class SHUU_Time : StaticInstance_Monobehaviour<SHUU_Time>
+    public class SHUU_Time : Singleton_MonoBehaviour<SHUU_Time>
     {
+        #region Variables
+        protected override bool PersistantSingleton() => false;
+
+
+
         public static bool paused { get; private set; }
 
         public static float currentTimeScale { get; private set; } = 1f;
@@ -38,15 +43,16 @@ namespace SHUU.Utils.Globals
 
         public event Action onFixedUpdate_Local;
         public static event Action onFixedUpdate;
+        #endregion
 
 
 
 
+        #region Main
         private void Update()
         {
             onUpdate?.Invoke();
             onUpdate_Local?.Invoke();
-
 
             if (_executeQueue != null)
             {
@@ -60,7 +66,6 @@ namespace SHUU.Utils.Globals
         {
             onLateUpdate?.Invoke();
             onLateUpdate_Local?.Invoke();
-
             
             if (_nextFrameQueue == null) return;
 
@@ -73,9 +78,12 @@ namespace SHUU.Utils.Globals
             onFixedUpdate?.Invoke();
             onFixedUpdate_Local?.Invoke();
         }
+        #endregion
 
 
 
+        #region Logic
+        
         #region Timers
         #region XML doc
         /// <summary>
@@ -144,6 +152,7 @@ namespace SHUU.Utils.Globals
         #endregion
 
 
+
         #region Time scale
         public static void SetTimeScale(float scale)
         {
@@ -151,16 +160,25 @@ namespace SHUU.Utils.Globals
             if (!paused) Time.timeScale = currentTimeScale;
         }
 
-        public static void Pause()
+
+        public static bool Pause()
         {
+            if (paused) return false;
+
             paused = true;
             Time.timeScale = 0f;
+
+            return true;
         }
 
-        public static void Resume()
+        public static bool Resume()
         {
+            if (!paused) return false;
+
             paused = false;
             Time.timeScale = currentTimeScale;
+
+            return true;
         }
 
         public static bool TogglePause()
@@ -171,6 +189,7 @@ namespace SHUU.Utils.Globals
             return paused;
         }
 
+
         public static void StepFrame()
         {
             Time.timeScale = 0f;
@@ -179,6 +198,7 @@ namespace SHUU.Utils.Globals
         #endregion
     
     
+
         #region Helpers
         public static Coroutine StartCoroutineStatic(IEnumerator routine)
         {
@@ -192,6 +212,7 @@ namespace SHUU.Utils.Globals
             return instance.StartCoroutine(routine);
         }
         #endregion
+        
+        #endregion
     }
-    
 }

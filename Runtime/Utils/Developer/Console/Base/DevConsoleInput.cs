@@ -5,8 +5,9 @@ using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.Utils.Developer.Console
 {
-    public class DevConsoleInput : MonoBehaviour
+    public abstract class DevConsoleInput : MonoBehaviour
     {
+        #region Variables
         public static bool devConsole_On = false;
         
         public static bool canToggle_devConsole = true;
@@ -19,16 +20,19 @@ namespace SHUU.Utils.Developer.Console
         [HideInInspector] public Action nextCommand;
 
 
-
         [SerializeField] private bool changeCursorVisivility = true;
+        #endregion
 
 
 
 
-        private void Awake() => devConsole_On = false;
+        #region Main
+        protected virtual void Awake() => devConsole_On = false;
+        #endregion
 
 
 
+        #region Logic
         protected void Toggle()
         {
             if (!canToggle_devConsole) return;
@@ -49,5 +53,6 @@ namespace SHUU.Utils.Developer.Console
         protected void PreviousCommand() => previousCommand?.Invoke();
 
         protected void NextCommand() => nextCommand?.Invoke();
+        #endregion
     }
 }

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using SHUU.Utils.SettingsSytem;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+
+using SHUU.Utils.SettingsSytem;
 
 public class SettingsMenu_Manager : MonoBehaviour
 {
+    #region Variables
     [Header("Data")]
     [SerializeField] private List<SettingsData> settingsData;
 
@@ -24,10 +24,12 @@ public class SettingsMenu_Manager : MonoBehaviour
 
 
     private Dictionary<string, List<SettingsMenu_Field>> fields = new();
+    #endregion
 
 
 
 
+    #region Main
     private void Awake()
     {
         foreach (SettingsData data in settingsData)
@@ -45,16 +47,17 @@ public class SettingsMenu_Manager : MonoBehaviour
             }
         }
     }
+    #endregion
 
 
+
+    #region Logic
     private void OnRestoreDefault(SettingsData data)
     {
         if (!fields.ContainsKey(data.settingsName)) return;
 
-
         foreach (var field in fields[data.settingsName])
-        {
             field.Refresh();
-        }
     }
+    #endregion
 }

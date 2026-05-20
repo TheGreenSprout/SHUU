@@ -1,10 +1,10 @@
 #if UNITY_EDITOR
 using System;
-using SHUU.Utils.UI;
 using UnityEditor;
 
-using SETB;
-using static SETB.HandyEditorFunctions;
+using SHUU.Utils.UI;
+
+using SETB.SuperClasses;
 
 namespace SHUU._Editor.Drawers
 {
@@ -34,8 +34,7 @@ namespace SHUU._Editor.Drawers
 
 
 
-        protected override void Build(SerializedProperty property)
-            => DrawManagedReferenceDropdown(property, "Gradient Type", types, typeNames);
+        protected override void Build(SerializedProperty property) => DrawManagedReferenceDropdown(property, "Gradient Type", types, typeNames);
     }
 }
 #endif

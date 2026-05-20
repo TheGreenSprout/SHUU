@@ -7,10 +7,11 @@ This code was written with the assistance of AI.
 
 
 using System.Collections.Generic;
-using SHUU.Utils.Helpers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
+using SHUU.Utils.Helpers;
 
 namespace SHUU.Utils.UI
 {
@@ -74,30 +75,13 @@ namespace SHUU.Utils.UI
 
 
 
-        #region Variable methods
-        private void LayerChange(bool active)
-        {
-            if (releaseClickHoldOnLayerChange) ForceReleaseAllMouseButtons();
-
-
-            if (renderTextureRaycaster != null)
-            {
-                renderTextureRaycaster.enabled = active;
-
-                if (!active && eventSystem != null) eventSystem.SetSelectedGameObject(null);
-            }
-        }
-        #endregion
-
-
-
+        #region Main
         protected override void Awake()
         {
             base.Awake();
 
             LayerChange(false);
         }
-
 
 
         public override void Process()
@@ -112,7 +96,7 @@ namespace SHUU.Utils.UI
             if (usingChainedInput) chainedMousePosition = externalPosition;
 
 
-            if (!hybrid || !usingChainedInput) return;
+            if (!hybrid && !usingChainedInput) return;
 
 
             base.Process();
@@ -120,8 +104,11 @@ namespace SHUU.Utils.UI
 
             _blockMouseInputThisFrame = false;
         }
+        #endregion
 
 
+
+        #region Logic
 
         #region Raycast Logic
         private void SetRaycast(bool isValid, Vector2 uiPosition, bool internalCast)
@@ -164,9 +151,7 @@ namespace SHUU.Utils.UI
         {
             if (!useInternalRaycast) return;
 
-
             if (!mainCamera || !renderPlaneCollider || !renderTexture) SetRaycast(false, Vector2.zero, true);
-
 
 
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -362,6 +347,24 @@ namespace SHUU.Utils.UI
 
             HandlePointerExitAndEnter(data, null);
         }
+        #endregion
+
+
+
+        #region Misc
+        private void LayerChange(bool active)
+        {
+            if (releaseClickHoldOnLayerChange) ForceReleaseAllMouseButtons();
+
+            if (renderTextureRaycaster != null)
+            {
+                renderTextureRaycaster.enabled = active;
+
+                if (!active && eventSystem != null) eventSystem.SetSelectedGameObject(null);
+            }
+        }
+        #endregion
+
         #endregion
     }
 }

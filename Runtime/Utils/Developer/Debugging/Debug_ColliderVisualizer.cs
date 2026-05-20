@@ -1,32 +1,18 @@
 using UnityEngine;
-using SHUU.Utils.Helpers;
 using System.Collections.Generic;
+
+using SHUU.Utils.Helpers;
 
 namespace SHUU.Utils.Developer.Debugging
 {
-    #region Data classes
-
-    [System.Serializable]
-    public class LayerWireColor
-    {
-        public LayerMask layers;
-        public Color wireColor;
-    }
-
-    [System.Serializable]
-    public class TagFillColor
-    {
-        public List<string> tags = new();
-        public Color fillColor;
-    }
-
-    #endregion
-
-
-    
     [DefaultExecutionOrder(-10000)]
-    public class Debug_ColliderVisualizer : StaticInstance_Monobehaviour<Debug_ColliderVisualizer>
+    public class Debug_ColliderVisualizer : Singleton_MonoBehaviour<Debug_ColliderVisualizer>
     {
+        #region Variables
+        protected override bool PersistantSingleton() => false;
+
+
+
         private Debug_ColliderVisualizerProxy _proxy;
 
         public Debug_ColliderVisualizerProxy proxy
@@ -44,7 +30,7 @@ namespace SHUU.Utils.Developer.Debugging
 
 
         [Header("Activation")]
-        [SerializeField] private bool colliderVisualizerEnabled = false;
+        private bool colliderVisualizerEnabled;
         [SerializeField] private bool beginEnabled = false;
 
         [SerializeField] private KeyCode activationKey = KeyCode.None;
@@ -81,8 +67,13 @@ namespace SHUU.Utils.Developer.Debugging
 
         [SerializeField] private List<LayerWireColor> layerWireColors = new();
         [SerializeField] private List<TagFillColor> tagFillColors = new();
+        #endregion
 
 
+
+
+        #region Main
+        public void Init() => colliderVisualizerEnabled = this.enabled;
 
 
         private void OnProxyAdded(Debug_ColliderVisualizerProxy proxy)
@@ -90,7 +81,8 @@ namespace SHUU.Utils.Developer.Debugging
             if (!proxy) return;
 
 
-            if (colliderVisualizerEnabled) proxy.Init(activationKey, matShader, alwaysRenderWire, alwaysRenderFill, updateCollidersInterval, updateCacheInterval, maxDistance, defaultWireColor, defaultFillColor, triggerAlphaMultiplier, disabledAlphaMultiplier, excludedLayers, excludedTags, layerWireColors, tagFillColors, beginEnabled);
+            if (colliderVisualizerEnabled)
+                proxy.Init(activationKey, matShader, alwaysRenderWire, alwaysRenderFill, updateCollidersInterval, updateCacheInterval, maxDistance, defaultWireColor, defaultFillColor, triggerAlphaMultiplier, disabledAlphaMultiplier, excludedLayers, excludedTags, layerWireColors, tagFillColors, beginEnabled);
         }
 
         private void OnProxyRemoved(Debug_ColliderVisualizerProxy proxy)
@@ -100,9 +92,11 @@ namespace SHUU.Utils.Developer.Debugging
 
             if (colliderVisualizerEnabled) proxy.initialized = false;
         }
+        #endregion
 
 
 
+        #region Logic
         public bool? Toggle() => proxy && colliderVisualizerEnabled ? proxy.Toggle() : null;
 
 
@@ -110,5 +104,26 @@ namespace SHUU.Utils.Developer.Debugging
 
         public static void CacheColliders() => instance?.proxy?.CacheColliders();
         public static void RebuildCache() => instance?.proxy?.RebuildCache();
+        #endregion
     }
+
+
+
+
+    #region Data classes
+    [System.Serializable]
+    public class LayerWireColor
+    {
+        public LayerMask layers;
+        public Color wireColor;
+    }
+
+
+    [System.Serializable]
+    public class TagFillColor
+    {
+        public List<string> tags = new();
+        public Color fillColor;
+    }
+    #endregion
 }

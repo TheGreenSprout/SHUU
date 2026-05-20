@@ -1,12 +1,16 @@
-using SHUU.Utils.Globals;
 using UnityEngine;
 
-public class ChangeSceneScr : MonoBehaviour
+using SHUU.Utils.Globals;
+
+namespace SHUU.Samples.SampleScenesAndUtils
 {
-    public string sceneToGoTo;
+    public class ChangeSceneScr : MonoBehaviour
+    {
+        [SerializeField] private string sceneToGoTo;
 
 
 
 
-    public void ChangeScene() => SHUU_General.GoToScene(sceneToGoTo);
+        public void ChangeScene() => SHUU_General.GoToScene(sceneToGoTo);
+    }
 }

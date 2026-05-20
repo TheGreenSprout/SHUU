@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace SHUU.Utils.Helpers
 {
-
     public class LookAtObj : MonoBehaviour
     {
+        #region Variables
         [SerializeField] private Transform target;
 
         [Tooltip("Instead of looking at an object, the object looks in the direction it is moving. Target will not be used if this is true.")]
@@ -28,10 +28,12 @@ namespace SHUU.Utils.Helpers
 
         [Tooltip("For when lookAtMovementDirection is true. Makes it so that if the object is still, the rotation won't reset.")]
         [SerializeField] private bool whileNotMoving = false;
+        #endregion
 
 
 
 
+        #region Main
         private void Awake()
         {
             cacheRotation = null;
@@ -42,95 +44,88 @@ namespace SHUU.Utils.Helpers
 
         private void Update()
         {
-            if (!lookAtMovementDirection)
-            {
-                if (target == null)
-                {
-                    if (transform.rotation != cacheRotation && cacheRotation != null)
-                    {
-                        transform.rotation = Quaternion.Slerp(transform.rotation, (Quaternion)cacheRotation, rotationSpeed * Time.deltaTime);
-                    }
-                    else
-                    {
-                        cacheRotation = null;
-                    }
-
-
-                    return;
-                }
-
-
-                if (cacheRotation == null)
-                {
-                    cacheRotation = this.transform.rotation;
-                }
-
-
-                Vector3 direction = target.position - transform.position;
-
-                if (direction.magnitude == 0f) return;
-
-
-                Quaternion targetRotation;
-                if (!twoDimensions)
-                {
-                    targetRotation = Quaternion.LookRotation(direction.normalized, transform.up);
-                }
-                else
-                {
-                    Vector3 dir = direction.normalized;
-                    float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                    targetRotation = Quaternion.Euler(0, 0, angle);
-                }
-
-
-                Vector3 euler = targetRotation.eulerAngles;
-                Vector3 currentEuler = transform.rotation.eulerAngles;
-
-                if (lockX) euler.x = currentEuler.x;
-                if (lockY) euler.y = currentEuler.y;
-                if (lockZ) euler.z = currentEuler.z;
-
-                targetRotation = Quaternion.Euler(euler);
-
-
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            }
-            else if (transform.position != lastPosition || whileNotMoving)
-            {
-                Vector3 movement = transform.position - lastPosition;
-
-                if (movement.magnitude == 0f) return;
-
-
-                Quaternion targetRotation;
-                if (!twoDimensions)
-                {
-                    targetRotation = Quaternion.LookRotation(movement.normalized, transform.up);
-                }
-                else
-                {
-                    Vector3 dir = movement.normalized;
-                    float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                    targetRotation = Quaternion.Euler(0, 0, angle);
-                }
-
-
-                Vector3 euler = targetRotation.eulerAngles;
-                Vector3 currentEuler = transform.rotation.eulerAngles;
-
-                if (lockX) euler.x = currentEuler.x;
-                if (lockY) euler.y = currentEuler.y;
-                if (lockZ) euler.z = currentEuler.z;
-
-                targetRotation = Quaternion.Euler(euler);
-
-
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-                lastPosition = transform.position;
-            }
+            if (!lookAtMovementDirection) LookAtMovementDirection();
+            else if (transform.position != lastPosition || whileNotMoving) Not_LookAtMovementDirection();
         }
-    }
+        #endregion
 
+
+
+        #region Logic
+        private void LookAtMovementDirection()
+        {
+            if (target == null)
+            {
+                if (transform.rotation != cacheRotation && cacheRotation != null)
+                    transform.rotation = Quaternion.Slerp(transform.rotation, (Quaternion)cacheRotation, rotationSpeed * Time.deltaTime);
+                else cacheRotation = null;
+
+                return;
+            }
+
+
+            if (cacheRotation == null) cacheRotation = transform.rotation;
+
+
+            Vector3 direction = target.position - transform.position;
+
+            if (direction.magnitude == 0f) return;
+
+
+            Quaternion targetRotation;
+            if (!twoDimensions) targetRotation = Quaternion.LookRotation(direction.normalized, transform.up);
+            else
+            {
+                Vector3 dir = direction.normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                targetRotation = Quaternion.Euler(0, 0, angle);
+            }
+
+
+            Vector3 euler = targetRotation.eulerAngles;
+            Vector3 currentEuler = transform.rotation.eulerAngles;
+
+            if (lockX) euler.x = currentEuler.x;
+            if (lockY) euler.y = currentEuler.y;
+            if (lockZ) euler.z = currentEuler.z;
+
+            targetRotation = Quaternion.Euler(euler);
+
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        private void Not_LookAtMovementDirection()
+        {
+            Vector3 movement = transform.position - lastPosition;
+
+            if (movement.magnitude == 0f) return;
+
+
+            Quaternion targetRotation;
+            if (!twoDimensions) targetRotation = Quaternion.LookRotation(movement.normalized, transform.up);
+            else
+            {
+                Vector3 dir = movement.normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                targetRotation = Quaternion.Euler(0, 0, angle);
+            }
+
+
+            Vector3 euler = targetRotation.eulerAngles;
+            Vector3 currentEuler = transform.rotation.eulerAngles;
+
+            if (lockX) euler.x = currentEuler.x;
+            if (lockY) euler.y = currentEuler.y;
+            if (lockZ) euler.z = currentEuler.z;
+
+            targetRotation = Quaternion.Euler(euler);
+
+
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+            lastPosition = transform.position;
+        }
+        #endregion
+    }
 }

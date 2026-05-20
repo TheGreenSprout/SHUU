@@ -7,11 +7,14 @@ namespace SHUU.Utils.Developer.Console
     #region Return
     public class CommandReturn
     {
+        #region Variables
         public string[] output = null;
         public Color? color = null;
+        #endregion
 
 
 
+        #region Main
         public CommandReturn(Color? color, params string[] output)
         {
             this.output = output;
@@ -19,12 +22,11 @@ namespace SHUU.Utils.Developer.Console
         }
 
         public CommandReturn(params string[] output) => this.output = output;
-        public CommandReturn(bool result)
-            : this(result ? null : Color.red, result ? "Command successfully executed." : "Something went wrong, command aborted.") { }
+        public CommandReturn(bool result) : this(result ? null : Color.red, result ? "Command successfully executed." : "Something went wrong, command aborted.") { }
 
         public CommandReturn(params CommandReturn[] returns)
         {
-            this.color = returns[0]?.color;
+            color = returns[0]?.color;
 
             List<string> output = new();
             foreach (var ret in returns)
@@ -35,6 +37,7 @@ namespace SHUU.Utils.Developer.Console
             }
             this.output = output.ToArray();
         }
+        #endregion
     }
     #endregion
 
@@ -44,11 +47,15 @@ namespace SHUU.Utils.Developer.Console
     #region Parameters
     public class OptionalParameter<T>
     {
+        #region Variables
         private bool hasValue = false;
         
         private T value = default;
+        #endregion
 
 
+
+        #region Main
         public OptionalParameter()
         {
             hasValue = false;
@@ -61,7 +68,10 @@ namespace SHUU.Utils.Developer.Console
 
             value = val;
         }
+        #endregion
 
+
+        #region Logic
         public bool TryGetValue(out T outValue)
         {
             outValue = value;
@@ -74,12 +84,14 @@ namespace SHUU.Utils.Developer.Console
             if (!hasValue) return DevConsoleManager.instance.optionalParameter_consoleInterpreters[0];
             else return value.ToString();
         }
+        #endregion
     }
 
 
 
     public class MutableParameter
     {
+        #region Variables
         private enum ValueType
         {
             Null,
@@ -96,8 +108,11 @@ namespace SHUU.Utils.Developer.Console
         private float? floatValue = null;
         private string stringValue = null;
         private char? charValue = null;
+        #endregion
         
 
+
+        #region Main
         public MutableParameter(bool val)
         {
             valueType = ValueType.Bool;
@@ -128,8 +143,10 @@ namespace SHUU.Utils.Developer.Console
 
             charValue = val;
         }
+        #endregion
 
 
+        #region Logic
         public bool TryGetValue<T>(out T value)
         {
             value = default;
@@ -194,39 +211,7 @@ namespace SHUU.Utils.Developer.Console
             
             else return "";
         }
-    }
-    #endregion
-
-
-
-
-    #region Queries
-    public enum QueryType
-    {
-        Null,
-        Invalid,
-        Where,
-        Sort,
-        Find
-    }
-
-
-
-    public class SimpleQuery<T>
-    {
-        public QueryType type = QueryType.Invalid;
-        public Func<T, bool> predicate = null;
-
-        public bool hasValue => type != QueryType.Null;
-        public bool IsValid => hasValue && type != QueryType.Invalid && predicate != null;
-
-
-        public SimpleQuery() { }
-        public SimpleQuery(QueryType type, Func<T, bool> predicate)
-        {
-            this.type = type;
-            this.predicate = predicate;
-        }
+        #endregion
     }
     #endregion
 }

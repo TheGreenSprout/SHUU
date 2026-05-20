@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1495351435515305189}
-  - component: {fileID: 5160182650152972713}
   - component: {fileID: 8500840165946191256}
   m_Layer: 0
   m_Name: Scripts
@@ -33,20 +32,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7761094142891431861}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5160182650152972713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6484371028228854047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d928f3cec632c540bb0522db5253a20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  excludedScenes:
-  - Loading
 --- !u!114 &8500840165946191256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59,10 +44,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec5261442f1cf4040897b87ad756f214, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  excludedScenes:
+  - Loading
+  filePathsAsset: {fileID: 11400000, guid: 28a946f15bb08ca4caa8dcb0dc879354, type: 2}
+  saveFilesPath_ID: Saves
+  backupFilesPath_ID: Backups
   saveFiles:
   - SaveFile1
   - SaveFile2
   - SaveFile3
+  backupFilesAmmount: 5
+  backupWhenSave: 1
   autoSaveWhenClosing: 0
 --- !u!1 &8813999925792965058
 GameObject:
@@ -73,7 +65,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7761094142891431861}
-  - component: {fileID: 5341853456972705956}
+  - component: {fileID: 4241995092730639982}
   m_Layer: 0
   m_Name: SAVING SINGLETON
   m_TagString: Untagged
@@ -97,7 +89,7 @@ Transform:
   - {fileID: 1495351435515305189}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5341853456972705956
+--- !u!114 &4241995092730639982
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,10 +98,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 8813999925792965058}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 126a80fe8d633af4ab7cdf62ef0c4a4d, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a8d9ffd14cdb01448e584b3a0021922, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.PersistantInfo.IdentifierSingleton
   identifier: Saving_Singleton
-  scripts: {fileID: 6484371028228854047}
+  persistantSingleton: 1
+  handleGameobject: 1
+  onCreation:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6484371028228854047}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   bridges: -1
-  bannedScenes: []
+  bridgeFree_Scenes:
+  - LoadingScene
+  banned_Scenes: []

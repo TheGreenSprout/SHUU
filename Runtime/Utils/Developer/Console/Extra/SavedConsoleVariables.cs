@@ -1,54 +1,25 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+
+using SHUU.Utils.Helpers;
 
 using static SHUU.InnerWorkings.SHUU_PackageUtils;
 
 namespace SHUU.Utils.Developer.Console
 {
-    public class SavedConsoleVariables : MonoBehaviour
+    public class SavedConsoleVariables : AutoSave_Json_MonoBehaviour<SavedConsoleVariables_SaveData>
     {
         #region Variables
-        private static string filePath => PackageFilePath("DevConsole", "saved_console_variables" + ".json");
-
-    
-
         private static Dictionary<string, List<string>> variables = new();
-
-        private static bool loaded = false;
         #endregion
 
-
-
-
-        #region Main
-        private void Awake()
-        {
-            if (!loaded)
-            {
-                loaded = true;
-                
-                Load();
-            }
-        }
-
-        private void OnApplicationQuit() => Save();
-        #endregion
 
 
 
         #region API
         public static void Set(string name, List<string> value) => variables[name.ToLower()] = value;
-        public static bool TryGet(string name, out List<string> value)
-            => variables.TryGetValue(name.ToLower(), out value);
+        public static bool TryGet(string name, out List<string> value) => variables.TryGetValue(name.ToLower(), out value);
 
         public static bool Exists(string name) => variables.ContainsKey(name.ToLower());
         public static Dictionary<string, List<string>> GetAll() => new(variables);
@@ -57,6 +28,11 @@ namespace SHUU.Utils.Developer.Console
         public static void Clear() => variables.Clear();
 
 
+        /*
+        ⚠️‼️ AI ASSISTED CODE
+
+        This code was written with the assistance of AI.
+        */
         #region Parse
         public static string ParseVariable(string input)
         {
@@ -198,40 +174,30 @@ namespace SHUU.Utils.Developer.Console
 
 
         #region Saving/Loading
-        private void Save()
-        {
-            try
-            {
-                string json = Newtonsoft.Json.JsonConvert.SerializeObject(variables, Newtonsoft.Json.Formatting.Indented);
-
-                var dir = System.IO.Path.GetDirectoryName(filePath);
-                if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
-
-                System.IO.File.WriteAllText(filePath, json);
-            }
-            catch (Exception ex) { Debug.LogError($"Failed to save console variables: {ex}"); }
-        }
+        protected override string FileAddress() => GetPath("DevConsole", "saved_console_variables" + ".json");
 
 
-        private void Load()
-        {
-            try
-            {
-                if (!System.IO.File.Exists(filePath)) return;
+        protected override SavedConsoleVariables_SaveData SaveData() => new SavedConsoleVariables_SaveData(variables);
 
-
-                string json = System.IO.File.ReadAllText(filePath);
-
-                variables = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json)
-                            ?? new Dictionary<string, List<string>>();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to load console variables: {ex}");
-
-                variables = new Dictionary<string, List<string>>();
-            }
-        }
+        protected override void LoadData(SavedConsoleVariables_SaveData data) => variables = new(data.variables);
         #endregion
     }
+
+
+
+
+    #region Save data class
+    [Serializable]
+    public class SavedConsoleVariables_SaveData
+    {
+        public Dictionary<string, List<string>> variables = new();
+
+
+        public SavedConsoleVariables_SaveData(Dictionary<string, List<string>> data)
+        {
+            if (data == null) variables = new();
+            else variables = new(data);
+        }
+    }
+    #endregion
 }

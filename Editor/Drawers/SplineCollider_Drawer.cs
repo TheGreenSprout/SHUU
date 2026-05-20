@@ -1,16 +1,17 @@
 #if UNITY_EDITOR
-using SHUU.Utils.Helpers;
 using UnityEditor;
 
-using SETB;
+using SHUU.Utils.Helpers;
+
+using SETB.SuperClasses;
 using static SETB.EditorGUI_Base;
-using static SETB.HandyEditorFunctions;
 
 namespace SHUU._Editor.Drawers
 {
     [CustomEditor(typeof(SplineCollider))]
     public class SplineCollider_Drawer : Editor_Base<SplineCollider_Drawer>
     {
+        #region Main
         protected override void DrawInspector()
         {
             base.DrawInspector();
@@ -27,6 +28,7 @@ namespace SHUU._Editor.Drawers
                 sc.Rebuild();
             });
         }
+        #endregion
     }
 }
 #endif

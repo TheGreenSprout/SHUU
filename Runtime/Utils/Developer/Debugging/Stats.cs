@@ -6,40 +6,52 @@ namespace SHUU.Utils.Developer.Debugging
 {
     public class Stats : MonoBehaviour
     {
+        #region Variables
         private static float fpsTimer;
         private static int frameCount;
         private static float currentFps;
+        #endregion
 
 
 
+
+        #region Main
         public void Update()
         {
             frameCount++;
             fpsTimer += Time.unscaledDeltaTime;
 
-            if (fpsTimer >= 0.5f) // update twice per second
+            if (fpsTimer >= 0.5f)
             {
                 currentFps = frameCount / fpsTimer;
                 fpsTimer = 0f;
                 frameCount = 0;
             }
         }
+        #endregion
 
 
 
+        #region Logic
+        
+        #region Frames
         public static float fps => currentFps;
         public static float frametimems => currentFps > 0 ? 1000f / currentFps : 0f;
+        #endregion
 
 
-        // Memory Stats
+
+        #region Memory
         public static long monoused => Profiler.GetMonoUsedSizeLong();
         public static long monoheap => Profiler.GetMonoHeapSizeLong();
         public static long totalallocated => Profiler.GetTotalAllocatedMemoryLong();
         public static long totalreserved => Profiler.GetTotalReservedMemoryLong();
         public static long totalunusedreserved => Profiler.GetTotalUnusedReservedMemoryLong();
+        #endregion
 
 
-        // System Stats
+
+        #region System
         public static string cpu => SystemInfo.processorType;
         public static int cpucores => SystemInfo.processorCount;
         public static string gpu => SystemInfo.graphicsDeviceName;
@@ -56,11 +68,12 @@ namespace SHUU.Utils.Developer.Debugging
                 #endif
             }
         }
+        #endregion
 
 
-        // Time Stats
+
+        #region Time
         public static string timestamp => DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-
 
         public static int year => DateTime.Now.Year;
         public static int month => DateTime.Now.Month;
@@ -69,5 +82,8 @@ namespace SHUU.Utils.Developer.Debugging
         public static int hour => DateTime.Now.Hour;
         public static int minute => DateTime.Now.Minute;
         public static int second => DateTime.Now.Second;
+        #endregion
+        
+        #endregion
     }
 }

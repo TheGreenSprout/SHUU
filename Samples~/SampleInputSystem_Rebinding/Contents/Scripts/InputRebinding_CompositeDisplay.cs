@@ -62,7 +62,7 @@ public class InputRebinding_CompositeDisplay : MonoBehaviour
         List<string> merge = new();
         foreach (var list in allAxis)
         {
-            merge = (List<string>)HandyFunctions.MergeLists(merge, list);
+            merge = (List<string>)HandyFunctions.Merge(merge, list);
         }
 
         map.RebindInputSet(label.text, SHUU_Input.CreateDynamicInputArray(merge.ToArray()));
