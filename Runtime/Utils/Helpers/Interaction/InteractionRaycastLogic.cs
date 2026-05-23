@@ -69,7 +69,7 @@ namespace SHUU.Utils.Helpers.Interaction
             if (previousInact != null)
             {
                 bool? inact = previousInact?.InteractKey();
-                inact = inact ?? InteractKey();
+                inact = inact ?? InteractKey(previousInact);
 
                 if (inact != null)
                 {
@@ -80,7 +80,7 @@ namespace SHUU.Utils.Helpers.Interaction
             else if (holdInact != null)
             {
                 bool? inact = holdInact?.InteractKey();
-                inact = inact ?? InteractKey();
+                inact = inact ?? InteractKey(holdInact);
 
                 if (inact != null && !inact.Value)
                 {
@@ -90,9 +90,12 @@ namespace SHUU.Utils.Helpers.Interaction
                 }
             }
         }
+        #endregion
 
 
-        protected virtual bool? InteractKey() => null;
+
+        #region Override points
+        protected virtual bool? InteractKey(IfaceInteractable target) => null;
         #endregion
     }
 }
