@@ -77,7 +77,7 @@ namespace SHUU.Utils.Helpers.Interaction
 
                     Ray renderTextureRay = renderTexture_cam.ScreenPointToRay(renderTexturePoint);
                     
-                    if (!InteractionRaycast(ref previousInact, renderTextureRay, interactionRange, layerMask, modifyDynamicCursor, tagMask))
+                    if (!InteractionRaycast(ref previousInact, renderTextureRay, chained_interactionRange, chained_layerMask, modifyDynamicCursor, chained_tagMask))
                     {
                         ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
