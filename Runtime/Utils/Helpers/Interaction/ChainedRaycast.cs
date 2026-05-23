@@ -1,5 +1,8 @@
-using SHUU.Utils.UI;
 using UnityEngine;
+
+using SHUU.Utils.UI;
+
+using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.Utils.Helpers.Interaction
 {
@@ -16,12 +19,12 @@ namespace SHUU.Utils.Helpers.Interaction
 
 
 
-        [SerializeField] protected float renderPlane_interactionRange;
+        [SerializeField] protected float chained_interactionRange;
 
 
-        [SerializeField] protected LayerMask renderPlane_layerMask;
+        [SerializeField] protected LayerMask chained_layerMask;
 
-        [SerializeField] protected string[] renderPlane_tagMask = new string[0];
+        [SerializeField] protected string[] chained_tagMask = new string[0];
 
 
         [SerializeField] protected bool flipX = false;
@@ -31,6 +34,10 @@ namespace SHUU.Utils.Helpers.Interaction
 
         [Tooltip("If not null, the input module will use this raycast.")]
         [SerializeField] protected ChainedInputModule chainedInputModule;
+
+
+
+        protected bool inChain = false;
         #endregion
 
 
@@ -41,7 +48,7 @@ namespace SHUU.Utils.Helpers.Interaction
         {
             if (!cam || !renderTexture_cam || !rendererPlane || !renderTexture)
             {
-                HandyFunctions.ClearInteractHover(ref previousInact, modifyDynamicCursor);
+                ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
                 return false;
             }
@@ -50,9 +57,9 @@ namespace SHUU.Utils.Helpers.Interaction
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, renderPlane_interactionRange, renderPlane_layerMask) && (renderPlane_tagMask == null || renderPlane_tagMask.Length == 0 || renderPlane_tagMask.NonLINQ_Contains(hit.collider.tag)))
+            if (Physics.Raycast(ray, out hit, interactionRange, layerMask))
             {
-                if (hit.collider.gameObject == rendererPlane.gameObject)
+                if ((tagMask == null || tagMask.Length == 0 || tagMask.NonLINQ_Contains(hit.collider.tag)) && hit.collider.gameObject == rendererPlane.gameObject)
                 {
                     Vector2 uv = hit.textureCoord;
                     Vector2 renderTexturePoint;
@@ -63,17 +70,32 @@ namespace SHUU.Utils.Helpers.Interaction
                     renderTexturePoint = new Vector2(x * renderTexture.width, y * renderTexture.height);
 
 
+                    inChain = true;
+
                     chainedInputModule?.SetExternalRaycast(true, renderTexturePoint);
 
 
                     Ray renderTextureRay = renderTexture_cam.ScreenPointToRay(renderTexturePoint);
-                    RaycastHit renderTextureHit;
+                    
+                    if (!InteractionRaycast(ref previousInact, renderTextureRay, interactionRange, layerMask, modifyDynamicCursor, tagMask))
+                    {
+                        ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
-                    if (Physics.Raycast(renderTextureRay, out renderTextureHit, interactionRange, layerMask) && renderTextureHit.InteractionRaycast_Check(out IfaceInteractable inact, tagMask))
+                        return false;
+                    }
+                }
+                else
+                {
+                    inChain = false;
+
+                    chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
+
+
+                    if (hit.InteractionRaycast_Check(out IfaceInteractable inact, tagMask))
                     {
                         if (previousInact != inact)
                         {
-                            HandyFunctions.ClearInteractHover(ref previousInact, modifyDynamicCursor);
+                            ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
                             previousInact = inact;
 
@@ -83,23 +105,15 @@ namespace SHUU.Utils.Helpers.Interaction
                     }
                     else
                     {
-                        HandyFunctions.ClearInteractHover(ref previousInact, modifyDynamicCursor);
-
+                        ClearInteractHover(ref previousInact, modifyDynamicCursor);
+                    
                         return false;
                     }
-                }
-                else
-                {
-                    HandyFunctions.ClearInteractHover(ref previousInact, modifyDynamicCursor);
-
-                    chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
-                    
-                    return false;
                 }
             }
             else
             {
-                HandyFunctions.ClearInteractHover(ref previousInact, modifyDynamicCursor);
+                ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
                 chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
 

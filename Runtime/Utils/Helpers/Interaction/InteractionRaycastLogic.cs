@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using static SHUU.Utils.Helpers.HandyFunctions;
+
 namespace SHUU.Utils.Helpers.Interaction
 {
     public class InteractionRaycastLogic : MonoBehaviour
@@ -45,7 +47,7 @@ namespace SHUU.Utils.Helpers.Interaction
         
 
         #region Logic
-        protected virtual bool CastRay() => HandyFunctions.InteractionRaycast(ref previousInact, cam, interactionRange, layerMask, modifyDynamicCursor, tagMask);
+        protected virtual bool CastRay() => InteractionRaycast(ref previousInact, cam, interactionRange, layerMask, modifyDynamicCursor, tagMask);
 
 
         protected virtual void Interact()
