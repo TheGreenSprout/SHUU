@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 456e9f9f32654bd428060a084764d9af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleGameobject: 1
+  handleGameobject: 0
   listenForDebugLogs: 0
   listenForNormalLogs: 1
   listenForWarningLogs: 1
@@ -170,12 +170,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6373702377639606796}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 563f00a97ccdf1842b1d847c35311953, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleGameobject: 1
+  handleGameobject: 0
   beginEnabled: 0
   activationKey: 282
   matShader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}

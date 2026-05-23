@@ -599,7 +599,7 @@ namespace SHUU.Utils.Helpers
 
             ChangeMouseVisibility(savedCursorVisibility);
 
-            savedCursorState = null;
+            savedCursorVisibility = null;
 
 
             return true;

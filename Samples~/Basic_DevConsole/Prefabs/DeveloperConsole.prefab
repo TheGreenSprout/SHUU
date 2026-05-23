@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   changeCursorVisivility: 1
-  toggleKeys: 320100001b010000
+  toggleKeys: 1b010000
   previousCommandKey: 273
   nextCommandKey: 274
 --- !u!114 &7568605695224927863
@@ -177,7 +177,7 @@ MonoBehaviour:
   - Input System
   - Untagged
   devConsoleUI: {fileID: 4210943520205328992}
-  input: {fileID: 0}
+  inputModule: {fileID: 0}
 --- !u!114 &5453779029219081237
 MonoBehaviour:
   m_ObjectHideFlags: 0
