@@ -270,7 +270,7 @@ namespace SHUU.Utils.Developer.Debugging
             {
                 if (!col) continue;
 
-                if ((col.transform.position - cam.transform.position).sqrMagnitude > maxDistSqr) continue;
+                if (maxDistSqr > 0 && (col.transform.position - cam.transform.position).sqrMagnitude > maxDistSqr) continue;
 
                 // ---- Fill ----
                 Color fill = ApplyAlpha(col, GetFillColor(col.tag));

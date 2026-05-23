@@ -49,8 +49,8 @@ namespace SHUU.Utils.Developer.Debugging
         [Tooltip("If 0, the colliders will have to be updated manually via RebuildCache() or CacheReload().")]
         [SerializeField] private float updateCacheInterval = 0.15f;
 
-        [Tooltip("Colliders with a distance from the Camera.main greater than this will not be rendered.")]
-        [SerializeField] private float maxDistance = 80f;
+        [Tooltip("Colliders with a distance from the Camera.main greater than this will not be rendered. If 0, there will be no distance limit.")]
+        [SerializeField] [Min(0)] private float maxDistance = 80f;
 
 
         [Header("Colors")]
