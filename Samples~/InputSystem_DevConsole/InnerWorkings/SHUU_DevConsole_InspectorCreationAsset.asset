@@ -18,4 +18,4 @@ MonoBehaviour:
     prefab: {fileID: 8846335260196786018, guid: 105fd74c1f0c97d4aac20d22861f02ab, type: 3}
     validateFunction: 0
     priority: 52
-    unpack: 1
+    unpack: 0
