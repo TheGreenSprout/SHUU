@@ -331,6 +331,7 @@ namespace SHUU.Utils.Developer.Debugging
                 if (col is BoxCollider box) DrawBox(box, b.verts);
                 else if (col is SphereCollider s) DrawSphere(s, b.verts);
                 else if (col is CapsuleCollider cap) DrawCapsule(cap, b.verts);
+                else if (col is MeshCollider mesh) DrawMeshCollider(mesh, b.verts);
             }
 
 
@@ -416,6 +417,27 @@ namespace SHUU.Utils.Developer.Debugging
                 AddHemisphereWire(top, axis, orthoA, orthoB, r, true, lat, seg, v);
                 AddHemisphereWire(bottom, axis, orthoA, orthoB, r, false, lat, seg, v);
             }
+            void DrawMeshCollider(MeshCollider mc, List<Vector3> v)
+            {
+                if (!mc.sharedMesh) return;
+
+                Mesh mesh = mc.sharedMesh;
+                Transform t = mc.transform;
+
+                Vector3[] verts = mesh.vertices;
+                int[] tris = mesh.triangles;
+
+                for (int i = 0; i < tris.Length; i += 3)
+                {
+                    Vector3 a = t.TransformPoint(verts[tris[i]]);
+                    Vector3 b = t.TransformPoint(verts[tris[i + 1]]);
+                    Vector3 c = t.TransformPoint(verts[tris[i + 2]]);
+
+                    v.Add(a); v.Add(b);
+                    v.Add(b); v.Add(c);
+                    v.Add(c); v.Add(a);
+                }
+            }
 
             void AddHemisphereWire(
                 Vector3 center,
@@ -482,6 +504,7 @@ namespace SHUU.Utils.Developer.Debugging
                 if (col is BoxCollider box) FillBox(box, b.verts);
                 else if (col is SphereCollider s) FillSphere(s, b.verts);
                 else if (col is CapsuleCollider cap) FillCapsule(cap, b.verts);
+                else if (col is MeshCollider mesh) FillMeshCollider(mesh, b.verts);
             }
 
 
@@ -593,6 +616,23 @@ namespace SHUU.Utils.Developer.Debugging
 
                 FillHemisphere(top, axis, orthoA, orthoB, r, true, lat, seg, v);
                 FillHemisphere(bottom, axis, orthoA, orthoB, r, false, lat, seg, v);
+            }
+            void FillMeshCollider(MeshCollider mc, List<Vector3> v)
+            {
+                if (!mc.sharedMesh) return;
+
+                Mesh mesh = mc.sharedMesh;
+                Transform t = mc.transform;
+
+                Vector3[] verts = mesh.vertices;
+                int[] tris = mesh.triangles;
+
+                for (int i = 0; i < tris.Length; i += 3)
+                {
+                    v.Add(t.TransformPoint(verts[tris[i]]));
+                    v.Add(t.TransformPoint(verts[tris[i + 1]]));
+                    v.Add(t.TransformPoint(verts[tris[i + 2]]));
+                }
             }
 
             void FillHemisphere(
