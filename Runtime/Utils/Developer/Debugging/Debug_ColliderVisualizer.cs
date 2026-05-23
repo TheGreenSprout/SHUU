@@ -97,7 +97,10 @@ namespace SHUU.Utils.Developer.Debugging
 
 
         #region Logic
-        public bool? Toggle() => proxy && colliderVisualizerEnabled ? proxy.Toggle() : null;
+        public bool? Toggle(bool? toggle = null) => proxy && colliderVisualizerEnabled ? proxy.Toggle(toggle) : null;
+
+        public bool? Toggle_WireRender(bool? toggle = null) => proxy && colliderVisualizerEnabled ? proxy.Toggle_WireRender(toggle) : null;
+        public bool? Toggle_FillRender(bool? toggle = null) => proxy && colliderVisualizerEnabled ? proxy.Toggle_FillRender(toggle) : null;
 
 
         public static void CacheReload() => instance?.proxy?.CacheReload();

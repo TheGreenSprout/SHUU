@@ -200,14 +200,35 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
     #region Visual
     [DevConsoleCommand("colliders", "Toggles the visibility of all colliders in the game", "Debug")]
-    public static CommandReturn Colliders()
+    public static CommandReturn Colliders(OptionalParameter<bool> toggle)
     {
-        bool? visible = SHUU_Debug.Toggle_DebugColliders();
+        bool? visible = toggle.TryGetValue(out bool t) ? SHUU_Debug.Toggle_DebugColliders(t) : SHUU_Debug.Toggle_DebugColliders();
 
         if (visible == null) return new CommandReturn(Color.red, "Local debug disabled on this scene.");
 
 
         return new CommandReturn(Color.green, "Debug collider visibility " + (visible.Value ? "enabled." : "disabled."));
+    }
+    
+    [DevConsoleCommand("colliderswire", "Toggles whether the wire of all colliders in the game render on top of everything or not", "Debug")]
+    public static CommandReturn CollidersWire(OptionalParameter<bool> toggle)
+    {
+        bool? visible = toggle.TryGetValue(out bool t) ? SHUU_Debug.Toggle_DebugCollidersWireRender(t) : SHUU_Debug.Toggle_DebugCollidersWireRender();
+
+        if (visible == null) return new CommandReturn(Color.red, "Local debug disabled on this scene.");
+
+
+        return new CommandReturn(Color.green, "Debug collider wire render on top " + (visible.Value ? "enabled." : "disabled."));
+    }
+    [DevConsoleCommand("collidersfill", "Toggles whether the fill of all colliders in the game render on top of everything or not")]
+    public static CommandReturn CollidersFill(OptionalParameter<bool> toggle)
+    {
+        bool? visible = toggle.TryGetValue(out bool t) ? SHUU_Debug.Toggle_DebugCollidersFillRender(t) : SHUU_Debug.Toggle_DebugCollidersFillRender();
+
+        if (visible == null) return new CommandReturn(Color.red, "Local debug disabled on this scene.");
+
+
+        return new CommandReturn(Color.green, "Debug collider fill render on top " + (visible.Value ? "enabled." : "disabled."));
     }
     
 

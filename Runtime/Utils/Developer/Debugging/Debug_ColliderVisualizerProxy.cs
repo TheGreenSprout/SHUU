@@ -27,6 +27,8 @@ namespace SHUU.Utils.Developer.Debugging
 
         private bool alwaysRenderWire;
         private bool alwaysRenderFill;
+        public bool Toggle_WireRender(bool? toggle = null) => toggle == null ? alwaysRenderWire = !alwaysRenderWire : alwaysRenderWire = toggle.Value;
+        public bool Toggle_FillRender(bool? toggle = null) => toggle == null ? alwaysRenderFill = !alwaysRenderFill : alwaysRenderFill = toggle.Value;
 
         private float updateCollidersInterval;
         private float updateCacheInterval;
@@ -66,7 +68,7 @@ namespace SHUU.Utils.Developer.Debugging
 
 
         private bool toggle = true;
-        public bool Toggle() => toggle = !toggle;
+        public bool Toggle(bool? t = null) => t == null ? toggle = !toggle : toggle = t.Value;
         #endregion
         #endregion
 

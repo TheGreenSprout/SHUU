@@ -39,11 +39,24 @@ namespace SHUU.Utils.Developer.Debugging
         #region Proxy
         
         #region Debug Colliders
-        public static bool? Toggle_DebugColliders()
+        public static bool? Toggle_DebugColliders(bool? toggle = null)
         {
             if (!instance || !instance.colliderVisualizer) return null;
 
-            return instance.colliderVisualizer.Toggle();
+            return instance.colliderVisualizer.Toggle(toggle);
+        }
+
+        public static bool? Toggle_DebugCollidersWireRender(bool? toggle = null)
+        {
+            if (!instance || !instance.colliderVisualizer) return null;
+
+            return instance.colliderVisualizer.Toggle_WireRender(toggle);
+        }
+        public static bool? Toggle_DebugCollidersFillRender(bool? toggle = null)
+        {
+            if (!instance || !instance.colliderVisualizer) return null;
+
+            return instance.colliderVisualizer.Toggle_FillRender(toggle);
         }
         #endregion
 
