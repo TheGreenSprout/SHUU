@@ -40,3 +40,8 @@ MonoBehaviour:
       validateFunction: 0
       priority: 50
       unpack: 1
+    - path: SHUU/UI/Chained_EventSystem
+      prefab: {fileID: 3217881030242003166, guid: 4c454124edee7ab4fa1171a7208d57ac, type: 3}
+      validateFunction: 0
+      priority: 51
+      unpack: 1
