@@ -92,35 +92,44 @@ namespace SHUU.Utils.Globals
         /// <param name="duration">The time the Action will be delayed by.</param>
         /// <param name="onComplete">The Action that will be performed.</param>
         #endregion
-        public static void Timer(float seconds, Action onComplete, bool ignoreTimeScale = false)
+        public static SHUU_Timer Timer(float seconds, Action onComplete, bool ignoreTimeScale = false)
         {
             if (instance == null)
             {
                 Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
 
-                return;
+                return null;
             }
 
 
             seconds = Mathf.Max(seconds, 0f);
 
-            if (!ignoreTimeScale) instance.StartCoroutine(Run(seconds, onComplete));
-            else instance.StartCoroutine(Run(seconds, onComplete, x => new WaitForSecondsRealtime(x)));
+            SHUU_Timer timer = new SHUU_Timer { remainingTime = seconds };
+            timer.onComplete += onComplete;
+
+            StartCoroutineStatic(Run(timer, ignoreTimeScale));
+
+            return timer;
         }
 
-        public static void Timer(int frames, Action onComplete, bool ignoreTimeScale = false)
+        public static SHUU_Timer Timer(int frames, Action onComplete, bool ignoreTimeScale = false)
         {
             if (instance == null)
             {
                 Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
 
-                return;
+                return null;
             }
 
 
             frames = Mathf.Max(frames, 0);
-            
-            instance.StartCoroutine(RunFrames(frames, onComplete, ignoreTimeScale));
+
+            SHUU_Timer timer = new SHUU_Timer { remainingFrames = frames };
+            timer.onComplete += onComplete;
+
+            instance.StartCoroutine(RunFrames(timer, ignoreTimeScale));
+
+            return timer;
         }
 
 
@@ -132,14 +141,45 @@ namespace SHUU.Utils.Globals
         /// <param name="onComplete">The Action that will be performed.</param>
         /// <returns>Returns the IEnumerator.</returns>
         #endregion
-        private static IEnumerator Run(float duration, Action onComplete, Func<float, IEnumerator> enumerator = null)
+        private static IEnumerator Run(SHUU_Timer timer, bool ignoreTimeScale)
+        {
+            while (timer.remainingTime > 0f)
+            {
+                if (timer.isCancelled) yield break;
+
+                if (!timer.isPaused)
+                {
+                    float delta = ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
+
+                    timer.remainingTime -= delta;
+                }
+
+                yield return null;
+            }
+
+            timer.Complete();
+        }
+        public static IEnumerator Run(float duration, Action onComplete, Func<float, IEnumerator> enumerator = null)
         {
             yield return enumerator != null ? enumerator(duration) : new WaitForSeconds(duration);
 
             onComplete?.Invoke();
         }
 
-        private static IEnumerator RunFrames(int frames, Action onComplete, bool ignoreTimeScale = false)
+        private static IEnumerator RunFrames(SHUU_Timer timer, bool ignoreTimeScale)
+        {
+            while (timer.remainingFrames > 0)
+            {
+                if (timer.isCancelled) yield break;
+
+                if (!timer.isPaused && (ignoreTimeScale || Time.timeScale > 0f)) timer.remainingFrames--;
+
+                yield return null;
+            }
+
+            timer.Complete();
+        }
+        public static IEnumerator RunFrames(int frames, Action onComplete, bool ignoreTimeScale = false)
         {
             while (frames > 0)
             {
@@ -215,4 +255,76 @@ namespace SHUU.Utils.Globals
         
         #endregion
     }
+
+
+
+
+    #region Helper class
+    public class SHUU_Timer
+    {
+        #region Variables
+        public bool isPaused { get; private set; }
+        public bool isCancelled { get; private set; }
+        public bool isCompleted { get; private set; }
+
+        public bool isRunning => !isPaused && !isCancelled && !isCompleted;
+
+
+        public float initialTime { get; internal set; }
+        public int initialFrames { get; internal set; }
+
+        public float remainingTime { get; internal set; }
+        public int remainingFrames { get; internal set; }
+
+
+        public float Progress01 => initialTime <= 0f ? 1f : 1f - (remainingTime / initialTime);
+        public float FrameProgress01 => initialFrames <= 0 ? 1f : 1f - ((float)remainingFrames / initialFrames);
+
+
+
+        public event Action onPaused;
+        public event Action onResumed;
+        public event Action onCancelled;
+
+        public event Action onComplete;
+        #endregion
+
+
+
+        
+        #region Logic
+        public void Pause()
+        {
+            if (isCancelled || isCompleted) return;
+
+            isPaused = true;
+            onPaused?.Invoke();
+        }
+
+        public void Resume()
+        {
+            if (isCancelled || isCompleted) return;
+
+            isPaused = false;
+            onResumed?.Invoke();
+        }
+
+        public void Cancel()
+        {
+            if (isCompleted) return;
+
+            isCancelled = true;
+            onCancelled?.Invoke();
+        }
+
+        internal void Complete()
+        {
+            if (isCancelled || isCompleted) return;
+
+            isCompleted = true;
+            onComplete?.Invoke();
+        }
+        #endregion
+    }
+    #endregion
 }
