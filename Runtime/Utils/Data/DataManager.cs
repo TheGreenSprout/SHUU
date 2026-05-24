@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using SFB;
 
 using SHUU.Utils.BaseScripts;
+using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
 
 namespace SHUU.Utils.Data
 {
@@ -18,6 +19,12 @@ namespace SHUU.Utils.Data
     {
         #region Variables
         private const string SAVE_fileInfoSeparator = "#SAVED_INFO#";
+
+
+
+        private static bool debugLogEmission => SHUU_Preferences.instance.dataManager_debugLogEmission;
+        private static bool warningLogEmission => SHUU_Preferences.instance.dataManager_warningLogEmission;
+        private static bool errorLogEmission => SHUU_Preferences.instance.dataManager_debugLogEmission;
         #endregion
 
 
@@ -58,7 +65,7 @@ namespace SHUU.Utils.Data
 
             if (address == null)
             {
-                Debug.Log("Error getting file address");
+                if (errorLogEmission) Debug.LogError("Error getting file address");
                 return null;
             }
 
@@ -253,7 +260,7 @@ namespace SHUU.Utils.Data
             WriteText_ToFile(address, saveStr);
 
 
-            Debug.Log("Saved TXT: " + saveStr);
+            if (debugLogEmission) Debug.Log("Saved TXT: " + saveStr);
         }
         #endregion
 
@@ -275,18 +282,18 @@ namespace SHUU.Utils.Data
             {
                 if (!TryReadText_FromFile(address, out string data))
                 {
-                    Debug.Log("Failed load");
+                    if (errorLogEmission) Debug.LogError("Failed load");
 
                     return null;
                 }
 
-                Debug.Log("Loaded TXT: " + data);
+                if (debugLogEmission) Debug.Log("Loaded TXT: " + data);
 
                 return GetDataListFromString(data);
             }
             else
             {
-                Debug.Log("Failed load");
+                if (errorLogEmission) Debug.LogError("Failed load");
 
                 return null;
             }
@@ -303,7 +310,7 @@ namespace SHUU.Utils.Data
             if (!FileExists(address) || !TryReadText_FromFile(address, out string data)) return false;
             
 
-            Debug.Log("Loaded TXT: " + data);
+            if (debugLogEmission) Debug.Log("Loaded TXT: " + data);
 
             output = GetDataListFromString(data);
             return true;
@@ -319,7 +326,7 @@ namespace SHUU.Utils.Data
             if (!FileExists(address) || !TryReadText_FromFile(address, out string data)) return false;
             
 
-            Debug.Log("Loaded TXT: " + data);
+            if (debugLogEmission) Debug.Log("Loaded TXT: " + data);
 
             output = data;
             return true;
@@ -349,7 +356,7 @@ namespace SHUU.Utils.Data
 
             WriteText_ToFile(address, jsonString);
 
-            Debug.Log("Saved JSON: " + jsonString);
+            if (debugLogEmission) Debug.Log("Saved JSON: " + jsonString);
         }
         public static void SaveJsonFile_Basic<T>(T data, string customLocationFileName, bool persistentDataPath = true, bool prettyPrint = false)
         {
@@ -368,7 +375,7 @@ namespace SHUU.Utils.Data
 
             WriteText_ToFile(address, jsonString);
 
-            Debug.Log("Saved JSON: " + jsonString);
+            if (debugLogEmission) Debug.Log("Saved JSON: " + jsonString);
         }
         #endregion
 
@@ -444,13 +451,13 @@ namespace SHUU.Utils.Data
             if (HasPlayerPref(key))
             {
                 PlayerPrefs.DeleteKey(key);
-                Debug.Log($"Deleted PlayerPref [{key}]");
+                if (debugLogEmission) Debug.Log($"Deleted PlayerPref [{key}]");
             }
         }
         public static void ClearAllPlayerPrefs()
         {
             PlayerPrefs.DeleteAll();
-            Debug.Log("All PlayerPrefs cleared");
+            if (debugLogEmission) Debug.Log("All PlayerPrefs cleared");
         }
         #endregion
 
@@ -504,7 +511,7 @@ namespace SHUU.Utils.Data
         {
             if (!HasPlayerPref(key))
             {
-                Debug.LogWarning($"PlayerPref key not found: {key}");
+                if (warningLogEmission) Debug.LogWarning($"PlayerPref key not found: {key}");
                 return defaultValue;
             }
 
@@ -521,7 +528,7 @@ namespace SHUU.Utils.Data
                     return Json_LoadPlayerPref<T>(key);
 
                 default:
-                    Debug.LogError($"Unsupported PlayerPrefMode: {mode}");
+                    if (errorLogEmission) Debug.LogError($"Unsupported PlayerPrefMode: {mode}");
                     return defaultValue;
             }
         }
@@ -533,7 +540,7 @@ namespace SHUU.Utils.Data
         {
             if (string.IsNullOrEmpty(key))
             {
-                Debug.LogError("PlayerPref key is null or empty");
+                if (errorLogEmission) Debug.LogError("PlayerPref key is null or empty");
                 return;
             }
 
@@ -541,13 +548,13 @@ namespace SHUU.Utils.Data
             string json = JsonConvert.SerializeObject(data);
             PlayerPrefs.SetString(key, json);
 
-            Debug.Log($"Saved PlayerPref [{key}]: {json}");
+            if (debugLogEmission) Debug.Log($"Saved PlayerPref [{key}]: {json}");
         }
         public static void Json_SavePlayerPref_Default<T>(string key, T data)
         {
             if (string.IsNullOrEmpty(key))
             {
-                Debug.LogError("PlayerPref key is null or empty");
+                if (errorLogEmission) Debug.LogError("PlayerPref key is null or empty");
                 return;
             }
 
@@ -555,7 +562,7 @@ namespace SHUU.Utils.Data
             string json = JsonUtility.ToJson(data);
             PlayerPrefs.SetString(key, json);
 
-            Debug.Log($"Saved PlayerPref [{key}]: {json}");
+            if (debugLogEmission) Debug.Log($"Saved PlayerPref [{key}]: {json}");
         }
         #endregion
 
@@ -565,7 +572,7 @@ namespace SHUU.Utils.Data
         {
             if (!HasPlayerPref(key))
             {
-                Debug.LogWarning($"PlayerPref key not found: {key}");
+                if (warningLogEmission) Debug.LogWarning($"PlayerPref key not found: {key}");
                 return default;
             }
 
@@ -573,12 +580,12 @@ namespace SHUU.Utils.Data
             string json = PlayerPrefs.GetString(key);
             if (string.IsNullOrEmpty(json))
             {
-                Debug.Log($"Error loading PlayerPref: {key}");
+                if (errorLogEmission) Debug.LogError($"Error loading PlayerPref: {key}");
                 return default;
             }
             T data = JsonConvert.DeserializeObject<T>(json);
 
-            Debug.Log($"Loaded PlayerPref [{key}]: {json}");
+            if (debugLogEmission) Debug.Log($"Loaded PlayerPref [{key}]: {json}");
 
             return data;
         }
@@ -586,7 +593,7 @@ namespace SHUU.Utils.Data
         {
             if (!HasPlayerPref(key))
             {
-                Debug.LogWarning($"PlayerPref key not found: {key}");
+                if (warningLogEmission) Debug.LogWarning($"PlayerPref key not found: {key}");
                 return default;
             }
 
@@ -594,12 +601,12 @@ namespace SHUU.Utils.Data
             string json = PlayerPrefs.GetString(key);
             if (string.IsNullOrEmpty(json))
             {
-                Debug.Log($"Error loading PlayerPref: {key}");
+                if (errorLogEmission) Debug.LogError($"Error loading PlayerPref: {key}");
                 return default;
             }
             T data = JsonUtility.FromJson<T>(json);
 
-            Debug.Log($"Loaded PlayerPref [{key}]: {json}");
+            if (debugLogEmission) Debug.Log($"Loaded PlayerPref [{key}]: {json}");
 
             return data;
         }

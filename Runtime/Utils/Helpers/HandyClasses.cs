@@ -475,7 +475,7 @@ namespace SHUU.Utils.Helpers
             {
                 if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest instance...");
 
-                Destroy(this);
+                DestroyImmediate(this);
                 return;
             }
 

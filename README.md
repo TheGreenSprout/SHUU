@@ -32,6 +32,10 @@ To install SETB:
     - Feel free to modify some of the values that appear on these scripts (in the inspector window), they are made to be customized
 <br><br>
 
+⚠️ Theres some settings for this package that you can change. You can modify them at:
+    - Edit -> Project Settings -> SHUU Preferences
+<br><br>
+
 ⚠️ Currently, dialogue works but the portrait system is missing some features (and also the whole system hasn't been tested). The current diaogue sample scene is also entirely outdated.
 <br><br>
 
@@ -45,7 +49,7 @@ To install SETB:
 <br><br><br><br>
 
 ***
-### + Current Version: 3.6.1
+### + Current Version: 3.7.0
 ### - Update Date: 24-05-2026
 ### - Creation Date: 24-03-2025
 ***

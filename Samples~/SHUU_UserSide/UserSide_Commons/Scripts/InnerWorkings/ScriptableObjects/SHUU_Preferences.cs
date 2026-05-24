@@ -29,7 +29,7 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
         #region Preferences
 
         #region Input System
-        [Header("Input System")]
+        //[Header("Input System")]
         public bool inputSystem_debugLogEmission = false;
 
 
@@ -40,14 +40,14 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
 
 
         #region Handy Classes
-        [Header("Handy Classes")]
+        //[Header("Handy Classes")]
         public bool singleton_debugLogEmission = false;
         #endregion
 
 
 
-        #region Scene Management
-        [Header("Scene Loader")]
+        #region Scene Loader
+        //[Header("Scene Loader")]
         public string sceneLoader_fallbackSceneName = "ErrorScene";
         public string sceneLoader_loadingSceneName = "LoadingScene";
 
@@ -59,25 +59,33 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
 
 
 
+        #region Data Manager
+        //[Header("Data Manager")]
+        public bool dataManager_debugLogEmission = false;
+        public bool dataManager_warningLogEmission = false;
+        public bool dataManager_errorLogEmission = false;
+        #endregion
+
+
+
         #region Saving
-        [Header("Saving")]
+        //[Header("Saving")]
         public bool saving_debugLogEmission = false;
         #endregion
 
 
 
         #region Random System
-        [Header("Random System")]
+        //[Header("Random System")]
         public bool randomSystem_debugLogEmission = false;
         #endregion
 
 
 
         #region UI
-        [Header("UI")]
+        //[Header("UI")]
         public bool ui_debugLogEmission = false;
         #endregion
-
         
         #endregion
 
@@ -90,7 +98,7 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
             {
                 Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_Preferences)}.\nDestroying newest instance...");
 
-                Destroy(this);
+                DestroyImmediate(this);
                 return;
             }
 

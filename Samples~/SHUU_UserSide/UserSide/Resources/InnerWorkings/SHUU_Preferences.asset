@@ -12,3 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e191dbc296d3bd34c97b075e3f765e36, type: 3}
   m_Name: SHUU_Preferences
   m_EditorClassIdentifier: SproutingGames.Sprouts.HUU.UserSide.Commons::SHUU.UserSide.Commons.SHUU_Preferences
+  inputSystem_debugLogEmission: 0
+  _inputSystem_mapDisabledWarning_debugLogEmission: 0
+  singleton_debugLogEmission: 0
+  sceneLoader_fallbackSceneName: ErrorScene
+  sceneLoader_loadingSceneName: LoadingScene
+  sceneLoader_useLoadingScreenDefault: 1
+  sceneLoader_debugLogEmission: 0
+  dataManager_debugLogEmission: 0
+  dataManager_warningLogEmission: 1
+  dataManager_errorLogEmission: 1
+  saving_debugLogEmission: 0
+  randomSystem_debugLogEmission: 0
+  ui_debugLogEmission: 0

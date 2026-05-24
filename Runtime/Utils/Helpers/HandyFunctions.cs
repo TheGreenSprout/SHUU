@@ -315,6 +315,20 @@ namespace SHUU.Utils.Helpers
             var list = source as IList<T> ?? source.ToList();
             return list[UnityEngine.Random.Range(0, list.Count)];
         }
+        
+        
+        public static Dictionary<T, E> ToDictionary<T, E>(this IEnumerable<E> source, Func<E, T> getKey)
+        {
+            if (source == null || getKey == null) return null;
+            
+             
+            Dictionary<T, E> dict = new();
+
+            foreach (var item in source)
+                dict[getKey.Invoke(item)] = item;
+
+            return dict;
+        }
         #endregion
 
 
