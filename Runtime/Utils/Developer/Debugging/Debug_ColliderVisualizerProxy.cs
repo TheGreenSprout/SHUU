@@ -31,7 +31,10 @@ namespace SHUU.Utils.Developer.Debugging
         public bool Toggle_FillRender(bool? toggle = null) => toggle == null ? alwaysRenderFill = !alwaysRenderFill : alwaysRenderFill = toggle.Value;
 
         private float updateCollidersInterval;
-        private float updateCacheInterval;
+        private float rebuildCacheInterval;
+
+        private SHUU_Timer chacheColliders_timer = null;
+        private SHUU_Timer rebuildCache_timer = null;
 
         private float maxDistance;
 
@@ -67,7 +70,26 @@ namespace SHUU.Utils.Developer.Debugging
         [HideInInspector] public bool initialized;
 
 
-        private bool toggle = true;
+        private bool _toggle = false;
+        private bool toggle
+        {
+            get => _toggle;
+            set
+            {
+                if (value)
+                {
+                    Timer_CacheColliders();
+                    Timer_RebuildCache();
+                }
+                else
+                {
+                    chacheColliders_timer?.Cancel();
+                    rebuildCache_timer?.Cancel();
+                }
+
+                _toggle = value;
+            }
+        }
         public bool Toggle(bool? t = null) => t == null ? toggle = !toggle : toggle = t.Value;
         #endregion
         #endregion
@@ -86,7 +108,7 @@ namespace SHUU.Utils.Developer.Debugging
             this.alwaysRenderWire = alwaysRenderWire;
             this.alwaysRenderFill = alwaysRenderFill;
             this.updateCollidersInterval = updateCollidersInterval;
-            this.updateCacheInterval = updateCacheInterval;
+            rebuildCacheInterval = updateCacheInterval;
             this.maxDistance = maxDistance;
             this.defaultWireColor = defaultWireColor;
             this.defaultFillColor = defaultFillColor;
@@ -131,37 +153,11 @@ namespace SHUU.Utils.Developer.Debugging
         }
 
 
-        private bool invoked_colliders = false;
-        private bool invoked_rebuild = false;
         private void Update()
         {
             if (!initialized || activationKey == KeyCode.None) return;
 
             if (Input.GetKeyDown(activationKey)) Toggle();
-        }
-
-        void LateUpdate()
-        {
-            if (!initialized || !toggle) return;
-            
-            
-            if (updateCollidersInterval > 0)
-            {
-                if (!invoked_colliders)
-                {
-                    invoked_colliders = true;
-                    Invoke(nameof(Invoke_CacheColliders), updateCollidersInterval);
-                } 
-            }
-
-            if (updateCacheInterval > 0)
-            {
-                if (!invoked_rebuild)
-                {
-                    invoked_rebuild = true;
-                    Invoke(nameof(Invoke_RebuildCache), updateCacheInterval);
-                } 
-            }
         }
         #endregion
         
@@ -170,15 +166,15 @@ namespace SHUU.Utils.Developer.Debugging
         #region Logic
         
         #region Loop external
-        private void Invoke_CacheColliders()
+        private void Timer_CacheColliders()
         {
-            invoked_colliders = false;
+            if (updateCollidersInterval > 0) chacheColliders_timer = SHUU_Time.Timer(updateCollidersInterval, Timer_CacheColliders);
 
             CacheColliders();
         }
-        private void Invoke_RebuildCache()
+        private void Timer_RebuildCache()
         {
-            invoked_rebuild = false;
+            if (rebuildCacheInterval > 0) rebuildCache_timer = SHUU_Time.Timer(rebuildCacheInterval, Timer_RebuildCache);
 
             RebuildCache();
         }
