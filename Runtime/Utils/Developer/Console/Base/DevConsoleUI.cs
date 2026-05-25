@@ -15,7 +15,7 @@ namespace SHUU.Utils.Developer.Console
         private DevConsoleManager controller;
 
         [SerializeField] private TMP_InputField inputField;
-        [SerializeField] private ScrollRect scrollRect;
+        public ScrollRect scrollRect;
         [SerializeField] private TMP_Text outputText;
 
 

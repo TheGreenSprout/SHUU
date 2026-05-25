@@ -292,7 +292,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 0
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 5
+  m_ScrollSensitivity: 25
   m_Viewport: {fileID: 2188761553725986185}
   m_HorizontalScrollbar: {fileID: 2952465672682698740}
   m_VerticalScrollbar: {fileID: 5421397527257008702}
@@ -1197,7 +1197,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 5, y: 0.000008583069}
-  m_SizeDelta: {x: -10, y: 15}
+  m_SizeDelta: {x: -10, y: 5}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &5841285479985412780
 MonoBehaviour:

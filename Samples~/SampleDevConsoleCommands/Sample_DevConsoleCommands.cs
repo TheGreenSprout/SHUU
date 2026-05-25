@@ -189,6 +189,17 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
     [DevConsoleCommand("shuupath", "Displays the SHUU's persistent data path", "Information")]
     public static CommandReturn SHUUPath() => new CommandReturn($"SHUU persistent data path: {SHUU_PackageUtils.GetPath("General")}");
+
+
+    [DevConsoleCommand("consolescroll", "Changes the Developer Console's scroll sensitivity", "Information")]
+    public static CommandReturn ConsoleScroll(float scroll)
+    {
+        if (DevConsoleManager.instance == null || DevConsoleManager.instance.devConsoleUI == null)
+            return new CommandReturn(Color.red, "DevConsole or DevConsoleUI missing from scene.");
+
+        DevConsoleManager.instance.devConsoleUI.scrollRect.scrollSensitivity = scroll;
+        return new CommandReturn($"Developer Console scroll sensitivity set to: {scroll}");
+    }
     #endregion
 
     #endregion
@@ -220,7 +231,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
         return new CommandReturn(Color.green, "Debug collider wire render on top " + (visible.Value ? "enabled." : "disabled."));
     }
-    [DevConsoleCommand("collidersfill", "Toggles whether the fill of all colliders in the game render on top of everything or not")]
+    [DevConsoleCommand("collidersfill", "Toggles whether the fill of all colliders in the game render on top of everything or not", "Debug")]
     public static CommandReturn CollidersFill(OptionalParameter<bool> toggle)
     {
         bool? visible = toggle.TryGetValue(out bool t) ? SHUU_Debug.Toggle_DebugCollidersFillRender(t) : SHUU_Debug.Toggle_DebugCollidersFillRender();

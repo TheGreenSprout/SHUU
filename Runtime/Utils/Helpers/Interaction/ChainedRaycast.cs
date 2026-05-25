@@ -1,4 +1,8 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 
 using SHUU.Utils.UI;
 
@@ -10,26 +14,7 @@ namespace SHUU.Utils.Helpers.Interaction
     {
         #region Variables
         [Header("Chained Raycast Settings")]
-        [SerializeField] private Camera renderTexture_cam;
-
-
-        [SerializeField] private MeshRenderer rendererPlane;
-
-        [SerializeField] private RenderTexture renderTexture;
-
-
-
-        [SerializeField] protected float chained_interactionRange;
-
-
-        [SerializeField] protected LayerMask chained_layerMask;
-
-        [SerializeField] protected string[] chained_tagMask = new string[0];
-
-
-        [SerializeField] protected bool flipX = false;
-        [SerializeField] protected bool flipY = false;
-
+        [SerializeField] private List<ChainedUISurface> surfaces;
 
 
         [Tooltip("If not null, the input module will use this raycast.")]
@@ -43,12 +28,32 @@ namespace SHUU.Utils.Helpers.Interaction
 
 
 
+        #region Main
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (chainedInputModule == null) chainedInputModule = EventSystem.current.gameObject.GetComponent<ChainedInputModule>();
+        }
+        #endregion
+
+
+
         #region Logic
         protected override bool CastRay()
         {
-            if (!cam || !renderTexture_cam || !rendererPlane || !renderTexture)
+            if (!cam || !CleanSurfaces())
             {
                 ClearInteractHover(ref previousInact, modifyDynamicCursor);
+
+                return false;
+            }
+
+            if (chainedInputModule != null && chainedInputModule.BlockingUI())
+            {
+                ClearInteractHover(ref previousInact, modifyDynamicCursor);
+
+                chainedInputModule.SetExternalRaycast(false, Vector2.zero);
 
                 return false;
             }
@@ -59,25 +64,23 @@ namespace SHUU.Utils.Helpers.Interaction
 
             if (Physics.Raycast(ray, out hit, interactionRange, layerMask))
             {
-                if ((tagMask == null || tagMask.Length == 0 || tagMask.NonLINQ_Contains(hit.collider.tag)) && hit.collider.gameObject == rendererPlane.gameObject)
+                if (GetSurface(hit, out ChainedUISurface surface) && surface.detectionTagMask.Contains_Tag(hit.collider.tag))
                 {
                     Vector2 uv = hit.textureCoord;
-                    Vector2 renderTexturePoint;
 
-                    float x = flipX ? (1f - uv.x) : uv.x;
-                    float y = flipY ? (1f - uv.y) : uv.y;
+                    float x = surface.flipX ? (1f - uv.x) : uv.x;
+                    float y = surface.flipY ? (1f - uv.y) : uv.y;
 
-                    renderTexturePoint = new Vector2(x * renderTexture.width, y * renderTexture.height);
-
+                    Vector2 pointerPos = new Vector2(x * surface.renderTexture.width, y * surface.renderTexture.height);
 
                     inChain = true;
 
-                    chainedInputModule?.SetExternalRaycast(true, renderTexturePoint);
+                    chainedInputModule?.SetExternalRaycast(true, pointerPos, surface.raycaster);
 
 
-                    Ray renderTextureRay = renderTexture_cam.ScreenPointToRay(renderTexturePoint);
+                    Ray renderTextureRay = surface.renderCamera.ScreenPointToRay(pointerPos);
                     
-                    if (!InteractionRaycast(ref previousInact, renderTextureRay, chained_interactionRange, chained_layerMask, modifyDynamicCursor, chained_tagMask))
+                    if (!InteractionRaycast(ref previousInact, renderTextureRay, surface.interactionRange, surface.interactionLayer, modifyDynamicCursor, surface.interactionTagMask))
                     {
                         ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
@@ -123,6 +126,62 @@ namespace SHUU.Utils.Helpers.Interaction
 
             return true;
         }
+
+
+        private bool CleanSurfaces()
+        {
+            List<ChainedUISurface> ret = new();
+
+            foreach (var surface in surfaces)
+                if (surface.renderCamera != null && surface.rendererPlane != null && surface.renderTexture != null) ret.Add(surface);
+
+            return ret.Count != 0;
+        }
+
+        private bool GetSurface(RaycastHit hit, out ChainedUISurface surface)
+        {
+            surface = null;
+
+            foreach (var s in surfaces)
+            {
+                if (s.rendererPlane == null || hit.collider.gameObject != s.rendererPlane.gameObject) continue;
+
+                surface = s;
+                return true;
+            }
+
+            return false;
+        }
         #endregion
     }
+
+
+
+
+    #region Helper class
+    [Serializable]
+    public class ChainedUISurface
+    {
+        [Header("World Detection")]
+        public MeshRenderer rendererPlane;
+
+        public string[] detectionTagMask;
+
+        [Header("Render Texture")]
+        public Camera renderCamera;
+        public RenderTexture renderTexture;
+
+        [Header("UI")]
+        public GraphicRaycaster raycaster;
+
+        [Header("Options")]
+        public bool flipX;
+        public bool flipY;
+
+        [Header("3D Interaction")]
+        public float interactionRange = 100f;
+        public LayerMask interactionLayer;
+        public string[] interactionTagMask;
+    }
+    #endregion
 }

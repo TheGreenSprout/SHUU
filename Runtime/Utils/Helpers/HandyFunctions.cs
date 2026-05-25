@@ -403,7 +403,6 @@ namespace SHUU.Utils.Helpers
         #region Layers
         public static int ToLayerIndex(this LayerMask mask) => Mathf.RoundToInt(Mathf.Log(mask.value, 2));
 
-
         public static bool Contains_Layer(this LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
         #endregion
 
@@ -670,6 +669,23 @@ namespace SHUU.Utils.Helpers
 
 
         #region Interaction System
+        public static bool Contains_Tag(this IEnumerable<string> source, string item)
+        {
+            if (source == null) return true;
+            
+            int count = 0;
+            foreach (var x in source)
+            {
+                count++;
+                if (Equals(x, item)) return true;
+            }
+            
+            if (count == 0) return true;
+
+            return false;
+        }
+
+        
         public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
         {
             bool raycast;
@@ -737,8 +753,7 @@ namespace SHUU.Utils.Helpers
 
             if (!inact.CanBeInteracted()) return false;
 
-            if (tags == null || tags.Length == 0) return true;
-            else if (!tags.NonLINQ_Contains(hit.collider.tag)) return false;
+            if (!tags.Contains_Tag(hit.collider.tag)) return false;
 
 
             return true;

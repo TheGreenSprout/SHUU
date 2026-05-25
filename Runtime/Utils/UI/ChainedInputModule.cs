@@ -10,8 +10,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
-using SHUU.Utils.Helpers;
+using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.Utils.UI
 {
@@ -29,23 +30,8 @@ namespace SHUU.Utils.UI
 
 
         [Header("References")]
-        [SerializeField] private GraphicRaycaster mainUICanvasRaycaster;
-        [SerializeField] private GraphicRaycaster renderTextureRaycaster;
-
-
-        [Header("Internal Raycast Settings")]
-        [Tooltip("If true, module performs its own raycast. If false, waits for external injection.")]
-        [SerializeField] private bool useInternalRaycast = true;
-
-        [SerializeField] private Camera mainCamera;
-        [SerializeField] private RenderTexture renderTexture;
-        [SerializeField] private Collider renderPlaneCollider;
-        [SerializeField] private LayerMask renderPlane_layerMask = -1;
-        [SerializeField] private string[] renderPlane_tagMask;
-        [SerializeField] private float internalRayDistance = 100f;
-
-        [SerializeField] private bool flipX = false;
-        [SerializeField] private bool flipY = false;
+        [SerializeField] private List<GraphicRaycaster> externalCanvasRaycasters;
+        private GraphicRaycaster activeCanvasRaycaster;
 
 
 
@@ -80,15 +66,13 @@ namespace SHUU.Utils.UI
         {
             base.Awake();
 
+            externalCanvasRaycasters.Clean();
             LayerChange(false);
         }
 
 
         public override void Process()
         {
-            if (useInternalRaycast) InternalRaycast();
-            
-
             if (raycastHit && (Time.unscaledTime - lastExternalTime > externalTimeout)) raycastHit = false;
 
             usingChainedInput = raycastHit;
@@ -96,11 +80,18 @@ namespace SHUU.Utils.UI
             if (usingChainedInput) chainedMousePosition = externalPosition;
 
 
-            if (!hybrid && !usingChainedInput) return;
+            if (!usingChainedInput && !hybrid) return;
 
 
             base.Process();
 
+            if (Input.GetMouseButtonUp(0) && EventSystem.current != null)
+            {
+                GameObject selected = EventSystem.current.currentSelectedGameObject;
+
+                if (selected == null || selected.GetComponent<InputField>() == null && selected.GetComponent<TMP_InputField>() == null)
+                    EventSystem.current.SetSelectedGameObject(null);
+            }
 
             _blockMouseInputThisFrame = false;
         }
@@ -111,12 +102,8 @@ namespace SHUU.Utils.UI
         #region Logic
 
         #region Raycast Logic
-        private void SetRaycast(bool isValid, Vector2 uiPosition, bool internalCast)
+        private void SetRaycast(bool isValid, Vector2 uiPosition)
         {
-            if (internalCast && !useInternalRaycast) return;
-            if (!internalCast && useInternalRaycast) return;
-
-
             if (isValid && BlockingUI())
             {
                 raycastHit = false;
@@ -132,50 +119,45 @@ namespace SHUU.Utils.UI
                 lastExternalTime = Time.unscaledTime;
             }
         }
-
-        private bool BlockingUI()
+        
+        public bool BlockingUI()
         {
-            if (mainUICanvasRaycaster == null) return false;
-
             PointerEventData pointerData = new PointerEventData(eventSystem) { position = Input.mousePosition };
+
             var results = new List<RaycastResult>();
-            mainUICanvasRaycaster.Raycast(pointerData, results);
+
+            foreach (var raycaster in externalCanvasRaycasters)
+            {
+                if (raycaster == null) continue;
+
+                raycaster.Raycast(pointerData, results);
+            }
 
             return results.Count > 0;
         }
 
 
-        public void SetExternalRaycast(bool isValid, Vector2 uiPosition) => SetRaycast(isValid, uiPosition, false);
-
-        protected virtual void InternalRaycast()
+        public void SetExternalRaycast(bool isValid, Vector2 uiPosition, GraphicRaycaster raycaster = null)
         {
-            if (!useInternalRaycast) return;
-
-            if (!mainCamera || !renderPlaneCollider || !renderTexture) SetRaycast(false, Vector2.zero, true);
-
-
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-
-            if (Physics.Raycast(ray, out hit, internalRayDistance, renderPlane_layerMask) && (renderPlane_tagMask == null || renderPlane_tagMask.Length == 0 || renderPlane_tagMask.NonLINQ_Contains(hit.collider.tag)))
+            if (!isValid || raycaster == null)
             {
-                if (hit.collider == renderPlaneCollider)
-                {
-                    Vector2 uv = hit.textureCoord;
-                    Vector2 renderTexturePoint;
-
-                    float x = flipX ? (1f - uv.x) : uv.x;
-                    float y = flipY ? (1f - uv.y) : uv.y;
-
-                    renderTexturePoint = new Vector2(x * renderTexture.width, y * renderTexture.height);
-
-
-                    SetRaycast(true, renderTexturePoint, true);
-                }
-                else SetRaycast(false, Vector2.zero, true);
+                ClearExternalRaycast();
+                return;
             }
-            else SetRaycast(false, Vector2.zero, true);
+
+
+            if (activeCanvasRaycaster != raycaster) ForceReleaseAllMouseButtons();
+
+            activeCanvasRaycaster = raycaster;
+
+            SetRaycast(true, uiPosition);
+        }
+
+        public void ClearExternalRaycast()
+        {
+            SetRaycast(false, Vector2.zero);
+
+            activeCanvasRaycaster = null;
         }
         #endregion
 
@@ -229,7 +211,6 @@ namespace SHUU.Utils.UI
                 _middleData.eligibleForClick = false;
                 _mouseState.SetButtonState(PointerEventData.InputButton.Middle, PointerEventData.FramePressState.Released, _middleData);
                 #endregion
-                
 
                 _blockMouseInputThisFrame = false;
                 return _mouseState;
@@ -242,49 +223,92 @@ namespace SHUU.Utils.UI
             Vector2 position = chainedMousePosition;
             var mouseState = new MouseState();
 
+
             #region Left button
             PointerEventData leftData;
             GetPointerData(kMouseLeftId, out leftData, true);
-            leftData.Reset();
-            leftData.delta = position - leftData.position;
+
+            Vector2 previousLeftPos = leftData.position;
+
             leftData.position = position;
+            leftData.delta = position - previousLeftPos;
             leftData.scrollDelta = input.mouseScrollDelta;
             leftData.button = PointerEventData.InputButton.Left;
 
-            eventSystem.RaycastAll(leftData, m_RaycastResultCache);
-            leftData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
             m_RaycastResultCache.Clear();
-            mouseState.SetButtonState(PointerEventData.InputButton.Left, StateForMouseButton(0), leftData);
+
+            if (activeCanvasRaycaster != null) activeCanvasRaycaster.Raycast(leftData, m_RaycastResultCache);
+
+            leftData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+
+            GameObject currentOverGo = leftData.pointerCurrentRaycast.gameObject;
+            HandlePointerExitAndEnter(leftData, currentOverGo);
+
+            m_RaycastResultCache.Clear();
+
+            mouseState.SetButtonState(
+                PointerEventData.InputButton.Left,
+                StateForMouseButton(0),
+                leftData
+            );
             #endregion
 
             #region Right button
             PointerEventData rightData;
             GetPointerData(kMouseRightId, out rightData, true);
-            rightData.Reset();
-            rightData.delta = position - rightData.position;
+
+            Vector2 previousRightPos = rightData.position;
+
             rightData.position = position;
+            rightData.delta = position - previousRightPos;
             rightData.scrollDelta = input.mouseScrollDelta;
             rightData.button = PointerEventData.InputButton.Right;
 
-            eventSystem.RaycastAll(rightData, m_RaycastResultCache);
-            rightData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
             m_RaycastResultCache.Clear();
-            mouseState.SetButtonState(PointerEventData.InputButton.Right, StateForMouseButton(1), rightData);
+
+            if (activeCanvasRaycaster != null)activeCanvasRaycaster.Raycast(rightData, m_RaycastResultCache);
+
+            rightData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+
+            currentOverGo = rightData.pointerCurrentRaycast.gameObject;
+            HandlePointerExitAndEnter(rightData, currentOverGo);
+
+            m_RaycastResultCache.Clear();
+
+            mouseState.SetButtonState(
+                PointerEventData.InputButton.Right,
+                StateForMouseButton(1),
+                rightData
+            );
             #endregion
 
             #region Middle button
             PointerEventData middleData;
             GetPointerData(kMouseMiddleId, out middleData, true);
-            middleData.Reset();
-            middleData.delta = position - middleData.position;
+
+            Vector2 previousMiddlePos = middleData.position;
+
             middleData.position = position;
+            middleData.delta = position - previousMiddlePos;
             middleData.scrollDelta = input.mouseScrollDelta;
             middleData.button = PointerEventData.InputButton.Middle;
 
-            eventSystem.RaycastAll(middleData, m_RaycastResultCache);
-            middleData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
             m_RaycastResultCache.Clear();
-            mouseState.SetButtonState(PointerEventData.InputButton.Middle, StateForMouseButton(2), middleData);
+
+            if (activeCanvasRaycaster != null)activeCanvasRaycaster.Raycast(middleData, m_RaycastResultCache);
+
+            middleData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+
+            currentOverGo = middleData.pointerCurrentRaycast.gameObject;
+            HandlePointerExitAndEnter(middleData, currentOverGo);
+
+            m_RaycastResultCache.Clear();
+
+            mouseState.SetButtonState(
+                PointerEventData.InputButton.Middle,
+                StateForMouseButton(2),
+                middleData
+            );
             #endregion
 
 
@@ -356,9 +380,9 @@ namespace SHUU.Utils.UI
         {
             if (releaseClickHoldOnLayerChange) ForceReleaseAllMouseButtons();
 
-            if (renderTextureRaycaster != null)
+            if (activeCanvasRaycaster != null)
             {
-                renderTextureRaycaster.enabled = active;
+                activeCanvasRaycaster.enabled = active;
 
                 if (!active && eventSystem != null) eventSystem.SetSelectedGameObject(null);
             }
