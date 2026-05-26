@@ -18,7 +18,7 @@ namespace SHUU.Utils.Helpers
 
         [Tooltip("If this variable is 0, there won't be a minimum distance.")]
         [SerializeField] private float minDistance = 0f;
-        [Tooltip("This controls whether the object is kept at the minimum distance when Closer or not.")]
+        [Tooltip("This controls whether the object is kept at the minimum distance when closer or not.")]
         [SerializeField] private bool snapToMinDistance = false;
 
         [Tooltip("If this variable is 0, there won't be a maximum distance.")]
@@ -31,6 +31,11 @@ namespace SHUU.Utils.Helpers
 
 
         [SerializeField] private float positionSmoothTime = 0.3f;
+
+
+        [Header("Snap Buffers")]
+        [SerializeField] private float positionBuffer = 0.01f;
+        [SerializeField] private float rotationBuffer = 0.5f;
         #endregion
 
 
@@ -51,7 +56,22 @@ namespace SHUU.Utils.Helpers
 
                 if (maxDistance > 0f && distance > maxDistance) transform.position = target.position - toTarget.normalized * maxDistance;
 
-                if (distance > minDistance || snapToMinDistance) transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _posVelocity, positionSmoothTime);
+                /*if (distance > minDistance || snapToMinDistance) transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _posVelocity, positionSmoothTime);*/
+                if (distance > minDistance || snapToMinDistance)
+                {
+                    float remainingDistance = Vector3.Distance(transform.position, desiredPos);
+
+                    if (remainingDistance <= positionBuffer) transform.position = desiredPos;
+                    else
+                    {
+                        transform.position = Vector3.SmoothDamp(
+                            transform.position,
+                            desiredPos,
+                            ref _posVelocity,
+                            positionSmoothTime
+                        );
+                    }
+                }
             }
         }
 
@@ -62,9 +82,26 @@ namespace SHUU.Utils.Helpers
             if (followSmoothTime == 0f) transform.rotation = target.rotation;
             else
             {
-                float t = 1f - Mathf.Exp(-Time.deltaTime / followSmoothTime);
+                /*float t = 1f - Mathf.Exp(-Time.deltaTime / followSmoothTime);
 
-                transform.rotation = Quaternion.Slerp(transform.rotation, target.rotation, t);
+                transform.rotation = Quaternion.Slerp(transform.rotation, target.rotation, t);*/
+
+                float angleDifference = Quaternion.Angle(
+                    transform.rotation,
+                    target.rotation
+                );
+
+                if (angleDifference <= rotationBuffer) transform.rotation = target.rotation;
+                else
+                {
+                    float t = 1f - Mathf.Exp(-Time.fixedDeltaTime / followSmoothTime);
+
+                    transform.rotation = Quaternion.Slerp(
+                        transform.rotation,
+                        target.rotation,
+                        t
+                    );
+                }
             }
         }
         #endregion
