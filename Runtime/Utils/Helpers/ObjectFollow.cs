@@ -39,36 +39,32 @@ namespace SHUU.Utils.Helpers
         #region Main
         private void LateUpdate()
         {
-            if (target == null) return;
+            if (target == null || !positionFollow) return;
 
-            if (followSmoothTime == 0f) if (positionFollow) transform.position = target.position;
+            if (followSmoothTime == 0f) transform.position = target.position;
             else
             {
-                if (positionFollow)
-                {
-                    Vector3 toTarget = target.position - transform.position;
-                    float distance = toTarget.magnitude;
+                Vector3 toTarget = target.position - transform.position;
+                float distance = toTarget.magnitude;
 
-                    Vector3 desiredPos = target.position - toTarget.normalized * minDistance;
+                Vector3 desiredPos = target.position - toTarget.normalized * minDistance;
 
-                    if (maxDistance > 0f && distance > maxDistance) transform.position = target.position - toTarget.normalized * maxDistance;
+                if (maxDistance > 0f && distance > maxDistance) transform.position = target.position - toTarget.normalized * maxDistance;
 
-                    if (distance > minDistance || snapToMinDistance)
-                        transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _posVelocity, positionSmoothTime);
-                }
+                if (distance > minDistance || snapToMinDistance) transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _posVelocity, positionSmoothTime);
             }
         }
 
         private void FixedUpdate()
         {
-            if (target == null) return;
+            if (target == null || !rotationFollow) return;
 
-            if (followSmoothTime == 0f) if (rotationFollow) transform.rotation = target.rotation;
+            if (followSmoothTime == 0f) transform.rotation = target.rotation;
             else
             {
                 float t = 1f - Mathf.Exp(-Time.deltaTime / followSmoothTime);
 
-                if (rotationFollow) transform.rotation = Quaternion.Slerp(transform.rotation, target.rotation, t);
+                transform.rotation = Quaternion.Slerp(transform.rotation, target.rotation, t);
             }
         }
         #endregion

@@ -49,7 +49,7 @@ To install SETB:
 <br><br><br><br>
 
 ***
-### + Current Version: 3.8.4
+### + Current Version: 3.8.5
 ### - Update Date: 26-05-2026
 ### - Creation Date: 24-03-2025
 ***
