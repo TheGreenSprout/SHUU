@@ -34,6 +34,9 @@ namespace SHUU.Utils.Helpers.Interaction
             base.Awake();
 
             if (chainedInputModule == null) chainedInputModule = EventSystem.current.gameObject.GetComponent<ChainedInputModule>();
+
+            foreach (var surface in surfaces)
+                if (surface.raycaster != null) surface.raycaster.enabled = false;
         }
         #endregion
 
