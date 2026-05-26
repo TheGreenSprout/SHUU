@@ -5,7 +5,7 @@ namespace SHUU.Utils.Helpers
     public class LookAtObj : MonoBehaviour
     {
         #region Variables
-        [SerializeField] private Transform target;
+        public Transform target;
 
         [Tooltip("Instead of looking at an object, the object looks in the direction it is moving. Target will not be used if this is true.")]
         [SerializeField] private bool lookAtMovementDirection = false;

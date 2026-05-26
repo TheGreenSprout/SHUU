@@ -10,7 +10,7 @@ namespace SHUU.Utils.Helpers
         [SerializeField] private bool rotationFollow = true;
 
 
-        [SerializeField] private Transform target;
+        public Transform target;
 
         // how long (in seconds) it takes to get about 63% of the way there
         [Tooltip("If this variable is 0, the object will instantly follow the target.")]
