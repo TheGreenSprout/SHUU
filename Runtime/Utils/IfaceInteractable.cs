@@ -1,3 +1,5 @@
+using SHUU.Utils.Helpers.Interaction;
+
 namespace SHUU.Utils
 {
     #region XML doc
@@ -32,7 +34,7 @@ namespace SHUU.Utils
         public void ReleaseInteract();
 
 
-        public bool? InteractKey() => null;
+        public InteractKeyState InteractKey() => InteractKeyState.Undefined;
         #endregion
         
 

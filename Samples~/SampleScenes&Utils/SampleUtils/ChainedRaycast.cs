@@ -1,16 +1,11 @@
 using UnityEngine;
 
-using SHUU.Utils.Helpers.Interaction;
 using SHUU.Utils;
+using SHUU.Utils.Helpers.Interaction;
 
-namespace SHUU.Samples.SampleScenesAndUtils.SampleUtils
+namespace SHUU.Samples
 {
-    #region XML doc
-    /// <summary>
-    /// Example script of how to code a basic interaction raycast using the SproutsHUU's interaction system.
-    /// </summary>
-    #endregion
-    public class InteractionRaycast : InteractionRaycastLogic
+    public class ChainedRaycast : ChainedRaycastLogic
     {
         #region Variables
         [SerializeField] private KeyCode[] interactKeys = new KeyCode[] { KeyCode.E };

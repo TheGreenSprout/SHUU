@@ -10,7 +10,7 @@ using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.Utils.Helpers.Interaction
 {
-    public class ChainedRaycast : InteractionRaycastLogic
+    public abstract class ChainedRaycastLogic : InteractionRaycastLogic
     {
         #region Variables
         [Header("Chained Raycast Settings")]

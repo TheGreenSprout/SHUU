@@ -156,7 +156,7 @@ namespace SHUU.Utils.Developer.Debugging
         {
             if (factory == null) return;
 
-            factory.GetLog(proxy?.content, logString, color);
+            factory?.GetLog(proxy?.content, logString, color);
 
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(proxy?.content);
@@ -224,7 +224,9 @@ namespace SHUU.Utils.Developer.Debugging
 
         public Debug_LogMessage GetLog(RectTransform content, string logString, Color color)
         {
-            Debug_LogMessage instance = pool.Get().Init(logString, color, pool);
+            Debug_LogMessage instance = pool?.Get().Init(logString, color, pool);
+
+            if (instance == null) return null;
 
             instance.gameObject.transform.SetParent(content, false);
 

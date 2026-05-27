@@ -4,7 +4,7 @@ using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.Utils.Helpers.Interaction
 {
-    public class InteractionRaycastLogic : MonoBehaviour
+    public abstract class InteractionRaycastLogic : MonoBehaviour
     {
         #region Variables
         [Header("Raycast Settings")]
@@ -59,8 +59,8 @@ namespace SHUU.Utils.Helpers.Interaction
 
         protected virtual void ReleaseInteract()
         {
-            if (holdInact != null && previousInact == null) holdInact?.ReleaseInteract();
-            else previousInact?.ReleaseInteract();
+            holdInact?.ReleaseInteract();
+            previousInact?.ReleaseInteract();
 
             if (holdInact != null) holdInact = null;
         }
@@ -70,21 +70,21 @@ namespace SHUU.Utils.Helpers.Interaction
         {
             if (previousInact != null)
             {
-                bool? inact = previousInact?.InteractKey();
-                inact = inact ?? InteractKey(previousInact);
+                InteractKeyState? inact = holdInact?.InteractKey();
+                inact = inact != null && inact.Value != InteractKeyState.Undefined ? inact : InteractKey(holdInact);
 
-                if (inact != null)
+                if (inact != null && inact.Value != InteractKeyState.Undefined)
                 {
-                    if (inact.Value) Interact();
-                    else ReleaseInteract();
+                    if (inact.Value == InteractKeyState.Press) Interact();
+                    else if (inact.Value == InteractKeyState.Release) ReleaseInteract();
                 }
             }
             else if (holdInact != null)
             {
-                bool? inact = holdInact?.InteractKey();
-                inact = inact ?? InteractKey(holdInact);
+                InteractKeyState? inact = holdInact?.InteractKey();
+                inact = inact != null && inact.Value != InteractKeyState.Undefined ? inact : InteractKey(holdInact);
 
-                if (inact != null && !inact.Value)
+                if (inact != null && inact.Value != InteractKeyState.Undefined && inact.Value == InteractKeyState.Release)
                 {
                     ReleaseInteract();
 
@@ -97,7 +97,20 @@ namespace SHUU.Utils.Helpers.Interaction
 
 
         #region Override points
-        protected virtual bool? InteractKey(IfaceInteractable target) => null;
+        protected abstract InteractKeyState InteractKey(IfaceInteractable target);
         #endregion
     }
+
+
+
+
+    #region Helper Class
+    public enum InteractKeyState
+    {
+        Undefined,
+        Idle,
+        Press,
+        Release
+    }
+    #endregion
 }

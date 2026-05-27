@@ -135,7 +135,7 @@ namespace SHUU.Utils.Helpers
             }
             else return GetOldestRecyclable();
 
-            node.instance.gameObject.SetActive(true);
+            node?.instance?.gameObject?.SetActive(true);
             inUse.Add(node);
 
             return node.instance;
