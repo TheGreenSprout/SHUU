@@ -70,8 +70,8 @@ namespace SHUU.Utils.Helpers.Interaction
         {
             if (previousInact != null)
             {
-                InteractKeyState? inact = holdInact?.InteractKey();
-                inact = inact != null && inact.Value != InteractKeyState.Undefined ? inact : InteractKey(holdInact);
+                InteractKeyState? inact = previousInact?.InteractKey();
+                inact = inact != null && inact.Value != InteractKeyState.Undefined ? inact : InteractKey(previousInact);
 
                 if (inact != null && inact.Value != InteractKeyState.Undefined)
                 {
