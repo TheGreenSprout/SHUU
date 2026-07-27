@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 using SHUU.Utils.Helpers;
@@ -33,40 +34,40 @@ namespace SHUU.Utils.Developer.Debugging
         private bool colliderVisualizerEnabled;
         [SerializeField] private bool beginEnabled = false;
 
-        [SerializeField] private KeyCode activationKey = KeyCode.None;
+        public KeyCode activationKey = KeyCode.None;
+        public string activationActionPath = "Developer/Colliders_Toggle";
 
 
         [Header("Rendering")]
-        [SerializeField] private Shader matShader;
+        public Shader matShader;
 
         [Tooltip("If true the wire will be rendered on top of all geometry.")]
-        [SerializeField] private bool alwaysRenderWire = false;
+        public bool alwaysRenderWire = false;
         [Tooltip("If true the fill will be rendered on top of all geometry.")]
-        [SerializeField] private bool alwaysRenderFill = false;
+        public bool alwaysRenderFill = false;
 
         [Tooltip("If 0, the colliders will have to be updated manually via CacheColliders() or CacheReload().")]
-        [SerializeField] private float updateCollidersInterval = 5f;
+        public float updateCollidersInterval = 5f;
         [Tooltip("If 0, the colliders will have to be updated manually via RebuildCache() or CacheReload().")]
-        [SerializeField] private float updateCacheInterval = 0.15f;
+        public float rebuildCacheInterval = 0.15f;
 
         [Tooltip("Colliders with a distance from the Camera.main greater than this will not be rendered. If 0, there will be no distance limit.")]
-        [SerializeField] [Min(0)] private float maxDistance = 80f;
+        [Min(0)] public float maxDistance = 80f;
 
 
         [Header("Colors")]
-        [SerializeField] private Color defaultWireColor = Color.green;
-        [SerializeField] private Color defaultFillColor = new(0, 0, 0, 0);
+        public Color defaultWireColor = Color.green;
+        public Color defaultFillColor = new(0, 0, 0, 0);
 
-        [Range(0f, 1f)] [SerializeField] private float triggerAlphaMultiplier = 0.6f;
-        [Range(0f, 1f)] [SerializeField] private float disabledAlphaMultiplier = 0.3f;
+        [Range(0f, 1f)] public float triggerAlphaMultiplier = 0.6f;
+        [Range(0f, 1f)] public float disabledAlphaMultiplier = 0.3f;
 
 
         [Header("Overrides")]
-        [SerializeField] private LayerMask excludedLayers;
-        [SerializeField] private List<string> excludedTags = new();
+        public LayerMask excludedLayers;
+        public TagMask excludedTags = new();
 
-        [SerializeField] private List<LayerWireColor> layerWireColors = new();
-        [SerializeField] private List<TagFillColor> tagFillColors = new();
+        public List<CustomColors> customColors = new();
         #endregion
 
 
@@ -80,15 +81,12 @@ namespace SHUU.Utils.Developer.Debugging
         {
             if (!proxy) return;
 
-
-            if (colliderVisualizerEnabled)
-                proxy.Init(activationKey, matShader, alwaysRenderWire, alwaysRenderFill, updateCollidersInterval, updateCacheInterval, maxDistance, defaultWireColor, defaultFillColor, triggerAlphaMultiplier, disabledAlphaMultiplier, excludedLayers, excludedTags, layerWireColors, tagFillColors, beginEnabled);
+            if (colliderVisualizerEnabled) proxy.Init(this, beginEnabled);
         }
 
         private void OnProxyRemoved(Debug_ColliderVisualizerProxy proxy)
         {
             if (!proxy) return;
-
 
             if (colliderVisualizerEnabled) proxy.initialized = false;
         }
@@ -103,29 +101,31 @@ namespace SHUU.Utils.Developer.Debugging
         public bool? Toggle_FillRender(bool? toggle = null) => proxy && colliderVisualizerEnabled ? proxy.Toggle_FillRender(toggle) : null;
 
 
-        public static void CacheReload() => instance?.proxy?.CacheReload();
+        public void CacheReload() => proxy?.CacheReload();
 
-        public static void CacheColliders() => instance?.proxy?.CacheColliders();
-        public static void RebuildCache() => instance?.proxy?.RebuildCache();
+        public void CacheColliders() => proxy?.CacheColliders();
+        public void RebuildCache() => proxy?.RebuildCache();
         #endregion
     }
 
 
 
 
-    #region Data classes
-    [System.Serializable]
-    public class LayerWireColor
+    #region Helper classes
+    [Serializable]
+    public class CustomColors
     {
-        public LayerMask layers;
+        public LayerMask layerMask = 0;
+        public TagMask tagMask = TagMask.Nothing;
+
+
+        [Tooltip("If true, both layer and tag must match. If false, either can match.")]
+        public bool useAndMatching = false;
+
+        public bool overrideWireColor = true;
         public Color wireColor;
-    }
 
-
-    [System.Serializable]
-    public class TagFillColor
-    {
-        public List<string> tags = new();
+        public bool overrideFillColor = true;
         public Color fillColor;
     }
     #endregion

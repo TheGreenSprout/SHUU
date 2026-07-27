@@ -177,13 +177,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handleGameobject: 0
   beginEnabled: 0
-  activationKey: 282
+  activationKey: 0
   matShader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}
   alwaysRenderWire: 0
   alwaysRenderFill: 0
-  updateCollidersInterval: 5
-  updateCacheInterval: 0.15
-  maxDistance: 80
+  updateCollidersInterval: 0.1
+  rebuildCacheInterval: 0.05
+  maxDistance: 0
   defaultWireColor: {r: 0, g: 1, b: 0, a: 0.34901962}
   defaultFillColor: {r: 0, g: 1, b: 0, a: 0.078431375}
   triggerAlphaMultiplier: 0.6
@@ -191,6 +191,6 @@ MonoBehaviour:
   excludedLayers:
     serializedVersion: 2
     m_Bits: 0
-  excludedTags: []
-  layerWireColors: []
-  tagFillColors: []
+  excludedTags:
+    mask: 0
+  customColors: []

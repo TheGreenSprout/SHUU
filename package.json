@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "3.9.1",
+  "version": "4.2.0",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
@@ -21,29 +21,9 @@
       "path": "Samples~/SHUU_UserSide"
     },
     {
-      "displayName": "Basic Dev Console",
-      "description": "Prefabs and scripts that implement the basic developer console.",
-      "path": "Samples~/Basic_DevConsole"
-    },
-    {
-      "displayName": "Input System Dev Console",
-      "description": "Prefabs and scripts that implement the input system onto the developer console (commands included).",
-      "path": "Samples~/InputSystem_DevConsole"
-    },
-    {
-      "displayName": "Sample Dev Console Commands",
-      "description": "A set of sample useful commands for the developer console.",
-      "path": "Samples~/SampleDevConsoleCommands"
-    },
-    {
-      "displayName": "Sample Input System Binding Maps",
-      "description": "A set of simple input binding maps.",
-      "path": "Samples~/SampleInputSystemBindingMaps"
-    },
-    {
-      "displayName": "Input System Rebinding",
-      "description": "A set of scripts and UI prefabs that make rebinding inputs easy for the player.",
-      "path": "Samples~/SampleInputSystem_Rebinding"
+      "displayName": "Dev Console",
+      "description": "Prefabs and scripts that implement the developer console.",
+      "path": "Samples~/DevConsole"
     },
     {
       "displayName": "Settings System Menu",
@@ -53,7 +33,7 @@
     {
       "displayName": "Simple UIRing Mouse Cursor",
       "description": "Simple Mouse Cursor using UIRing.",
-      "path": "Samples~/SampleScenes&Utils/UIRing_MouseCursor"
+      "path": "Samples~/UIRing_MouseCursor"
     },
     {
       "displayName": "Sample Scenes & Utils",

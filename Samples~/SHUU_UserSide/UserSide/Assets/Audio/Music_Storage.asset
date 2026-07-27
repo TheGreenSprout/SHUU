@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f527367f05aa4104d914fc609eadf4cd, type: 3}
   m_Name: Music_Storage
   m_EditorClassIdentifier: 
-  alMusic: []
+  allMusic: []

@@ -1,4 +1,9 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
 {
@@ -14,7 +19,7 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
         {
             get
             {
-                if (_instance == null) _instance = Resources.Load<SHUU_Preferences>("InnerWorkings/SHUU_Preferences");
+                if (_instance == null) _instance = Resources.Load<SHUU_Preferences>("SHUU/InnerWorkings/Preferences/SHUU_Preferences");
 
                 return _instance;
             }
@@ -26,15 +31,49 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
 
 
 
+        #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Init() => _ = instance;
+
+
+        protected virtual void OnEnable()
+        {
+            if (_instance != null && _instance != this)
+            {
+#if UNITY_EDITOR
+                Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_Preferences)}.\nRecorded instance: {AssetDatabase.GetAssetPath(_instance)}\nRepeated instance:{AssetDatabase.GetAssetPath(this)}\nDestroying newest instance...");
+#else
+                Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_Preferences)}.\nDestroying newest instance...");
+#endif
+
+                DestroyImmediate(this);
+                return;
+            }
+
+            _instance = this;
+        }
+        #endregion
+
+
+
         #region Preferences
 
         #region Input System
         //[Header("Input System")]
-        public bool inputSystem_debugLogEmission = false;
+        [SerializeField] public InputActionAsset inputSystem_actionAsset;
 
+
+        public bool inputSystem_debugLogEmission = false;
 
         [SerializeField] private bool _inputSystem_mapDisabledWarning_debugLogEmission = false;
         public bool inputSystem_mapDisabledWarning_debugLogEmission => inputSystem_debugLogEmission && _inputSystem_mapDisabledWarning_debugLogEmission;
+        #endregion
+
+
+
+        #region Settings System
+        //[Header("Settings System")]
+        public bool settingsSystem_debugLogEmission = false;        
         #endregion
 
 
@@ -87,23 +126,6 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
         public bool ui_debugLogEmission = false;
         #endregion
         
-        #endregion
-
-
-
-        #region Main
-        protected virtual void OnEnable()
-        {
-            if (_instance != null && _instance != this)
-            {
-                Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_Preferences)}.\nDestroying newest instance...");
-
-                DestroyImmediate(this);
-                return;
-            }
-
-            _instance = this;
-        }
         #endregion
     }
 }

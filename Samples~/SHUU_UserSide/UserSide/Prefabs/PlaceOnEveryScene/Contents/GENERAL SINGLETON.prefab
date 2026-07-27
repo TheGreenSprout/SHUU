@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7337269758504886773}
   - component: {fileID: 3621331233939891034}
+  - component: {fileID: 406710051447805445}
+  - component: {fileID: 8875129942504313082}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -44,6 +46,87 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6fd702d53dd50045aba148f04b34fb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &406710051447805445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 663234805260778511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80351bc32a61cb247a6a26360805cc33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.PersistantInfo.PersistantSettings_Handler
+  settingsUpdate:
+  - settingsData: {fileID: 11400000, guid: 3c09ce1e8761b574894fc95aad843abf, type: 2}
+    maps:
+    - mapName: Video
+      items:
+      - field: Fullscreen Mode
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide
+              m_MethodName: FullscreenMode_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: Resolution
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide
+              m_MethodName: ResolutionIndex_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: Quality
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide
+              m_MethodName: QualityIndex_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+--- !u!114 &8875129942504313082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 663234805260778511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9187119eaa0945343bb306295ad820ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU.UserSide::SampleSettingsUpdater
+  fetchResolutionsOnFirstStart: 1
+  settings: {fileID: 11400000, guid: 3c09ce1e8761b574894fc95aad843abf, type: 2}
+  resolutionMapName: Video
+  resolutionIndexField: Resolution
 --- !u!1 &8326968758999774680
 GameObject:
   m_ObjectHideFlags: 0
@@ -90,6 +173,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.PersistantInfo.IdentifierSingleton
   identifier: General_Singleton
+  persistantSingleton: 1
+  handleGameobject: 1
   onCreation:
     m_PersistentCalls:
       m_Calls:
@@ -105,7 +190,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-  persistantSingleton: 1
   bridges: -1
   bridgeFree_Scenes:
   - LoadingScene

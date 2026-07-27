@@ -2,44 +2,35 @@ using System;
 using TMPro;
 using UnityEngine;
 
-using SHUU.Utils.SettingsSytem;
-
 public class SettingsMenu_Header : MonoBehaviour
 {
     #region Variables
     [SerializeField] private TMP_Text label;
 
+    [SerializeField] private GameObject restoreButton;
 
-    private SettingsData data;
 
-    private Action<SettingsData> onRestoreDefault;
+    private Action onRestore;
     #endregion
 
 
 
 
     #region Main
-    public void Init(SettingsData data, Action<SettingsData> callback)
+    // onRestore = null → hides the restore button
+    public void Init(string name, Action onRestore = null)
     {
-        this.data = data;
+        label.text = name;
+        this.onRestore = onRestore;
 
-        label.text = data.settingsName;
-
-
-        onRestoreDefault = callback;
+        if (restoreButton != null) restoreButton.SetActive(onRestore != null);
     }
-
-    public void Init(string name) => label.text = name;
     #endregion
 
 
 
-    #region Logic
-    public void ResetToDefault()
-    {
-        data?.RestoreDefaults();
 
-        onRestoreDefault?.Invoke(data);
-    }
+    #region Logic
+    public void ResetToDefault() => onRestore?.Invoke();
     #endregion
 }

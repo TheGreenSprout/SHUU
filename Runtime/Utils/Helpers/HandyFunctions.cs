@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using System.Linq;
 using UnityEngine.UI;
-using System.Collections;
+using System.Text;
 
 namespace SHUU.Utils.Helpers
 {
@@ -23,6 +23,19 @@ namespace SHUU.Utils.Helpers
         
 
         public static event Action<CursorLockMode> OnCursorStateChange;
+
+
+
+        public static readonly HashSet<string> csharpKeywords = new()
+        {
+            "abstract","as","base","bool","break","byte","case","catch","char","checked","class","const","continue",
+            "decimal","default","delegate","do","double","else","enum","event","explicit","extern","false","finally",
+            "fixed","float","for","foreach","goto","if","implicit","in","int","interface","internal","is","lock",
+            "long","namespace","new","null","object","operator","out","override","params","private","protected",
+            "public","readonly","ref","return","sbyte","sealed","short","sizeof","stackalloc","static","string",
+            "struct","switch","this","throw","true","try","typeof","uint","ulong","unchecked","unsafe","ushort",
+            "using","virtual","void","volatile","while"
+        };
         #endregion
 
 
@@ -90,17 +103,67 @@ namespace SHUU.Utils.Helpers
         public static string GetColorOpenTag_RichText(this Color color) => "<color=#" + ColorUtility.ToHtmlStringRGBA(color) + ">";
 
         public static string EncloseInColorTags_RichText(this string text, Color color) => color.GetColorOpenTag_RichText() + text + "</color>";
+
+
+        public static string SanitizeIdentifier(string name, bool pascalCase = false, string spaceReplacement = "_")
+        {
+            if (string.IsNullOrEmpty(name)) return "_";
+
+            var sb = new StringBuilder();
+
+
+            bool capitalizeNext = pascalCase;
+            bool prevWasSeparator = false;
+
+            foreach (char c in name)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    sb.Append(capitalizeNext ? char.ToUpper(c) : c);
+                    capitalizeNext = false;
+                    prevWasSeparator = false;
+                }
+                else if (c == '_' && !pascalCase)
+                {
+                    sb.Append('_');
+                    prevWasSeparator = false;
+                }
+                else
+                {
+                    if (!prevWasSeparator) sb.Append(spaceReplacement);
+                    capitalizeNext = pascalCase;
+                    prevWasSeparator = true;
+                }
+            }
+
+            string result = sb.ToString();
+            if (result.Length == 0) result = "_";
+            if (char.IsDigit(result[0])) result = "_" + result;
+            if (csharpKeywords.Contains(result)) result = "@" + result;
+
+
+            return result;
+        }
         #endregion
 
 
 
         #region Enums
-        public static int GetEnumValFromString<enumType>(this string name) where enumType : Enum => (int)Enum.Parse(typeof(enumType), name);
+        private static T GetEnumFromString<T>(string name) where T : Enum => (T)Enum.Parse(typeof(T), name);
+        private static T GetEnumFromVal<T>(int val) where T : Enum => (T)(object)val;
 
-        public static string GetEnumNameFromVal<enumType>(this int val) where enumType : Enum => Enum.GetName(typeof(enumType), val);
+
+        public static int GetEnumValue<T>(T value) where T : Enum => Convert.ToInt32(value);        
+        public static int GetEnumValFromString<T>(string name) where T : Enum => GetEnumValue(GetEnumFromString<T>(name));
 
 
-        public static int GetEnumLength<enumType>() where enumType : Enum => Enum.GetValues(typeof(enumType)).Length;
+        public static string GetEnumName<T>(T value) where T : Enum => value.ToString();
+        public static string GetEnumNameFromVal<T>(int val) where T : Enum => Enum.GetName(typeof(T), val);
+
+
+        public static bool IsDefinedEnumValue<T>(T value) where T : Enum => Enum.IsDefined(typeof(T), value);
+
+        public static int GetEnumLength<T>() where T : Enum => Enum.GetValues(typeof(T)).Length;
         #endregion
 
 
@@ -403,7 +466,7 @@ namespace SHUU.Utils.Helpers
         #region Layers
         public static int ToLayerIndex(this LayerMask mask) => Mathf.RoundToInt(Mathf.Log(mask.value, 2));
 
-        public static bool Contains_Layer(this LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
+        public static bool Contains(this LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
         #endregion
 
 
@@ -668,109 +731,17 @@ namespace SHUU.Utils.Helpers
 
 
 
-        #region Interaction System
-        public static bool Contains_Tag(this IEnumerable<string> source, string item)
-        {
-            if (source == null) return true;
-            
-            int count = 0;
-            foreach (var x in source)
-            {
-                count++;
-                if (Equals(x, item)) return true;
-            }
-            
-            if (count == 0) return true;
-
-            return false;
-        }
-
-        
-        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Ray ray, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
-        {
-            bool raycast;
-            RaycastHit hitInfo;
-
-            if (interactionLayers != null) raycast = Physics.Raycast(ray, out hitInfo, interactionRange, interactionLayers.Value);
-            else raycast = Physics.Raycast(ray, out hitInfo, interactionRange);
-
-
-            if (raycast && hitInfo.InteractionRaycast_Check(out IfaceInteractable inact, tags))
-            {
-                if (previousInact != inact)
-                {
-                    ClearInteractHover(ref previousInact, modifyDynamicCursor);
-
-                    previousInact = inact;
-
-
-                    inact.HoverStart(modifyDynamicCursor);
-                }
-            }
-            else ClearInteractHover(ref previousInact, modifyDynamicCursor);
-
-
-            return raycast;
-        }
-        public static bool InteractionRaycast(ref IfaceInteractable previousInact, Camera camera, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
-        {
-            if (camera == null) return InteractionRaycast(
-                                    ref previousInact,
-                                    interactionRange,
-                                    interactionLayers,
-                                    modifyDynamicCursor,
-                                    tags
-                                );
-
-
-            return InteractionRaycast(
-                ref previousInact,
-                camera.ScreenPointToRay(Input.mousePosition),
-                interactionRange,
-                interactionLayers,
-                modifyDynamicCursor,
-                tags
-            );
-        }
-        public static bool InteractionRaycast(ref IfaceInteractable previousInact, float interactionRange, LayerMask? interactionLayers = null, bool modifyDynamicCursor = true, params string[] tags)
-        {
-            return InteractionRaycast(
-                ref previousInact,
-                Camera.main.ScreenPointToRay(Input.mousePosition),
-                interactionRange,
-                interactionLayers,
-                modifyDynamicCursor,
-                tags
-            );
-        }
-
-        public static bool InteractionRaycast_Check(this RaycastHit hit, out IfaceInteractable inactScript, params string[] tags)
-        {
-            inactScript = null;
-
-            if (!hit.collider.gameObject.TryGetComponent(out IfaceInteractable inact)) return false;
-            inactScript = inact;
-
-            if (!inact.CanBeInteracted()) return false;
-
-            if (!tags.Contains_Tag(hit.collider.tag)) return false;
-
-
-            return true;
-        }
-
-        public static void ClearInteractHover(ref IfaceInteractable previousInact, bool modifyDynamicCursor)
-        {
-            if (previousInact == null) return;
-
-            previousInact.HoverEnd(modifyDynamicCursor);
-            previousInact = null;
-        }
-        #endregion
-
-
-
         #region Misc
+        public static float VolumePercentage_ToDB(float percent, float minDB = -80f)
+        {
+            float linear = Mathf.Clamp01(percent / 100f);
+
+            if (linear <= 0.0001f) return minDB;
+
+            return Mathf.Log10(linear) * 20f;
+        }
+
+
         public static string GetTypeName(this Type t)
         {
             // Primitive C# types
@@ -860,59 +831,133 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        public static IEnumerator ListenForInput_Enumerator(Action<string> callback)
+        #region Classic Input
+        public static (KeyCode?, int?, string) ParseInput(string input)
         {
-            yield return new WaitUntil(() =>
-                Input.anyKeyDown ||
-                Input.GetMouseButtonDown(0) ||
-                Input.GetMouseButtonDown(1) ||
-                Input.GetMouseButtonDown(2) ||
-                Input.GetMouseButtonDown(3) ||
-                Input.GetMouseButtonDown(4) ||
-                Input.GetMouseButtonDown(5) ||
-                Input.GetMouseButtonDown(6)
-            );
-    
-            callback?.Invoke(DetectInput());
+            input = input.ToLower();
 
 
-            yield break;
-        }
-        private static string DetectInput()
-        {
-            foreach (KeyCode k in Enum.GetValues(typeof(KeyCode)))
-                if (Input.GetKeyDown(k)) return InputParser.InputToString(k);
-                
-            for (int i = 0; i <= 6; i++)
-                if (Input.GetMouseButtonDown(i)) return InputParser.InputToString(i);
-
-            return null;
-        }
-
-
-        public static float[] Vector3s_To_FloatArray(params Vector3[] vectors)
-        {
-            float[] result = new float[vectors.Length * 3];
-            for (int i = 0; i < vectors.Length; i++)
+            if (input.StartsWith("mouse"))
             {
-                int idx = i * 3;
-                result[idx]     = vectors[i].x;
-                result[idx + 1] = vectors[i].y;
-                result[idx + 2] = vectors[i].z;
+                if (int.TryParse(input.Substring(5), out int button) && button >= 0) return (null, button, null);
             }
-            return result;
+            else if (input.StartsWith("axis_"))
+            {
+                return (null, null, input.Substring(5));
+            }
+            else
+            {
+                AxisNames? axis = ParseAxisEnum(input);
+                if (axis != null) return (null, null, GetAxis(axis.Value));
+                else if (System.Enum.TryParse(input, true, out KeyCode parsed)) return (parsed, null, null);
+            }
+
+
+            Debug.LogWarning($"InputParser: Unknown input '{input}'");
+            return (null, null, null);
         }
 
-        public static Vector3[] Floata_To_Vector3Array(float[] data)
+        public static string InputToString(KeyCode key) => key.ToString();
+        public static string InputToString(int mouse) => "Mouse" + mouse.ToString();
+        public static string InputToString(string axis) => "Axis_" + axis;
+
+
+        #region Axis
+        public enum AxisNames
         {
-            Vector3[] result = new Vector3[data.Length / 3];
-            for (int i = 0; i < result.Length; i++)
-            {
-                int idx = i * 3;
-                result[i] = new Vector3(data[idx], data[idx + 1], data[idx + 2]);
-            }
-            return result;
+            Horizontal,
+            Vertical,
+
+            MouseX,
+            MouseY,
+            MouseScrollwheel,
+
+            LeftJoystickX,
+            LeftJoystickY,
+            RightJoystickX,
+            RightJoystickY,
+            RightTrigger,
+            LeftTrigger,
         }
+
+        public static string GetAxis(AxisNames name)
+        {
+            return name switch
+            {
+                AxisNames.Horizontal => "Horizontal",
+                AxisNames.Vertical => "Vertical",
+
+
+                AxisNames.MouseX => "Mouse X",
+                AxisNames.MouseY => "Mouse Y",
+                AxisNames.MouseScrollwheel => "Mouse ScrollWheel",
+
+
+                AxisNames.LeftJoystickX => "Joystick X",
+                AxisNames.LeftJoystickY => "Joystick Y",
+
+                AxisNames.RightJoystickX => "Joystick 3",
+                AxisNames.RightJoystickY => "Joystick 4",
+
+                AxisNames.RightTrigger => "Joystick 5",
+                AxisNames.LeftTrigger => "Joystick 6",
+
+                _ => null
+            };
+        }
+        public static string GetAxis_WithEnumName(AxisNames name)
+        {
+            return name switch
+            {
+                AxisNames.Horizontal => "General_Horizontal",
+                AxisNames.Vertical => "General_Vertical",
+
+
+                AxisNames.MouseX => "KeyboardMouse_Mouse X",
+                AxisNames.MouseY => "KeyboardMouse_Mouse Y",
+                AxisNames.MouseScrollwheel => "KeyboardMouse_Mouse ScrollWheel",
+
+
+                AxisNames.LeftJoystickX => "Gamepad_Joystick X",
+                AxisNames.LeftJoystickY => "Gamepad_Joystick Y",
+
+                AxisNames.RightJoystickX => "Gamepad_Joystick 3",
+                AxisNames.RightJoystickY => "Gamepad_Joystick 4",
+
+                AxisNames.RightTrigger => "Gamepad_Joystick 5",
+                AxisNames.LeftTrigger => "Gamepad_Joystick 6",
+
+                _ => null
+            };
+        }
+
+        public static AxisNames? ParseAxisEnum(string axis)
+        {
+            return axis switch
+            {
+                "Horizontal" => AxisNames.Horizontal,
+                "Vertical" => AxisNames.Vertical,
+
+
+                "Mouse X" => AxisNames.MouseX,
+                "Mouse Y" => AxisNames.MouseY,
+                "Mouse ScrollWheel" => AxisNames.MouseScrollwheel,
+
+
+                "Joystick X" => AxisNames.LeftJoystickX,
+                "Joystick Y" => AxisNames.LeftJoystickY,
+
+                "Joystick 3" => AxisNames.RightJoystickX,
+                "Joystick 4" => AxisNames.RightJoystickY,
+
+                "Joystick 5" => AxisNames.RightTrigger,
+                "Joystick 6" => AxisNames.LeftTrigger,
+
+                _ => null
+            };
+        }
+        #endregion
+        #endregion
         #endregion
 
 

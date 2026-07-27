@@ -341,6 +341,9 @@ namespace SHUU.Utils.Data
         #region Save
         public static void SaveJsonFile<T>(T data, string customLocationFileName, bool persistentDataPath = true)
         {
+            if (data == null) return;
+            
+
             string address;
             if (customLocationFileName == null) address = GetFileAddress(true, "Json files", "json");
             else address = persistentDataPath ? Application.persistentDataPath + customLocationFileName : customLocationFileName;
@@ -360,6 +363,9 @@ namespace SHUU.Utils.Data
         }
         public static void SaveJsonFile_Basic<T>(T data, string customLocationFileName, bool persistentDataPath = true, bool prettyPrint = false)
         {
+            if (data == null) return;
+            
+            
             string address;
             if (customLocationFileName == null) address = GetFileAddress(true, "Json files", "json");
             else address = persistentDataPath ? Application.persistentDataPath + customLocationFileName : customLocationFileName;

@@ -196,7 +196,8 @@ MonoBehaviour:
   sfxStorage: {fileID: 11400000, guid: fa32f6a595a65ae42b75d52da8f4aa43, type: 2}
   musicStorage: {fileID: 11400000, guid: 0c6d5149963ac384c9fd30a4bc4659a2, type: 2}
   audioInstance: {fileID: 1010484141545196436, guid: 93e5648037ae91c4c98a163872149b4d, type: 3}
-  settingsData: {fileID: 11400000, guid: 545db8f6e18343e4aa6342fb1cd010fa, type: 2}
+  settingsAtlas: {fileID: 11400000, guid: 3c09ce1e8761b574894fc95aad843abf, type: 2}
+  audio_mapName: Audio
   masterAudio_fieldName: MasterVolume
   sfxAudio_fieldName: SfxVolume
   musicAudio_fieldName: MusicVolume
@@ -217,12 +218,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handleGameobject: 0
-  backupWhenSave: 1
+  backupBeforeSave: 1
   localSave_OnRoomChange: 1
   saveToFile_OnRoomChange: 0
   localSave_OnApplicationQuit: 1
   saveToFile_OnApplicationQuit: 0
-  pathsAsset: {fileID: 11400000, guid: 28a946f15bb08ca4caa8dcb0dc879354, type: 2}
 --- !u!114 &3971717330311365469
 MonoBehaviour:
   m_ObjectHideFlags: 0

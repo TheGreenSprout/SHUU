@@ -43,12 +43,31 @@ namespace SHUU.Utils.Globals
 
         public event Action onFixedUpdate_Local;
         public static event Action onFixedUpdate;
+
+
+
+        private static Coroutine freezeCoroutine;
         #endregion
 
 
 
 
         #region Main
+        protected override void Awake()
+        {
+            base.Awake();
+
+            paused = false;
+            currentTimeScale = 1f;
+            _nextFrameQueue = null;
+            _executeQueue = null;
+            onUpdate = null;
+            onLateUpdate = null;
+            onFixedUpdate = null;
+            freezeCoroutine = null;
+        }
+
+
         private void Update()
         {
             onUpdate?.Invoke();
@@ -94,6 +113,8 @@ namespace SHUU.Utils.Globals
         #endregion
         public static SHUU_Timer Timer(float seconds, Action onComplete, bool ignoreTimeScale = false)
         {
+            if (seconds <= 0) return null;
+
             if (instance == null)
             {
                 Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
@@ -114,6 +135,8 @@ namespace SHUU.Utils.Globals
 
         public static SHUU_Timer Timer(int frames, Action onComplete, bool ignoreTimeScale = false)
         {
+            if (frames <= 0) return null;
+
             if (instance == null)
             {
                 Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
@@ -130,6 +153,13 @@ namespace SHUU.Utils.Globals
             instance.StartCoroutine(RunFrames(timer, ignoreTimeScale));
 
             return timer;
+        }
+
+        public static void FreezeFrame(float duration, bool ignoreTimeScale = false)
+        {
+            if (freezeCoroutine != null) instance.StopCoroutine(freezeCoroutine);
+
+            freezeCoroutine = StartCoroutineStatic(RunFreezeFrame(duration, ignoreTimeScale));
         }
 
 
@@ -189,6 +219,24 @@ namespace SHUU.Utils.Globals
 
             onComplete?.Invoke();
         }
+
+        private static IEnumerator RunFreezeFrame(float duration, bool ignoreTimeScale)
+        {
+            float previousTimeScale = currentTimeScale;
+
+            Time.timeScale = 0f;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
+                yield return null;
+            }
+
+            freezeCoroutine = null;
+
+            if (!paused) Time.timeScale = previousTimeScale;
+        }
         #endregion
 
 
@@ -230,11 +278,7 @@ namespace SHUU.Utils.Globals
         }
 
 
-        public static void StepFrame()
-        {
-            Time.timeScale = 0f;
-            Time.captureFramerate = 0;
-        }
+        public static void StepFrame() => FreezeFrame(Time.fixedDeltaTime);
         #endregion
     
     
@@ -309,13 +353,16 @@ namespace SHUU.Utils.Globals
             onResumed?.Invoke();
         }
 
-        public void Cancel()
+
+        public void Cancel(bool invokeComplete = false)
         {
-            if (isCompleted) return;
+            if (isCancelled || isCompleted) return;
 
             isCancelled = true;
             onCancelled?.Invoke();
+            if (invokeComplete) onComplete?.Invoke();
         }
+
 
         internal void Complete()
         {

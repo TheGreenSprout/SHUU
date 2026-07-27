@@ -20,7 +20,14 @@ namespace SHUU.Utils.Globals
 
 
 
-        public static event Action OnSceneChange;
+        public static event Action onSceneChange;
+
+
+        public static event Action onLostFocus;
+        public static event Action onGainedFocus;
+
+        public static event Action onApplicationPause;
+        public static event Action onApplicationResume;
 
 
 
@@ -63,6 +70,19 @@ namespace SHUU.Utils.Globals
         {
             if (fadeInAtSceneRoomEnter) SHUU_Fades.CreateFade_In(new FadeOptions { duration = enterFadeIn_duration, start_delay = enterFadeIn_buffer });
         }
+
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus) onLostFocus?.Invoke();
+            else onGainedFocus?.Invoke();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus) onApplicationPause?.Invoke();
+            else onApplicationResume?.Invoke();
+        }
         #endregion
 
 
@@ -104,7 +124,7 @@ namespace SHUU.Utils.Globals
             }
 
 
-            OnSceneChange?.Invoke();
+            onSceneChange?.Invoke();
         }
 
         

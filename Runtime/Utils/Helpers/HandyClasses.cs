@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,110 +18,259 @@ using static SHUU.Utils.Data.DataManager;
 
 namespace SHUU.Utils.Helpers
 {
-    public class Box<T> { T value; }
+    #region Wrappers
+    public class Box<T> { public T value; }
+
+
+
+    public class ActionVar<T>
+    {
+        #region Variables
+        public T Value;
+
+        private readonly Dictionary<string, Action<ActionVar<T>>> actions = new();
+        #endregion
+
+
+
+        #region Main
+        public ActionVar(T v) => Value = v;
+
+        public static implicit operator T(ActionVar<T> v) => v.Value;
+        public static implicit operator ActionVar<T>(T value) => new ActionVar<T>(value);
+        #endregion
+
+
+        #region Logic
+        public void AddAction(string name, Action<ActionVar<T>> action) => actions[name] = action;
+
+        public void Invoke(string name)
+        {
+            if (actions.TryGetValue(name, out var action)) action(this);
+        }
+        #endregion
+    }
+    #endregion
+
+
+
+    
+    #region TagMask
+    [Serializable]
+    public struct TagMask
+    {
+        #region Variables
+        [SerializeField] public int mask;
+
+
+
+        private static List<string> tagRegistry => SHUU_TagRegistry.tagRegistry;
+        private static Dictionary<string, int> tagCache = null;
+        #endregion
+
+
+
+
+        #region Main
+        public static TagMask Everything => new() { mask = ~0 };
+        public static TagMask Nothing => new() { mask = 0 };
+        #endregion
+
+
+
+        #region Logic
+        private void EnsureCache()
+        {
+            if (tagCache != null) return;
+
+
+            tagCache = new();
+
+            for (int i = 0; i < tagRegistry.Count; i++)
+                tagCache[tagRegistry[i]] = i;
+        }
+
+        public bool Contains(string tag)
+        {
+            EnsureCache();
+
+            if (!tagCache.TryGetValue(tag, out int i)) return false;
+            return (mask & (1 << i)) != 0;
+        }
+        #endregion
+    }
+    #endregion
 
 
 
 
     #region Dual-Key Dictionary
-    public class DualDictionary<TKey1, TKey2, TValue> : IDictionary<(TKey1, TKey2), TValue>
+    public class DualDictionary<TKey1, TKey2, TValue> : IEnumerable<(TKey1 Key1, TKey2 Key2, TValue Value)>
     {
-        private readonly Dictionary<(TKey1, TKey2), TValue> data = new();
+        #region Variables
+        private readonly Dictionary<TKey1, TKey2> key1ToKey2;
+        private readonly Dictionary<TKey2, TKey1> key2ToKey1;
+        private readonly Dictionary<TKey1, TValue> valuesByKey1;
 
 
+        public int Count => key1ToKey2.Count;
 
-        public ICollection<(TKey1, TKey2)> Keys => data.Keys;
-
-        public ICollection<TValue> Values => data.Values;
-
-
-        public int Count => data.Count;
-
-        public bool IsReadOnly => false;
-
-
-
-
-        private static (TKey1, TKey2) K1(TKey1 key) => (key, default);
-        private static (TKey1, TKey2) K2(TKey2 key) => (default, key);
-
-
-
-        #region IDictionary implementation
-
-        public TValue this[(TKey1, TKey2) key]
-        {
-            get => data[key];
-            set => data[key] = value;
-        }
-
-
-        public void Add((TKey1, TKey2) key, TValue value) => data.Add(key, value);
-
-        public bool ContainsKey((TKey1, TKey2) key) => data.ContainsKey(key);
-
-        public bool TryGetValue((TKey1, TKey2) key, out TValue value) => data.TryGetValue(key, out value);
-
-        public bool Remove((TKey1, TKey2) key) => data.Remove(key);
-
-        public void Clear() => data.Clear();
-
-        public void Add(KeyValuePair<(TKey1, TKey2), TValue> item) => ((IDictionary<(TKey1, TKey2), TValue>)data).Add(item);
-
-        public bool Contains(KeyValuePair<(TKey1, TKey2), TValue> item) => ((IDictionary<(TKey1, TKey2), TValue>)data).Contains(item);
-
-        public void CopyTo(KeyValuePair<(TKey1, TKey2), TValue>[] array, int arrayIndex) => ((IDictionary<(TKey1, TKey2), TValue>)data).CopyTo(array, arrayIndex);
-
-        public bool Remove(KeyValuePair<(TKey1, TKey2), TValue> item) => ((IDictionary<(TKey1, TKey2), TValue>)data).Remove(item);
-
-
-        public IEnumerator<KeyValuePair<(TKey1, TKey2), TValue>> GetEnumerator() => data.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
+        public IReadOnlyCollection<TKey1> Key1s => key1ToKey2.Keys;
+        public IReadOnlyCollection<TKey2> Key2s => key2ToKey1.Keys;
+        public IReadOnlyCollection<TValue> Values => valuesByKey1.Values;
         #endregion
 
+        
 
-
-        #region Dual-key implementations
-
-        public TValue this[TKey1 key]
+        #region Main
+        public DualDictionary(IEqualityComparer<TKey1> key1Comparer = null, IEqualityComparer<TKey2> key2Comparer = null)
         {
-            get => this[K1(key)];
-            set => this[K1(key)] = value;
+            key1ToKey2 = new Dictionary<TKey1, TKey2>(key1Comparer ?? EqualityComparer<TKey1>.Default);
+            key2ToKey1 = new Dictionary<TKey2, TKey1>(key2Comparer ?? EqualityComparer<TKey2>.Default);
+            valuesByKey1 = new Dictionary<TKey1, TValue>(key1Comparer ?? EqualityComparer<TKey1>.Default);
         }
-        public TValue this[TKey2 key]
+
+        public TValue this[TKey1 key1]
         {
-            get => this[K2(key)];
-            set => this[K2(key)] = value;
+            get => valuesByKey1[key1];
+            set => valuesByKey1[key1] = value;
+        }
+        public TValue this[TKey2 key2]
+        {
+            get => valuesByKey1[key2ToKey1[key2]];
+            set => valuesByKey1[key2ToKey1[key2]] = value;
         }
         public TValue this[TKey1 key1, TKey2 key2]
         {
-            get => this[(key1, key2)];
-            set => this[(key1, key2)] = value;
+            get => this[key1];
+            set => this[key1] = value;
         }
 
+        public void Add(TKey1 key1, TKey2 key2, TValue value)
+        {
+            if (key1ToKey2.ContainsKey(key1))
+                throw new ArgumentException($"Key1 '{key1}' already exists (paired with Key2 '{key1ToKey2[key1]}').", nameof(key1));
 
-        public TKey2 GetKey2(TKey1 key) => Keys.First(k => EqualityComparer<TKey1>.Default.Equals(k.Item1, key)).Item2;
-        public TKey1 GetKey1(TKey2 key) => Keys.First(k => EqualityComparer<TKey2>.Default.Equals(k.Item2, key)).Item1;
+            if (key2ToKey1.ContainsKey(key2))
+                throw new ArgumentException($"Key2 '{key2}' already exists (paired with Key1 '{key2ToKey1[key2]}').", nameof(key2));
+
+            key1ToKey2[key1] = key2;
+            key2ToKey1[key2] = key1;
+            valuesByKey1[key1] = value;
+        }
+        public bool TryAdd(TKey1 key1, TKey2 key2, TValue value)
+        {
+            if (key1ToKey2.ContainsKey(key1) || key2ToKey1.ContainsKey(key2))
+                return false;
+
+            key1ToKey2[key1] = key2;
+            key2ToKey1[key2] = key1;
+            valuesByKey1[key1] = value;
+            return true;
+        }
+
+        public void SetValue(TKey1 key1, TValue value)
+        {
+            if (!key1ToKey2.ContainsKey(key1))
+                throw new KeyNotFoundException($"Key1 '{key1}' does not exist.");
+
+            valuesByKey1[key1] = value;
+        }
+
+        public bool Remove(TKey1 key1)
+        {
+            if (!key1ToKey2.TryGetValue(key1, out var key2)) return false;
+
+            key1ToKey2.Remove(key1);
+            key2ToKey1.Remove(key2);
+            valuesByKey1.Remove(key1);
+
+            return true;
+        }
+        public bool Remove(TKey2 key2)
+        {
+            if (!key2ToKey1.TryGetValue(key2, out var key1)) return false;
+
+            key1ToKey2.Remove(key1);
+            key2ToKey1.Remove(key2);
+            valuesByKey1.Remove(key1);
+
+            return true;
+        }
+        public bool Remove(TKey1 key1, TKey2 key2) => Remove(key1);
+
+        public void Clear()
+        {
+            key1ToKey2.Clear();
+            key2ToKey1.Clear();
+            valuesByKey1.Clear();
+        }
+        #endregion
 
 
-        public void Add(TKey1 key, TValue value) => Add(K1(key), value);
-        public void Add(TKey2 key, TValue value) => Add(K2(key), value);
-        public void Add(TKey1 key1, TKey2 key2, TValue value) => Add((key1, key2), value);
+        #region Lookups
+        public bool ContainsKey1(TKey1 key1) => key1ToKey2.ContainsKey(key1);
+        public bool ContainsKey2(TKey2 key2) => key2ToKey1.ContainsKey(key2);
 
-        public bool ContainsKey(TKey1 key) => ContainsKey(K1(key));
-        public bool ContainsKey(TKey2 key) => ContainsKey(K2(key));
-        public bool ContainsKey(TKey1 key1, TKey2 key2) => ContainsKey((key1, key2));
+        public bool TryGetValue(TKey1 key1, out TValue value) => valuesByKey1.TryGetValue(key1, out value);
+        public bool TryGetValue(TKey2 key2, out TValue value)
+        {
+            if (key2ToKey1.TryGetValue(key2, out var key1)) return valuesByKey1.TryGetValue(key1, out value);
+            
+            value = default;
+            return false;
+        }
+        public bool TryGetValue(TKey1 key1, TKey2 key2, out TValue value) => TryGetValue(key1, out value);
 
-        public bool TryGetValue(TKey1 key, out TValue value) => TryGetValue(K1(key), out value);
-        public bool TryGetValue(TKey2 key, out TValue value) => TryGetValue(K2(key), out value);
-        public bool TryGetValue(TKey1 key1, TKey2 key2, out TValue value) => TryGetValue((key1, key2), out value);
+        public TKey2 GetKey2(TKey1 key1) => key1ToKey2[key1];
+        public TKey1 GetKey1(TKey2 key2) => key2ToKey1[key2];
 
-        public bool Remove(TKey1 key) => Remove(K1(key));
-        public bool Remove(TKey2 key) => Remove(K2(key));
-        public bool Remove(TKey1 key1, TKey2 key2) => Remove((key1, key2));
+        public bool TryGetKey2(TKey1 key1, out TKey2 key2) => key1ToKey2.TryGetValue(key1, out key2);
+        public bool TryGetKey1(TKey2 key2, out TKey1 key1) => key2ToKey1.TryGetValue(key2, out key1);
+        #endregion
+
         
+        #region Rebinding
+        public void RebindKey2(TKey1 key1, TKey2 newKey2)
+        {
+            if (!key1ToKey2.TryGetValue(key1, out var oldKey2))
+                throw new KeyNotFoundException($"Key1 '{key1}' does not exist.");
+
+            if (key2ToKey1.TryGetValue(newKey2, out var owner) && !EqualityComparer<TKey1>.Default.Equals(owner, key1))
+                throw new ArgumentException($"Key2 '{newKey2}' already belongs to Key1 '{owner}'.", nameof(newKey2));
+
+            key2ToKey1.Remove(oldKey2);
+            key1ToKey2[key1] = newKey2;
+            key2ToKey1[newKey2] = key1;
+        }
+
+        public void RebindKey1(TKey2 key2, TKey1 newKey1)
+        {
+            if (!key2ToKey1.TryGetValue(key2, out var oldKey1))
+                throw new KeyNotFoundException($"Key2 '{key2}' does not exist.");
+
+            if (key1ToKey2.TryGetValue(newKey1, out var owner) && !EqualityComparer<TKey2>.Default.Equals(owner, key2))
+                throw new ArgumentException($"Key1 '{newKey1}' already belongs to Key2 '{owner}'.", nameof(newKey1));
+
+            var value = valuesByKey1[oldKey1];
+            key1ToKey2.Remove(oldKey1);
+            valuesByKey1.Remove(oldKey1);
+
+            key1ToKey2[newKey1] = key2;
+            key2ToKey1[key2] = newKey1;
+            valuesByKey1[newKey1] = value;
+        }
+        #endregion
+
+
+        #region Enumeration
+        public IEnumerator<(TKey1 Key1, TKey2 Key2, TValue Value)> GetEnumerator()
+        {
+            foreach (var kvp in key1ToKey2)
+                yield return (kvp.Key, kvp.Value, valuesByKey1[kvp.Key]);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         #endregion
     }
     #endregion
@@ -636,7 +784,7 @@ namespace SHUU.Utils.Helpers
 
         [JsonIgnore] protected abstract T obj { get; }
 
-        [JsonIgnore] protected abstract string id { get; }
+        [JsonIgnore] protected virtual string id => obj.name;
         #endregion
 
 

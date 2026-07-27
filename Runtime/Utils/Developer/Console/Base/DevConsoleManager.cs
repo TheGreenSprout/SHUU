@@ -18,6 +18,9 @@ namespace SHUU.Utils.Developer.Console
 
 
 
+        public DevConsoleUI devConsoleUI;
+
+
         public List<string> optionalParameter_consoleInterpreters = new List<string>() { "-", "~" };
 
 
@@ -33,12 +36,19 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-        public DevConsoleUI devConsoleUI;
-
         [HideInInspector] public bool inputFieldActive => devConsoleUI.inputFieldActive;
 
-
         [HideInInspector] public DevConsoleInput inputModule;
+
+
+
+        public bool typewriterLines = true;
+
+        public float typewriterDelay = 0.05f;
+
+        public bool playTypewriterSFX = true;
+        public AudioClip typewriterSFX = null;
+        private AudioClip _typewriterSFX => typewriterSFX != null ? typewriterSFX : typewriterSFX;
         #endregion
 
 
@@ -67,31 +77,22 @@ namespace SHUU.Utils.Developer.Console
         #region Logic
 
         #region Input processing
+        private bool firstInput = true;
+
+
         public static bool ProcessConsoleInput(string input) => instance.ProcessInput(input);
         public bool ProcessInput(string input)
         {
             if (input == null) return false;
 
+            if (!firstInput) PrintDelegate(" ");
+            else firstInput = false;
             PrintDelegate($"> {input}");
 
             if (string.IsNullOrWhiteSpace(input)) return false;
 
 
-            if (!input.ToLower().StartsWith("setvar"))
-            {
-                while (input.Contains("$"))
-                {
-                    input = SavedConsoleVariables.ParseVariable(input, out CommandReturn varError);
-
-                    if (varError != null) PrintDelegate(varError.output, varError.color);
-                }
-            }
-
-            string[] parts = input.Split(' ');
-            string cmd = parts[0];
-            string[] args = parts.Skip(1).ToArray();
-
-            if (DevCommandRegistry.TryGet(cmd, out var info))
+            if (ParseCommand(input, out var cmd, out var args, out var info))
             {
                 try
                 {
@@ -103,9 +104,7 @@ namespace SHUU.Utils.Developer.Console
 
 
                     for (int i = 0; i < fixedCount; i++)
-                    {
                         ParseParameter(i, parameters, args, ref parsedArgs);
-                    }
 
 
                     if (fixedCount != parameters.Length)
@@ -114,9 +113,7 @@ namespace SHUU.Utils.Developer.Console
                         Array array = Array.CreateInstance(elementType, args.Length-fixedCount);
 
                         for (int i = fixedCount; i < args.Length; i++)
-                        {
                             array.SetValue(Convert.ChangeType(args[i], elementType), i-fixedCount);
-                        }
 
                         parsedArgs[parsedArgs.Length-1] = array;
                     }
@@ -137,7 +134,88 @@ namespace SHUU.Utils.Developer.Console
             }
             else
             {
-                PrintDelegate($"Unknown command: {cmd}", Color.red);
+                PrintDelegate($"Unknown command: '{cmd}'", Color.red);
+
+                return false;
+            }
+
+
+            return true;
+        }
+
+
+        public static bool ProcessConsoleInputDirect(string input, out CommandReturn output) => instance.ProcessInputDirect(input, out output);
+        public bool ProcessInputDirect(string input, out CommandReturn output)
+        {
+            output = null;
+
+
+            if (input == null) return false;
+
+            if (!firstInput) PrintDelegate(" ");
+            else firstInput = false;
+            PrintDelegate($"> {input}");
+
+            if (string.IsNullOrWhiteSpace(input)) return false;
+
+
+            if (ParseCommand(input, out var cmd, out var args, out var info))
+            {
+                try
+                {
+                    var parameters = info.Method.GetParameters();
+                    object[] parsedArgs = new object[parameters.Length];
+
+                    bool hasParamsArray = parameters.Length > 0 && Attribute.IsDefined(parameters[parameters.Length-1], typeof(ParamArrayAttribute));
+                    int fixedCount = hasParamsArray ? parameters.Length - 1 : parameters.Length;
+
+
+                    for (int i = 0; i < fixedCount; i++)
+                        ParseParameter(i, parameters, args, ref parsedArgs);
+
+
+                    if (fixedCount != parameters.Length)
+                    {
+                        Type elementType = parameters[parameters.Length-1].ParameterType.GetElementType();
+                        Array array = Array.CreateInstance(elementType, args.Length-fixedCount);
+
+                        for (int i = fixedCount; i < args.Length; i++)
+                            array.SetValue(Convert.ChangeType(args[i], elementType), i-fixedCount);
+
+                        parsedArgs[parsedArgs.Length-1] = array;
+                    }
+
+
+                    var result = info.Method.Invoke(null, parsedArgs);
+
+                    if (result is CommandReturn ret && ret.output != null)
+                    {
+                        output = new CommandReturn(ret.color, ret.output);
+                        PrintDelegate(ret.output, ret.color, true);
+                    }
+                    else if (result is ValueTuple<string[], Color?> tuple && tuple.Item1 != null)
+                    {
+                        output = new CommandReturn(tuple.Item2, tuple.Item1);
+                        PrintDelegate(tuple.Item1, tuple.Item2, true);
+                    }
+                    else
+                    {
+                        output = new CommandReturn(Color.green, "Command executed successfully.");
+                        PrintDelegate("Command executed successfully.", Color.green);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    output = new CommandReturn(Color.red, $"Error: {ex.Message}");
+                    PrintDelegate($"Error: {ex.Message}", Color.red);
+
+                    return false;
+                }
+            }
+            else
+            {
+                output = new CommandReturn(Color.red, $"Unknown command: '{cmd}'");
+                PrintDelegate($"Unknown command: '{cmd}'", Color.red);
 
                 return false;
             }
@@ -150,6 +228,36 @@ namespace SHUU.Utils.Developer.Console
 
 
         #region Parsing
+        private bool ParseCommand(string input, out string cmd, out string[] args, out DevCommandRegistry.DevCommandInfo info)
+        {
+            args = null;
+            cmd = null;
+
+            info = default;
+
+
+            if (input == null || string.IsNullOrWhiteSpace(input)) return false;
+
+            if (!input.ToLower().StartsWith("setvar"))
+            {
+                while (input.Contains("$"))
+                {
+                    input = SavedConsoleVariables.ParseVariable(input, out CommandReturn varError);
+
+                    if (varError != null) PrintDelegate(varError.output, varError.color);
+                }
+            }
+
+            string[] parts = input.Split(' ');
+
+            cmd = parts[0];
+            args = parts.Skip(1).ToArray();
+
+
+            return DevCommandRegistry.TryGet(cmd, out info);
+        }
+
+
         private void ParseParameter(int i, ParameterInfo[] parameters, string[] args, ref object[] parsedArgs)
         {
             ParameterInfo p = parameters[i];
@@ -250,10 +358,25 @@ namespace SHUU.Utils.Developer.Console
         #region Print
         public void PrintDelegate(string message, Color? textColor = null)
         {
-            if (!string.IsNullOrEmpty(message)) instance.devConsoleUI.Print(message, textColor);
+            if (message != null) instance.devConsoleUI.Print(message, textColor);
         }
-        public void PrintDelegate(string[] message, Color? textColor = null) => instance.devConsoleUI.Print(textColor, message);
-        public void PrintDelegate(params (string, Color?)[] message) => instance.devConsoleUI.Print(message);
+
+        public void PrintDelegate(string[] message, Color? textColor = null, bool ignoreTypewriter = false)
+        {
+            if (!typewriterLines || ignoreTypewriter) instance.devConsoleUI.Print(textColor, message);
+            else instance.devConsoleUI.PrintGradually(typewriterDelay, 0, _typewriterSFX, textColor, message);
+        }
+
+        public void PrintDelegate(params (string, Color?)[] message)
+        {
+            if (!typewriterLines) instance.devConsoleUI.Print(message);
+            else instance.devConsoleUI.PrintGradually(typewriterDelay, 0, _typewriterSFX, message);
+        }
+        public void PrintDelegate(bool ignoreTypewriter = false, params (string, Color?)[] message)
+        {
+            if (!typewriterLines || ignoreTypewriter) instance.devConsoleUI.Print(message);
+            else instance.devConsoleUI.PrintGradually(typewriterDelay, 0, _typewriterSFX, message);
+        }
 
 
         public static void PrintOnConsole(string message, Color? textColor = null) => instance.PrintDelegate(message, textColor);

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-using SHUU.Utils;
+using SHUU.Utils.Interaction;
 
 namespace SHUU.Samples.SampleScenesAndUtils.SampleUtils
 {

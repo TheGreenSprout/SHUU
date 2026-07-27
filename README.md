@@ -15,45 +15,59 @@ Enjoy :D
 ***
 <br><br><br><br>
 
+
+
 ***
-⚠️ This package requires SHUU_UserSide and SETB.
-To install SHUU_UserSide:
-  - In the samples for this package (SHUU), install the one called "SHUU_UserSide (Required)"
-To install SETB:
-  - Inside the Package Manager, click the "+" icon.
-  - Then click on "Add package from git URL".
-  - Type "https://github.com/TheGreenSprout/SETB.git" and click "Install".
+## ⚠️ This package requires SHUU_UserSide and SETB.
+###     To install them:
+####        To install SHUU_UserSide:
+#####           - Open [Window > Package Manager]
+#####           - Go to SHUU and click on Samples
+#####           - In that Samples tab, import the one called "SHUU_UserSide (Required)"
+
+####        To install SETB:
+#####           - Open [Window > Package Manager]
+#####           - Click the "+" sign and "Install package by git URL..."
+#####           - Type "https://github.com/TheGreenSprout/SETB.git" and click "Install".
 <br><br>
 
-️️⚠️ For a bunch of the implemented systems to work, you'll need a few objects/scripts in every scene:
-    - In your assets folder go to [SHUU_Userside > Prefabs > PlaceOnEveryScene > OnEveryScene]
-    - If you are using the custom input system (classic or otherwise), use the OnEveryScene present in their respective folders.
-    - There you will find a "OnEveryScene" prefab. Place it on every scene
-    - Feel free to modify some of the values that appear on these scripts (in the inspector window), they are made to be customized
+️️## ⚠️ For a bunch of the implemented systems to work, you'll need a few objects/scripts in every scene:
+###     - In your assets folder go to [SHUU_Userside > Prefabs > PlaceOnEveryScene > OnEveryScene]
+###     - If you are using the custom input system (classic or otherwise), use the OnEveryScene present in their respective folders.
+###     - There you will find a "OnEveryScene" prefab. Place it on every scene.
+###     - Feel free to modify some of the values that appear on these scripts (in the inspector window), they are made to be customized.
 <br><br>
 
-⚠️ Theres some settings for this package that you can change. You can modify them at:
-    - Edit -> Project Settings -> SHUU Preferences
+
+## ⚠️ Theres some settings for this package that you can change. You can modify them at:
+###     - Edit -> Project Settings -> SHUU Preferences
 <br><br>
 
-⚠️ Currently, dialogue works but the portrait system is missing some features (and also the whole system hasn't been tested). The current diaogue sample scene is also entirely outdated.
+
+️️## ⚠️ Currently, dialogue works but the portrait system is missing some features (and also the whole system hasn't been tested). The current diaogue sample scene is also entirely outdated.
 <br><br>
 
-⚠️ If you want to check out the Sample Scenes, please add them (and LoadingScene [inside the ForUser folder]) to your [Build Profiles > Scene List]
+
+️️## ⚠️ If you want to check out the Sample Scenes, please add them (and LoadingScene [inside the ForUser folder]) to your [Build Profiles > Scene List]
 <br><br><br>
 
 
-⚠️‼️ AI ASSISTED CODE
-    - This package contains some AI assisted code. All scripts with AI assistance present will have a warning at the very top!
+
+️## ⚠️‼️ AI ASSISTED CODE
+###     - This package contains some AI assisted code. All scripts with AI assistance present will have a warning at the very top!
 ***
 <br><br><br><br>
 
+
+
 ***
-### + Current Version: 3.9.1
-### - Update Date: 27-05-2026
+### + Current Version: 4.2.0
+### - Update Date: 27-07-2026
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>
+
+
 
 ***
 ## CREDITS:

@@ -1,6 +1,7 @@
 using UnityEngine;
 
 using SHUU.Utils.Cameras.Visual.Handlers;
+using SHUU.Utils.Globals;
 
 namespace SHUU.Utils.Cameras.Visual.AddOns
 {
@@ -18,10 +19,9 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
         private Camera cam;
 
 
-        private float timer;
+        private SHUU_Timer timer;
 
-        private bool paused;
-        public bool isPaused => paused;
+        public bool? isPaused => timer?.isPaused;
         #endregion
 
 
@@ -34,43 +34,31 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             cam.enabled = false;
 
             CustomFramerate_Handler.instance?.Add(identifier, this);
+
+            Render();
         }
 
 
         private void OnDestroy() => CustomFramerate_Handler.instance?.Remove(identifier);
-
-
-        private void Update()
-        {
-            if (paused) return;
-
-
-            timer += Time.deltaTime;
-
-            if (timer >= refreshRate)
-            {
-                timer = 0f;
-
-                cam.Render();
-            }
-        }
         #endregion
 
 
 
         #region Logic
-        public void Pause() => paused = true;
-        public void Resume() => paused = false;
+        public void Render()
+        {
+            if (timer != null) timer.Cancel();
+            timer = SHUU_Time.Timer(refreshRate, Render);
+
+            cam.Render();
+        }
+
+
+        public void Pause() => timer.Pause();
+        public void Resume() => timer.Resume();
 
 
         public void SetRefreshRate(float newRate) => refreshRate = Mathf.Max(0.01f, newRate);
-
-        public void ForceRender()
-        {
-            cam.Render();
-
-            timer = 0f;
-        }
         #endregion
     }
 }

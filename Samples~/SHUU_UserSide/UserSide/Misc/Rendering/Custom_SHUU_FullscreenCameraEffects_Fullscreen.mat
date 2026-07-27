@@ -13,8 +13,8 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
-  - _ENABLECOLORRES_ON
   - _ENABLEDITHER_ON
+  - _ENABLEPIXELATE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -32,13 +32,13 @@ Material:
     m_Ints: []
     m_Floats:
     - _ColorResolution: 64
-    - _DitherScale: 3.5
-    - _DitherStrength: 0.1
+    - _DitherScale: 15
+    - _DitherStrength: 2.5
     - _EnableBW: 0
-    - _EnableColorRes: 1
+    - _EnableColorRes: 0
     - _EnableDither: 1
-    - _EnablePixelate: 0
-    - _PixelBlockSize: 2
+    - _EnablePixelate: 1
+    - _PixelBlockSize: 190
     m_Colors:
     - _BlockCount: {r: 160, g: 90, b: 0, a: 0}
     - _BlockSize: {r: 0.00625, g: 0.0111, b: 0, a: 0}

@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-using SHUU.Utils.SettingsSytem;
+using SHUU.Utils.SettingsSystem;
 
 public class SettingsMenu_Field : MonoBehaviour
 {
@@ -11,49 +12,58 @@ public class SettingsMenu_Field : MonoBehaviour
     [SerializeField] private TMP_Text label;
 
 
-    [SerializeField] private SettingsMenu_BoolElement boolElement;
-    [SerializeField] private SettingsMenu_NumElement numElement_Value;
-    [SerializeField] private SettingsMenu_SliderElement numElement_Slider;
-    [SerializeField] private SettingsMenu_StringElement stringElement;
+    [SerializeField] private SettingsMenu_BoolElement    boolElement;
+    [SerializeField] private SettingsMenu_NumElement     numElement_Value;
+    [SerializeField] private SettingsMenu_SliderElement  numElement_Slider;
+    [SerializeField] private SettingsMenu_StringElement  stringElement;
+    [SerializeField] private SettingsMenu_EnumElement    enumElement;
 
 
 
-    private SettingsData data;
-
-    private string field;
-
+    private SettingsAtlas data;
+    private string mapName;
+    private string fieldKey;
 
     private SettingsMenu_IFieldModule module = null;
     #endregion
 
-    
+
 
 
     #region Main
-    public void Init(SettingsData data, string field)
+    public void Init(SettingsAtlas data, string mapName, string fieldKey)
     {
-        this.data = data;
-        this.field = field;
+        this.data     = data;
+        this.mapName  = mapName;
+        this.fieldKey = fieldKey;
 
-        label.text = field;
+        label.text = fieldKey;
 
+        var field = data.GetField(mapName, fieldKey);
+        if (field == null) return;
 
-        switch (data.GetSettingField(field).type)
+        Action notify = () => data.NotifyChanged(mapName, fieldKey);
+
+        switch (field.type)
         {
             case SettingType.Bool:
-                module = new SettingsMenu_BoolModule(boolElement.root, boolElement.label, data.GetSettingField(field));
+                module = new SettingsMenu_BoolModule(boolElement.root, boolElement.label, field, notify);
                 break;
 
             case SettingType.Int:
-                NumField(typeof(int));
+                NumField(field, NumType.Int, notify);
                 break;
 
             case SettingType.Float:
-                NumField(typeof(float));
+                NumField(field, NumType.Float, notify);
                 break;
 
             case SettingType.String:
-                module = new SettingsMenu_StringModule(stringElement.root, stringElement.input, data.GetSettingField(field));
+                module = new SettingsMenu_StringModule(stringElement.root, stringElement.input, field, notify);
+                break;
+
+            case SettingType.Enum:
+                module = new SettingsMenu_EnumModule(enumElement.root, enumElement.dropdown, field, notify);
                 break;
         }
     }
@@ -61,30 +71,30 @@ public class SettingsMenu_Field : MonoBehaviour
 
 
 
+
     #region Logic
-    private void NumField(Type type)
+    private void NumField(SettingField field, NumType type, Action notify)
     {
-        SettingField f = data.GetSettingField(field);
-
-        if (f == null) return;
-
-        
-        if (f.useMax && f.useMin) module = new SettingsMenu_SliderModule(numElement_Slider.root, numElement_Slider.label, numElement_Slider.slider, f, type == typeof(int) ? NumType.Int : NumType.Float);
-        else module = new SettingsMenu_NumberModule(numElement_Value.root, numElement_Value.input, f, type == typeof(int) ? NumType.Int : NumType.Float);
+        if (field.useMin && field.useMax)
+            module = new SettingsMenu_SliderModule(numElement_Slider.root, numElement_Slider.label, numElement_Slider.slider, field, type, notify);
+        else
+            module = new SettingsMenu_NumberModule(numElement_Value.root, numElement_Value.input, field, type, notify);
     }
 
 
-    public void OnValueChanged() => module?.Fetch(data.GetSettingField(field), true);
-    public void Exceptional_OnValueChanged() => module?.Fetch(data.GetSettingField(field), false);
+    // Called by UI events (button onClick, input onValueChanged, slider onValueChanged)
+    public void OnValueChanged()            => module?.Fetch(Field(), true);
+    public void Exceptional_OnValueChanged() => module?.Fetch(Field(), false);
 
     public void Increment(int increment)
     {
-        if (module == null) return;
-
-        if (module is SettingsMenu_NumberModule number) number.Increment(data.GetSettingField(field), increment);
+        if (module is SettingsMenu_NumberModule number) number.Increment(Field(), increment);
     }
 
-    public void Refresh() => module?.Refresh(data.GetSettingField(field));
+    public void Refresh() => module?.Refresh(Field());
+
+
+    private SettingField Field() => data.GetField(mapName, fieldKey);
     #endregion
 }
 
@@ -95,148 +105,122 @@ public class SettingsMenu_Field : MonoBehaviour
 public abstract class SettingsMenu_IFieldModule
 {
     public abstract void Refresh(SettingField field);
-
     public abstract void Fetch(SettingField field, bool check);
 }
 
-public enum NumType
-{
-    Int,
-    Float
-}
+public enum NumType { Int, Float }
 
 
 public class SettingsMenu_BoolModule : SettingsMenu_IFieldModule
 {
     private TMP_Text label;
+    private Action notify;
 
 
-    public SettingsMenu_BoolModule(GameObject obj, TMP_Text label, SettingField field)
+    public SettingsMenu_BoolModule(GameObject obj, TMP_Text label, SettingField field, Action notify)
     {
         obj.SetActive(true);
-
-        this.label = label;
-
+        this.label  = label;
+        this.notify = notify;
         Refresh(field);
     }
 
 
     public override void Refresh(SettingField field) => label.text = field.boolValue ? "True" : "False";
 
-    public override void Fetch(SettingField field, bool check = true)
+    public override void Fetch(SettingField field, bool check)
     {
-        if (field == null || field.Type() != typeof(bool)) return;
-
+        if (field == null || field.type != SettingType.Bool) return;
         field.boolValue = !field.boolValue;
-
+        notify?.Invoke();
         Refresh(field);
     }
 }
 
+
 public class SettingsMenu_StringModule : SettingsMenu_IFieldModule
 {
     private TMP_InputField input;
+    private Action notify;
 
 
-    public SettingsMenu_StringModule(GameObject obj, TMP_InputField input, SettingField field)
+    public SettingsMenu_StringModule(GameObject obj, TMP_InputField input, SettingField field, Action notify)
     {
         obj.SetActive(true);
-
-        this.input = input;
-
+        this.input  = input;
+        this.notify = notify;
         Refresh(field);
     }
 
 
     public override void Refresh(SettingField field) => input.text = field.stringValue;
 
-    public override void Fetch(SettingField field, bool check = true)
+    public override void Fetch(SettingField field, bool check)
     {
-        if (field == null || field.Type() != typeof(string)) return;
-
-        string parse = input.text;
-        field.stringValue = string.IsNullOrEmpty(parse) ? field.stringValue : parse;
-
+        if (field == null || field.type != SettingType.String) return;
+        string parsed = input.text;
+        field.stringValue = string.IsNullOrEmpty(parsed) ? field.stringValue : parsed;
+        notify?.Invoke();
         Refresh(field);
     }
 }
 
+
 public class SettingsMenu_NumberModule : SettingsMenu_IFieldModule
 {
     private TMP_InputField input;
-
     private NumType numType;
+    private Action notify;
 
 
-    public SettingsMenu_NumberModule(GameObject obj, TMP_InputField input, SettingField field, NumType numType)
+    public SettingsMenu_NumberModule(GameObject obj, TMP_InputField input, SettingField field, NumType numType, Action notify)
     {
         obj.SetActive(true);
-
-        this.input = input;
+        this.input   = input;
         this.numType = numType;
-
+        this.notify  = notify;
         Refresh(field);
     }
 
 
     public override void Refresh(SettingField field)
     {
-        if (numType == NumType.Int) input.text = field.intValue.ToString();
-        else if (numType == NumType.Float) input.text = field.floatValue.ToString("F2");
+        if (numType == NumType.Int)   input.text = field.intValue.ToString();
+        else                          input.text = field.floatValue.ToString("F2");
     }
 
-    public override void Fetch(SettingField field, bool check = true)
+    public override void Fetch(SettingField field, bool check)
     {
         if (field == null) return;
 
         if (numType == NumType.Int)
         {
-            if (field.Type() != typeof(int)) return;
-
-            if (!int.TryParse(input.text, out int parseInt))
-            {
-                input.text = field.intValue.ToString();
-                
-                return;
-            }
-
-
-            if (field.useMax && parseInt > field.intMax) parseInt = field.intMax;
-            if (field.useMin && parseInt < field.intMin) parseInt = field.intMin;
-
-            field.intValue = parseInt;
+            if (field.type != SettingType.Int) return;
+            if (!int.TryParse(input.text, out int i)) { input.text = field.intValue.ToString(); return; }
+            if (field.useMax) i = Mathf.Min(i, field.intMax);
+            if (field.useMin) i = Mathf.Max(i, field.intMin);
+            field.intValue = i;
         }
         else
         {
-            if (field.Type() != typeof(float)) return;
-
-            if (!float.TryParse(input.text, out float parseFloat))
-            {
-                input.text = field.floatValue.ToString();
-                
-                return;
-            }
-
-
-            if (field.useMax && parseFloat > field.floatMax) parseFloat = field.floatMax;
-            if (field.useMin && parseFloat < field.floatMin) parseFloat = field.floatMin;
-            
-            field.floatValue = parseFloat;
+            if (field.type != SettingType.Float) return;
+            if (!float.TryParse(input.text, out float f)) { input.text = field.floatValue.ToString(); return; }
+            if (field.useMax) f = Mathf.Min(f, field.floatMax);
+            if (field.useMin) f = Mathf.Max(f, field.floatMin);
+            field.floatValue = f;
         }
-        
 
+        notify?.Invoke();
         Refresh(field);
     }
 
     public void Increment(SettingField field, int increment)
     {
         if (increment == 0) return;
-        
-        if (numType == NumType.Int) input.text = (field.intValue + increment).ToString();
-        else if (numType == NumType.Float) input.text = (field.floatValue + increment).ToString();
-        
-
-        Fetch(field);
+        input.text = numType == NumType.Int
+            ? (field.intValue   + increment).ToString()
+            : (field.floatValue + increment).ToString();
+        Fetch(field, false);
     }
 }
 
@@ -245,31 +229,29 @@ public class SettingsMenu_SliderModule : SettingsMenu_IFieldModule
 {
     private TMP_InputField value;
     private Slider slider;
-
     private NumType numType;
+    private Action notify;
 
 
-    public SettingsMenu_SliderModule(GameObject obj, TMP_InputField value, Slider slider, SettingField field, NumType numType)
+    public SettingsMenu_SliderModule(GameObject obj, TMP_InputField value, Slider slider, SettingField field, NumType numType, Action notify)
     {
         obj.SetActive(true);
-
-        this.slider = slider;
-        this.value = value;
+        this.value   = value;
+        this.slider  = slider;
         this.numType = numType;
+        this.notify  = notify;
 
-        if (numType == NumType.Int) this.slider.wholeNumbers = true;
-        else this.slider.wholeNumbers = false;
+        slider.wholeNumbers = numType == NumType.Int;
 
-        
         if (numType == NumType.Int)
         {
-            this.slider.maxValue = field.intMax;
-            this.slider.minValue = field.intMin;
+            slider.minValue = field.intMin;
+            slider.maxValue = field.intMax;
         }
-        else if (numType == NumType.Float)
+        else
         {
-            this.slider.maxValue = field.floatMax;
-            this.slider.minValue = field.floatMin;
+            slider.minValue = field.floatMin;
+            slider.maxValue = field.floatMax;
         }
 
         Refresh(field);
@@ -283,66 +265,86 @@ public class SettingsMenu_SliderModule : SettingsMenu_IFieldModule
             value.text = field.intValue.ToString();
             if (slider.value != field.intValue) slider.value = field.intValue;
         }
-        else if (numType == NumType.Float)
+        else
         {
             value.text = field.floatValue.ToString("F2");
             if (slider.value != field.floatValue) slider.value = field.floatValue;
         }
     }
 
+    // fromSlider = true: driven by slider; false: driven by input field
     public override void Fetch(SettingField field, bool fromSlider)
     {
         if (field == null) return;
 
         if (numType == NumType.Int)
         {
-            if (field.Type() != typeof(int)) return;
-
-            int parseInt;
+            if (field.type != SettingType.Int) return;
+            int i;
             if (fromSlider)
             {
-                parseInt = (int)slider.value;
-                if (parseInt == field.intValue) return;
+                i = (int)slider.value;
+                if (i == field.intValue) return;
             }
-            else if (!int.TryParse(value.text, out parseInt))
-            {
-                value.text = slider.value.ToString();
-
-                return;
-            }
-
-
-            if (field.useMax && parseInt > field.intMax) parseInt = field.intMax;
-            if (field.useMin && parseInt < field.intMin) parseInt = field.intMin;
-
-            field.intValue = parseInt;
+            else if (!int.TryParse(value.text, out i)) { value.text = field.intValue.ToString(); return; }
+            if (field.useMax) i = Mathf.Min(i, field.intMax);
+            if (field.useMin) i = Mathf.Max(i, field.intMin);
+            field.intValue = i;
         }
         else
         {
-            if (field.Type() != typeof(float)) return;
-
-
-            float parseFloat;
+            if (field.type != SettingType.Float) return;
+            float f;
             if (fromSlider)
             {
-                parseFloat = slider.value;
-                if (parseFloat == field.floatValue) return;
+                f = slider.value;
+                if (f == field.floatValue) return;
             }
-            else if (!float.TryParse(value.text, out parseFloat))
-            {
-                value.text = slider.value.ToString();
-                
-                return;
-            }
-
-
-            if (field.useMax && parseFloat > field.floatMax) parseFloat = field.floatMax;
-            if (field.useMin && parseFloat < field.floatMin) parseFloat = field.floatMin;
-            
-            field.floatValue = parseFloat;
+            else if (!float.TryParse(value.text, out f)) { value.text = field.floatValue.ToString(); return; }
+            if (field.useMax) f = Mathf.Min(f, field.floatMax);
+            if (field.useMin) f = Mathf.Max(f, field.floatMin);
+            field.floatValue = f;
         }
-        
 
+        notify?.Invoke();
+        Refresh(field);
+    }
+}
+
+
+public class SettingsMenu_EnumModule : SettingsMenu_IFieldModule
+{
+    private TMP_Dropdown dropdown;
+    private Action notify;
+
+
+    public SettingsMenu_EnumModule(GameObject obj, TMP_Dropdown dropdown, SettingField field, Action notify)
+    {
+        obj.SetActive(true);
+        this.dropdown = dropdown;
+        this.notify   = notify;
+
+        var enumType = field.Type();
+        if (enumType != null && enumType.IsEnum)
+        {
+            dropdown.ClearOptions();
+            dropdown.AddOptions(new List<string>(Enum.GetNames(enumType)));
+        }
+
+        Refresh(field);
+    }
+
+
+    public override void Refresh(SettingField field)
+    {
+        if (dropdown.value != field.enumValue) dropdown.value = field.enumValue;
+    }
+
+    public override void Fetch(SettingField field, bool check)
+    {
+        if (field == null || field.type != SettingType.Enum) return;
+        field.enumValue = dropdown.value;
+        notify?.Invoke();
         Refresh(field);
     }
 }
@@ -379,5 +381,12 @@ public struct SettingsMenu_StringElement
 {
     public GameObject root;
     public TMP_InputField input;
+}
+
+[Serializable]
+public struct SettingsMenu_EnumElement
+{
+    public GameObject root;
+    public TMP_Dropdown dropdown;
 }
 #endregion

@@ -8,13 +8,16 @@ namespace SHUU.UserSide
     public class InputSystem_DevConsoleInput : DevConsoleInput
     {
         #region Variables
-        [SerializeField] private InputBindingMap map;
+        [SerializeField] private string mapName = "Developer";
 
 
-        [SerializeField] private string toggle_setName = "Toggle";
+        [SerializeField] private string toggleBind = "Console_Toggle";
+        private string toggle_actionPath => $"{mapName}/{toggleBind}";
 
-        [SerializeField] private string previousCommand_setName = "PreviousCommand";
-        [SerializeField] private string nextCommand_setName = "NextCommand";
+        [SerializeField] private string previousCommandBind = "Console_PreviousCommand";
+        private string previousCommand_actionPath => $"{mapName}/{previousCommandBind}";
+        [SerializeField] private string nextCommandBind = "Console_NextCommand";
+        private string nextCommand_actionPath => $"{mapName}/{nextCommandBind}";
         #endregion
 
 
@@ -23,16 +26,20 @@ namespace SHUU.UserSide
         #region Main
         private void OnEnable()
         {
-            map.RegisterListener_Down(toggle_setName, Toggle, true);
-            map.RegisterListener_Down(previousCommand_setName, PreviousCommand);
-            map.RegisterListener_Down(nextCommand_setName, NextCommand);
+            SHUU_Input.EnableMap(mapName);
+
+            SHUU_Input.RegisterListener_Down(toggle_actionPath, Toggle);
+            SHUU_Input.RegisterListener_Down(previousCommand_actionPath, PreviousCommand);
+            SHUU_Input.RegisterListener_Down(nextCommand_actionPath, NextCommand);
         }
 
         private void OnDisable()
         {
-            map.UnregisterListener_Down(toggle_setName, Toggle);
-            map.UnregisterListener_Down(previousCommand_setName, PreviousCommand);
-            map.UnregisterListener_Down(nextCommand_setName, NextCommand);
+            SHUU_Input.UnregisterListener_Down(toggle_actionPath, Toggle);
+            SHUU_Input.UnregisterListener_Down(previousCommand_actionPath, PreviousCommand);
+            SHUU_Input.UnregisterListener_Down(nextCommand_actionPath, NextCommand);
+
+            SHUU_Input.DisableMap(mapName);
         }
         #endregion
     }

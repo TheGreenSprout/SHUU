@@ -6,7 +6,9 @@ using System.Linq;
 using SHUU.Utils.BaseScripts.Audio;
 using SHUU.Utils.BaseScripts.ScriptableObjs.Audio;
 using SHUU.Utils.Helpers;
-using SHUU.Utils.SettingsSytem;
+using SHUU.Utils.SettingsSystem;
+
+using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.Utils.Globals
 {
@@ -44,10 +46,12 @@ namespace SHUU.Utils.Globals
 
 
         [Header("Settings")]
-        [SerializeField] private SettingsData settingsData = null;
+        [SerializeField] private SettingsAtlas settingsAtlas = null;
+
+        [SerializeField] private string audio_mapName = "Audio";
 
         [SerializeField] private string masterAudio_fieldName = "MasterVolume";
-        [SerializeField] private string sfxAudio_fieldName = "SfxSVolume";
+        [SerializeField] private string sfxAudio_fieldName = "SfxVolume";
         [SerializeField] private string musicAudio_fieldName = "MusicVolume";
 
 
@@ -73,10 +77,13 @@ namespace SHUU.Utils.Globals
             base.Awake();
 
 
-            if (settingsData != null)
+            if (settingsAtlas != null)
             {
-                settingsData.OnSettingsChanged += SettingsUpdate;
-                SettingsUpdate(null);
+                settingsAtlas.onSettingsChanged += SettingsUpdate;
+
+                SettingsUpdate(settingsAtlas, audio_mapName, masterAudio_fieldName);
+                SettingsUpdate(settingsAtlas, audio_mapName, sfxAudio_fieldName);
+                SettingsUpdate(settingsAtlas, audio_mapName, musicAudio_fieldName);
             }
 
 
@@ -89,34 +96,32 @@ namespace SHUU.Utils.Globals
 
         private void OnDestroy()
         {
-            if (settingsData != null) settingsData.OnSettingsChanged -= SettingsUpdate;
+            if (settingsAtlas != null) settingsAtlas.onSettingsChanged -= SettingsUpdate;
         }
 
 
-        private void SettingsUpdate(string field)
+        private void SettingsUpdate(SettingsAtlas data, string map, string field)
         {
-            if (settingsData == null || field != null && field != masterAudio_fieldName && field != sfxAudio_fieldName && field != musicAudio_fieldName) return;
+            if (data == null || map == null || field == null || map != audio_mapName) return;
 
+            if (field == masterAudio_fieldName)
+            {
+                float vol = data.GetFloat(map, field);
 
-            float masterVolume = settingsData.GetFloat(masterAudio_fieldName);
-            float sfxVolume = settingsData.GetFloat(sfxAudio_fieldName);
-            float musicVolume = settingsData.GetFloat(musicAudio_fieldName);
+                masterMixer.audioMixer.SetFloat("MasterVolume", VolumePercentage_ToDB(vol, MIN_DB));
+            }
+            else if (field == sfxAudio_fieldName)
+            {
+                float vol = data.GetFloat(map, field);
 
-            AudioMixer mixer = masterMixer.audioMixer;
+                masterMixer.audioMixer.SetFloat("SFXVolume", VolumePercentage_ToDB(vol, MIN_DB));
+            }
+            else if (field == musicAudio_fieldName)
+            {
+                float vol = data.GetFloat(map, field);
 
-            mixer.SetFloat("MasterVolume", PercentToDb(masterVolume));
-            mixer.SetFloat("SFXVolume", PercentToDb(sfxVolume));
-            mixer.SetFloat("MusicVolume", PercentToDb(musicVolume));
-        }
-
-        private float PercentToDb(float percent)
-        {
-            float linear = Mathf.Clamp01(percent / 100f);
-
-            if (linear <= 0.0001f)
-                return MIN_DB;
-
-            return Mathf.Log10(linear) * 20f;
+                masterMixer.audioMixer.SetFloat("MusicVolume", VolumePercentage_ToDB(vol, MIN_DB));
+            }
         }
         #endregion
 
@@ -469,6 +474,7 @@ namespace SHUU.Utils.Globals
         
         #endregion
     }
+
 
 
 

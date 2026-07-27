@@ -39,31 +39,53 @@ namespace SHUU.Utils.Developer.Debugging
         #region Proxy
         
         #region Debug Colliders
-        public static bool? Toggle_DebugColliders(bool? toggle = null)
+        public static bool? DebugColliders_Toggle(bool? toggle = null)
         {
             if (!instance || !instance.colliderVisualizer) return null;
 
             return instance.colliderVisualizer.Toggle(toggle);
         }
 
-        public static bool? Toggle_DebugCollidersWireRender(bool? toggle = null)
+        public static bool? DebugColliders_ToggleWireRender(bool? toggle = null)
         {
             if (!instance || !instance.colliderVisualizer) return null;
 
             return instance.colliderVisualizer.Toggle_WireRender(toggle);
         }
-        public static bool? Toggle_DebugCollidersFillRender(bool? toggle = null)
+        public static bool? DebugColliders_ToggleFillRender(bool? toggle = null)
         {
             if (!instance || !instance.colliderVisualizer) return null;
 
             return instance.colliderVisualizer.Toggle_FillRender(toggle);
+        }
+
+        public static bool DebugColliders_CacheReload()
+        {
+            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer.proxy) return false;
+
+            instance.colliderVisualizer.CacheReload();
+            return true;
+        }
+        public static bool DebugColliders_CacheColliders()
+        {
+            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer.proxy) return false;
+
+            instance.colliderVisualizer.CacheColliders();
+            return true;
+        }
+        public static bool DebugColliders_RebuildCache()
+        {
+            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer.proxy) return false;
+
+            instance.colliderVisualizer.RebuildCache();
+            return true;
         }
         #endregion
 
 
 
         #region Screen Logs
-        public static bool? Toggle_ScreenLogs()
+        public static bool? ScreenLogs_Toggle()
         {
             if (!instance || instance.screenLogs == null) return null;
 

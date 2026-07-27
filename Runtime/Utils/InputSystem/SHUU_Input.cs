@@ -1,250 +1,66 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
 
+using static SHUU.Utils.Helpers.HandyFunctions;
+
 namespace SHUU.Utils.InputSystem
 {
-    #region Data Classes
-    public class DynamicInput
-    {
-        public (KeyCode? key, int? mouse, string axis) bind = (null, null, null);
-
-        public bool direction = false;
-
-
-
-        public DynamicInput(KeyCode key, bool direction = true)
-        {
-            bind = (key, null, null);
-            this.direction = direction;
-        }
-
-        public DynamicInput(int mouseButton, bool direction = true)
-        {
-            bind = (null, mouseButton, null);
-            this.direction = direction;
-        }
-
-        public DynamicInput(InputParser.AxisNames axisName, bool direction = true)
-        {
-            bind = (null, null, InputParser.GetAxis_WithEnumName(axisName));
-            this.direction = direction;
-        }
-
-        public DynamicInput(string input)
-        {
-            if (string.IsNullOrEmpty(input)) return;
-
-            
-            if (input.StartsWith("+"))
-            {
-                input = input.Substring(1);
-                direction = true;
-            }
-            else if (input.StartsWith("-"))
-            {
-                input = input.Substring(1);
-                direction = false;
-            }
-            else direction = true;
-
-            bind = InputParser.ParseInput(input);
-        }
-
-
-        public bool IsValid()
-        {
-            int count = 0;
-
-            if (bind.key != null) count++;
-            if (bind.mouse != null) count++;
-            if (bind.axis != null) count++;
-
-            return count == 1;
-        }
-
-        public bool IsKey() => IsValid() && bind.key != null;
-
-        public bool IsMouse() => IsValid() && bind.mouse != null;
-
-        public bool IsAxis() => IsValid() && bind.axis != null;
-
-
-        public bool TryGetKey(out KeyCode key)
-        {
-            if (!IsKey())
-            {
-                key = default;
-                
-                return false;
-            }
-
-
-            key = bind.key.Value;
-
-            return true;
-        }
-
-        public bool TryGetMouse(out int mouse)
-        {
-            if (!IsMouse())
-            {
-                mouse = default;
-                
-                return false;
-            }
-
-
-            mouse = bind.mouse.Value;
-
-            return true;
-        }
-
-        public bool TryGetAxis(out string axis)
-        {
-            if (!IsAxis())
-            {
-                axis = null;
-                
-                return false;
-            }
-
-
-            axis = bind.axis;
-
-            return true;
-        }
-    }
-    #endregion
-
-
-
     public static class SHUU_Input
     {
-        #region Data Classes
-        public static DynamicInput[] CreateDynamicInputArray(params string[] input)
-        {
-            DynamicInput[] inputs = new DynamicInput[input.Length];
-
-            for (int i = 0; i < input.Length; i++)
-                inputs[i] = new DynamicInput(input[i]);
-
-            return inputs;
-        }
-
-        public static DynamicInput[] CreateDynamicInputArray(params KeyCode[] input)
-        {
-            DynamicInput[] inputs = new DynamicInput[input.Length];
-
-            for (int i = 0; i < input.Length; i++)
-                inputs[i] = new DynamicInput(InputParser.InputToString(input[i]));
-
-            return inputs;
-        }
-        public static DynamicInput[] CreateDynamicInputArray(params int[] input)
-        {
-            DynamicInput[] inputs = new DynamicInput[input.Length];
-
-            for (int i = 0; i < input.Length; i++)
-                inputs[i] = new DynamicInput(InputParser.InputToString(input[i]));
-
-            return inputs;
-        }
-
-        public static DynamicInput[] CreateDynamicInputArray(params DynamicInput[][] input) => HandyFunctions.Merge(input).ToArray();
-
-
-        public struct InputValue
-        {
-            public float[] values;
-
-            public int AmountOfValues => values != null ? values.Length : 0;
-
-
-
-            public InputValue(params float[] values) => this.values = values;
-
-
-            public bool HasValue() => AmountOfValues > 0;
-
-
-            public bool TryGetFloat(out float value)
-            {
-                if (!HasValue() || values.Length != 1)
-                {
-                    value = 0f;
-                    return false;
-                }
-
-
-                value = values[0];
-
-                return true;
-            }
-
-            public bool TryGetVector2(out Vector2 value)
-            {
-                if (!HasValue() || values.Length < 2)
-                {
-                    value = default;
-                    return false;
-                }
-
-
-                value = new Vector2(values[0], values[1]);
-
-                return true;
-            }
-
-            public bool TryGetVector3(out Vector3 value)
-            {
-                if (!HasValue() || values.Length < 3)
-                {
-                    value = default;
-                    return false;
-                }
-
-
-                value = new Vector3(values[0], values[1], values[2]);
-
-                return true;
-            }
-
-            public bool TryGetVector4(out Vector4 value)
-            {
-                if (!HasValue() || values.Length < 4)
-                {
-                    value = default;
-                    return false;
-                }
-
-
-                value = new Vector4(values[0], values[1], values[2], values[3]);
-
-                return true;
-            }
-        }
-
-
-        public static bool IsGamepadKey(this KeyCode key) => key >= KeyCode.JoystickButton0 && key <= KeyCode.Joystick8Button19;
-        #endregion
-
-
-
-
         #region Variables
-        public static Dictionary<string, InputBindingMap> allInputBindingMaps = new();
+        public static InputActionAsset inputActionAsset => SHUU_Preferences.instance.inputSystem_actionAsset ?? UnityEngine.InputSystem.InputSystem.actions;
+
+
+        private static DualDictionary<int, Gamepad, bool> gamepadRumble = new();
+
+        public static bool IsGamepadRumbling(int deviceID)
+        {
+            if (gamepadRumble.TryGetValue(deviceID, out bool ret)) return ret;
+            else return false;
+        }
+        public static bool IsGamepadRumbling(Gamepad gamepad)
+        {
+            if (gamepadRumble.TryGetValue(gamepad, out bool ret)) return ret;
+            else return false;
+        }
+        public static bool IsGamepadRumbling(int deviceID, Gamepad gamepad)
+        {
+            if (gamepadRumble.TryGetValue(deviceID, gamepad, out bool ret)) return ret;
+            else return false;
+        }
+
+
+
+        private static Dictionary<string, InputActionMap> mapCache = new();
+        private static Dictionary<string, InputAction> actionCache = new();
+
+        private static Dictionary<string, ActionHooks> hooks = new();
+
+
+        private const float defaultBufferTime = 0.15f;
 
 
 
         private static bool debugLogEmission => SHUU_Preferences.instance.inputSystem_debugLogEmission;
-
         private static bool disabledWarning_debugLogEmission => SHUU_Preferences.instance.inputSystem_mapDisabledWarning_debugLogEmission;
+
+
+
+        #region Map Context Stack
+        private static readonly Stack<string> contextStack = new();
+
+        public static string currentContext => contextStack.Count > 0 ? contextStack.Peek() : null;
+        public static int contextDepth => contextStack.Count;
+        #endregion
+
         #endregion
 
 
@@ -252,549 +68,711 @@ namespace SHUU.Utils.InputSystem
 
         #region Main
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Init() => SHUU_Time.onUpdate += Update;
-
-
-        public static void Update()
+        private static void Init()
         {
-            foreach (var map in allInputBindingMaps.Values)
-                foreach (var set in map.inputSets_list)
-                    foreach (AxisSource source in set.set.validSources.Where(x => x is AxisSource))
-                        source.Tick();
+            RebuildCache();
+
+            if (inputActionAsset != null) inputActionAsset.Enable();
+            else Debug.LogError("SHUU_Input: No InputActionAsset assigned in SHUU_Preferences nor InputActionAsset assigned as project-wide..");
+
+            SHUU_Time.onUpdate += Update;
 
 
-            UpdateBufferedInputs();
+            foreach (var pad in Gamepad.all)
+                gamepadRumble[pad.deviceId, pad] = false;
+            
+            UnityEngine.InputSystem.InputSystem.onDeviceChange += (device, change) =>
+            {
+                if (device is not Gamepad pad) return;
 
-            UpdateListeners();
+                if (change == InputDeviceChange.Added) gamepadRumble[pad.deviceId, pad] = false;
+                else if (change == InputDeviceChange.Removed) gamepadRumble.Remove(pad.deviceId, pad);
+            };
         }
+
+
+        private static void Update()
+        {
+            foreach (var hook in hooks.Values)
+                hook.Tick();
+        }
+
+
+        public static IEnumerable<string> GetAllMapNames()
+            => inputActionAsset != null ? inputActionAsset.actionMaps.Select(m => m.name) : Enumerable.Empty<string>();
         #endregion
 
 
 
         #region Logic
 
-        #region Buffered Inputs
-        private static Dictionary<InputBindingMap, List<BufferedInput>> down_buffereds = new();
-        private static Dictionary<InputBindingMap, List<BufferedInput>> up_buffereds = new();
-
-        private const float defaultBufferTime = 0.15f;
-
-        private class BufferedInput
+        #region Cache
+        public static void RebuildCache()
         {
-            public string set;
+            mapCache.Clear();
+            actionCache.Clear();
 
-            public float remainingTime;
-            public float bufferDuration;
-            public bool requiresAllBindsDown;
+            if (inputActionAsset == null) return;
 
-
-            public BufferedInput(string set, float bufferDuration, bool requiresAllBindsDown)
+            foreach (var map in inputActionAsset.actionMaps)
             {
-                this.set = set;
+                mapCache[map.name] = map;
 
-                this.remainingTime = bufferDuration;
-                this.bufferDuration = bufferDuration;
-                this.requiresAllBindsDown = requiresAllBindsDown;
-            }
-
-            public void ResetBuffer() => remainingTime = bufferDuration;
-            public void Consume() => remainingTime = 0f;
-        }
-
-
-        private static void UpdateBufferedInputs()
-        {
-            if (down_buffereds != null && down_buffereds.Count > 0) UpdateBufferedInputs(down_buffereds, true);
-            if (up_buffereds != null && up_buffereds.Count > 0) UpdateBufferedInputs(up_buffereds, false);
-        }
-
-        private static void UpdateBufferedInputs(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, bool direction)
-        {
-            foreach (var mapPair in buffereds)
-            {
-                var map = mapPair.Key;
-                if (map == null || !map.enabled) continue;
-
-                foreach (var buffered in mapPair.Value)
-                {
-                    if (direction) if (GetInputDown(map, buffered.set, buffered.requiresAllBindsDown)) buffered.ResetBuffer();
-                    else if (GetInputUp(map, buffered.set, buffered.requiresAllBindsDown)) buffered.ResetBuffer();
-
-                    if (buffered.remainingTime > 0f) buffered.remainingTime -= Time.deltaTime;
-                }
+                foreach (var action in map.actions)
+                    actionCache[$"{map.name}/{action.name}"] = action;
             }
         }
 
 
-        private static void RegisterBufferInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false)
+        public static InputActionMap GetMap(string mapName)
         {
-            if (map == null || string.IsNullOrEmpty(set) || bufferTime <= 0f) return;
+            if (string.IsNullOrEmpty(mapName)) return null;
 
 
-            if (!buffereds.TryGetValue(map, out var list))
+            if (mapCache.TryGetValue(mapName, out var cached)) return cached;
+
+            InputActionMap found = inputActionAsset?.FindActionMap(mapName);
+
+            if (found != null)
             {
-                list = new();
+                mapCache[mapName] = found;
 
-                buffereds[map] = list;
+                return found;
             }
 
 
-            if (list.Exists(b => b.set == set && b.requiresAllBindsDown == requiresAllBindsDown)) return;
+            if (debugLogEmission) Debug.LogWarning($"SHUU_Input: ActionMap '{mapName}' not found.");
 
-            list.Add(new BufferedInput(set, bufferTime, requiresAllBindsDown));
+            return null;
         }
-        private static void UnregisterBufferInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        
+        public static InputAction GetAction(string actionPath)
         {
-            if (map == null || string.IsNullOrEmpty(set)) return;
-            if (!buffereds.TryGetValue(map, out var list)) return;
+            if (string.IsNullOrEmpty(actionPath)) return null;
 
 
-            list.RemoveAll(b => b.set == set && b.requiresAllBindsDown == requiresAllBindsDown);
+            if (actionCache.TryGetValue(actionPath, out var cached)) return cached;
 
-            if (list.Count == 0) buffereds.Remove(map);
-        }
-        private static void UnregisterBufferInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map)
-        {
-            if (map != null && buffereds.ContainsKey(map)) buffereds.Remove(map);
-        }
+            InputAction found = inputActionAsset?.FindAction(actionPath);
 
-        public static void RegisterBufferInput_Down(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false) =>
-            RegisterBufferInput(down_buffereds, map, set, bufferTime, requiresAllBindsDown);
-        public static void UnregisterBufferInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false) =>
-            UnregisterBufferInput(down_buffereds, map, set, requiresAllBindsDown);
-        public static void UnregisterBufferInput_Down(this InputBindingMap map) =>
-            UnregisterBufferInput(down_buffereds, map);
-
-        public static void RegisterBufferInput_Up(this InputBindingMap map, string set, float bufferTime = defaultBufferTime, bool requiresAllBindsDown = false) =>
-            RegisterBufferInput(up_buffereds, map, set, bufferTime, requiresAllBindsDown);
-        public static void UnregisterBufferInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false) =>
-            UnregisterBufferInput(up_buffereds, map, set, requiresAllBindsDown);
-        public static void UnregisterBufferInput_Up(this InputBindingMap map) =>
-            UnregisterBufferInput(up_buffereds, map);
-
-
-        private static bool GetBufferedInput(Dictionary<InputBindingMap, List<BufferedInput>> buffereds, InputBindingMap map, string set, bool requiresAllBindsDown = false, bool consume = true)
-        {
-            if (map == null || string.IsNullOrEmpty(set)) return false;
-            if (!buffereds.TryGetValue(map, out var list)) return false;
-
-
-            foreach (var buffered in list)
+            if (found != null)
             {
-                if (buffered.set == set && buffered.requiresAllBindsDown == requiresAllBindsDown && buffered.remainingTime > 0f)
-                {
-                    if (consume) buffered.Consume();
+                actionCache[actionPath] = found;
 
-                    return true;
-                }
+                return found;
             }
 
-            return false;
+
+            if (debugLogEmission) Debug.LogWarning($"SHUU_Input: Action '{actionPath}' not found.");
+
+            return null;
         }
-
-        public static bool GetBufferedInput_Down(this InputBindingMap map, string set, bool requiresAllBindsDown = false, bool consume = true) =>
-            GetBufferedInput(down_buffereds, map, set, requiresAllBindsDown, consume);
-
-        public static bool GetBufferedInput_Up(this InputBindingMap map, string set, bool requiresAllBindsDown = false, bool consume = true) =>
-            GetBufferedInput(up_buffereds, map, set, requiresAllBindsDown, consume);
         #endregion
 
 
 
-        #region Listeners
-        private static Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> down_listeners = new();
-        private static Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> up_listeners = new();
+        #region Map Control
+        public static void EnableMap(string mapName) => GetMap(mapName)?.Enable();
+        public static void DisableMap(string mapName) => GetMap(mapName)?.Disable();
+
+        public static bool IsMapEnabled(string mapName) => GetMap(mapName)?.enabled ?? false;
 
 
-        private static void UpdateListeners()
+        public static void EnableMaps(params string[] mapNames)
         {
-            if (down_listeners != null && down_listeners.Count > 0) UpdateListener(down_listeners, true);
-            if (up_listeners != null && up_listeners.Count > 0) UpdateListener(up_listeners, false);
+            if (mapNames == null) return;
+
+            foreach (var mapName in mapNames)
+                EnableMap(mapName);
         }
-        
-        private static void UpdateListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, bool direction)
+
+        public static void DisableMaps(params string[] mapNames)
         {
-            foreach (var mapEntry in listeners)
+            if (mapNames == null) return;
+
+            foreach (var mapName in mapNames)
+                DisableMap(mapName);
+        }
+
+
+        public static void EnableMapsDisableRest(params string[] mapNames)
+        {
+            if (inputActionAsset == null) return;
+
+
+            var keep = new HashSet<string>(mapNames ?? Array.Empty<string>(), StringComparer.Ordinal);
+
+            foreach (var map in inputActionAsset.actionMaps)
             {
-                InputBindingMap map = mapEntry.Key;
-
-                if (map == null || !map.enabled) continue;
-
-                foreach (var actionEntry in mapEntry.Value)
-                {
-                    foreach (var binding in actionEntry.Value)
-                    {
-                        if (direction)
-                        {
-                            if (GetInputDown(map, actionEntry.Key, binding.requiresAllBindsDown))
-                            {
-                                binding.callback?.Invoke();
-
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            if (GetInputUp(map, actionEntry.Key, binding.requiresAllBindsDown))
-                            {
-                                binding.callback?.Invoke();
-
-                                break;
-                            }
-                        }
-                    }
-                }
+                if (keep.Contains(map.name)) map.Enable();
+                else map.Disable();
             }
         }
 
-
-        private static void RegisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false)
+        public static void DisableMapsEnableRest(params string[] mapNames)
         {
-            if (map == null || callback == null || string.IsNullOrEmpty(set)) return;
+            if (inputActionAsset == null) return;
 
 
-            if (!listeners.TryGetValue(map, out var actionDict))
+            var keep = new HashSet<string>(mapNames ?? Array.Empty<string>(), StringComparer.Ordinal);
+
+            foreach (var map in inputActionAsset.actionMaps)
             {
-                actionDict = new();
-
-                listeners[map] = actionDict;
+                if (keep.Contains(map.name)) map.Disable();
+                else map.Enable();
             }
-
-            if (!actionDict.TryGetValue(set, out var bindings))
-            {
-                bindings = new();
-
-                actionDict[set] = bindings;
-            }
-
-
-            if (!bindings.Any(b => b.callback == callback && b.requiresAllBindsDown == requiresAllBindsDown)) bindings.Add((callback, requiresAllBindsDown));
         }
-        private static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set, Action callback)
+        #endregion
+
+
+
+        #region Map Context Stack
+        public static void PushContext(string mapName)
         {
-            if (map == null || string.IsNullOrEmpty(set) || callback == null) return;
+            if (string.IsNullOrEmpty(mapName)) return;
 
 
-            if (!listeners.TryGetValue(map, out var actionDict)) return;
-            if (!actionDict.TryGetValue(set, out var actionList)) return;
+            if (contextStack.Count > 0) DisableMap(contextStack.Peek());
 
-            actionList.RemoveAll(a => a.callback == callback);
+            contextStack.Push(mapName);
 
-            if (actionDict.Count == 0) listeners.Remove(map);
+            EnableMap(mapName);
         }
-        private static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map, string set)
+
+
+        public static string PopContext()
         {
-            if (map == null || string.IsNullOrEmpty(set)) return;
+            if (contextStack.Count == 0) return null;
 
 
-            if (!listeners.TryGetValue(map, out var actionDict)) return;
+            string popped = contextStack.Pop();
+            DisableMap(popped);
 
-            actionDict.Remove(set);
+            if (contextStack.Count > 0) EnableMap(contextStack.Peek());
 
-            if (actionDict.Count == 0) listeners.Remove(map);
+            return popped;
         }
-        private static void UnregisterListener(Dictionary<InputBindingMap, Dictionary<string, List<(Action callback, bool requiresAllBindsDown)>>> listeners, InputBindingMap map)
+
+        public static string PeekContext() => currentContext;
+
+
+        public static void ClearContext()
         {
-            if (map == null) return;
-            
-            if (listeners.ContainsKey(map)) listeners.Remove(map);
+            while (contextStack.Count > 0)
+                DisableMap(contextStack.Pop());
         }
 
-        public static void RegisterListener_Down(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false) =>
-            RegisterListener(down_listeners, map, set, callback, requiresAllBindsDown);
-        public static void UnregisterListener_Down(this InputBindingMap map, string set, Action callback) =>
-            UnregisterListener(down_listeners, map, set, callback);
-            public static void UnregisterListener_Down(this InputBindingMap map, string set) =>
-            UnregisterListener(down_listeners, map, set);
-        public static void UnregisterListener_Down(this InputBindingMap map) =>
-            UnregisterListener(down_listeners, map);
 
-        public static void RegisterListener_Up(this InputBindingMap map, string set, Action callback, bool requiresAllBindsDown = false) =>
-            RegisterListener(up_listeners, map, set, callback, requiresAllBindsDown);
-        public static void UnregisterListener_Up(this InputBindingMap map, string set, Action callback) =>
-            UnregisterListener(up_listeners, map, set, callback);
-        public static void UnregisterListener_Up(this InputBindingMap map, string set) =>
-            UnregisterListener(up_listeners, map, set);
-        public static void UnregisterListener_Up(this InputBindingMap map) =>
-            UnregisterListener(up_listeners, map);
+        public static string PrintContextStack()
+        {
+            if (contextStack.Count == 0) return "[]";
+
+            string stack = string.Join(", ", contextStack.ToArray());
+            return $"[{stack}]";
+        }
         #endregion
 
 
 
         #region Input Retrieval
-        public static bool GetInput(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        public static bool GetInput(string actionPath)
         {
-            if (!map.enabled)
+            InputAction action = GetAction(actionPath);
+            if (action == null) return false;
+
+            if (!action.enabled)
             {
-                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: Action '{actionPath}' not enabled.");
 
                 return false;
             }
 
-
-            IInputSet setInterface = RetrieveInputSet(map, set);
-
-            if (setInterface != null) return setInterface.GetInput(requiresAllBindsDown);
-            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
-
-
-            return false;
+            return action.IsPressed();
         }
 
-        public static InputValue GetInputValue(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        public static bool GetInputDown(string actionPath)
         {
-            if (!map.enabled)
+            InputAction action = GetAction(actionPath);
+            if (action == null) return false;
+
+            if (!action.enabled)
             {
-                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
-
-                return new InputValue();
-            }
-
-
-            IInputSet iInputSet = RetrieveInputSet(map, set);
-
-            if (iInputSet is InputSet singleSet) return new InputValue(singleSet.GetInputValue(requiresAllBindsDown));
-            else if (iInputSet is Composite_InputSet compositeSet)
-            {
-                float[] axesValues = new float[compositeSet.axisCount];
-                for (int i = 0; i < compositeSet.axisCount; i++)
-                    axesValues[i] = compositeSet.GetAxisValue(i, requiresAllBindsDown);
-                
-                return new InputValue(axesValues);
-            }
-            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
-
-
-            return new InputValue();
-        }
-
-
-        public static bool GetInputDown(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
-        {
-            if (!map.enabled)
-            {
-                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: Action '{actionPath}' not enabled.");
 
                 return false;
             }
 
-
-            IInputSet setInterface = RetrieveInputSet(map, set);
-
-            if (setInterface != null) return setInterface.GetInputDown(requiresAllBindsDown);
-            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
-
-
-            return false;
+            return action.WasPressedThisFrame();
         }
 
-
-        public static bool GetInputUp(this InputBindingMap map, string set, bool requiresAllBindsDown = false)
+        public static bool GetInputUp(string actionPath)
         {
-            if (!map.enabled)
+            InputAction action = GetAction(actionPath);
+            if (action == null) return false;
+
+            if (!action.enabled)
             {
-                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: InputMap '{map.mapName}' not enabled.");
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: Action '{actionPath}' not enabled.");
 
                 return false;
             }
 
+            return action.WasReleasedThisFrame();
+        }
 
-            IInputSet setInterface = RetrieveInputSet(map, set);
 
-            if (setInterface != null) return setInterface.GetInputUp(requiresAllBindsDown);
-            else Debug.LogWarning($"SHUU_Input: InputSet '{set}' not found in map '{map.mapName}'");
+        public static T GetInputValue<T>(string actionPath) where T : struct
+        {
+            InputAction action = GetAction(actionPath);
+            if (action == null) return default;
 
-            
-            return false;
+            if (!action.enabled)
+            {
+                if (disabledWarning_debugLogEmission) Debug.LogWarning($"SHUU_Input: Action '{actionPath}' not enabled.");
+
+                return default;
+            }
+
+
+            return action.ReadValue<T>();
+        }
+
+        public static float GetInputValue(string actionPath) => GetInputValue<float>(actionPath);
+        public static Vector2 GetInputValue2D(string actionPath) => GetInputValue<Vector2>(actionPath);
+        #endregion
+
+
+
+        #region Buffered Inputs
+        public static void RegisterBufferInput_Down(string actionPath, float bufferTime = defaultBufferTime, bool ignoreTimeScale = false)
+        {
+            if (string.IsNullOrEmpty(actionPath) || bufferTime <= 0f) return;
+
+
+            ActionHooks hook = GetOrCreateHooks(actionPath);
+            if (hook == null) return;
+
+            if (hook.downBuffer == null)
+            {
+                hook.downBuffer = new BufferedInput(bufferTime, ignoreTimeScale);
+                hook.EnsureSubscribed();
+            }
+        }
+
+        public static void UnregisterBufferInput_Down(string actionPath)
+        {
+            if (!hooks.TryGetValue(actionPath, out var hook)) return;
+
+            hook.downBuffer = null;
+
+            CleanupIfEmpty(actionPath, hook);
+        }
+
+
+        public static void RegisterBufferInput_Up(string actionPath, float bufferTime = defaultBufferTime, bool ignoreTimeScale = false)
+        {
+            if (string.IsNullOrEmpty(actionPath) || bufferTime <= 0f) return;
+
+
+            ActionHooks hook = GetOrCreateHooks(actionPath);
+            if (hook == null) return;
+
+            if (hook.upBuffer == null)
+            {
+                hook.upBuffer = new BufferedInput(bufferTime, ignoreTimeScale);
+                hook.EnsureSubscribed();
+            }
+        }
+
+        public static void UnregisterBufferInput_Up(string actionPath)
+        {
+            if (!hooks.TryGetValue(actionPath, out var hook)) return;
+
+            hook.upBuffer = null;
+
+            CleanupIfEmpty(actionPath, hook);
+        }
+
+
+        public static bool GetBufferedInput_Down(string actionPath, bool consume = true)
+        {
+            if (!hooks.TryGetValue(actionPath, out var hook)) return false;
+
+            BufferedInput buffer = hook.downBuffer;
+            if (buffer == null || !buffer.isActive) return false;
+
+            if (consume) buffer.Consume();
+
+            return true;
+        }
+
+        public static bool GetBufferedInput_Up(string actionPath, bool consume = true)
+        {
+            if (!hooks.TryGetValue(actionPath, out var hook)) return false;
+
+            BufferedInput buffer = hook.upBuffer;
+            if (buffer == null || !buffer.isActive) return false;
+
+            if (consume) buffer.Consume();
+
+            return true;
         }
         #endregion
 
 
-    
-        #region Bindings Management
-        public static void AddInputBinds(this InputBindingMap map, string name, params DynamicInput[] binds)
+
+        #region Listeners
+        public static void RegisterListener_Down(string actionPath, Action callback)
         {
-            IInputSet setInterface = RetrieveInputSet(map, name);
+            if (string.IsNullOrEmpty(actionPath) || callback == null) return;
 
 
-            if (setInterface == null)
-            {
-                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
-                
-                return;
-            }
+            ActionHooks hook = GetOrCreateHooks(actionPath);
+            if (hook == null) return;
 
+            if (hook.downListeners.Contains(callback)) return;
 
-            AddInputBinds(setInterface, binds);
+            hook.downListeners.Add(callback);
+            hook.EnsureSubscribed();
         }
 
-        public static void AddInputBinds(IInputSet setInterface, params DynamicInput[] binds)
+        public static void UnregisterListener_Down(string actionPath, Action callback = null)
         {
-            if (setInterface is InputSet singleSet)
-            {
-                foreach (DynamicInput bind in binds)
-                {
-                    singleSet.AddBinding(bind);
-                }
-            }
-            else if (setInterface is Composite_InputSet compositeSet)
-            {
-                if (compositeSet.axisCount == 0 || binds.Length % compositeSet.axisCount != 0)
-                {
-                    Debug.LogWarning($"SHUU_Input: Amount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
+            if (!hooks.TryGetValue(actionPath, out var hook)) return;
 
-                    return;
-                }
+            if (callback != null) hook.downListeners.Remove(callback);
+            else hook.downListeners.Clear();
 
-
-                int index = 0;
-                int count = 0;
-                int sectorCap = binds.Length / compositeSet.axisCount;
-                foreach (DynamicInput bind in binds)
-                {
-                    compositeSet.AddBinding(bind, index);
-
-                    count++;
-                    if (count == sectorCap) index++;
-                }
-            }
-            else Debug.LogWarning($"SHUU_Input: InputSet is invalid.");
+            CleanupIfEmpty(actionPath, hook);
         }
 
 
-        public static void RemoveInputBinds(this InputBindingMap map, string name, params DynamicInput[] binds)
+        public static void RegisterListener_Up(string actionPath, Action callback)
         {
-            IInputSet setInterface = RetrieveInputSet(map, name);
+            if (string.IsNullOrEmpty(actionPath) || callback == null) return;
 
 
-            if (setInterface == null)
-            {
-                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
-                
-                return;
-            }
+            ActionHooks hook = GetOrCreateHooks(actionPath);
+            if (hook == null) return;
 
+            if (hook.upListeners.Contains(callback)) return;
 
-            RemoveInputBinds(setInterface, binds);
+            hook.upListeners.Add(callback);
+            hook.EnsureSubscribed();
         }
 
-        public static void RemoveInputBinds(IInputSet setInterface, params DynamicInput[] binds)
+        public static void UnregisterListener_Up(string actionPath, Action callback = null)
         {
-            if (setInterface is InputSet singleSet)
-            {
-                foreach (DynamicInput bind in binds)
-                    singleSet.RemoveBinding(bind);
-            }
-            else if (setInterface is Composite_InputSet compositeSet)
-            {
-                if (compositeSet.axisCount == 0 || binds.Length % compositeSet.axisCount != 0)
-                {
-                    if (debugLogEmission) Debug.LogWarning($"SHUU_Input: Amount of binds for Composite set is invalid, must be a multiple of {compositeSet.axisCount}.");
+            if (!hooks.TryGetValue(actionPath, out var hook)) return;
 
-                    return;
-                }
+            if (callback != null) hook.upListeners.Remove(callback);
+            else hook.upListeners.Clear();
 
-
-                int index = 0;
-                int count = 0;
-                int sectorCap = binds.Length / compositeSet.axisCount;
-                foreach (DynamicInput bind in binds)
-                {
-                    compositeSet.RemoveBinding(bind, index);
-
-                    count++;
-                    if (count == sectorCap) index++;
-                }
-            }
-            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet is invalid.");
-        }
-
-
-        public static void ClearInputBinds(this InputBindingMap map, string name)
-        {
-            IInputSet setInterface = RetrieveInputSet(map, name);
-
-
-            if (setInterface == null)
-            {
-                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
-                
-                return;
-            }
-
-
-            setInterface.ClearBindings();
-        }
-
-
-        public static void RebindInputSet(this InputBindingMap map, string name, params DynamicInput[] binds)
-        {
-            IInputSet setInterface = RetrieveInputSet(map, name);
-
-
-            if (setInterface == null)
-            {
-                if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
-                
-                return;
-            }
-
-
-            RebindInputSet(setInterface, binds);
-        }
-
-        public static void RebindInputSet(IInputSet setInterface, params DynamicInput[] binds)
-        {
-            setInterface.ClearBindings();
-
-            AddInputBinds(setInterface, binds);
+            CleanupIfEmpty(actionPath, hook);
         }
         #endregion
-    
-    
-    
-        #region Misc
-        public static InputSet RetrieveSingleInputSet(this InputBindingMap map, string name)
-        {
-            if (map.TryGetSingleSet(name, out InputSet singleSet)) return singleSet;
-            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: Single InputSet '{name}' not found in map '{map.mapName}'.");
 
+
+
+        #region Hooks
+        private static ActionHooks GetOrCreateHooks(string actionPath)
+        {
+            if (hooks.TryGetValue(actionPath, out var existing)) return existing;
+
+            InputAction action = GetAction(actionPath);
+            if (action == null) return null;
+
+            var hook = new ActionHooks(action);
+            hooks[actionPath] = hook;
+
+            return hook;
+        }
+
+
+        private static void CleanupIfEmpty(string actionPath, ActionHooks hook)
+        {
+            if (hook.hasAnyHooks) return;
+
+            hook.Unsubscribe();
+            hooks.Remove(actionPath);
+        }
+
+        public static void CleanupAllHooks()
+        {
+            foreach (var hook in hooks.Values)
+                hook.Unsubscribe();
+
+            hooks.Clear();
+        }
+        #endregion
+
+
+
+        /*
+        ⚠️‼️ AI ASSISTED SNIPPET
+
+        This snippet was written with the assistance of AI.
+        */
+        #region Rebinding & Defaults
+        public static string SaveOverrides() => inputActionAsset?.SaveBindingOverridesAsJson();
+
+        public static void LoadOverrides(string json)
+        {
+            if (inputActionAsset == null || string.IsNullOrEmpty(json)) return;
+
+            inputActionAsset.LoadBindingOverridesFromJson(json);
+        }
+
+
+        public static void ResetToDefaults(string mapName = null)
+        {
+            if (string.IsNullOrEmpty(mapName))
+            {
+                inputActionAsset?.RemoveAllBindingOverrides();
+
+                return;
+            }
+
+            GetMap(mapName)?.RemoveAllBindingOverrides();
+        }
+
+
+        public static string FindBindingConflict(string actionPath, string candidateControlPath, string bindingGroup = null)
+        {
+            InputAction action = GetAction(actionPath);
+            if (action == null || string.IsNullOrEmpty(candidateControlPath)) return null;
+
+            InputActionMap map = action.actionMap;
+            if (map == null) return null;
+
+            InputControl candidateControl = UnityEngine.InputSystem.InputSystem.FindControl(candidateControlPath);
+            if (candidateControl == null) return null;
+
+
+            foreach (var otherAction in map.actions)
+            {
+                if (otherAction == action) continue;
+
+                foreach (var binding in otherAction.bindings)
+                {
+                    if (binding.isComposite || binding.isPartOfComposite) continue;
+                    if (!string.IsNullOrEmpty(bindingGroup) && !string.IsNullOrEmpty(binding.groups) && !binding.groups.Contains(bindingGroup)) continue;
+
+                    string boundPath = string.IsNullOrEmpty(binding.overridePath) ? binding.path : binding.overridePath;
+                    if (string.IsNullOrEmpty(boundPath)) continue;
+
+                    InputControl existingControl = UnityEngine.InputSystem.InputSystem.FindControl(boundPath);
+
+                    if (existingControl == candidateControl) return otherAction.name;
+                }
+            }
 
             return null;
         }
 
-        public static Composite_InputSet RetrieveCompositeInputSet(this InputBindingMap map, string name)
+
+        public static int GetCompositePartBindingIndex(string actionPath, CompositeBindPart part) => GetCompositePartBindingIndex(actionPath, GetEnumName(part));
+        public static int GetCompositePartBindingIndex(string actionPath, string partName)
         {
-            if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet)) return compositeSet;
-            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: Composite InputSet '{name}' not found in map '{map.mapName}'.");
+            InputAction action = GetAction(actionPath);
+            if (action == null || string.IsNullOrEmpty(partName)) return -1;
 
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                var binding = action.bindings[i];
+                if (binding.isPartOfComposite && string.Equals(binding.name, partName, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
 
-            return null;
+            return -1;
         }
 
 
-        public static IInputSet RetrieveInputSet(this InputBindingMap map, string name)
+        public static InputActionRebindingExtensions.RebindingOperation StartInteractiveRebind(string actionPath, int bindingIndex, Action onComplete = null, Action onCancel = null, string schemeFilter = null, Action<string> onConflict = null, bool blockOnConflict = false)
         {
-            if (map.TryGetSingleSet(name, out InputSet singleSet)) return singleSet;
-            else if (map.TryGetCompositeSet(name, out Composite_InputSet compositeSet)) return compositeSet;
-            else if (debugLogEmission) Debug.LogWarning($"SHUU_Input: InputSet '{name}' not found in map '{map.mapName}'.");
+            InputAction action = GetAction(actionPath);
+            if (action == null) return null;
+
+            action.Disable();
+
+            var rebind = action.PerformInteractiveRebinding(bindingIndex);
+
+            if (!string.IsNullOrEmpty(schemeFilter) && inputActionAsset != null)
+            {
+                InputControlScheme? scheme = inputActionAsset.FindControlScheme(schemeFilter);
+
+                if (scheme.HasValue)
+                {
+                    foreach (var deviceRequirement in scheme.Value.deviceRequirements)
+                        rebind.WithControlsHavingToMatchPath(deviceRequirement.controlPath);
+                }
+            }
+
+            if (onConflict != null || blockOnConflict)
+            {
+                rebind.OnPotentialMatch(op =>
+                {
+                    var candidate = op.selectedControl;
+                    if (candidate == null) return;
+
+                    string conflictingAction = FindBindingConflict(actionPath, candidate.path, schemeFilter);
+
+                    if (conflictingAction != null)
+                    {
+                        onConflict?.Invoke(conflictingAction);
+
+                        if (blockOnConflict) return;
+                    }
+
+                    op.Complete();
+                });
+            }
+
+            rebind.OnComplete(op =>
+                {
+                    op.Dispose();
+                    action.Enable();
+                    onComplete?.Invoke();
+                })
+                .OnCancel(op =>
+                {
+                    op.Dispose();
+                    action.Enable();
+                    onCancel?.Invoke();
+                })
+                .Start();
+
+            return rebind;
+        }
+        #endregion
 
 
-            return null;
+
+        /*
+        ⚠️‼️ AI ASSISTED SNIPPET
+
+        This snippet was written with the assistance of AI.
+        */
+        #region Display Strings
+        public static string GetBindingDisplayString(string actionPath, int bindingIndex)
+        {
+            InputAction action = GetAction(actionPath);
+            if (action == null) return string.Empty;
+
+            return action.GetBindingDisplayString(bindingIndex);
         }
 
 
-        public static InputBindingMap RetrieveBindingMap(string name)
+        public static string GetBindingDisplayString(string actionPath, string schemeName)
         {
-            if (allInputBindingMaps == null) return null;
+            InputAction action = GetAction(actionPath);
+            if (action == null || inputActionAsset == null) return string.Empty;
+
+            InputControlScheme? scheme = inputActionAsset.FindControlScheme(schemeName);
+            if (!scheme.HasValue) return string.Empty;
+
+            var mask = InputBinding.MaskByGroup(scheme.Value.bindingGroup);
+
+            return action.GetBindingDisplayString(mask);
+        }
 
 
-            InputBindingMap _map = null;
+        public static string GetBindingDisplayString(string actionPath, string schemeName, int schemeBindingIndex)
+        {
+            List<string> all = GetBindingDisplayStrings(actionPath, schemeName);
+            if (all == null || schemeBindingIndex < 0 || schemeBindingIndex >= all.Count) return string.Empty;
 
-            foreach (InputBindingMap map in allInputBindingMaps.Values)
-                if (map.mapName.ToLower() == name.ToLower()) _map = map;
+            return all[schemeBindingIndex];
+        }
 
-            return _map;
+
+        public static List<string> GetBindingDisplayStrings(string actionPath, string schemeName)
+        {
+            InputAction action = GetAction(actionPath);
+            if (action == null || inputActionAsset == null) return null;
+
+            InputControlScheme? scheme = inputActionAsset.FindControlScheme(schemeName);
+            if (!scheme.HasValue) return null;
+
+            var result = new List<string>();
+            var mask = InputBinding.MaskByGroup(scheme.Value.bindingGroup);
+
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                if (action.bindings[i].isComposite) continue;
+                if (!mask.Matches(action.bindings[i])) continue;
+
+                result.Add(action.GetBindingDisplayString(i));
+            }
+
+            return result;
+        }
+
+
+        public static Dictionary<int, string> GetAllBindingDisplayStrings(string actionPath)
+        {
+            InputAction action = GetAction(actionPath);
+            if (action == null) return null;
+
+            var result = new Dictionary<int, string>();
+
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                if (action.bindings[i].isComposite) continue;
+
+                result[i] = action.GetBindingDisplayString(i);
+            }
+
+            return result;
+        }
+        #endregion
+
+
+
+        #region Haptics
+        public static void SetRumble(float lowFrequency, float highFrequency)
+        {
+            Gamepad pad = Gamepad.current;
+            if (pad == null) return;
+
+            pad.SetMotorSpeeds(Mathf.Clamp01(lowFrequency), Mathf.Clamp01(highFrequency));
+            gamepadRumble[pad.deviceId, pad] = true;
+        }
+
+        public static void StopRumble()
+        {
+            Gamepad pad = Gamepad.current;
+            if (pad == null) return;
+
+            pad.SetMotorSpeeds(0f, 0f);
+            gamepadRumble[pad.deviceId, pad] = false;
+        }
+
+        public static void StopAllRumble()
+        {
+            foreach (var pad in Gamepad.all)
+            {
+                pad.SetMotorSpeeds(0f, 0f);
+                gamepadRumble[pad.deviceId, pad] = false;
+            }
+        }
+
+
+        public static SHUU_Timer RumbleTimer(float lowFrequency, float highFrequency, float duration)
+        {
+            SetRumble(lowFrequency, highFrequency);
+
+            return SHUU_Time.Timer(duration, StopRumble);
+        }
+
+        public static Coroutine RumbleFor(float lowFrequency, float highFrequency, float duration) => SHUU_Time.StartCoroutineStatic(RumbleRoutine(lowFrequency, highFrequency, duration));
+        public static IEnumerator RumbleRoutine(float lowFrequency, float highFrequency, float duration)
+        {
+            SetRumble(lowFrequency, highFrequency);
+
+            yield return new WaitForSeconds(duration);
+
+            StopRumble();
         }
         #endregion
 

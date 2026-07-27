@@ -1,17 +1,12 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
-using SHUU.Utils.Helpers;
 using SHUU.Utils.InputSystem;
+using SHUU.Utils.Helpers;
+
 using static SHUU.InnerWorkings.SHUU_PackageUtils;
 
 namespace SHUU.Utils.Developer.Console
@@ -20,8 +15,10 @@ namespace SHUU.Utils.Developer.Console
     public class BoundCommands : AutoSave_Json_MonoBehaviour<BoundCommands_SaveData>
     {
         #region Variables
-        private static Dictionary<(KeyCode?, int?, string), string[]> boundCommands = new();
-        private static Dictionary<(InputBindingMap, string), string[]> is_boundCommands = new();
+        private static Dictionary<string, List<string>> boundCommands = new();
+        private static Dictionary<string, List<string>> direct_boundCommands = new();
+        private static Dictionary<KeyCode, List<string>> classic_boundCommands_key = new();
+        private static Dictionary<int, List<string>> classic_boundCommands_mouse = new();
 
 
         private DevConsoleManager devConsoleManager;
@@ -37,7 +34,7 @@ namespace SHUU.Utils.Developer.Console
 
             devConsoleManager = GetComponent<DevConsoleManager>();
         }
-
+        
 
         private void Update()
         {
@@ -45,49 +42,132 @@ namespace SHUU.Utils.Developer.Console
 
 
             foreach (var kvp in boundCommands)
-            {
-                if (GetInputDown(kvp.Key)) devConsoleManager.ProcessInput(string.Join(" ", kvp.Value));
-            }
+                if (SHUU_Input.GetInputDown(kvp.Key))
+                {
+                    foreach (var cmd in kvp.Value)
+                        devConsoleManager.ProcessInput(cmd);
+                }
 
-            foreach (var kvp in is_boundCommands)
-            {
-                if (SHUU_Input.GetInputDown(kvp.Key.Item1, kvp.Key.Item2)) devConsoleManager.ProcessInput(string.Join(" ", kvp.Value));
-            }
+            foreach (var kvp in direct_boundCommands)
+                if (GetDirectInputDown(kvp.Key))
+                {
+                    foreach (var cmd in kvp.Value)
+                        devConsoleManager.ProcessInput(cmd);
+                }
+
+
+            foreach (var kvp in classic_boundCommands_key)
+                if (Input.GetKeyDown(kvp.Key))
+                {
+                    foreach (var cmd in kvp.Value)
+                        devConsoleManager.ProcessInput(cmd);
+                }
+
+            foreach (var kvp in classic_boundCommands_mouse)
+                if (Input.GetMouseButtonDown(kvp.Key))
+                {
+                    foreach (var cmd in kvp.Value)
+                        devConsoleManager.ProcessInput(cmd);
+                }
         }
         #endregion
 
 
 
         #region API
-        public static void BindCommand((KeyCode?, int?, string) input, string[] commandData) => boundCommands.Add(input, commandData);
-        public static void UnBindCommands((KeyCode?, int?, string) input) => boundCommands.Remove(input);
 
-        public static void BindCommand((InputBindingMap, string) binding, string[] commandData) => is_boundCommands.Add(binding, commandData);
-        public static void UnBindCommands((InputBindingMap, string) binding) => is_boundCommands.Remove(binding);
+        #region Input System
+
+        #region Action
+        public static void BindCommand(string actionPath, string[] commandData) => Bind(boundCommands, actionPath, commandData);
+        public static bool UnBindCommands(string actionPath, string[] commandData = null) => Unbind(boundCommands, actionPath, commandData);
+        #endregion
 
 
-        private bool GetInputDown((KeyCode?, int?, string) input)
+        #region Direct
+        public static void BindDirectCommand(string controlPath, string[] commandData) => Bind(direct_boundCommands, controlPath, commandData);
+        public static bool UnBindDirectCommands(string controlPath, string[] commandData = null) => Unbind(direct_boundCommands, controlPath, commandData);
+
+        private static bool GetDirectInputDown(string controlPath)
         {
-            if (input.Item1 != null) return Input.GetKeyDown(input.Item1.Value);
-            else if (input.Item2 != null) return Input.GetMouseButtonDown(input.Item2.Value);
-            else if (input.Item3 != null) return Input.GetAxisRaw(input.Item3) > 0;
+            InputControl control = UnityEngine.InputSystem.InputSystem.FindControl(controlPath);
+            if (control == null) return false;
+
+            if (control is ButtonControl button) return button.wasPressedThisFrame;
+            if (control is AxisControl axis) return axis.ReadValue() > 0f;
 
             return false;
         }
+        #endregion
+        
+        #endregion
+
+
+
+        #region Classic Input
+
+        #region Classic key
+        public static void BindClassicCommand(KeyCode key, string[] commandData) => Bind(classic_boundCommands_key, key, commandData);
+        public static bool UnBindClassicCommands(KeyCode key, string[] commandData = null) => Unbind(classic_boundCommands_key, key, commandData);
+        #endregion
+
+
+        #region Classic mouse
+        public static void BindClassicCommand(int mouseButton, string[] commandData) => Bind(classic_boundCommands_mouse, mouseButton, commandData);
+        public static bool UnBindClassicCommands(int mouseButton, string[] commandData = null) => Unbind(classic_boundCommands_mouse, mouseButton, commandData);
+        #endregion
+        
+        #endregion
+
+
+
+        #region Helpers
+        private static void Bind<TKey>(Dictionary<TKey, List<string>> dict, TKey key, string[] commandData)
+        {
+            if (!dict.TryGetValue(key, out var list))
+            {
+                list = new List<string>();
+                dict[key] = list;
+            }
+
+            list.Add(string.Join(" ", commandData));
+        }
+
+        private static bool Unbind<TKey>(Dictionary<TKey, List<string>> dict, TKey key, string[] commandData = null)
+        {
+            if (!dict.TryGetValue(key, out var list)) return false;
+
+            if (commandData == null || commandData.Length == 0)
+            {
+                dict.Remove(key);
+                return true;
+            }
+
+            string joined = string.Join(" ", commandData);
+            int removed = list.RemoveAll(c => c == joined);
+            if (list.Count == 0) dict.Remove(key);
+
+            return removed > 0;
+        }
+        #endregion
+
         #endregion
 
 
 
         #region Saving/Loading
-        protected override string FileAddress() => GetPath("DevConsole", "bound_commands" + ".json");
+        protected override string FileAddress() => GetPath("DevConsole", "bound_commands.json");
 
 
-        protected override BoundCommands_SaveData SaveData() => new BoundCommands_SaveData(boundCommands, is_boundCommands);
+        protected override BoundCommands_SaveData SaveData()
+            => new BoundCommands_SaveData(boundCommands, direct_boundCommands, classic_boundCommands_key, classic_boundCommands_mouse);
 
         protected override void LoadData(BoundCommands_SaveData data)
         {
-            boundCommands = new(data.boundCommands);
-            is_boundCommands = new(data.is_boundCommands);
+            boundCommands          = new(data.boundCommands);
+            direct_boundCommands   = new(data.direct_boundCommands);
+            classic_boundCommands_key   = new(data.classic_boundCommands_key);
+            classic_boundCommands_mouse = new(data.classic_boundCommands_mouse);
         }
         #endregion
     }
@@ -99,17 +179,23 @@ namespace SHUU.Utils.Developer.Console
     [Serializable]
     public class BoundCommands_SaveData
     {
-        public Dictionary<(KeyCode?, int?, string), string[]> boundCommands = new();
-        public Dictionary<(InputBindingMap, string), string[]> is_boundCommands = new();
+        public Dictionary<string, List<string>> boundCommands = new();
+        public Dictionary<string, List<string>> direct_boundCommands = new();
+
+        public Dictionary<KeyCode, List<string>> classic_boundCommands_key = new();
+        public Dictionary<int, List<string>> classic_boundCommands_mouse = new();
 
 
-        public BoundCommands_SaveData(Dictionary<(KeyCode?, int?, string), string[]> data, Dictionary<(InputBindingMap, string), string[]> is_data)
+        public BoundCommands_SaveData(
+            Dictionary<string, List<string>> data,
+            Dictionary<string, List<string>> directData,
+            Dictionary<KeyCode, List<string>> keyData,
+            Dictionary<int, List<string>> mouseData)
         {
-            if (data == null) boundCommands = new();
-            else boundCommands = new(data);
-
-            if (is_data == null) is_boundCommands = new();
-            else is_boundCommands = new(is_data);
+            boundCommands = data == null ? new() : new(data);
+            direct_boundCommands = directData == null ? new() : new(directData);
+            classic_boundCommands_key = keyData == null ? new() : new(keyData);
+            classic_boundCommands_mouse = mouseData == null ? new() : new(mouseData);
         }
     }
     #endregion

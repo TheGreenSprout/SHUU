@@ -37,7 +37,7 @@ namespace SHUU.Utils.Globals
         {
             base.Awake();
 
-            SHUU_General.OnSceneChange += OnRoomChange;
+            SHUU_General.onSceneChange += OnRoomChange;
         }
 
         public void OnRoomChange() => FullSave(localSave_OnRoomChange, saveToFile_OnRoomChange);
@@ -45,7 +45,7 @@ namespace SHUU.Utils.Globals
 
         private void OnApplicationQuit()
         {
-            SHUU_General.OnSceneChange -= OnRoomChange;
+            SHUU_General.onSceneChange -= OnRoomChange;
 
             FullSave(localSave_OnApplicationQuit, saveToFile_OnApplicationQuit);
         }
