@@ -32,14 +32,13 @@ namespace SHUU.Utils.UI
 
 
 
+        /*
+        ⚠️‼️ AI ASSISTED SNIPPET
 
+        This code snippet was written with the assistance of AI.
+        */
         #region Helpers
 
-        /*
-        ⚠️‼️ AI ASSISTED CODE
-
-        This code was written with the assistance of AI.
-        */
         #region Gradient Types
         [Serializable]
         public abstract class GradientType {
@@ -384,10 +383,10 @@ namespace SHUU.Utils.UI
                 return new Matrix2x3(m00, m01, m02, m10, m11, m12);
             }
 
-            static Vector2[] ms_verticesPositions = new Vector2[] { Vector2.up, Vector2.one, Vector2.right, Vector2.zero };
+            static Vector2[] VerticesPositions = new Vector2[] { Vector2.up, Vector2.one, Vector2.right, Vector2.zero };
             public static Vector2[] VerticePositions
             {
-                get { return ms_verticesPositions; }
+                get { return VerticesPositions; }
             }
 
             public static Vector2 RotationDir(float angle)

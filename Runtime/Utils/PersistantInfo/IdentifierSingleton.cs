@@ -3,8 +3,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
+using Alchemy.Inspector;
+
 using SHUU.Utils.SceneManagement;
+using SHUU.InnerWorkings.Preferences;
 
 namespace SHUU.Utils.PersistantInfo
 {
@@ -12,33 +14,39 @@ namespace SHUU.Utils.PersistantInfo
     public class IdentifierSingleton : MonoBehaviour
     {
         #region Variables
-        public static List<IdentifierSingleton> allInstances = new List<IdentifierSingleton>();
+        public static List<IdentifierSingleton> AllInstances = new List<IdentifierSingleton>();
 
 
 
-        [Header("Singleton Settings")]
+        [BoxGroup("IdentifierSingleton Settings")]
         public string identifier = "Singleton";
 
 
-        [SerializeField] protected bool persistantSingleton = true;
-        [SerializeField] protected bool handleGameobject = true;
+        [SerializeField, BoxGroup("IdentifierSingleton Settings")]
+        protected bool persistantSingleton = true;
+        [SerializeField, BoxGroup("IdentifierSingleton Settings")]
+        protected bool handleGameobject = true;
 
-        [SerializeField] protected UnityEvent onCreation = null;
+        [SerializeField, BoxGroup("IdentifierSingleton Settings")]
+        protected UnityEvent onCreation = null;
 
 
         [Tooltip("If set  to 0 or more, after that ammount of scene changes, on the next scene change the object will be destroyed.")]
+        [BoxGroup("IdentifierSingleton Settings")]
         public int bridges = -1;
         [Tooltip("These scenes won't cost a bridge to enter.")]
-        [SerializeField] protected List<string> bridgeFree_Scenes = new List<string>() {"LoadingScene"};
+        [SerializeField, BoxGroup("IdentifierSingleton Settings")]
+        protected List<string> bridgeFree_Scenes = new List<string>() {"LoadingScene"};
         protected bool initialized = false;
 
 
         [Tooltip("If the singleton enters one of these scenes it will be deleted.")]
-        [SerializeField] protected List<string> banned_Scenes = new List<string>();
+        [SerializeField, BoxGroup("IdentifierSingleton Settings")]
+        protected List<string> banned_Scenes = new List<string>();
 
 
 
-        private static bool debugLogEmission => SHUU_Preferences.instance.singleton_debugLogEmission;
+        private static bool DebugLogEmission => SHUUPreferences_HandyClasses.Instance != null && SHUUPreferences_HandyClasses.Instance.singleton_debugLogEmission;
         #endregion
 
 
@@ -49,14 +57,14 @@ namespace SHUU.Utils.PersistantInfo
         {
             if (Check())
             {
-                if (debugLogEmission) Debug.LogWarning($"[IdentifierSingleton Singleton] Identifier collision detected. Destroying newest instance...");
+                if (DebugLogEmission) Debug.LogWarning($"[IdentifierSingleton Singleton] Identifier collision detected. Destroying newest instance...");
                 Dispose();
 
                 return;
             }
 
 
-            allInstances.Add(this);
+            AllInstances.Add(this);
 
             if (persistantSingleton)
             {
@@ -72,10 +80,10 @@ namespace SHUU.Utils.PersistantInfo
 
         protected bool Check()
         {
-            if (allInstances == null) return true;
+            if (AllInstances == null) return true;
 
 
-            foreach (var singleton in allInstances)
+            foreach (var singleton in AllInstances)
             {
                 if (singleton.identifier != identifier) continue;
 
@@ -95,7 +103,7 @@ namespace SHUU.Utils.PersistantInfo
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.activeSceneChanged -= OnSceneChanged;
 
-           allInstances.Remove(this);
+           AllInstances.Remove(this);
 
             
             Dispose();
@@ -109,7 +117,7 @@ namespace SHUU.Utils.PersistantInfo
         {
             if (banned_Scenes.Contains(SceneLoader.GetCurrentSceneName()))
             {
-                if (debugLogEmission) Debug.LogWarning($"[IdentifierSingleton Singleton] Banned scene entered. Destroying singleton...");
+                if (DebugLogEmission) Debug.LogWarning($"[IdentifierSingleton Singleton] Banned scene entered. Destroying singleton...");
 
                 DestroySingleton();
 
@@ -131,7 +139,7 @@ namespace SHUU.Utils.PersistantInfo
             {
                 if (bridges == 0)
                 {
-                    if (debugLogEmission) Debug.LogWarning($"[IdentifierSingleton Singleton] All bridges burnt. Destroying singleton...");
+                    if (DebugLogEmission) Debug.LogWarning($"[IdentifierSingleton Singleton] All bridges burnt. Destroying singleton...");
 
                     DestroySingleton();
                 }

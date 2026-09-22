@@ -33,13 +33,13 @@ namespace SHUU.Utils.Cameras.Visual.AddOns
             cam = GetComponent<Camera>();
             cam.enabled = false;
 
-            CustomFramerate_Handler.instance?.Add(identifier, this);
+            CustomFramerate_Handler.Instance?.Add(identifier, this);
 
             Render();
         }
 
 
-        private void OnDestroy() => CustomFramerate_Handler.instance?.Remove(identifier);
+        private void OnDestroy() => CustomFramerate_Handler.Instance?.Remove(identifier);
         #endregion
 
 

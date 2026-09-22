@@ -18,7 +18,7 @@ Enjoy :D
 
 
 ***
-## ⚠️ This package requires SHUU_UserSide and SETB.
+## ⚠️ This package requires SHUU_UserSide, SETB and Alchemy.
 ###     To install them:
 ####        To install SHUU_UserSide:
 #####           - Open [Window > Package Manager]
@@ -29,6 +29,11 @@ Enjoy :D
 #####           - Open [Window > Package Manager]
 #####           - Click the "+" sign and "Install package by git URL..."
 #####           - Type "https://github.com/TheGreenSprout/SETB.git" and click "Install".
+
+####        To install Alchemy:
+#####           - Open [Window > Package Manager]
+#####           - Click the "+" sign and "Install package by git URL..."
+#####           - Type "https://github.com/annulusgames/Alchemy.git?path=/Alchemy/Assets/Alchemy" and click "Install".
 <br><br>
 
 ️️## ⚠️ For a bunch of the implemented systems to work, you'll need a few objects/scripts in every scene:
@@ -61,8 +66,8 @@ Enjoy :D
 
 
 ***
-### + Current Version: 4.2.3
-### - Update Date: 27-07-2026
+### + Current Version: 5.2.1
+### - Update Date: 22-09-2026
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>

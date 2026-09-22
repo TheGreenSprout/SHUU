@@ -27,6 +27,8 @@ namespace SHUU.Utils.SceneManagement
         #endregion
         protected bool IsValidScene(string sceneName)
         {
+            if (excludedScenes == null || excludedScenes.Count == 0) return true;
+
             foreach (string name in excludedScenes)
                 if (sceneName == name) return false;
 

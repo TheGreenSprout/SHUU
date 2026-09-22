@@ -78,7 +78,9 @@ Shader "Custom/SHUU_FullscreenCameraEffects_Fullscreen"
             float4 Frag(FSOutput i) : SV_Target
             {
                 float2 uv = i.uv;
-                float blockSize = max(round(_ScreenParams.y / max(_PixelBlockSize, 1.0)), 1.0);
+                // No round() — fractional block sizes give intermediate visual levels
+                // between integers, so every _PixelBlockSize value is visually distinct.
+                float blockSize = max(_ScreenParams.y / max(_PixelBlockSize, 1.0), 1.0);
 
                 // bayerPos: integer coordinates fed into the Bayer function.
                 // When pixelating, use the block index so every sub-pixel in one
@@ -89,10 +91,13 @@ Shader "Custom/SHUU_FullscreenCameraEffects_Fullscreen"
                 // --- Pixelation ---
                 if (_EnablePixelate > 0.5)
                 {
-                    float2 blockOrigin = floor(i.positionCS.xy / blockSize) * blockSize;
-                    float2 blockCenter = blockOrigin + floor(blockSize * 0.5) + 0.5;
+                    float2 blockIdx = floor(i.positionCS.xy / blockSize);
+                    float2 blockOrigin = blockIdx * blockSize;
+                    // floor+0.5 ensures we always land on a valid pixel centre,
+                    // even when blockOrigin is fractional (non-integer blockSize).
+                    float2 blockCenter = floor(blockOrigin + blockSize * 0.5) + 0.5;
                     uv = blockCenter / _ScreenParams.xy;
-                    bayerPos = floor(i.positionCS.xy / blockSize);
+                    bayerPos = blockIdx;
                 }
 
                 // Force mip 0 — UV jumps at block edges corrupt derivative-based mip selection.

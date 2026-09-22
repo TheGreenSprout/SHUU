@@ -2,7 +2,7 @@ using UnityEngine;
 
 using SHUU.Utils.Interaction;
 
-namespace SHUU.Samples.SampleScenesAndUtils.SampleUtils
+namespace SHUU.Samples.ScenesUtils.Utils
 {
     #region XML doc
     /// <summary>

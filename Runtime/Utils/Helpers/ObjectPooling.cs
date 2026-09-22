@@ -39,16 +39,16 @@ namespace SHUU.Utils.Helpers
 
 
         #region Main
-        public SHUU_ObjectPool(T prefab, int initialSize, Transform parent = null, bool autoExpand = true, bool autoRestore = true, string _name = null)
+        public SHUU_ObjectPool(T prefab, int initialSize, Transform parent = null, bool autoExpand = true, bool autoRestore = true, string poolName = null)
         {
-            ObjectPooling.pools.Add(this);
+            ObjectPooling.Pools.Add(this);
 
 
-            if (parent == null && ObjectPooling.default_parent != null) parent = ObjectPooling.default_parent;
-            if (string.IsNullOrEmpty(_name)) _name = prefab.name;
+            if (parent == null && ObjectPooling.Default_parent != null) parent = ObjectPooling.Default_parent;
+            if (string.IsNullOrEmpty(poolName)) poolName = prefab.name;
 
 
-            poolName = _name;
+            this.poolName = poolName;
 
             this.prefab = prefab;
             this.parent = parent;
@@ -175,6 +175,9 @@ namespace SHUU.Utils.Helpers
 
             return null;
         }
+
+
+        public Transform GetParent() => parent;
         #endregion
 
 
@@ -257,10 +260,10 @@ namespace SHUU.Utils.Helpers
         #region Tracking
         public static class ObjectPooling
         {
-            public static Transform default_parent = null;
+            public static Transform Default_parent = null;
 
 
-            public static List<IObjectPool> pools = new();
+            public static List<IObjectPool> Pools = new();
         }
 
 

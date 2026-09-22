@@ -1,15 +1,7 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using UnityEngine;
 using System.Collections;
 
-using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
+using SHUU.InnerWorkings.Preferences;
 
 namespace SHUU.Utils.UI
 {
@@ -32,7 +24,7 @@ namespace SHUU.Utils.UI
 
 
 
-        private static bool debugLogEmission => SHUU_Preferences.instance.ui_debugLogEmission;
+        private static bool DebugLogEmission => SHUUPreferences_UI.Instance != null && SHUUPreferences_UI.Instance.debugLogEmission;
         #endregion
 
 
@@ -44,7 +36,7 @@ namespace SHUU.Utils.UI
             rectTransform = GetComponent<RectTransform>();
             if (rectTransform == null)
             {
-                if (debugLogEmission) Debug.LogError("RectTransform component is not found!");
+                if (DebugLogEmission) Debug.LogError("RectTransform component is not found.");
                 enabled = false;
 
                 return;

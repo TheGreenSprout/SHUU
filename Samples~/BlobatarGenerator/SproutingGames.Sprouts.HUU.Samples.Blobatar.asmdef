@@ -1,0 +1,14 @@
+{
+    "name": "SproutingGames.Sprouts.HUU.Samples.Blobatar",
+    "rootNamespace": "SHUU.Samples.Blobatar",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

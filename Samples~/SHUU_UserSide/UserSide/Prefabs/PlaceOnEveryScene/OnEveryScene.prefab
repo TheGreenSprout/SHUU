@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8114530475721278087}
   - component: {fileID: 5195458034361082493}
+  - component: {fileID: 9047409848272448070}
   m_Layer: 0
   m_Name: OnEveryScene
   m_TagString: Untagged
@@ -48,6 +49,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5786de42bb62d9847a0443e6b0199991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  destroyEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 9047409848272448070}
+        m_TargetAssemblyTypeName: SHUU.Utils.SHUU_HierarchyFolder, SproutingGames.Sprouts.HUU
+        m_MethodName: Dissolve
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &9047409848272448070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5225186638109007582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95db6fe5cf880fc488eeea7f99d2aa43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.SHUU_HierarchyFolder
+  dissolveOnPlay: 0
+  textStyle: 1
+  textAlignment: 0
+  iconSize: 1
+  iconOffset: {x: -1.2, y: 0}
+  coloredIcon: 0
+  iconColor: {r: 0.5058824, g: 0.8973239, b: 1, a: 1}
+  coloredText: 0
+  textColor: {r: 0.5260869, g: 0.7173914, b: 1, a: 1}
+  coloredHighlight: 0
+  highlightColor: {r: 0.4, g: 0.75, b: 1, a: 1}
+  prefabTint: 2
+  prefabIconTint: {r: 0.5, g: 0.85, b: 1, a: 1}
+  prefabTextTint: {r: 0.45, g: 0.62, b: 0.86, a: 1}
+  prefabHighlightTint: {r: 0.5, g: 0.85, b: 1, a: 1}
+  prefabTintStrength: 1
 --- !u!1001 &85628454584581153
 PrefabInstance:
   m_ObjectHideFlags: 0

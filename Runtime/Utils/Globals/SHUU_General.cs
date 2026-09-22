@@ -13,21 +13,21 @@ namespace SHUU.Utils.Globals
     /// Script holding some static variables used by the package, must be in all scenes.
     /// </summary>
     #endregion
-    public class SHUU_General : Singleton_MonoBehaviour<SHUU_General>
+    public class SHUU_General : HiddenSingleton_MonoBehaviour<SHUU_General>
     {
         #region Variables
         protected override bool PersistantSingleton() => false;
 
 
 
-        public static event Action onSceneChange;
+        public static event Action OnSceneChange;
 
 
-        public static event Action onLostFocus;
-        public static event Action onGainedFocus;
+        public static event Action OnLostFocus;
+        public static event Action OnGainedFocus;
 
-        public static event Action onApplicationPause;
-        public static event Action onApplicationResume;
+        public static event Action OnAppPause;
+        public static event Action OnAppResume;
 
 
 
@@ -61,9 +61,7 @@ namespace SHUU.Utils.Globals
             base.Awake();
 
 
-            transform.SetParent(null);
-
-            SceneLoader.nextScene = null;
+            SceneLoader.NextScene = null;
         }
         
         private void Start()
@@ -74,14 +72,14 @@ namespace SHUU.Utils.Globals
 
         private void OnApplicationFocus(bool hasFocus)
         {
-            if (!hasFocus) onLostFocus?.Invoke();
-            else onGainedFocus?.Invoke();
+            if (!hasFocus) OnLostFocus?.Invoke();
+            else OnGainedFocus?.Invoke();
         }
 
         private void OnApplicationPause(bool pauseStatus)
         {
-            if (pauseStatus) onApplicationPause?.Invoke();
-            else onApplicationResume?.Invoke();
+            if (pauseStatus) OnAppPause?.Invoke();
+            else OnAppResume?.Invoke();
         }
         #endregion
 
@@ -124,7 +122,7 @@ namespace SHUU.Utils.Globals
             }
 
 
-            onSceneChange?.Invoke();
+            OnSceneChange?.Invoke();
         }
 
         

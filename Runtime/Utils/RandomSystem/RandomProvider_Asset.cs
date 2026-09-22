@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
+using SHUU.InnerWorkings.Preferences;
 
 namespace SHUU.Utils.RandomSystem
 {
@@ -19,7 +19,7 @@ namespace SHUU.Utils.RandomSystem
 
 
 
-        private static bool debugLogEmission => SHUU_Preferences.instance.randomSystem_debugLogEmission;
+        private static bool DebugLogEmission => SHUUPreferences_RandomSystem.Instance != null && SHUUPreferences_RandomSystem.Instance.debugLogEmission;
         #endregion
 
 
@@ -55,7 +55,7 @@ namespace SHUU.Utils.RandomSystem
                 RandomProvider provider = entry.Provider();
 
 
-                if (provider_dict.ContainsKey(entry.GetName()) && debugLogEmission)
+                if (provider_dict.ContainsKey(entry.GetName()) && DebugLogEmission)
                     Debug.LogError($"Duplicate provider name detected in {assetName} asset. Name: {entry.GetName()}");
 
                 provider_dict[entry.GetName()] = provider;

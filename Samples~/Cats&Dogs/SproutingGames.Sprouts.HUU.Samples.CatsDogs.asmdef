@@ -1,0 +1,16 @@
+{
+    "name": "SproutingGames.Sprouts.HUU.Samples.CatsDogs",
+    "rootNamespace": "SHUU.Samples.CatsDogs",
+    "references": [
+        "GUID:3fa6bc7a02d93594296de95fff8cc78a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

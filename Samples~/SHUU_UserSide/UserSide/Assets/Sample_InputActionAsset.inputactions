@@ -1040,6 +1040,78 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Info_Toggle",
+                    "type": "Button",
+                    "id": "b942b89c-ad92-464b-a3c8-c15683ebd594",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Info_ToggleFpsGraph",
+                    "type": "Button",
+                    "id": "ca00bd9e-8d47-4d87-aff8-18db76fe5c82",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Info_FpsGraphCorner",
+                    "type": "Button",
+                    "id": "e7e49a00-8192-45cc-a735-b2a8951916be",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Info_ToggleAxis",
+                    "type": "Button",
+                    "id": "e67fdc9f-d4cf-4ac5-bd86-aba3985f5353",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Info_AxisMode",
+                    "type": "Button",
+                    "id": "1efab4a9-bb3f-41d3-b4c3-388f8e62e142",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Info_ToggleCompass",
+                    "type": "Button",
+                    "id": "e0b173b9-726b-4354-acea-8718345d7a74",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Info_CompassMode",
+                    "type": "Button",
+                    "id": "53de1929-4c22-4ac8-bff3-8503ec0bb8fc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Info_CompassPosition",
+                    "type": "Button",
+                    "id": "b5df3013-1ccc-4348-ab1d-bfa120266968",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Colliders_Toggle",
                     "type": "Button",
                     "id": "c49487d0-8fa7-40a9-ad4b-eabdc56c0559",
@@ -1051,37 +1123,15 @@
             ],
             "bindings": [
                 {
-                    "name": "Alt+F2",
-                    "id": "abfd2d80-03d5-4d11-aa54-038a036b7cce",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Console_Toggle",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "b63fbb9b-6203-4c07-a167-0a45e9a64a35",
-                    "path": "<Keyboard>/alt",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";KeyboardMouse",
-                    "action": "Console_Toggle",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "e29b900a-f881-4388-a6bf-e02be24ea28e",
+                    "name": "",
+                    "id": "bff311c3-70a8-4c35-93f8-adecddaceb13",
                     "path": "<Keyboard>/f2",
                     "interactions": "",
                     "processors": "",
                     "groups": ";KeyboardMouse",
                     "action": "Console_Toggle",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
@@ -1139,37 +1189,147 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "Alt+F3",
-                    "id": "e7c65dbe-0a04-4a57-b15c-8f2503677b00",
+                    "name": "",
+                    "id": "dfe0b8db-a235-4352-9a35-f7d24d2ca0b4",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Colliders_Toggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4e106aa1-be8b-4f41-83c8-b00e1060f84c",
+                    "path": "<Keyboard>/f3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_Toggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5475f442-cd61-48d1-8117-f844fd42f74d",
+                    "path": "<Keyboard>/f4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_ToggleFpsGraph",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e5c7e151-4218-48b5-9c60-e8f517d1666a",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_FpsGraphCorner",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Alt+1",
+                    "id": "5840433c-0194-4221-b7fe-e0db29d71fd7",
                     "path": "OneModifier",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Colliders_Toggle",
+                    "action": "Info_ToggleAxis",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "modifier",
-                    "id": "7d687d35-8e96-4beb-a2cf-7e6b45179346",
+                    "id": "3320ee1c-dcd9-4183-b62c-5ed64ebfe608",
                     "path": "<Keyboard>/alt",
                     "interactions": "",
                     "processors": "",
                     "groups": ";KeyboardMouse",
-                    "action": "Colliders_Toggle",
+                    "action": "Info_ToggleAxis",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "binding",
-                    "id": "ecf0fd39-bdae-4071-a4f5-97b90eb01552",
-                    "path": "<Keyboard>/f3",
+                    "id": "25548dbb-170d-4907-b186-613b567b14e6",
+                    "path": "<Keyboard>/1",
                     "interactions": "",
                     "processors": "",
                     "groups": ";KeyboardMouse",
-                    "action": "Colliders_Toggle",
+                    "action": "Info_ToggleAxis",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "Alt+2",
+                    "id": "36443bb6-d175-4d66-87b9-b7b5a1775cfb",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Info_ToggleCompass",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "b0a28613-d20f-4c00-9f6c-bcb835e58ff1",
+                    "path": "<Keyboard>/alt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_ToggleCompass",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "5683ae97-8cc1-48ef-b56a-ae95caa2ca91",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_ToggleCompass",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "5ca6cc1d-f238-4b48-b289-0baf42264e81",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_CompassMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "98150146-232d-4ce9-af6f-cc459f83a9e1",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_CompassPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7c1276fd-4221-4cf7-969d-4f4bd9459329",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Info_AxisMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

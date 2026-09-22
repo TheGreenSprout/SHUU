@@ -15,11 +15,11 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
         #region Singleton
         private static SHUU_TagRegistry _instance;
 
-        public static SHUU_TagRegistry instance
+        public static SHUU_TagRegistry Instance
         {
             get
             {
-                if (_instance == null) _instance = Resources.Load<SHUU_TagRegistry>("SHUU/InnerWorkings/SHUU_TagRegistry");
+                if (_instance == null) _instance = Resources.Load<SHUU_TagRegistry>("SHUUResources/SHUU_TagRegistry");
 
                 return _instance;
             }
@@ -28,7 +28,7 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
 
 
 
-        public static List<string> tagRegistry => instance._tagRegistry;
+        public static List<string> TagRegistry => Instance._tagRegistry;
         [SerializeField] private List<string> _tagRegistry;
         #endregion
 
@@ -41,9 +41,9 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
             if (_instance != null && _instance != this)
             {
 #if UNITY_EDITOR
-                Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_Preferences)}.\nRecorded instance: {AssetDatabase.GetAssetPath(_instance)}\nRepeated instance:{AssetDatabase.GetAssetPath(this)}\nDestroying newest instance...");
+                Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_TagRegistry)}.\nRecorded instance: {AssetDatabase.GetAssetPath(_instance)}\nRepeated instance:{AssetDatabase.GetAssetPath(this)}\nDestroying newest instance...");
 #else
-                Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_Preferences)}.\nDestroying newest instance...");
+                Debug.LogError($"Multiple instances of Singleton (ScriptableObject); type: {typeof(SHUU_TagRegistry)}.\nDestroying newest instance...");
 #endif
 
                 DestroyImmediate(this);

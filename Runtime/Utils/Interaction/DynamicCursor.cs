@@ -5,16 +5,16 @@ namespace SHUU.Utils.Interaction
     public class DynamicCursor : MonoBehaviour
     {
         #region Variables
-        protected bool cursorActive => DynamicCursorInteraction.cursorActive;
+        protected bool cursorActive => DynamicCursorInteraction.CursorActive;
         #endregion
 
 
 
 
         #region Main
-        protected virtual void OnEnable() => DynamicCursorInteraction.alternateCursorState += AlternateCursorState;
+        protected virtual void OnEnable() => DynamicCursorInteraction.AlternateCursorState += AlternateCursorState;
 
-        protected virtual void OnDisable() => DynamicCursorInteraction.alternateCursorState -= AlternateCursorState;
+        protected virtual void OnDisable() => DynamicCursorInteraction.AlternateCursorState -= AlternateCursorState;
         #endregion
 
 

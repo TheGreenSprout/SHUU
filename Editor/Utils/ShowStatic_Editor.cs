@@ -1,14 +1,5 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 #if UNITY_EDITOR
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -21,47 +12,37 @@ namespace SHUU._Editor.Utils
 {
     [CustomEditor(typeof(MonoBehaviour), true)]
     [CanEditMultipleObjects]
-    public class ShowStatic_Editor : Editor_Base<ShowStatic_Editor>
+    public class ShowStatic_Editor : AlchemyEditor_Base<ShowStatic_Editor>
     {
         #region Main
         protected override void DrawInspector()
         {
-            using (new EditorGUI.DisabledScope(true))
-                DrawInputProperty(null, Prop("m_Script"));
+            bool drawnHeader = false;
 
-            var typeChain = new List<Type>();
             var t = target.GetType();
             while (t != null && t != typeof(MonoBehaviour))
             {
-                typeChain.Add(t);
-                t = t.BaseType;
-            }
-            typeChain.Reverse();
-
-            foreach (var type in typeChain)
-            {
-                var fields = type.GetFields(
-                    BindingFlags.Instance | BindingFlags.Static |
-                    BindingFlags.Public | BindingFlags.NonPublic |
-                    BindingFlags.DeclaredOnly);
-
-                foreach (var field in fields)
+                foreach (var field in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
-                    if (field.IsStatic)
+                    if (!field.IsDefined(typeof(ShowStaticAttribute), false) || field.IsLiteral) continue;
+
+                    if (!drawnHeader)
                     {
-                        if (!field.IsDefined(typeof(ShowStaticAttribute), false) || field.IsLiteral) continue;
-                        DrawStaticField(field);
+                        Space(4);
+
+                        DrawLabel("Static Fields", EditorStyles.boldLabel);
+
+                        drawnHeader = true;
                     }
-                    else
-                    {
-                        if (field.IsDefined(typeof(HideInInspector), false)) continue;
-                        var prop = Prop(field.Name);
-                        if (prop != null) DrawInputProperty(null, prop);
-                    }
+
+                    DrawStaticField(field);
                 }
+
+                t = t.BaseType;
             }
         }
         #endregion
+
 
 
 
@@ -106,8 +87,7 @@ namespace SHUU._Editor.Utils
             if (t == typeof(Gradient)) return DrawInputGradient(label, value as Gradient ?? new Gradient());
             if (t == typeof(LayerMask)) return (LayerMask)DrawInputInt(label, value is LayerMask lm ? (int)lm : 0, layerOrMask: true);
             if (t.IsEnum) return EditorGUILayout.EnumPopup(label, value is Enum e ? e : (Enum)Enum.GetValues(t).GetValue(0));
-            if (typeof(UnityEngine.Object).IsAssignableFrom(t))
-                return EditorGUILayout.ObjectField(label, value as UnityEngine.Object, t, true);
+            if (typeof(UnityEngine.Object).IsAssignableFrom(t)) return EditorGUILayout.ObjectField(label, value as UnityEngine.Object, t, true);
 
             using (new EditorGUI.DisabledScope(true))
                 DrawLabel(label, value?.ToString() ?? "null");

@@ -9,13 +9,13 @@ namespace SHUU.Utils.Helpers
     public static class ScreenCaptureHelper
     {
         #region Variables
-        public static string lastPath { get; private set; }
+        public static string LastPath { get; private set; }
 
 
-        private static Texture2D lastScreenshotTexture;
+        private static Texture2D LastScreenshotTexture;
 
 
-        private static GameObject[] cache_objs;
+        private static GameObject[] Cache_objs;
         #endregion
 
 
@@ -26,10 +26,10 @@ namespace SHUU.Utils.Helpers
         #region File Path
         private static string GetFileName(string prefix, string extension)
         {
-            if (!string.IsNullOrEmpty(prefix)) return $"{prefix}_{Stats.timestamp}.{extension}";
+            if (!string.IsNullOrEmpty(prefix)) return $"{prefix}_{Stats.Timestamp}.{extension}";
 
 
-            return $"screenshot_{Stats.timestamp}.{extension}";
+            return $"screenshot_{Stats.Timestamp}.{extension}";
         }
 
         private static string GetDirectory(string customDir)
@@ -59,7 +59,7 @@ namespace SHUU.Utils.Helpers
         #region Toggle GameObjects
         public static void HideUI(GameObject[] objs)
         {
-            cache_objs = objs;
+            Cache_objs = objs;
 
             foreach (var c in objs) c.SetActive(false);
         }
@@ -69,9 +69,9 @@ namespace SHUU.Utils.Helpers
             await Task.Delay(50);
             
 
-            if (cache_objs == null) return;
+            if (Cache_objs == null) return;
 
-            foreach (var c in cache_objs) c.SetActive(true);
+            foreach (var c in Cache_objs) c.SetActive(true);
         }
         #endregion
 
@@ -81,7 +81,7 @@ namespace SHUU.Utils.Helpers
         public static void Capture(string prefix = null, string customDir = null, bool showScreenshot = false, GameObject[] hideUI = null)
         {
             string path = BuildFullPath(prefix, customDir, "png");
-            lastPath = path;
+            LastPath = path;
 
             if (hideUI != null) HideUI(hideUI);
 
@@ -96,7 +96,7 @@ namespace SHUU.Utils.Helpers
         public static void CaptureScaled(int scale, string prefix = null, string customDir = null, bool showScreenshot = false, GameObject[] hideUI = null)
         {
             string path = BuildFullPath(prefix, customDir, "png");
-            lastPath = path;
+            LastPath = path;
 
             if (hideUI != null) HideUI(hideUI);
 
@@ -124,7 +124,7 @@ namespace SHUU.Utils.Helpers
             RenderTexture.active = null;
             Object.Destroy(rt);
 
-            lastScreenshotTexture = tex;
+            LastScreenshotTexture = tex;
             return tex;
         }
 
@@ -136,7 +136,7 @@ namespace SHUU.Utils.Helpers
 
             string ext = jpg ? "jpg" : "png";
             string path = BuildFullPath(prefix, dir, ext);
-            lastPath = path;
+            LastPath = path;
 
             File.WriteAllBytes(path, bytes);
 
@@ -153,10 +153,47 @@ namespace SHUU.Utils.Helpers
             Texture2D tex = CaptureCamera(cam, w, h);
             return jpg ? tex.EncodeToJPG(95) : tex.EncodeToPNG();
         }
+
+
+        // Whatever is actually on screen (every camera, all UI), not tied to a single Camera like CaptureCamera is.
+        public static Texture2D CaptureScreenshotAsTexture() => ScreenCapture.CaptureScreenshotAsTexture();
         #endregion
 
 
-        
+
+        #region Resize
+        // Downscales (never upscales) a texture to a target height, keeping its aspect ratio. Doesn't touch/destroy "source", that's the caller's.
+        public static Texture2D ResizeTexture(Texture2D source, int targetHeight)
+        {
+            if (source == null) return null;
+
+            int height = Mathf.Clamp(targetHeight, 16, Mathf.Max(16, source.height));
+            int width = Mathf.Max(1, Mathf.RoundToInt(height * (float)source.width / source.height));
+
+            RenderTexture previous = RenderTexture.active;
+            RenderTexture target = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
+
+            try
+            {
+                Graphics.Blit(source, target);
+                RenderTexture.active = target;
+
+                Texture2D resized = new Texture2D(width, height, TextureFormat.RGB24, false);
+                resized.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+                resized.Apply();
+
+                return resized;
+            }
+            finally
+            {
+                RenderTexture.active = previous;
+                RenderTexture.ReleaseTemporary(target);
+            }
+        }
+        #endregion
+
+
+
         #region Last Screenshot
         private static async void Delayed_OpenLastScreenshot()
         {
@@ -165,25 +202,25 @@ namespace SHUU.Utils.Helpers
         }
         public static void OpenLastScreenshot()
         {
-            if (!string.IsNullOrEmpty(lastPath) && File.Exists(lastPath)) Application.OpenURL(lastPath);
+            if (!string.IsNullOrEmpty(LastPath) && File.Exists(LastPath)) Application.OpenURL(LastPath);
         }
 
 
         public static Texture2D LoadLastScreenshot()
         {
-            if (string.IsNullOrEmpty(lastPath)) return null;
-            if (!File.Exists(lastPath)) return null;
+            if (string.IsNullOrEmpty(LastPath)) return null;
+            if (!File.Exists(LastPath)) return null;
 
-            byte[] data = File.ReadAllBytes(lastPath);
+            byte[] data = File.ReadAllBytes(LastPath);
 
             Texture2D tex = new Texture2D(2, 2);
             tex.LoadImage(data);
 
-            lastScreenshotTexture = tex;
+            LastScreenshotTexture = tex;
             return tex;
         }
 
-        public static Texture2D GetLastScreenshotTexture() => lastScreenshotTexture;
+        public static Texture2D GetLastScreenshotTexture() => LastScreenshotTexture;
         #endregion
 
         #endregion

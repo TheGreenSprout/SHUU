@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using SHUU.Utils.Helpers;
-using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
+using SHUU.InnerWorkings.Preferences;
 
 namespace SHUU.Utils.SettingsSystem
 {
@@ -13,7 +13,7 @@ namespace SHUU.Utils.SettingsSystem
         #region Variables
 
         #region Static
-        private static SettingsAtlas allSettingsData_proxy
+        private static SettingsAtlas AllSettingsData_proxy
         {
             set
             {
@@ -22,23 +22,23 @@ namespace SHUU.Utils.SettingsSystem
 
                 var keysToRemove = new List<string>();
 
-                foreach (var item in allSettingsData)
+                foreach (var item in AllSettingsData)
                     if (item.Value == null) keysToRemove.Add(item.Key);
 
                 foreach (var key in keysToRemove)
-                    allSettingsData.Remove(key);
+                    AllSettingsData.Remove(key);
 
 
-                if (allSettingsData.ContainsKey(value.settingsName)) allSettingsData[value.settingsName] = value;
-                else allSettingsData.Add(value.settingsName, value);
+                if (AllSettingsData.ContainsKey(value.settingsName)) AllSettingsData[value.settingsName] = value;
+                else AllSettingsData.Add(value.settingsName, value);
             }
         }
 
 
-        public static SettingsAtlas defaultAtlas => SHUU_Preferences_SettingsSystem.defaultAtlas;
+        public static SettingsAtlas DefaultAtlas => SHUUPreferences_SettingsSystem.DefaultAtlas;
 
-        public static Dictionary<string, SettingsAtlas> allSettingsData = new();
-        public static SettingsAtlas GetSettingsAtlas(string name) => allSettingsData.GetValueOrDefault(name);
+        public static Dictionary<string, SettingsAtlas> AllSettingsData = new();
+        public static SettingsAtlas GetSettingsAtlas(string name) => AllSettingsData.GetValueOrDefault(name);
         #endregion
 
 
@@ -73,7 +73,7 @@ namespace SHUU.Utils.SettingsSystem
 
 
 
-        private static bool debugLogEmission => SHUU_Preferences.instance.settingsSystem_debugLogEmission;
+        private static bool DebugLogEmission => SHUUPreferences_SettingsSystem.Instance != null && SHUUPreferences_SettingsSystem.Instance.debugLogEmission;
 
         #endregion
 
@@ -85,7 +85,7 @@ namespace SHUU.Utils.SettingsSystem
         {
             base.OnEnable();
 
-            allSettingsData_proxy = this;
+            AllSettingsData_proxy = this;
         }
         #endregion
 
@@ -195,7 +195,7 @@ namespace SHUU.Utils.SettingsSystem
         {
             if (defaultData == null || !defaultData.hasValue)
             {
-                if (debugLogEmission)
+                if (DebugLogEmission)
                     Debug.LogWarning($"SettingsAtlas '{settingsName}' has no saved defaults.");
                 return;
             }

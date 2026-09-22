@@ -1,0 +1,249 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16b6fd133051144d98e3b8de31c5b59, type: 3}
+  m_Name: Sample_AudioChannelGroup
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU.UserSide.Addons::SHUU.UserSide.Addons.AudioSystem.ScriptableObjects.AudioChannelGroup
+  ID: Master
+  children:
+  - rid: 1102454023392067656
+  - rid: 1102454023392067659
+  - rid: 1102454023392067660
+  options:
+    has_playOnAwake: 0
+    playOnAwake: 0
+    has_loop: 0
+    loop: 0
+    has_priority: 0
+    priority: 0
+    has_volume: 0
+    volume: 0
+    has_pitch: 0
+    pitch: 0
+    has_panStereo: 0
+    panStereo: 0
+    has_spatialBlend: 0
+    spatialBlend: 0
+    has_dopplerLevel: 0
+    dopplerLevel: 0
+    has_spread: 0
+    spread: 0
+    has_rolloffMode: 0
+    rolloffMode: 0
+    has_minDistance: 0
+    minDistance: 0
+    has_maxDistance: 0
+    maxDistance: 0
+    has_mute: 0
+    mute: 0
+    has_bypassEffects: 0
+    bypassEffects: 0
+    has_bypassListenerEffects: 0
+    bypassListenerEffects: 0
+    has_bypassReverbZones: 0
+    bypassReverbZones: 0
+    has_reverbZoneMix: 0
+    reverbZoneMix: 0
+    has_outputAudioMixerGroup: 1
+    outputAudioMixerGroup: {fileID: 24300002, guid: 276ed5f7ff681084bbb91ddc70088480, type: 2}
+    has_onAudioEnd: 0
+    onAudioEnd:
+      m_PersistentCalls:
+        m_Calls: []
+    has_returnToPool_clipEnd: 0
+    returnToPool_clipEnd: 1
+    has_returnToPool_sceneChange: 0
+    returnToPool_sceneChange: 1
+  audioLookup: {fileID: 11400000, guid: e7bd74cf10f54ab4e8771f73c66549b6, type: 2}
+  initialSize: 3
+  parentPrefab: {fileID: 946350872330159205, guid: e4ad24025fb96ef46867669f2167edaa, type: 3}
+  prefab: {fileID: 8047141861144388858, guid: 93e5648037ae91c4c98a163872149b4d, type: 3}
+  scenePersistant: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 1102454023392067656
+      type: {class: AudioChannel, ns: SHUU.UserSide.Addons.AudioSystem, asm: SproutingGames.Sprouts.HUU.UserSide.Addons}
+      data:
+        ID: SFX
+        children: []
+        inheritNullOptions: 1
+        options:
+          has_playOnAwake: 0
+          playOnAwake: 0
+          has_loop: 0
+          loop: 0
+          has_priority: 0
+          priority: 0
+          has_volume: 0
+          volume: 0
+          has_pitch: 0
+          pitch: 0
+          has_panStereo: 0
+          panStereo: 0
+          has_spatialBlend: 0
+          spatialBlend: 0
+          has_dopplerLevel: 0
+          dopplerLevel: 0
+          has_spread: 0
+          spread: 0
+          has_rolloffMode: 0
+          rolloffMode: 0
+          has_minDistance: 0
+          minDistance: 0
+          has_maxDistance: 0
+          maxDistance: 0
+          has_mute: 0
+          mute: 0
+          has_bypassEffects: 0
+          bypassEffects: 0
+          has_bypassListenerEffects: 0
+          bypassListenerEffects: 0
+          has_bypassReverbZones: 0
+          bypassReverbZones: 0
+          has_reverbZoneMix: 0
+          reverbZoneMix: 0
+          has_outputAudioMixerGroup: 1
+          outputAudioMixerGroup: {fileID: 5542346200063335215, guid: 276ed5f7ff681084bbb91ddc70088480, type: 2}
+          has_onAudioEnd: 0
+          onAudioEnd:
+            m_PersistentCalls:
+              m_Calls: []
+          has_returnToPool_clipEnd: 0
+          returnToPool_clipEnd: 1
+          has_returnToPool_sceneChange: 0
+          returnToPool_sceneChange: 1
+        inheritAudioLookup: 1
+        audioLookup: {fileID: 11400000, guid: e7bd74cf10f54ab4e8771f73c66549b6, type: 2}
+        useParentPool: 0
+        initialSize: 10
+        useParentPoolParentPrefab: 1
+        parentPrefab: {fileID: 946350872330159205, guid: e4ad24025fb96ef46867669f2167edaa, type: 3}
+        useParentPoolPrefab: 1
+        prefab: {fileID: 0}
+    - rid: 1102454023392067659
+      type: {class: AudioChannel, ns: SHUU.UserSide.Addons.AudioSystem, asm: SproutingGames.Sprouts.HUU.UserSide.Addons}
+      data:
+        ID: Music
+        children: []
+        inheritNullOptions: 1
+        options:
+          has_playOnAwake: 0
+          playOnAwake: 0
+          has_loop: 0
+          loop: 0
+          has_priority: 0
+          priority: 0
+          has_volume: 0
+          volume: 0
+          has_pitch: 0
+          pitch: 0
+          has_panStereo: 0
+          panStereo: 0
+          has_spatialBlend: 0
+          spatialBlend: 0
+          has_dopplerLevel: 0
+          dopplerLevel: 0
+          has_spread: 0
+          spread: 0
+          has_rolloffMode: 0
+          rolloffMode: 0
+          has_minDistance: 0
+          minDistance: 0
+          has_maxDistance: 0
+          maxDistance: 0
+          has_mute: 0
+          mute: 0
+          has_bypassEffects: 0
+          bypassEffects: 0
+          has_bypassListenerEffects: 0
+          bypassListenerEffects: 0
+          has_bypassReverbZones: 0
+          bypassReverbZones: 0
+          has_reverbZoneMix: 0
+          reverbZoneMix: 0
+          has_outputAudioMixerGroup: 1
+          outputAudioMixerGroup: {fileID: -3212672617279292796, guid: 276ed5f7ff681084bbb91ddc70088480, type: 2}
+          has_onAudioEnd: 0
+          onAudioEnd:
+            m_PersistentCalls:
+              m_Calls: []
+          has_returnToPool_clipEnd: 0
+          returnToPool_clipEnd: 1
+          has_returnToPool_sceneChange: 0
+          returnToPool_sceneChange: 1
+        inheritAudioLookup: 1
+        audioLookup: {fileID: 11400000, guid: e7bd74cf10f54ab4e8771f73c66549b6, type: 2}
+        useParentPool: 1
+        initialSize: 10
+        useParentPoolParentPrefab: 1
+        parentPrefab: {fileID: 0}
+        useParentPoolPrefab: 1
+        prefab: {fileID: 0}
+    - rid: 1102454023392067660
+      type: {class: AudioChannel, ns: SHUU.UserSide.Addons.AudioSystem, asm: SproutingGames.Sprouts.HUU.UserSide.Addons}
+      data:
+        ID: Ambience
+        children: []
+        inheritNullOptions: 1
+        options:
+          has_playOnAwake: 0
+          playOnAwake: 0
+          has_loop: 0
+          loop: 0
+          has_priority: 0
+          priority: 0
+          has_volume: 0
+          volume: 0
+          has_pitch: 0
+          pitch: 0
+          has_panStereo: 0
+          panStereo: 0
+          has_spatialBlend: 0
+          spatialBlend: 0
+          has_dopplerLevel: 0
+          dopplerLevel: 0
+          has_spread: 0
+          spread: 0
+          has_rolloffMode: 0
+          rolloffMode: 0
+          has_minDistance: 0
+          minDistance: 0
+          has_maxDistance: 0
+          maxDistance: 0
+          has_mute: 0
+          mute: 0
+          has_bypassEffects: 0
+          bypassEffects: 0
+          has_bypassListenerEffects: 0
+          bypassListenerEffects: 0
+          has_bypassReverbZones: 0
+          bypassReverbZones: 0
+          has_reverbZoneMix: 0
+          reverbZoneMix: 0
+          has_outputAudioMixerGroup: 1
+          outputAudioMixerGroup: {fileID: -882095871027379056, guid: 276ed5f7ff681084bbb91ddc70088480, type: 2}
+          has_onAudioEnd: 0
+          onAudioEnd:
+            m_PersistentCalls:
+              m_Calls: []
+          has_returnToPool_clipEnd: 0
+          returnToPool_clipEnd: 1
+          has_returnToPool_sceneChange: 0
+          returnToPool_sceneChange: 1
+        inheritAudioLookup: 1
+        audioLookup: {fileID: 11400000, guid: e7bd74cf10f54ab4e8771f73c66549b6, type: 2}
+        useParentPool: 1
+        initialSize: 10
+        useParentPoolParentPrefab: 1
+        parentPrefab: {fileID: 0}
+        useParentPoolPrefab: 1
+        prefab: {fileID: 0}

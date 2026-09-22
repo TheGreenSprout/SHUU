@@ -21,7 +21,7 @@ namespace SHUU.UserSide.Commons
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Init()
         {
-            var loader = Resources.Load<ScriptableObjectLoader>("SHUU/InnerWorkings/ScriptableObjectLoader_Asset");
+            var loader = Resources.Load<ScriptableObjectLoader>("SHUUResources/ScriptableObjectLoader_Asset");
 
             if (loader != null) loader._Init();
         }

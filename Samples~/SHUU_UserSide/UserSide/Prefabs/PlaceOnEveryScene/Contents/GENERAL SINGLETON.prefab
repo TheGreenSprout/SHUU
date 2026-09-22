@@ -61,9 +61,85 @@ MonoBehaviour:
   settingsUpdate:
   - settingsData: {fileID: 11400000, guid: 3c09ce1e8761b574894fc95aad843abf, type: 2}
     maps:
+    - mapName: Audio
+      items:
+      - field: Master
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: Volume_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: SFX
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: Volume_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: Music
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: Volume_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: Ambience
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: Volume_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
     - mapName: Video
       items:
       - field: Fullscreen Mode
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
         updateEvent:
           m_PersistentCalls:
             m_Calls:
@@ -80,6 +156,8 @@ MonoBehaviour:
                 m_BoolArgument: 0
               m_CallState: 2
       - field: Resolution
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
         updateEvent:
           m_PersistentCalls:
             m_Calls:
@@ -96,12 +174,92 @@ MonoBehaviour:
                 m_BoolArgument: 0
               m_CallState: 2
       - field: Quality
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
         updateEvent:
           m_PersistentCalls:
             m_Calls:
             - m_Target: {fileID: 8875129942504313082}
               m_TargetAssemblyTypeName: SampleSettingsUpdater, SproutingGames.Sprouts.HUU.UserSide
               m_MethodName: QualityIndex_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+    - mapName: Developer
+      items:
+      - field: Console Enabled
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SHUU.UserSide.Addons.SettingsSystemUpdater.SampleSettingsUpdater,
+                SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: ConsoleEnabled_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: Console Scroll
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SHUU.UserSide.Addons.SettingsSystemUpdater.SampleSettingsUpdater,
+                SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: ConsoleScroll_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: InfoMenu Enabled
+        updateOnFirstStart: 1
+        updateOnSceneChange: 1
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SHUU.UserSide.Addons.SettingsSystemUpdater.SampleSettingsUpdater,
+                SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: InfoMenuEnabled_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: ScreenLogs Enabled
+        updateOnFirstStart: 1
+        updateOnSceneChange: 1
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SHUU.UserSide.Addons.SettingsSystemUpdater.SampleSettingsUpdater,
+                SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: ScreenLogsEnabled_Update
               m_Mode: 0
               m_Arguments:
                 m_ObjectArgument: {fileID: 0}
@@ -123,10 +281,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9187119eaa0945343bb306295ad820ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: SproutingGames.Sprouts.HUU.UserSide::SampleSettingsUpdater
-  fetchResolutionsOnFirstStart: 1
   settings: {fileID: 11400000, guid: 3c09ce1e8761b574894fc95aad843abf, type: 2}
+  fetchVolumeOnFirstStart: 1
+  volumeMapName: Audio
+  audioMixer: {fileID: 24100000, guid: 276ed5f7ff681084bbb91ddc70088480, type: 2}
+  volumeFields:
+  - settingsFieldName: Master
+    mixerExposedParameterName: Master_Volume
+  - settingsFieldName: SFX
+    mixerExposedParameterName: SFX_Volume
+  - settingsFieldName: Music
+    mixerExposedParameterName: Music_Volume
+  - settingsFieldName: Ambience
+    mixerExposedParameterName: Ambience_Volume
+  fetchResolutionsOnFirstStart: 1
   resolutionMapName: Video
   resolutionIndexField: Resolution
+  devConsole_Options: {fileID: 11400000, guid: 6059384f5aad1994a86e25b09141e471, type: 2}
 --- !u!1 &8326968758999774680
 GameObject:
   m_ObjectHideFlags: 0

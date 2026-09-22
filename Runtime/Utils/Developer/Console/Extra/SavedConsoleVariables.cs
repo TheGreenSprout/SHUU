@@ -11,21 +11,21 @@ namespace SHUU.Utils.Developer.Console
     public class SavedConsoleVariables : AutoSave_Json_MonoBehaviour<SavedConsoleVariables_SaveData>
     {
         #region Variables
-        private static Dictionary<string, List<string>> variables = new();
+        private static Dictionary<string, List<string>> Variables = new();
         #endregion
 
 
 
 
         #region API
-        public static void Set(string name, List<string> value) => variables[name.ToLower()] = value;
-        public static bool TryGet(string name, out List<string> value) => variables.TryGetValue(name.ToLower(), out value);
+        public static void Set(string name, List<string> value) => Variables[name.ToLower()] = value;
+        public static bool TryGet(string name, out List<string> value) => Variables.TryGetValue(name.ToLower(), out value);
 
-        public static bool Exists(string name) => variables.ContainsKey(name.ToLower());
-        public static Dictionary<string, List<string>> GetAll() => new(variables);
+        public static bool Exists(string name) => Variables.ContainsKey(name.ToLower());
+        public static Dictionary<string, List<string>> GetAll() => new(Variables);
 
-        public static void Remove(string name) => variables.Remove(name.ToLower());
-        public static void Clear() => variables.Clear();
+        public static void Remove(string name) => Variables.Remove(name.ToLower());
+        public static void Clear() => Variables.Clear();
 
 
         /*
@@ -169,6 +169,7 @@ namespace SHUU.Utils.Developer.Console
             return (name, start, end);
         }
         #endregion
+        
         #endregion
 
 
@@ -177,9 +178,14 @@ namespace SHUU.Utils.Developer.Console
         protected override string FileAddress() => GetPath("DevConsole", "saved_console_variables" + ".json");
 
 
-        protected override SavedConsoleVariables_SaveData SaveData() => new SavedConsoleVariables_SaveData(variables);
+        protected override SavedConsoleVariables_SaveData SaveData() => new SavedConsoleVariables_SaveData(Variables);
 
-        protected override void LoadData(SavedConsoleVariables_SaveData data) => variables = new(data.variables);
+        protected override void LoadData(SavedConsoleVariables_SaveData data)
+        {
+            if (data == null) return;
+            
+            Variables = new(data.variables);
+        }
         #endregion
     }
 

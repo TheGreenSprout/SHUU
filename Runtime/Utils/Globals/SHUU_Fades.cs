@@ -12,7 +12,7 @@ namespace SHUU.Utils.Globals
     /// Manages fade-in/outs for scene transitions.
     /// </summary>
     #endregion
-    public class SHUU_Fades : Singleton_MonoBehaviour<SHUU_Fades>
+    public class SHUU_Fades : HiddenSingleton_MonoBehaviour<SHUU_Fades>
     {
         #region Variables
         protected override bool PersistantSingleton() => false;

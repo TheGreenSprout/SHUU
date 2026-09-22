@@ -15,10 +15,11 @@ namespace SHUU.Utils.Developer.Console
     public class BoundCommands : AutoSave_Json_MonoBehaviour<BoundCommands_SaveData>
     {
         #region Variables
-        private static Dictionary<string, List<string>> boundCommands = new();
-        private static Dictionary<string, List<string>> direct_boundCommands = new();
-        private static Dictionary<KeyCode, List<string>> classic_boundCommands_key = new();
-        private static Dictionary<int, List<string>> classic_boundCommands_mouse = new();
+        private static Dictionary<string, List<string>> BindCommands = new();
+        private static Dictionary<string, List<string>> Direct_BindCommands = new();
+
+        private static Dictionary<KeyCode, List<string>> Classic_BindCommands_key = new();
+        private static Dictionary<int, List<string>> Classic_BindCommands_mouse = new();
 
 
         private DevConsoleManager devConsoleManager;
@@ -41,14 +42,14 @@ namespace SHUU.Utils.Developer.Console
             if (devConsoleManager.devConsoleUI.gameObject.activeInHierarchy && devConsoleManager.inputFieldActive) return;
 
 
-            foreach (var kvp in boundCommands)
+            foreach (var kvp in BindCommands)
                 if (SHUU_Input.GetInputDown(kvp.Key))
                 {
                     foreach (var cmd in kvp.Value)
                         devConsoleManager.ProcessInput(cmd);
                 }
 
-            foreach (var kvp in direct_boundCommands)
+            foreach (var kvp in Direct_BindCommands)
                 if (GetDirectInputDown(kvp.Key))
                 {
                     foreach (var cmd in kvp.Value)
@@ -56,14 +57,14 @@ namespace SHUU.Utils.Developer.Console
                 }
 
 
-            foreach (var kvp in classic_boundCommands_key)
+            foreach (var kvp in Classic_BindCommands_key)
                 if (Input.GetKeyDown(kvp.Key))
                 {
                     foreach (var cmd in kvp.Value)
                         devConsoleManager.ProcessInput(cmd);
                 }
 
-            foreach (var kvp in classic_boundCommands_mouse)
+            foreach (var kvp in Classic_BindCommands_mouse)
                 if (Input.GetMouseButtonDown(kvp.Key))
                 {
                     foreach (var cmd in kvp.Value)
@@ -79,14 +80,14 @@ namespace SHUU.Utils.Developer.Console
         #region Input System
 
         #region Action
-        public static void BindCommand(string actionPath, string[] commandData) => Bind(boundCommands, actionPath, commandData);
-        public static bool UnBindCommands(string actionPath, string[] commandData = null) => Unbind(boundCommands, actionPath, commandData);
+        public static void BindCommand(string actionPath, string[] commandData) => Bind(BindCommands, actionPath, commandData);
+        public static bool UnBindCommands(string actionPath, string[] commandData = null) => Unbind(BindCommands, actionPath, commandData);
         #endregion
 
 
         #region Direct
-        public static void BindDirectCommand(string controlPath, string[] commandData) => Bind(direct_boundCommands, controlPath, commandData);
-        public static bool UnBindDirectCommands(string controlPath, string[] commandData = null) => Unbind(direct_boundCommands, controlPath, commandData);
+        public static void BindDirectCommand(string controlPath, string[] commandData) => Bind(Direct_BindCommands, controlPath, commandData);
+        public static bool UnBindDirectCommands(string controlPath, string[] commandData = null) => Unbind(Direct_BindCommands, controlPath, commandData);
 
         private static bool GetDirectInputDown(string controlPath)
         {
@@ -107,16 +108,41 @@ namespace SHUU.Utils.Developer.Console
         #region Classic Input
 
         #region Classic key
-        public static void BindClassicCommand(KeyCode key, string[] commandData) => Bind(classic_boundCommands_key, key, commandData);
-        public static bool UnBindClassicCommands(KeyCode key, string[] commandData = null) => Unbind(classic_boundCommands_key, key, commandData);
+        public static void BindClassicCommand(KeyCode key, string[] commandData) => Bind(Classic_BindCommands_key, key, commandData);
+        public static bool UnBindClassicCommands(KeyCode key, string[] commandData = null) => Unbind(Classic_BindCommands_key, key, commandData);
         #endregion
 
 
         #region Classic mouse
-        public static void BindClassicCommand(int mouseButton, string[] commandData) => Bind(classic_boundCommands_mouse, mouseButton, commandData);
-        public static bool UnBindClassicCommands(int mouseButton, string[] commandData = null) => Unbind(classic_boundCommands_mouse, mouseButton, commandData);
+        public static void BindClassicCommand(int mouseButton, string[] commandData) => Bind(Classic_BindCommands_mouse, mouseButton, commandData);
+        public static bool UnBindClassicCommands(int mouseButton, string[] commandData = null) => Unbind(Classic_BindCommands_mouse, mouseButton, commandData);
         #endregion
         
+        #endregion
+
+
+
+        #region General
+        public static void GetAllBinds(
+            out Dictionary<string, List<string>> actions,
+            out Dictionary<string, List<string>> direct,
+            out Dictionary<KeyCode, List<string>> classicKeys,
+            out Dictionary<int, List<string>> classicMouse)
+        {
+            actions = BindCommands;
+            direct = Direct_BindCommands;
+            classicKeys = Classic_BindCommands_key;
+            classicMouse = Classic_BindCommands_mouse;
+        }
+        
+
+        public static void ClearAllBinds()
+        {
+            BindCommands.Clear();
+            Direct_BindCommands.Clear();
+            Classic_BindCommands_key.Clear();
+            Classic_BindCommands_mouse.Clear();
+        }
         #endregion
 
 
@@ -160,14 +186,18 @@ namespace SHUU.Utils.Developer.Console
 
 
         protected override BoundCommands_SaveData SaveData()
-            => new BoundCommands_SaveData(boundCommands, direct_boundCommands, classic_boundCommands_key, classic_boundCommands_mouse);
+            => new BoundCommands_SaveData(BindCommands, Direct_BindCommands, Classic_BindCommands_key, Classic_BindCommands_mouse);
 
         protected override void LoadData(BoundCommands_SaveData data)
         {
-            boundCommands          = new(data.boundCommands);
-            direct_boundCommands   = new(data.direct_boundCommands);
-            classic_boundCommands_key   = new(data.classic_boundCommands_key);
-            classic_boundCommands_mouse = new(data.classic_boundCommands_mouse);
+            if (data == null) return;
+
+            
+            BindCommands = new(data.boundCommands);
+            Direct_BindCommands = new(data.direct_boundCommands);
+
+            Classic_BindCommands_key = new(data.classic_boundCommands_key);
+            Classic_BindCommands_mouse = new(data.classic_boundCommands_mouse);
         }
         #endregion
     }

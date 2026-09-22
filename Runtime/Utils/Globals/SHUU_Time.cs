@@ -12,41 +12,41 @@ namespace SHUU.Utils.Globals
     /// Manages the creation and behaviour of timers.
     /// </summary>
     #endregion
-    public class SHUU_Time : Singleton_MonoBehaviour<SHUU_Time>
+    public class SHUU_Time : HiddenSingleton_MonoBehaviour<SHUU_Time>
     {
         #region Variables
         protected override bool PersistantSingleton() => false;
 
 
 
-        public static bool paused { get; private set; }
+        public static bool Paused { get; private set; }
 
-        public static float currentTimeScale { get; private set; } = 1f;
+        public static float CurrentTimeScale { get; private set; } = 1f;
 
 
 
-        private static Action _nextFrameQueue;
-        private static Action _executeQueue;
+        private static Action NextFrameQueue;
+        private static Action ExecuteQueue;
 
-        public static event Action onNextFrame
+        public static event Action OnNextFrame
         {
-            add => _nextFrameQueue += value;
-            remove => _nextFrameQueue -= value;
+            add => NextFrameQueue += value;
+            remove => NextFrameQueue -= value;
         }
 
 
         public event Action onUpdate_Local;
-        public static event Action onUpdate;
+        public static event Action OnUpdate;
 
         public event Action onLateUpdate_Local;
-        public static event Action onLateUpdate;
+        public static event Action OnLateUpdate;
 
         public event Action onFixedUpdate_Local;
-        public static event Action onFixedUpdate;
+        public static event Action OnFixedUpdate;
 
 
 
-        private static Coroutine freezeCoroutine;
+        private static Coroutine FreezeCoroutine;
         #endregion
 
 
@@ -57,44 +57,44 @@ namespace SHUU.Utils.Globals
         {
             base.Awake();
 
-            paused = false;
-            currentTimeScale = 1f;
-            _nextFrameQueue = null;
-            _executeQueue = null;
-            onUpdate = null;
-            onLateUpdate = null;
-            onFixedUpdate = null;
-            freezeCoroutine = null;
+            Paused = false;
+            CurrentTimeScale = 1f;
+            NextFrameQueue = null;
+            ExecuteQueue = null;
+            OnUpdate = null;
+            OnLateUpdate = null;
+            OnFixedUpdate = null;
+            FreezeCoroutine = null;
         }
 
 
         private void Update()
         {
-            onUpdate?.Invoke();
+            OnUpdate?.Invoke();
             onUpdate_Local?.Invoke();
 
-            if (_executeQueue != null)
+            if (ExecuteQueue != null)
             {
-                var callback = _executeQueue;
-                _executeQueue = null;
+                var callback = ExecuteQueue;
+                ExecuteQueue = null;
                 callback.Invoke();
             }
         }
 
         private void LateUpdate()
         {
-            onLateUpdate?.Invoke();
+            OnLateUpdate?.Invoke();
             onLateUpdate_Local?.Invoke();
             
-            if (_nextFrameQueue == null) return;
+            if (NextFrameQueue == null) return;
 
-            _executeQueue = _nextFrameQueue;
-            _nextFrameQueue = null;
+            ExecuteQueue = NextFrameQueue;
+            NextFrameQueue = null;
         }
 
         private void FixedUpdate()
         {
-            onFixedUpdate?.Invoke();
+            OnFixedUpdate?.Invoke();
             onFixedUpdate_Local?.Invoke();
         }
         #endregion
@@ -157,9 +157,9 @@ namespace SHUU.Utils.Globals
 
         public static void FreezeFrame(float duration, bool ignoreTimeScale = false)
         {
-            if (freezeCoroutine != null) instance.StopCoroutine(freezeCoroutine);
+            if (FreezeCoroutine != null) instance.StopCoroutine(FreezeCoroutine);
 
-            freezeCoroutine = StartCoroutineStatic(RunFreezeFrame(duration, ignoreTimeScale));
+            FreezeCoroutine = StartCoroutineStatic(RunFreezeFrame(duration, ignoreTimeScale));
         }
 
 
@@ -222,7 +222,7 @@ namespace SHUU.Utils.Globals
 
         private static IEnumerator RunFreezeFrame(float duration, bool ignoreTimeScale)
         {
-            float previousTimeScale = currentTimeScale;
+            float previousTimeScale = CurrentTimeScale;
 
             Time.timeScale = 0f;
 
@@ -233,9 +233,9 @@ namespace SHUU.Utils.Globals
                 yield return null;
             }
 
-            freezeCoroutine = null;
+            FreezeCoroutine = null;
 
-            if (!paused) Time.timeScale = previousTimeScale;
+            if (!Paused) Time.timeScale = previousTimeScale;
         }
         #endregion
 
@@ -244,16 +244,16 @@ namespace SHUU.Utils.Globals
         #region Time scale
         public static void SetTimeScale(float scale)
         {
-            currentTimeScale = Mathf.Max(scale, 0f);
-            if (!paused) Time.timeScale = currentTimeScale;
+            CurrentTimeScale = Mathf.Max(scale, 0f);
+            if (!Paused) Time.timeScale = CurrentTimeScale;
         }
 
 
         public static bool Pause()
         {
-            if (paused) return false;
+            if (Paused) return false;
 
-            paused = true;
+            Paused = true;
             Time.timeScale = 0f;
 
             return true;
@@ -261,20 +261,20 @@ namespace SHUU.Utils.Globals
 
         public static bool Resume()
         {
-            if (!paused) return false;
+            if (!Paused) return false;
 
-            paused = false;
-            Time.timeScale = currentTimeScale;
+            Paused = false;
+            Time.timeScale = CurrentTimeScale;
 
             return true;
         }
 
         public static bool TogglePause()
         {
-            if (paused) Resume();
+            if (Paused) Resume();
             else Pause();
 
-            return paused;
+            return Paused;
         }
 
 

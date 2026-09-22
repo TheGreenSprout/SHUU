@@ -85,37 +85,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca098d6467a4b6f4aa87eb1c57fe4dd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1422121524956258581
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3653081946447600272}
-  m_Layer: 0
-  m_Name: Music
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3653081946447600272
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1422121524956258581}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2922258809096121128}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1545271558169626691
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,10 +95,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5790840060925347414}
   - component: {fileID: 3794019338242515899}
-  - component: {fileID: 8531355632421192761}
-  - component: {fileID: 2206449734289993969}
   - component: {fileID: 3971717330311365469}
   - component: {fileID: 8127249037554257894}
+  - component: {fileID: 8531355632421192761}
   m_Layer: 0
   m_Name: GLOBALS
   m_TagString: Untagged
@@ -151,7 +119,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 392710854886775243}
-  - {fileID: 2922258809096121128}
   - {fileID: 8316856384240719225}
   - {fileID: 1609272657965570377}
   - {fileID: 659339856773889130}
@@ -169,7 +136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49e08f04a02f73f4a829c2ece29f43f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleGameobject: 0
   dialogueCanvas: {fileID: 4930977789235210553}
   fadeInAtSceneRoomEnter: 1
   enterFadeIn_buffer: 0.05
@@ -177,52 +143,6 @@ MonoBehaviour:
   fadeInAtSceneRoomLeave: 1
   exitFadeInBuffer: 0.05
   exitFadeIn_duration: 1
---- !u!114 &8531355632421192761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1545271558169626691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5e141e750533bb4a90634a67a097cd4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handleGameobject: 0
-  masterMixer: {fileID: 24300002, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
-  sfxMixer: {fileID: -1620632772027961612, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
-  musicMixer: {fileID: 7567011435774010195, guid: e18653ea92c83c3418fa2f65b4bb2cb9, type: 2}
-  sfxStorage: {fileID: 11400000, guid: fa32f6a595a65ae42b75d52da8f4aa43, type: 2}
-  musicStorage: {fileID: 11400000, guid: 0c6d5149963ac384c9fd30a4bc4659a2, type: 2}
-  audioInstance: {fileID: 1010484141545196436, guid: 93e5648037ae91c4c98a163872149b4d, type: 3}
-  settingsAtlas: {fileID: 11400000, guid: 3c09ce1e8761b574894fc95aad843abf, type: 2}
-  audio_mapName: Audio
-  masterAudio_fieldName: MasterVolume
-  sfxAudio_fieldName: SfxVolume
-  musicAudio_fieldName: MusicVolume
-  sfxObjectPool_initialSize: 10
-  musicObjectPool_initialSize: 0
-  sfxPoolObjects_parent: {fileID: 3896987658163161922}
-  musicPoolObjects_parent: {fileID: 3653081946447600272}
---- !u!114 &2206449734289993969
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1545271558169626691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bf7a6a34d2bdfa468129ce0b318dfea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handleGameobject: 0
-  backupBeforeSave: 1
-  localSave_OnRoomChange: 1
-  saveToFile_OnRoomChange: 0
-  localSave_OnApplicationQuit: 1
-  saveToFile_OnApplicationQuit: 0
 --- !u!114 &3971717330311365469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,7 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36341af37d69514399f912cd880b2ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleGameobject: 0
   fadePanel_scr: {fileID: 8768271028095985983}
   defaultFadeDuration: 0.5
   defaultPingPongDuration: 0
@@ -253,7 +172,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f98eb8d5b179c1148ac6765450be2dee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleGameobject: 0
+--- !u!114 &8531355632421192761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545271558169626691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e141e750533bb4a90634a67a097cd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioChannelGroup: {fileID: 11400000, guid: aa9e9896d6bd6db4bb5995aa609a4a88, type: 2}
 --- !u!1 &2093164103080531723
 GameObject:
   m_ObjectHideFlags: 0
@@ -342,6 +273,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1609272657965570377}
+  - component: {fileID: 6371452718821113401}
   - component: {fileID: 4930977789235210553}
   - component: {fileID: 4474963343909017320}
   - component: {fileID: 477036228508932455}
@@ -371,6 +303,36 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &6371452718821113401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3262220489755660271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95db6fe5cf880fc488eeea7f99d2aa43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.SHUU_HierarchyFolder
+  dissolveOnPlay: 0
+  textStyle: 0
+  textAlignment: 0
+  iconSize: 1
+  iconOffset: {x: -1.2, y: 0}
+  customIcon: {fileID: 0}
+  customGradient: {fileID: 0}
+  coloredIcon: 1
+  iconColor: {r: 0.39999998, g: 0.814751, b: 1, a: 1}
+  coloredText: 1
+  textColor: {r: 0.40000004, g: 0.81568635, b: 1, a: 1}
+  coloredHighlight: 0
+  highlightColor: {r: 0.4, g: 0.75, b: 1, a: 1}
+  prefabTint: 2
+  prefabIconTint: {r: 0.5019608, g: 0.8509804, b: 1, a: 1}
+  prefabTextTint: {r: 0.4509804, g: 0.61960787, b: 0.85882354, a: 1}
+  prefabHighlightTint: {r: 0.5019608, g: 0.8509804, b: 1, a: 1}
+  prefabTintStrength: 0.6
 --- !u!223 &4930977789235210553
 Canvas:
   m_ObjectHideFlags: 0
@@ -443,6 +405,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8316856384240719225}
+  - component: {fileID: 3749293765260191182}
   - component: {fileID: 3374248677700942145}
   - component: {fileID: 5924480046604852308}
   - component: {fileID: 2580372243345084395}
@@ -473,6 +436,36 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &3749293765260191182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4242746207666308212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95db6fe5cf880fc488eeea7f99d2aa43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.SHUU_HierarchyFolder
+  dissolveOnPlay: 0
+  textStyle: 0
+  textAlignment: 0
+  iconSize: 1
+  iconOffset: {x: -1.2, y: 0}
+  customIcon: {fileID: 0}
+  customGradient: {fileID: 0}
+  coloredIcon: 1
+  iconColor: {r: 0.8726415, g: 0.9608768, b: 1, a: 1}
+  coloredText: 1
+  textColor: {r: 0.8745098, g: 0.9607843, b: 1, a: 1}
+  coloredHighlight: 0
+  highlightColor: {r: 0.4, g: 0.75, b: 1, a: 1}
+  prefabTint: 2
+  prefabIconTint: {r: 0.5019608, g: 0.8509804, b: 1, a: 1}
+  prefabTextTint: {r: 0.4509804, g: 0.61960787, b: 0.85882354, a: 1}
+  prefabHighlightTint: {r: 0.5019608, g: 0.8509804, b: 1, a: 1}
+  prefabTintStrength: 0.6
 --- !u!223 &3374248677700942145
 Canvas:
   m_ObjectHideFlags: 0
@@ -536,70 +529,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!1 &4382758729959842942
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2922258809096121128}
-  m_Layer: 0
-  m_Name: Audio_ObjectPooling
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2922258809096121128
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4382758729959842942}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 3896987658163161922}
-  - {fileID: 3653081946447600272}
-  m_Father: {fileID: 5790840060925347414}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &9198720659920728051
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3896987658163161922}
-  m_Layer: 0
-  m_Name: SFX
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3896987658163161922
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9198720659920728051}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2922258809096121128}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1554531592598927038
 PrefabInstance:
   m_ObjectHideFlags: 0

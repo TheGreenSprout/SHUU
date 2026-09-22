@@ -1,13 +1,14 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "4.2.3",
+  "version": "5.2.1",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.inputsystem": "1.14.2",
-    "com.unity.splines": "2.7.2"
+    "com.unity.splines": "2.7.2",
+    "com.unity.serialization": "3.1.5"
   },
   "author": {
     "name": "TheGreenSprout",
@@ -24,6 +25,16 @@
       "displayName": "Dev Console",
       "description": "Prefabs and scripts that implement the developer console.",
       "path": "Samples~/DevConsole"
+    },
+    {
+      "displayName": "Blobatar Generator",
+      "description": "Unique deterministic simple avatars based on a single string.",
+      "path": "Samples~/BlobatarGenerator"
+    },
+    {
+      "displayName": "Cats & Dogs",
+      "description": "Who doesn't love kitties and puppies??",
+      "path": "Samples~/Cats&Dogs"
     },
     {
       "displayName": "Settings System Menu",

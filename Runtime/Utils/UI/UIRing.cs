@@ -41,9 +41,9 @@ namespace SHUU.Utils.UI
                 float nextAngle = angleStep * (i + 1) * Mathf.Deg2Rad;
 
                 Vector2 outerStart = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * outerRadius;
-                Vector2 outerEnd   = new Vector2(Mathf.Cos(nextAngle), Mathf.Sin(nextAngle)) * outerRadius;
+                Vector2 outerEnd = new Vector2(Mathf.Cos(nextAngle), Mathf.Sin(nextAngle)) * outerRadius;
                 Vector2 innerStart = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * innerRadius;
-                Vector2 innerEnd   = new Vector2(Mathf.Cos(nextAngle), Mathf.Sin(nextAngle)) * innerRadius;
+                Vector2 innerEnd = new Vector2(Mathf.Cos(nextAngle), Mathf.Sin(nextAngle)) * innerRadius;
 
                 int startIndex = vh.currentVertCount;
 

@@ -67,6 +67,78 @@ MonoBehaviour:
   bridgeFree_Scenes:
   - LoadingScene
   banned_Scenes: []
+--- !u!1 &5582792813097023972
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 119179334975042072}
+  - component: {fileID: 8159448382580803626}
+  - component: {fileID: 3738865203328835253}
+  - component: {fileID: 6874974161951889258}
+  m_Layer: 0
+  m_Name: Systems
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &119179334975042072
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582792813097023972}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5886737878205337909}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8159448382580803626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582792813097023972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5a16bf8ce7fa934b84778264a00cc27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.Developer.Debugging.Debug_MethodBind
+--- !u!114 &3738865203328835253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582792813097023972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 456e9f9f32654bd428060a084764d9af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handleGameobject: 0
+--- !u!114 &6874974161951889258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582792813097023972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 563f00a97ccdf1842b1d847c35311953, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handleGameobject: 0
 --- !u!1 &6373702377639606796
 GameObject:
   m_ObjectHideFlags: 0
@@ -78,9 +150,6 @@ GameObject:
   - component: {fileID: 5886737878205337909}
   - component: {fileID: 8355383053517965814}
   - component: {fileID: 6303701480847540382}
-  - component: {fileID: 2873910112985950174}
-  - component: {fileID: 513663772477953327}
-  - component: {fileID: 7066465111927383874}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -100,7 +169,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 119179334975042072}
   m_Father: {fileID: 6203220487025301188}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8355383053517965814
@@ -128,69 +198,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handleGameobject: 1
---- !u!114 &2873910112985950174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6373702377639606796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5a16bf8ce7fa934b84778264a00cc27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.Developer.Debugging.Debug_MethodBind
-  active: 0
---- !u!114 &513663772477953327
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6373702377639606796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 456e9f9f32654bd428060a084764d9af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handleGameobject: 0
-  listenForDebugLogs: 0
-  listenForNormalLogs: 1
-  listenForWarningLogs: 1
-  listenForErrorLogs: 1
-  listenForExceptionLogs: 1
-  listenForAssertLogs: 1
-  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
-  logMessagePrefab: {fileID: 6211499101935233359, guid: 02ab36f51432d49479bf67c75b9dd88d, type: 3}
-  logsPool_initialSize: 10
---- !u!114 &7066465111927383874
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6373702377639606796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 563f00a97ccdf1842b1d847c35311953, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handleGameobject: 0
-  beginEnabled: 0
-  activationKey: 0
-  matShader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}
-  alwaysRenderWire: 0
-  alwaysRenderFill: 0
-  updateCollidersInterval: 0.1
-  rebuildCacheInterval: 0.05
-  maxDistance: 0
-  defaultWireColor: {r: 0, g: 1, b: 0, a: 0.34901962}
-  defaultFillColor: {r: 0, g: 1, b: 0, a: 0.078431375}
-  triggerAlphaMultiplier: 0.6
-  disabledAlphaMultiplier: 0.3
-  excludedLayers:
+  methodBind_enabled: 0
+  debugInfo_enabled: 0
+  screenLogs_enabled: 0
+  screenLogs_listenForDebugLogs: 1
+  screenLogs_listenForNormalLogs: 1
+  screenLogs_listenForWarningLogs: 1
+  screenLogs_listenForErrorLogs: 1
+  screenLogs_listenForExceptionLogs: 1
+  screenLogs_listenForAssertLogs: 1
+  screenLogs_defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  screenLogs_logMessagePrefab: {fileID: 6211499101935233359, guid: 02ab36f51432d49479bf67c75b9dd88d, type: 3}
+  screenLogs_initialPoolSize: 10
+  colliderVisualizer_enabled: 0
+  colliderVisualizer_beginEnabled: 0
+  colliderVisualizer_activationKey: 0
+  colliderVisualizer_activationActionPath: Developer/Colliders_Toggle
+  colliderVisualizer_matShader: {fileID: 4800000, guid: f24254b8c8e7a4e47a95abc2edc1f1ab, type: 3}
+  colliderVisualizer_alwaysRenderWire: 0
+  colliderVisualizer_alwaysRenderFill: 0
+  colliderVisualizer_updateCollidersInterval: 5
+  colliderVisualizer_rebuildCacheInterval: 0.15
+  colliderVisualizer_maxDistance: 80
+  colliderVisualizer_defaultWireColor: {r: 0, g: 1, b: 0, a: 0.34901962}
+  colliderVisualizer_defaultFillColor: {r: 0, g: 1, b: 0, a: 0.078431375}
+  colliderVisualizer_triggerAlphaMultiplier: 0.6
+  colliderVisualizer_disabledAlphaMultiplier: 0.3
+  colliderVisualizer_excludedLayers:
     serializedVersion: 2
     m_Bits: 0
-  excludedTags:
+  colliderVisualizer_excludedTags:
     mask: 0
-  customColors: []
+  colliderVisualizer_customColors: []

@@ -9,11 +9,11 @@ namespace SHUU.InnerWorkings
     {
         #region Variables
         private static CustomFilePathsAsset _pathsAsset = null;
-        public static CustomFilePathsAsset pathsAsset
+        public static CustomFilePathsAsset PathsAsset
         {
             get
             {
-                if (_pathsAsset == null) _pathsAsset = Resources.Load<CustomFilePathsAsset>("SHUU_Runtime_Resources/SHUU_CustomFilePathsAsset");
+                if (_pathsAsset == null) _pathsAsset = Resources.Load<CustomFilePathsAsset>("SHUUResources/SHUU_CustomFilePathsAsset");
 
                 return _pathsAsset;
             }
@@ -21,11 +21,11 @@ namespace SHUU.InnerWorkings
 
 
         private static ScriptableObjectLoader _scriptableObjectLoader = null;
-        public static ScriptableObjectLoader scriptableObjectLoader
+        public static ScriptableObjectLoader ScriptableObjectLoader
         {
             get
             {
-                if (_pathsAsset == null) _scriptableObjectLoader = Resources.Load<ScriptableObjectLoader>("SHUU/InnerWorkings/ScriptableObjectLoader_Asset");
+                if (_pathsAsset == null) _scriptableObjectLoader = Resources.Load<ScriptableObjectLoader>("SHUUResources/ScriptableObjectLoader_Asset");
 
                 return _scriptableObjectLoader;
             }
@@ -36,11 +36,11 @@ namespace SHUU.InnerWorkings
 
 
         #region Logic
-        public static string GetPath(string id, string endPoint = null) => pathsAsset.GetPath(id, endPoint, true);
+        public static string GetPath(string id, string endPoint = null) => PathsAsset.GetPath(id, endPoint, true);
 
         
         #if UNITY_EDITOR
-        public static void TrackScriptableObject(ScriptableObject obj) => scriptableObjectLoader.Track(obj);
+        public static void TrackScriptableObject(ScriptableObject obj) => ScriptableObjectLoader.Track(obj);
         #endif
         #endregion
     }

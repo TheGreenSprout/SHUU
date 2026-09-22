@@ -37,6 +37,11 @@ namespace SHUU.Utils.Developer.Console
             }
             this.output = output.ToArray();
         }
+
+
+        public static CommandReturn Green(params string[] message) => new CommandReturn(Color.green, message);
+        public static CommandReturn Red(params string[] message) => new CommandReturn(Color.red, message);
+        public static CommandReturn Yellow(params string[] message) => new CommandReturn(Color.yellow, message);
         #endregion
     }
     #endregion
@@ -81,7 +86,7 @@ namespace SHUU.Utils.Developer.Console
 
         public override string ToString()
         {
-            if (!hasValue) return DevConsoleManager.instance.optionalParameter_consoleInterpreters[0];
+            if (!hasValue) return DevConsoleManager.Instance.optionalParameter_consoleInterpreters[0];
             else return value.ToString();
         }
         #endregion

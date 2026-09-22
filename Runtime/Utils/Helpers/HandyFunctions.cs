@@ -26,7 +26,7 @@ namespace SHUU.Utils.Helpers
 
 
 
-        public static readonly HashSet<string> csharpKeywords = new()
+        public static readonly HashSet<string> CsharpKeywords = new()
         {
             "abstract","as","base","bool","break","byte","case","catch","char","checked","class","const","continue",
             "decimal","default","delegate","do","double","else","enum","event","explicit","extern","false","finally",
@@ -139,18 +139,76 @@ namespace SHUU.Utils.Helpers
             string result = sb.ToString();
             if (result.Length == 0) result = "_";
             if (char.IsDigit(result[0])) result = "_" + result;
-            if (csharpKeywords.Contains(result)) result = "@" + result;
+            if (CsharpKeywords.Contains(result)) result = "@" + result;
 
 
             return result;
         }
+
+
+        public static string DescribeException(this Exception exception)
+        {
+            string message = exception.Message;
+
+            for (Exception inner = exception.InnerException; inner != null; inner = inner.InnerException)
+                message += " (" + inner.Message + ")";
+
+            return message;
+        }
+
+
+        #region Rich Text
+        public static string RichText_Bold(this string t) => $"<b>{t}</b>";
+        public static string RichText_Italic(this string t) => $"<i>{t}</i>";
+        public static string RichText_Underline(this string t) => $"<u>{t}</u>";
+        public static string RichText_Strike(this string t) => $"<s>{t}</s>";
+        public static string RichText_Superscript(this string t) => $"<sup>{t}</sup>";
+        public static string RichText_Subscript(this string t) => $"<sub>{t}</sub>";
+        public static string RichText_Smallcaps(this string t) => $"<smallcaps>{t}</smallcaps>";
+        public static string RichText_Uppercase(this string t) => $"<uppercase>{t}</uppercase>";
+        public static string RichText_Lowercase(this string t) => $"<lowercase>{t}</lowercase>";
+
+        public static string RichText_WithColor(this string t, Color c) => $"<color=#{ColorUtility.ToHtmlStringRGBA(c)}>{t}</color>";
+        public static string RichText_WithColor(this string t, string hex) => $"<color={hex}>{t}</color>";
+        public static string RichText_WithAlpha(this string t, float alpha) => $"<alpha=#{Mathf.RoundToInt(Mathf.Clamp01(alpha) * 255):X2}>{t}<alpha=#FF>";
+        public static string RichText_Marked(this string t, Color c, bool padded = false)
+        {
+            string inner = padded ? $"<color=#00000000>_</color>{t}<color=#00000000>_</color>" : t;
+            return $"<mark=#{ColorUtility.ToHtmlStringRGBA(c)}>{inner}</mark>";
+        }
+        public static string RichText_Size(this string t, int px) => $"<size={px}>{t}</size>";
+        public static string RichText_SizeEm(this string t, float em) => $"<size={em}em>{t}</size>";
+        public static string RichText_SizePercent(this string t, float pct) => $"<size={pct}%>{t}</size>";
+
+        public static string RichText_AlignLeft(this string t) => $"<align=left>{t}</align>";
+        public static string RichText_AlignCenter(this string t) => $"<align=center>{t}</align>";
+        public static string RichText_AlignRight(this string t) => $"<align=right>{t}</align>";
+        public static string RichText_AlignJustified(this string t) => $"<align=justified>{t}</align>";
+        public static string RichText_AlignFlush(this string t) => $"<align=flush>{t}</align>";
+
+        public static string RichText_Scale(this string t, float s) => $"<scale={s}>{t}</scale>";
+        public static string RichText_Rotate(this string t, float deg) => $"<rotate={deg}>{t}</rotate>";
+        public static string RichText_VOffset(this string t, float em) => $"<voffset={em}em>{t}</voffset>";
+        public static string RichText_CharSpacing(this string t, float em) => $"<cspace={em}em>{t}</cspace>";
+        public static string RichText_Monospace(this string t, float em) => $"<mspace={em}em>{t}</mspace>";
+        public static string RichText_Indent(this string t, float em) => $"<indent={em}em>{t}</indent>";
+
+        public static string RichText_NoBreak(this string t) => $"<nobr>{t}</nobr>";
+        public static string RichText_NoParse(this string t) => $"<noparse>{t}</noparse>";
+        public static string RichText_WithLink(this string t, string id) => $"<link={id}>{t}</link>";
+        public static string RichText_WithStyle(this string t, string name) => $"<style={name}>{t}</style>";
+
+        public static string RichText_Space(float px) => $"<space={px}px>";
+        public static string RichText_LineHeight(float pct) => $"<line-height={pct}%>";
+        #endregion
+        
         #endregion
 
 
 
         #region Enums
-        private static T GetEnumFromString<T>(string name) where T : Enum => (T)Enum.Parse(typeof(T), name);
-        private static T GetEnumFromVal<T>(int val) where T : Enum => (T)(object)val;
+        public static T GetEnumFromString<T>(string name) where T : Enum => (T)Enum.Parse(typeof(T), name);
+        public static T GetEnumFromVal<T>(int val) where T : Enum => (T)(object)val;
 
 
         public static int GetEnumValue<T>(T value) where T : Enum => Convert.ToInt32(value);        
@@ -169,7 +227,9 @@ namespace SHUU.Utils.Helpers
 
 
         #region Lists
-        public static int Count<E>(this IEnumerable<E> source)
+        // System.Linq has these for IEnumerable<>
+        
+        /*public static int Count<E>(this IEnumerable<E> source)
         {
             if (source == null) return 0;
 
@@ -177,7 +237,8 @@ namespace SHUU.Utils.Helpers
             else
             {
                 int count = 0;
-                foreach (var item in source) count++;
+                foreach (var item in source)
+                    count++;
                 return count;
             }
         }
@@ -197,7 +258,7 @@ namespace SHUU.Utils.Helpers
                 }
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
-        }
+        }*/
         
 
         public static bool IndexIsValid<E>(this IEnumerable<E> list, int index) => !(index < 0 || index >= list.Count());
@@ -622,13 +683,13 @@ namespace SHUU.Utils.Helpers
         public static void ConfineMouse(bool? cursorVisible = null) => ChangeMouseLockState(CursorLockMode.Confined, cursorVisible);
         public static void FreeMouse(bool? cursorVisible = null) => ChangeMouseLockState(CursorLockMode.None, cursorVisible);
 
-        private static (CursorLockMode, bool?)? savedCursorState = null;
+        private static (CursorLockMode, bool?)? SavedCursorState = null;
         public static bool ChangeMouseLockState_Temporary(CursorLockMode state, bool? cursorVisible = null)
         {
-            if (savedCursorState != null) return false;
+            if (SavedCursorState != null) return false;
 
 
-            savedCursorState = (Cursor.lockState, Cursor.visible);
+            SavedCursorState = (Cursor.lockState, Cursor.visible);
 
             ChangeMouseLockState(state, cursorVisible);
 
@@ -637,12 +698,12 @@ namespace SHUU.Utils.Helpers
         }
         public static bool ReturnMouseLockState_FromTemporary()
         {
-            if (savedCursorState == null) return false;
+            if (SavedCursorState == null) return false;
 
 
-            ChangeMouseLockState(savedCursorState.Value.Item1, savedCursorState.Value.Item2);
+            ChangeMouseLockState(SavedCursorState.Value.Item1, SavedCursorState.Value.Item2);
 
-            savedCursorState = null;
+            SavedCursorState = null;
 
 
             return true;
@@ -655,13 +716,13 @@ namespace SHUU.Utils.Helpers
             else Cursor.visible = (bool)cursorVisible;
         }
 
-        private static bool? savedCursorVisibility = null;
+        private static bool? SavedCursorVisibility = null;
         public static bool ChangeMouseVisibility_Temporary(bool cursorVisible)
         {
-            if (savedCursorVisibility != null) return false;
+            if (SavedCursorVisibility != null) return false;
 
 
-            savedCursorVisibility = Cursor.visible;
+            SavedCursorVisibility = Cursor.visible;
 
             ChangeMouseVisibility(cursorVisible);
 
@@ -670,12 +731,12 @@ namespace SHUU.Utils.Helpers
         }
         public static bool ReturnMouseVisibility_FromTemporary()
         {
-            if (savedCursorVisibility == null) return false;
+            if (SavedCursorVisibility == null) return false;
 
 
-            ChangeMouseVisibility(savedCursorVisibility);
+            ChangeMouseVisibility(SavedCursorVisibility);
 
-            savedCursorVisibility = null;
+            SavedCursorVisibility = null;
 
 
             return true;
@@ -740,6 +801,9 @@ namespace SHUU.Utils.Helpers
 
             return Mathf.Log10(linear) * 20f;
         }
+
+
+        public static Sprite ToSprite(this Texture2D texture) => Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
 
 
         public static string GetTypeName(this Type t)
@@ -957,7 +1021,9 @@ namespace SHUU.Utils.Helpers
             };
         }
         #endregion
+        
         #endregion
+        
         #endregion
 
 

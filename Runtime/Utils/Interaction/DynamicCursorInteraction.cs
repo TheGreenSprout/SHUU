@@ -9,15 +9,15 @@ namespace SHUU.Utils.Interaction
     public static class DynamicCursorInteraction
     {
         #region Variables
-        public static event Action<bool, GameObject> alternateCursorState = null;
+        public static event Action<bool, GameObject> AlternateCursorState = null;
 
-        public static bool cursorActive => ammountOfInteracts.Count != 0;
+        public static bool CursorActive => AmmountOfInteracts.Count != 0;
 
 
 
-        private static List<GameObject> ammountOfInteracts = new();
+        private static List<GameObject> AmmountOfInteracts = new();
 
-        private static bool actionCalled = false;
+        private static bool ActionCalled = false;
         #endregion
 
 
@@ -26,9 +26,9 @@ namespace SHUU.Utils.Interaction
         #region Logic
         public static void AddCursorAffector(GameObject id)
         {
-            if (ammountOfInteracts.Contains(id)) return;
+            if (AmmountOfInteracts.Contains(id)) return;
 
-            ammountOfInteracts.Add(id);
+            AmmountOfInteracts.Add(id);
 
 
             UpdateState();
@@ -36,9 +36,9 @@ namespace SHUU.Utils.Interaction
 
         public static void RemoveCursorAffector(GameObject id)
         {
-            if (!ammountOfInteracts.Contains(id)) return;
+            if (!AmmountOfInteracts.Contains(id)) return;
 
-            ammountOfInteracts.Remove(id);
+            AmmountOfInteracts.Remove(id);
 
 
             UpdateState();
@@ -47,25 +47,25 @@ namespace SHUU.Utils.Interaction
 
         private static void UpdateState()
         {
-            ammountOfInteracts.Clean();
+            AmmountOfInteracts.Clean();
 
             
-            if (ammountOfInteracts.Count == 0)
+            if (AmmountOfInteracts.Count == 0)
             {
-                if (!actionCalled)
+                if (!ActionCalled)
                 {
-                    actionCalled = true;
+                    ActionCalled = true;
 
-                    alternateCursorState?.Invoke(true, null);
+                    AlternateCursorState?.Invoke(true, null);
                 }
             }
             else
             {
-                if (actionCalled)
+                if (ActionCalled)
                 {
-                    actionCalled = false;
+                    ActionCalled = false;
 
-                    alternateCursorState?.Invoke(false, ammountOfInteracts[ammountOfInteracts.Count-1]);
+                    AlternateCursorState?.Invoke(false, AmmountOfInteracts[AmmountOfInteracts.Count-1]);
                 }
             }
         }

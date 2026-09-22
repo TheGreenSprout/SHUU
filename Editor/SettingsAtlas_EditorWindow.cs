@@ -1,9 +1,19 @@
+/*
+⚠️‼️ AI ASSISTED CODE
+
+This code was written with the assistance of AI.
+*/
+
+
+
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+
+using SproutPackage._Editor;
 
 using SHUU.Utils.SettingsSystem;
 using SHUU._Editor.CodeGeneration;
@@ -20,6 +30,7 @@ namespace SHUU._Editor.Drawers
     public class SettingsDataEditorWindow : EditorWindow_Base<SettingsDataEditorWindow>
     {
         #region Variables
+        private static SettingsDataEditorWindow Window = null;
 
         #region Layout constants
         private const float ToolbarH = 22f;
@@ -75,7 +86,7 @@ namespace SHUU._Editor.Drawers
         #region Main
         public static void Open(SettingsAtlas asset)
         {
-            var window = CreateWindow("Settings Editor", minWidth: 640, minHeight: 420);
+            var window = Window ?? CreateWindow("Settings Editor", minWidth: 640, minHeight: 420);
 
             if (!window.TryLoad(asset))
             {
@@ -87,12 +98,14 @@ namespace SHUU._Editor.Drawers
 
             window.Focus();
         }
+        
 
         private bool TryLoad(SettingsAtlas newAsset)
         {
             if (newAsset == asset) return true;
 
-            if (!ConfirmDiscardChanges("switching assets")) return false;
+            bool? choice = ConfirmDiscardChanges("switching assets", false);
+            if (choice != null && !choice.Value) return false;
 
             Load(newAsset);
             return true;
@@ -114,6 +127,7 @@ namespace SHUU._Editor.Drawers
         }
 
 
+        #region Unity Events
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -121,28 +135,12 @@ namespace SHUU._Editor.Drawers
             if (asset != null) titleContent = new GUIContent($"Settings — {asset.settingsName}");
         }
 
-        protected override void OnDisable() => base.OnDisable();
-
-
         protected override void OnDestroy()
         {
-            if (isDirty && asset != null)
-            {
-                bool save = EditorUtility.DisplayDialog(
-                    "Unsaved Changes",
-                    $"Settings asset \"{asset.settingsName}\" has unsaved changes.\nSave before closing?",
-                    "Save", "Discard");
+            Window = null;
 
-                if (save) SaveAsset();
-            }
+            ConfirmDiscardChanges("closing", true);
         }
-
-
-        private bool ConfirmDiscardChanges(string actionDescription) => HandyEditorFunctions.ConfirmDiscardChanges(
-            isDirty && asset != null,
-            "Unsaved Changes",
-            $"Settings asset \"{asset?.settingsName}\"",
-            actionDescription, SaveAsset);
 
 
         private void OnGUI()
@@ -184,6 +182,8 @@ namespace SHUU._Editor.Drawers
                 Repaint();
             }
         }
+        #endregion
+
         #endregion
 
 
@@ -358,7 +358,6 @@ namespace SHUU._Editor.Drawers
             GUIStyle xBtn = new GUIStyle(EditorStyles.miniButton) { normal = { textColor = new Color(0.85f, 0.35f, 0.35f) }, padding = new RectOffset(0,0,0,0) };
             if (GUI.Button(del, "x", xBtn)) DeleteMap(i);
         }
-
         #endregion
 
 
@@ -607,13 +606,11 @@ namespace SHUU._Editor.Drawers
                 { normal = { textColor = new Color(0.85f, 0.35f, 0.35f) }, padding = new RectOffset(0,0,0,0) };
             if (GUI.Button(del, "x", xBtn)) DeleteField(map, groupIndex, i);
         }
-
         #endregion
 
 
 
         #region Detail column (right)
-
         private void DrawDetailColumn(Rect col)
         {
             EditorGUI.DrawRect(col, new Color(0.21f, 0.21f, 0.21f, 1f));
@@ -886,13 +883,11 @@ namespace SHUU._Editor.Drawers
             }
             return y + RowH + Padding;
         }
-
         #endregion
 
 
 
         #region Footer
-
         private void DrawFooter(Rect bar)
         {
             EditorGUI.DrawRect(bar, new Color(0.12f, 0.12f, 0.12f, 1f));
@@ -925,7 +920,6 @@ namespace SHUU._Editor.Drawers
 
 
         #region Inline rename
-
         private enum RenameTarget { Map, Group, Field, AssetName }
 
         private void DrawInlineRename(Rect r, int index, RenameTarget target)
@@ -964,13 +958,11 @@ namespace SHUU._Editor.Drawers
                     break;
             }
         }
-
         #endregion
 
 
 
         #region Drag helpers
-
         private static void ResolveDropTarget(List<FieldRowInfo> rows, float mouseY, float rowH,
             SettingMap map, out int targetGroupIndex, out int targetIndex)
         {
@@ -1005,13 +997,11 @@ namespace SHUU._Editor.Drawers
 
             targetIndex = overshoot ? countBefore + 1 : countBefore;
         }
-
         #endregion
 
 
 
         #region Operations
-
         private void AddMap()
         {
             Record(asset,"Add Setting Map");
@@ -1219,8 +1209,7 @@ namespace SHUU._Editor.Drawers
 
         private void DeleteGroup(SettingMap map, int g)
         {
-            if (!EditorUtility.DisplayDialog("Delete Group",
-                    $"Delete group \"{map.groups[g].groupName}\" and all its fields?", "Delete", "Cancel")) return;
+            if (!ConfirmCancel_Changes("Delete Group", $"Delete group \"{map.groups[g].groupName}\" and all its fields?")) return;
 
             Record(asset,"Delete Setting Group");
             map.groups.RemoveAt(g);
@@ -1302,12 +1291,20 @@ namespace SHUU._Editor.Drawers
             if (groupIndex < 0) return map.fields;
             return groupIndex < map.groups.Count ? map.groups[groupIndex].fields : null;
         }
-
         #endregion
 
 
 
         #region Helpers
+        private bool? ConfirmDiscardChanges(string actionDescription, bool simple)
+        {
+            if (!(isDirty && asset != null)) return null;
+
+            string m = $"Settings asset \"{asset.settingsName}\" has unsaved changes.\nSave before {actionDescription}?";
+            if (simple) return ConfirmCancel_Changes("Unsaved Changes", m, SaveAsset);
+            else return ConfirmCancelDiscard_Changes("Unsaved Changes", m, SaveAsset);
+        }
+
 
         private SettingMap SelectedMap() =>
             selectedMapIndex >= 0 && selectedMapIndex < asset?.maps.Count
@@ -1343,7 +1340,6 @@ namespace SHUU._Editor.Drawers
             SettingType.Enum => new Color(1.00f, 0.58f, 0.35f),
             _ => Color.gray
         };
-
         #endregion
 
         #endregion
@@ -1352,12 +1348,14 @@ namespace SHUU._Editor.Drawers
 
 
 
+
+    #region Helper class
     public class EnumTypePickerWindow : EditorWindow
     {
-        private static SerializedProperty s_enumTypeName;
-        private static SerializedProperty s_enumValue;
-        private static Action<string> s_callback;
-        private static string s_currentValue = "";
+        private static SerializedProperty EnumTypeName;
+        private static SerializedProperty EnumValue;
+        private static Action<string> Callback;
+        private static string CurrentValue = "";
 
         private string search = "";
         private Vector2 scroll;
@@ -1371,19 +1369,19 @@ namespace SHUU._Editor.Drawers
 
         public static void Show(SerializedProperty enumTypeName, SerializedProperty enumValue)
         {
-            s_enumTypeName = enumTypeName;
-            s_enumValue = enumValue;
-            s_callback = null;
-            s_currentValue = enumTypeName.stringValue;
+            EnumTypeName = enumTypeName;
+            EnumValue = enumValue;
+            Callback = null;
+            CurrentValue = enumTypeName.stringValue;
             Open();
         }
 
         public static void ShowWithCallback(Action<string> onSelect, string currentValue = "")
         {
-            s_enumTypeName = null;
-            s_enumValue = null;
-            s_callback = onSelect;
-            s_currentValue = currentValue ?? "";
+            EnumTypeName = null;
+            EnumValue = null;
+            Callback = onSelect;
+            CurrentValue = currentValue ?? "";
             Open();
         }
 
@@ -1432,7 +1430,7 @@ namespace SHUU._Editor.Drawers
             for (int i = 0; i < filtered.Count; i++)
             {
                 Type t = filtered[i];
-                bool selected = t.FullName == s_currentValue;
+                bool selected = t.FullName == CurrentValue;
 
                 Rect row = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight + 2f);
                 bool hovered = row.Contains(Event.current.mousePosition);
@@ -1477,17 +1475,18 @@ namespace SHUU._Editor.Drawers
 
         private void Commit(string fullName)
         {
-            s_currentValue = fullName;
-            if (s_callback != null)
-                s_callback.Invoke(fullName);
-            else if (s_enumTypeName != null)
+            CurrentValue = fullName;
+            if (Callback != null)
+                Callback.Invoke(fullName);
+            else if (EnumTypeName != null)
             {
-                s_enumTypeName.stringValue = fullName;
-                s_enumValue.intValue = 0;
-                s_enumTypeName.serializedObject.ApplyModifiedProperties();
+                EnumTypeName.stringValue = fullName;
+                EnumValue.intValue = 0;
+                EnumTypeName.serializedObject.ApplyModifiedProperties();
             }
             Close();
         }
     }
+    #endregion
 }
 #endif

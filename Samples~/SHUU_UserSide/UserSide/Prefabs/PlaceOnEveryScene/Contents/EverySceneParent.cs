@@ -1,11 +1,27 @@
 using UnityEngine;
+using UnityEngine.Events;
+
+using SHUU.Utils.Globals;
 
 namespace SHUU.UserSide
 {
+
     public class EverySceneParent : MonoBehaviour
     {
-        private void Awake() => Invoke(nameof(DestroyThisObj), 0.2f);
+        #region Variables
+        public UnityEvent destroyEvent = null;
+        #endregion
+
+
+
+
+        #region Variables
+        private void Awake() => SHUU_Time.OnNextFrame += Dissolve;
         
-        private void DestroyThisObj() => Destroy(this.gameObject);
+        private void Dissolve() => destroyEvent.Invoke();
+
+
+        public void DestroyExternal() => Destroy(this);
+        #endregion
     }
 }

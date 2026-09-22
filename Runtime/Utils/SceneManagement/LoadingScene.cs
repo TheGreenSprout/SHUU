@@ -23,9 +23,9 @@ namespace SHUU.Utils.SceneManagement
         #region Main
         private void Awake()
         {
-            sceneToLoad = SceneLoader.nextScene;
+            sceneToLoad = SceneLoader.NextScene;
 
-            SceneLoader.nextScene = null;
+            SceneLoader.NextScene = null;
 
 
             if (sceneToLoad == null || sceneToLoad == "") sceneToLoad = "ErrorScene";

@@ -1,0 +1,24 @@
+{
+    "name": "SproutingGames.Sprouts.HUU.UserSide.Addons",
+    "rootNamespace": "SHUU.UserSide.Addons",
+    "references": [
+        "GUID:3fa6bc7a02d93594296de95fff8cc78a",
+        "GUID:853a10fe68edd994d9115ec00a708d26",
+        "GUID:88be65f96b86746888c927a5c8ff3534",
+        "GUID:5fd453cd0d182422093c4a764fd5eadb",
+        "GUID:72b806b1f0c4e407da84762c44875a7d",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:9a1ba5bb47be2224b8a2beef6feb2200",
+        "GUID:af6dd72da185b2541babbb39fac02005",
+        "GUID:cd58eeddff49f4540a2dd8462e4e2e82"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

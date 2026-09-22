@@ -1,7 +1,7 @@
 using UnityEngine;
 
 using SHUU.Utils.Helpers;
-using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
+using SHUU.InnerWorkings.Preferences;
 
 namespace SHUU.Utils.UI
 {
@@ -19,7 +19,7 @@ namespace SHUU.Utils.UI
 
 
 
-        private static bool debugLogEmission => SHUU_Preferences.instance.ui_debugLogEmission;
+        private static bool DebugLogEmission => SHUUPreferences_UI.Instance != null && SHUUPreferences_UI.Instance.debugLogEmission;
         #endregion
 
 
@@ -31,7 +31,7 @@ namespace SHUU.Utils.UI
             if (!canvas) canvas = transform.SearchComponent_InSelfAndParents<Canvas>();
             if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
             {
-                if (debugLogEmission) Debug.LogError("OverlayCanvas_MouseCursor can't be used in a canvas that isn't RenderMode 'Screen Space - Overlay'.");
+                if (DebugLogEmission) Debug.LogError("OverlayCanvas_MouseCursor can't be used in a canvas that isn't RenderMode 'Screen Space - Overlay'.");
 
                 Destroy(this);
             }

@@ -1,0 +1,11 @@
+<linker>
+  <!--
+    Save files are read with Json.NET, which creates classes by name. On IL2CPP builds the code stripper removes classes and generic types
+    that only ever get used this way, and a save then fails to load in a build even though it works in the editor.
+    This keeps everything in the addons assembly (SavingManager, DTOs, SaveFileInfo...).
+
+    If your own DTOs live in another assembly (Assembly-CSharp, or your own asmdef), add it here too, for example:
+      <assembly fullname="Assembly-CSharp" preserve="all"/>
+  -->
+  <assembly fullname="SproutingGames.Sprouts.HUU.UserSide.Addons" preserve="all"/>
+</linker>

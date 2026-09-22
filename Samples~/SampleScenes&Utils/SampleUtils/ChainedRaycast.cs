@@ -2,7 +2,7 @@ using UnityEngine;
 
 using SHUU.Utils.Interaction;
 
-namespace SHUU.Samples
+namespace SHUU.Samples.ScenesUtils.Utils
 {
     public class ChainedRaycast : ChainedRaycastLogic
     {

@@ -15,6 +15,11 @@ MonoBehaviour:
   serializedData:
   - key: SHUU_InspectorCreationAssets
     data:
+    - path: Create Folder (SHUU)
+      prefab: {fileID: 1093772259444442373, guid: b782f4e4c287549429930e9726a499d4, type: 3}
+      validateFunction: 0
+      priority: 0
+      unpack: 1
     - path: SHUU/OnEveryScene
       prefab: {fileID: 5225186638109007582, guid: 0d3c4b398dd720c40ba1bb00a2b30364, type: 3}
       validateFunction: 0
@@ -45,3 +50,10 @@ MonoBehaviour:
       validateFunction: 0
       priority: 51
       unpack: 1
+  - key: SHUU_DevConsole_InspectorCreationAsset
+    data:
+    - path: SHUU/DeveloperConsole
+      prefab: {fileID: 8846335260196786018, guid: 105fd74c1f0c97d4aac20d22861f02ab, type: 3}
+      validateFunction: 0
+      priority: 52
+      unpack: 0

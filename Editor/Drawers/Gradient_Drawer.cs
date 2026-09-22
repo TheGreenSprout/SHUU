@@ -12,7 +12,7 @@ namespace SHUU._Editor.Drawers
     public class Gradient_Drawer : PropertyDrawer_Base<Gradient_Drawer>
     {
         #region Types
-        private static readonly string[] typeNames = new[]
+        private static readonly string[] TypeNames = new[]
         {
             "None",
             "UI Gradient",
@@ -21,7 +21,7 @@ namespace SHUU._Editor.Drawers
             "UI Text Corners Gradient"
         };
 
-        private static readonly Type[] types = new Type[]
+        private static readonly Type[] Types = new Type[]
         {
             null,
             typeof(SHUU_Gradient.UIGradient),
@@ -34,7 +34,7 @@ namespace SHUU._Editor.Drawers
 
 
 
-        protected override void Build(SerializedProperty property) => DrawManagedReferenceDropdown(property, "Gradient Type", types, typeNames);
+        protected override void Build(SerializedProperty property) => DrawManagedReferenceDropdown(property, "Gradient Type", Types, TypeNames);
     }
 }
 #endif

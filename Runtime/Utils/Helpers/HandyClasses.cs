@@ -11,10 +11,13 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
+using Alchemy.Inspector;
+
 using SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects;
 using SHUU.Utils.SceneManagement;
 
 using static SHUU.Utils.Data.DataManager;
+using SHUU.InnerWorkings.Preferences;
 
 namespace SHUU.Utils.Helpers
 {
@@ -64,8 +67,8 @@ namespace SHUU.Utils.Helpers
 
 
 
-        private static List<string> tagRegistry => SHUU_TagRegistry.tagRegistry;
-        private static Dictionary<string, int> tagCache = null;
+        private static List<string> TagRegistry => SHUU_TagRegistry.TagRegistry;
+        private static Dictionary<string, int> TagCache = null;
         #endregion
 
 
@@ -81,20 +84,20 @@ namespace SHUU.Utils.Helpers
         #region Logic
         private void EnsureCache()
         {
-            if (tagCache != null) return;
+            if (TagCache != null) return;
 
 
-            tagCache = new();
+            TagCache = new();
 
-            for (int i = 0; i < tagRegistry.Count; i++)
-                tagCache[tagRegistry[i]] = i;
+            for (int i = 0; i < TagRegistry.Count; i++)
+                TagCache[TagRegistry[i]] = i;
         }
 
         public bool Contains(string tag)
         {
             EnsureCache();
 
-            if (!tagCache.TryGetValue(tag, out int i)) return false;
+            if (!TagCache.TryGetValue(tag, out int i)) return false;
             return (mask & (1 << i)) != 0;
         }
         #endregion
@@ -105,7 +108,8 @@ namespace SHUU.Utils.Helpers
 
 
     #region Dual-Key Dictionary
-    public class DualDictionary<TKey1, TKey2, TValue> : IEnumerable<(TKey1 Key1, TKey2 Key2, TValue Value)>
+    [Serializable]
+    public sealed class DualDictionary<TKey1, TKey2, TValue> : IEnumerable<(TKey1 Key1, TKey2 Key2, TValue Value)>
     {
         #region Variables
         private readonly Dictionary<TKey1, TKey2> key1ToKey2;
@@ -279,7 +283,8 @@ namespace SHUU.Utils.Helpers
 
 
     #region Circular Queue
-    public class CircularQueue<T> : IEnumerable<T>, IReadOnlyCollection<T>
+    [Serializable]
+    public sealed class CircularQueue<T> : IEnumerable<T>, IReadOnlyCollection<T>
     {
         private readonly Queue<T> data = new Queue<T>();
 
@@ -363,7 +368,8 @@ namespace SHUU.Utils.Helpers
 
 
     #region Inverted List
-    public class InvertedList<T> : IReadOnlyList<T>
+    [Serializable]
+    public sealed class InvertedList<T> : IReadOnlyList<T>
     {
         private readonly List<T> data = new List<T>();
 
@@ -421,36 +427,165 @@ namespace SHUU.Utils.Helpers
 
 
 
+    #region Bucket Dictionary
+    [Serializable]
+    public sealed class BucketDictionary<TKey, TValue> : IEnumerable<(TKey Key, List<TValue> Values)>
+    {
+        #region Variables
+        private readonly Dictionary<TKey, List<TValue>> data;
+
+        public int KeyCount => data.Count;
+        public int TotalValueCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (var list in data.Values) count += list.Count;
+                return count;
+            }
+        }
+
+        public IReadOnlyCollection<TKey> Keys => data.Keys;
+        #endregion
+
+
+
+
+        #region Main
+        public BucketDictionary(IEqualityComparer<TKey> keyComparer = null)
+        {
+            data = new Dictionary<TKey, List<TValue>>(keyComparer ?? EqualityComparer<TKey>.Default);
+        }
+
+
+        public TValue this[TKey key]
+        {
+            get
+            {
+                var list = GetOrCreateBucket(key);
+
+                if (list.Count != 0) return list[0];
+                else return default;
+            }
+            set => Add(key, value);
+        }
+
+        public void Add(TKey key, TValue value) => GetOrCreateBucket(key).Add(value);
+        public void AddRange(TKey key, IEnumerable<TValue> values) => GetOrCreateBucket(key).AddRange(values);
+        public bool AddUnique(TKey key, TValue value)
+        {
+            var bucket = GetOrCreateBucket(key);
+            if (bucket.Contains(value)) return false;
+
+            bucket.Add(value);
+            return true;
+        }
+
+
+        public bool Remove(TKey key, TValue value)
+        {
+            if (!data.TryGetValue(key, out var bucket)) return false;
+
+            bool removed = bucket.Remove(value);
+            if (removed && bucket.Count == 0)
+                data.Remove(key);
+
+            return removed;
+        }
+        public bool RemoveKey(TKey key) => data.Remove(key);
+        public int RemoveAll(TKey key, Predicate<TValue> match)
+        {
+            if (!data.TryGetValue(key, out var bucket)) return 0;
+
+            int removed = bucket.RemoveAll(match);
+            if (bucket.Count == 0)
+                data.Remove(key);
+
+            return removed;
+        }
+
+
+        public void Clear() => data.Clear();
+        #endregion
+
+
+
+        #region Logic
+
+        #region Lookups
+        public bool ContainsKey(TKey key) => data.ContainsKey(key);
+        public bool Contains(TKey key, TValue value) => data.TryGetValue(key, out var bucket) && bucket.Contains(value);
+
+        public bool TryGetValues(TKey key, out List<TValue> values) => data.TryGetValue(key, out values);
+        public List<TValue> GetValues(TKey key) => TryGetValues(key, out var bucket) ? bucket : new List<TValue>();
+        public List<List<TValue>> GetAllValues()
+        {
+            var result = new List<List<TValue>>(data.Count);
+            foreach (var bucket in data.Values)
+                result.Add(bucket);
+
+            return result;
+        }
+
+        public int CountFor(TKey key) => data.TryGetValue(key, out var bucket) ? bucket.Count : 0;
+        #endregion
+
+
+        #region Internal
+        private List<TValue> GetOrCreateBucket(TKey key)
+        {
+            if (!data.TryGetValue(key, out var bucket))
+            {
+                bucket = new List<TValue>();
+                data[key] = bucket;
+            }
+            return bucket;
+        }
+        #endregion
+
+
+        #region Enumeration
+        public IEnumerator<(TKey Key, List<TValue> Values)> GetEnumerator()
+        {
+            foreach (var kvp in data)
+                yield return (kvp.Key, kvp.Value);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        #endregion
+
+        #endregion
+    }
+    #endregion
+
+
+
+
     #region Static Instance Scripts
 
     #region MonoBehaviour
 
     #region General
     [DefaultExecutionOrder(-20000)]
-    public abstract class Singleton_MonoBehaviour<T> : MonoBehaviour where T : Singleton_MonoBehaviour<T>
+    public abstract class HiddenSingleton_MonoBehaviour<T> : MonoBehaviour where T : HiddenSingleton_MonoBehaviour<T>
     {
         #region Variables
-        protected static T _instance;
+        protected static T instance;
         
-        public static T instance
+        public static T Instance
         {
             get
             {
-                if (_instance == null) _instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
+                if (instance == null) instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
 
-                return _instance;
+                return instance;
             }
         }
-
 
 
         protected abstract bool PersistantSingleton();
 
         protected virtual UnityEvent _onCreation => null;
-
-
-        [Header("Singleton Settings")]
-        [SerializeField] protected bool handleGameobject = true;
         #endregion
 
 
@@ -459,16 +594,86 @@ namespace SHUU.Utils.Helpers
         #region Main
         protected virtual void Awake()
         {
-            if (_instance != null && _instance != this)
+            if (instance != null && instance != this)
             {
-                if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest instance...");
+                if (SHUUPreferences_HandyClasses.Instance != null && SHUUPreferences_HandyClasses.Instance.singleton_debugLogEmission)
+                    Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest Instance...");
                 Dispose();
 
                 return;
             }
 
 
-            _instance = this as T;
+            instance = this as T;
+
+            if (PersistantSingleton())
+            {
+                transform.parent = null;
+
+                DontDestroyOnLoad(gameObject);
+            }
+
+            OnCreation();
+            _onCreation?.Invoke();
+        }
+
+        protected virtual void OnCreation() { }
+
+
+        protected void Dispose() => Destroy(this);
+        #endregion
+    }
+
+    [DefaultExecutionOrder(-20000)]
+    public abstract class Singleton_MonoBehaviour<T> : MonoBehaviour where T : Singleton_MonoBehaviour<T>
+    {
+        #region Variables
+
+        #region Singleton
+        protected static T instance;
+        
+        public static T Instance
+        {
+            get
+            {
+                if (instance == null) instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
+
+                return instance;
+            }
+        }
+
+
+        protected abstract bool PersistantSingleton();
+
+        protected virtual UnityEvent _onCreation => null;
+        #endregion
+
+
+
+        #region Inspector
+        [SerializeField, BoxGroup("Singleton Settings")]
+        protected bool handleGameobject = true;
+        #endregion
+
+        #endregion
+
+
+
+
+        #region Main
+        protected virtual void Awake()
+        {
+            if (instance != null && instance != this)
+            {
+                if (SHUUPreferences_HandyClasses.Instance != null && SHUUPreferences_HandyClasses.Instance.singleton_debugLogEmission)
+                    Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest Instance...");
+                Dispose();
+
+                return;
+            }
+
+
+            instance = this as T;
 
             if (PersistantSingleton())
             {
@@ -501,14 +706,19 @@ namespace SHUU.Utils.Helpers
 
         
         [Tooltip("If set  to 0 or more, after that ammount of scene changes, on the next scene change the object will be destroyed.")]
-        [Min(-1)] public int bridges = -1;
+        [SerializeField, BoxGroup("Singleton Settings"), Min(-1)]
+        protected int bridges = -1;
+
         [Tooltip("These scenes won't cost a bridge to enter.")]
-        [SerializeField] private List<string> bridgeFree_Scenes = new List<string>() {"LoadingScene"};
+        [SerializeField, BoxGroup("Singleton Settings")]
+        private List<string> bridgeFree_Scenes = new List<string>() {"LoadingScene"};
+        
         private bool initialized = false;
 
 
         [Tooltip("If the singleton enters one of these scenes it will be deleted.")]
-        [SerializeField] private List<string> banned_Scenes = new List<string>();
+        [SerializeField, BoxGroup("Singleton Settings")]
+        private List<string> banned_Scenes = new List<string>();
         #endregion
 
 
@@ -529,7 +739,7 @@ namespace SHUU.Utils.Helpers
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.activeSceneChanged -= OnSceneChanged;
 
-           _instance = null;
+           instance = null;
 
             
             Dispose();
@@ -543,7 +753,8 @@ namespace SHUU.Utils.Helpers
         {
             if (banned_Scenes.Contains(SceneLoader.GetCurrentSceneName()))
             {
-                if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] Banned scene entered. Destroying singleton...");
+                if (SHUUPreferences_HandyClasses.Instance != null && SHUUPreferences_HandyClasses.Instance.singleton_debugLogEmission)
+                    Debug.LogWarning($"[{typeof(T)} Singleton] Banned scene entered. Destroying singleton...");
 
                 DestroySingleton();
 
@@ -565,7 +776,8 @@ namespace SHUU.Utils.Helpers
             {
                 if (bridges == 0)
                 {
-                    if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] All bridges burnt. Destroying singleton...");
+                    if (SHUUPreferences_HandyClasses.Instance != null && SHUUPreferences_HandyClasses.Instance.singleton_debugLogEmission)
+                        Debug.LogWarning($"[{typeof(T)} Singleton] All bridges burnt. Destroying singleton...");
 
                     DestroySingleton();
                 }
@@ -585,31 +797,31 @@ namespace SHUU.Utils.Helpers
     public abstract class Singleton_ScriptableObject<T> : ScriptableObject where T : Singleton_ScriptableObject<T>
     {
         #region Variables
-        protected static T _instance;
+        protected static T instance;
 
-        public static T instance
+        public static T Instance
         {
             get
             {
-                if (_instance == null) _instance = Resources.Load<T>(GetResourcesPath());
+                if (instance == null) instance = Resources.Load<T>(GetResourcesPath());
 
-                return _instance;
+                return instance;
             }
         }
 
 
         protected virtual string resourcesPath => name;
 
-        private static string cachedPath;
+        private static string CachedPath;
         private static string GetResourcesPath()
         {
-            if (cachedPath != null) return cachedPath;
+            if (CachedPath != null) return CachedPath;
 
             var temp = CreateInstance<T>();
-            cachedPath = temp.resourcesPath;
+            CachedPath = temp.resourcesPath;
             DestroyImmediate(temp);
 
-            return cachedPath;
+            return CachedPath;
         }
         #endregion
 
@@ -619,15 +831,16 @@ namespace SHUU.Utils.Helpers
         #region Main
         protected virtual void OnEnable()
         {
-            if (_instance != null && _instance != this)
+            if (instance != null && instance != this)
             {
-                if (SHUU_Preferences.instance.singleton_debugLogEmission) Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest instance...");
+                if (SHUUPreferences_HandyClasses.Instance != null && SHUUPreferences_HandyClasses.Instance.singleton_debugLogEmission)
+                    Debug.LogWarning($"[{typeof(T)} Singleton] Multiple instances detected. Destroying newest Instance...");
 
                 DestroyImmediate(this);
                 return;
             }
 
-            _instance = this as T;
+            instance = this as T;
         }
         #endregion
     }

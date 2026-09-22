@@ -13,16 +13,16 @@ namespace SHUU.Utils.InputSystem
     public class SHUU_PlayerInput : MonoBehaviour
     {
         #region Static Registry
-        private static readonly Dictionary<int, SHUU_PlayerInput> registry = new();
+        private static readonly Dictionary<int, SHUU_PlayerInput> Registry = new();
 
-        public static IReadOnlyDictionary<int, SHUU_PlayerInput> all => registry;
-        public static int count => registry.Count;
+        public static IReadOnlyDictionary<int, SHUU_PlayerInput> All => Registry;
+        public static int Count => Registry.Count;
 
-        public static event Action<SHUU_PlayerInput> onPlayerJoined;
-        public static event Action<SHUU_PlayerInput> onPlayerLeft;
+        public static event Action<SHUU_PlayerInput> OnPlayerJoined;
+        public static event Action<SHUU_PlayerInput> OnPlayerLeft;
 
 
-        public static bool TryGetPlayer(int playerIndex, out SHUU_PlayerInput player) => registry.TryGetValue(playerIndex, out player);
+        public static bool TryGetPlayer(int playerIndex, out SHUU_PlayerInput player) => Registry.TryGetValue(playerIndex, out player);
         public static SHUU_PlayerInput GetPlayer(int playerIndex)
         {
             TryGetPlayer(playerIndex, out SHUU_PlayerInput player);
@@ -96,14 +96,14 @@ namespace SHUU.Utils.InputSystem
             if (playerInput == null) return;
 
 
-            registry[playerIndex] = this;
+            Registry[playerIndex] = this;
 
             playerInput.onActionTriggered += OnActionTriggered;
             playerInput.onControlsChanged += OnControlsChanged;
             playerInput.onDeviceLost += OnDeviceLost;
             playerInput.onDeviceRegained += OnDeviceRegained;
 
-            onPlayerJoined?.Invoke(this);
+            OnPlayerJoined?.Invoke(this);
         }
 
         private void OnDisable()
@@ -111,7 +111,7 @@ namespace SHUU.Utils.InputSystem
             if (playerInput == null) return;
 
 
-            registry.Remove(playerIndex);
+            Registry.Remove(playerIndex);
 
             playerInput.onActionTriggered -= OnActionTriggered;
             playerInput.onControlsChanged -= OnControlsChanged;
@@ -122,7 +122,7 @@ namespace SHUU.Utils.InputSystem
 
             StopRumble();
 
-            onPlayerLeft?.Invoke(this);
+            OnPlayerLeft?.Invoke(this);
         }
 
 
@@ -688,10 +688,10 @@ namespace SHUU.Utils.InputSystem
 
         public string GetBindingDisplayStringInScheme(string actionPath, int schemeBindingIndex)
         {
-            List<string> all = GetBindingDisplayStrings(actionPath, controlScheme);
-            if (all == null || schemeBindingIndex < 0 || schemeBindingIndex >= all.Count) return string.Empty;
+            List<string> All = GetBindingDisplayStrings(actionPath, controlScheme);
+            if (All == null || schemeBindingIndex < 0 || schemeBindingIndex >= All.Count) return string.Empty;
 
-            return all[schemeBindingIndex];
+            return All[schemeBindingIndex];
         }
 
 
@@ -711,10 +711,10 @@ namespace SHUU.Utils.InputSystem
 
         public string GetBindingDisplayString(string actionPath, string schemeName, int schemeBindingIndex)
         {
-            List<string> all = GetBindingDisplayStrings(actionPath, schemeName);
-            if (all == null || schemeBindingIndex < 0 || schemeBindingIndex >= all.Count) return string.Empty;
+            List<string> All = GetBindingDisplayStrings(actionPath, schemeName);
+            if (All == null || schemeBindingIndex < 0 || schemeBindingIndex >= All.Count) return string.Empty;
 
-            return all[schemeBindingIndex];
+            return All[schemeBindingIndex];
         }
 
 

@@ -7,9 +7,9 @@ namespace SHUU.Utils.Developer.Debugging
     public class Stats : MonoBehaviour
     {
         #region Variables
-        private static float fpsTimer;
-        private static int frameCount;
-        private static float currentFps;
+        private static float FpsTimer;
+        private static int FrameCount;
+        private static float CurrentFps;
         #endregion
 
 
@@ -18,14 +18,14 @@ namespace SHUU.Utils.Developer.Debugging
         #region Main
         public void Update()
         {
-            frameCount++;
-            fpsTimer += Time.unscaledDeltaTime;
+            FrameCount++;
+            FpsTimer += Time.unscaledDeltaTime;
 
-            if (fpsTimer >= 0.5f)
+            if (FpsTimer >= 0.5f)
             {
-                currentFps = frameCount / fpsTimer;
-                fpsTimer = 0f;
-                frameCount = 0;
+                CurrentFps = FrameCount / FpsTimer;
+                FpsTimer = 0f;
+                FrameCount = 0;
             }
         }
         #endregion
@@ -35,29 +35,29 @@ namespace SHUU.Utils.Developer.Debugging
         #region Logic
         
         #region Frames
-        public static float fps => currentFps;
-        public static float frametimems => currentFps > 0 ? 1000f / currentFps : 0f;
+        public static float Fps => CurrentFps;
+        public static float Frametimems => CurrentFps > 0 ? 1000f / CurrentFps : 0f;
         #endregion
 
 
 
         #region Memory
-        public static long monoused => Profiler.GetMonoUsedSizeLong();
-        public static long monoheap => Profiler.GetMonoHeapSizeLong();
-        public static long totalallocated => Profiler.GetTotalAllocatedMemoryLong();
-        public static long totalreserved => Profiler.GetTotalReservedMemoryLong();
-        public static long totalunusedreserved => Profiler.GetTotalUnusedReservedMemoryLong();
+        public static long Monoused => Profiler.GetMonoUsedSizeLong();
+        public static long Monoheap => Profiler.GetMonoHeapSizeLong();
+        public static long Totalallocated => Profiler.GetTotalAllocatedMemoryLong();
+        public static long Totalreserved => Profiler.GetTotalReservedMemoryLong();
+        public static long Totalunusedreserved => Profiler.GetTotalUnusedReservedMemoryLong();
         #endregion
 
 
 
         #region System
-        public static string cpu => SystemInfo.processorType;
-        public static int cpucores => SystemInfo.processorCount;
-        public static string gpu => SystemInfo.graphicsDeviceName;
-        public static int gpumemory => SystemInfo.graphicsMemorySize;
-        public static string os => SystemInfo.operatingSystem;
-        public static double refreshrate
+        public static string Cpu => SystemInfo.processorType;
+        public static int Cpucores => SystemInfo.processorCount;
+        public static string Gpu => SystemInfo.graphicsDeviceName;
+        public static int Gpumemory => SystemInfo.graphicsMemorySize;
+        public static string Os => SystemInfo.operatingSystem;
+        public static double Refreshrate
         {
             get
             {
@@ -73,15 +73,15 @@ namespace SHUU.Utils.Developer.Debugging
 
 
         #region Time
-        public static string timestamp => DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        public static string Timestamp => DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
 
-        public static int year => DateTime.Now.Year;
-        public static int month => DateTime.Now.Month;
-        public static int day => DateTime.Now.Day;
+        public static int Year => DateTime.Now.Year;
+        public static int Month => DateTime.Now.Month;
+        public static int Day => DateTime.Now.Day;
 
-        public static int hour => DateTime.Now.Hour;
-        public static int minute => DateTime.Now.Minute;
-        public static int second => DateTime.Now.Second;
+        public static int Hour => DateTime.Now.Hour;
+        public static int Minute => DateTime.Now.Minute;
+        public static int Second => DateTime.Now.Second;
         #endregion
         
         #endregion

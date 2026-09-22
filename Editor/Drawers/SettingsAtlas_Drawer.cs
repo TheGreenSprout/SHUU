@@ -5,10 +5,12 @@ using UnityEngine;
 
 using SHUU.Utils.SettingsSystem;
 using SHUU._Editor.CodeGeneration;
+using SHUU.InnerWorkings.Preferences;
 
 using SETB.SuperClasses;
 
 using static SETB.EditorGUI_Base;
+using static SETB.HandyEditorFunctions;
 
 namespace SHUU._Editor.Drawers
 {
@@ -26,7 +28,7 @@ namespace SHUU._Editor.Drawers
         [OnOpenAsset]
         public static bool OnOpenAsset(int instanceID)
         {
-            var asset = EditorUtility.EntityIdToObject(instanceID) as SettingsAtlas;
+            var asset = IdToObject(instanceID) as SettingsAtlas;
             if (asset == null) return false;
 
             SettingsDataEditorWindow.Open(asset);
@@ -47,7 +49,7 @@ namespace SHUU._Editor.Drawers
 
             Space(4);
 
-            var config = SHUU_Preferences_SettingsSystem.instance;
+            var config = SHUUPreferences_SettingsSystem.Instance;
             if (config != null && config.defaultAsset == data) DrawHelpBox("This atlas is assigned as the Project-Wide SettingsAtlas for the Settings System.", MessageType.Info);
             else
             {
@@ -63,7 +65,7 @@ namespace SHUU._Editor.Drawers
 
                 DrawButton("Set as Project-Wide SettingsAtlas", () =>
                 {
-                    var preferences = SHUU_Preferences_SettingsSystem.instance;
+                    var preferences = SHUUPreferences_SettingsSystem.Instance;
                     if (preferences == null)
                     {
                         Debug.LogError("No SHUU_Preferences_SettingsSystem asset found. Create one in the project settings first.");
