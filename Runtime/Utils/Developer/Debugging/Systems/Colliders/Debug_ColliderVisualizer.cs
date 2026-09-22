@@ -37,7 +37,9 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         private bool beginEnabled => SHUU_Debug.instance.colliderVisualizer_beginEnabled;
 
 
+        #if ENABLE_INPUT_SYSTEM
         public KeyCode activationKey => SHUU_Debug.instance.colliderVisualizer_activationKey;
+        #endif
         public string activationActionPath => SHUU_Debug.instance.colliderVisualizer_activationActionPath;
 
 

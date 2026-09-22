@@ -76,9 +76,11 @@ namespace SHUU.Utils.Developer.Debugging
 
         [SerializeField, BoxGroup("Colliders"), LabelText("Begin Enabled"), ShowIf("colliderVisualizer_enabled")]
         internal bool colliderVisualizer_beginEnabled = false;
-
+        
+        #if ENABLE_INPUT_SYSTEM
         [SerializeField, BoxGroup("Colliders/Input"), LabelText("Activation Key"), ShowIf("colliderVisualizer_enabled")]
         internal KeyCode colliderVisualizer_activationKey = KeyCode.None;
+        #endif
         [SerializeField, BoxGroup("Colliders/Input"), LabelText("Activation Action Path"), ShowIf("colliderVisualizer_enabled")]
         internal string colliderVisualizer_activationActionPath = "Developer/Colliders_Toggle";
 

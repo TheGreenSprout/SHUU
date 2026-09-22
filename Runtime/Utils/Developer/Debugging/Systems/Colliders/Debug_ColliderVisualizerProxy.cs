@@ -9,13 +9,16 @@ This code was written with the assistance of AI.
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System;
+
+#if ENABLE_INPUT_SYSTEM
+using SHUU.Utils.InputSystem;
+#endif
 
 using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
 
 using static SHUU.Utils.Helpers.HandyFunctions;
-using System;
-using SHUU.Utils.InputSystem;
 
 namespace SHUU.Utils.Developer.Debugging.Systems
 {
@@ -169,7 +172,9 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             if (initialized)
             {
                 if (!string.IsNullOrEmpty(source.activationActionPath) && SHUU_Input.GetInputDown(source.activationActionPath)) Toggle();
+                #if ENABLE_INPUT_SYSTEM
                 else if (source.activationKey != KeyCode.None && Input.GetKeyDown(source.activationKey)) Toggle();
+                #endif
             }
 
             if (!initialized || !toggle) return;
