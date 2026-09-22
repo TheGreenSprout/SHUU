@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+#endif
 
 using SHUU.Utils.InputSystem;
 using SHUU.Utils.Helpers;
@@ -91,11 +94,13 @@ namespace SHUU.Utils.Developer.Console
 
         private static bool GetDirectInputDown(string controlPath)
         {
+            #if ENABLE_INPUT_SYSTEM
             InputControl control = UnityEngine.InputSystem.InputSystem.FindControl(controlPath);
             if (control == null) return false;
 
             if (control is ButtonControl button) return button.wasPressedThisFrame;
             if (control is AxisControl axis) return axis.ReadValue() > 0f;
+            #endif
 
             return false;
         }

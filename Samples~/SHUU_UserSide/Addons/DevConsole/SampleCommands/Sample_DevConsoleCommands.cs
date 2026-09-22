@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Reflection;
 
 using SHUU.InnerWorkings;
 using SHUU.Utils.Developer.Console;
@@ -11,7 +12,6 @@ using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
 using SHUU.Utils.SettingsSystem;
 using SHUU.Utils.SceneManagement;
-using System.Reflection;
 
 public class Sample_DevConsoleCommands : MonoBehaviour
 {
@@ -633,7 +633,8 @@ public class Sample_DevConsoleCommands : MonoBehaviour
 
 
     #region Classic Input
-
+    
+    #if ENABLE_INPUT_SYSTEM
     [DevConsoleCommand("bindcommandclassic", "Binds a command to an input (KeyCode or int)", "Classic Input")]
     public static CommandReturn BindCommandClassic(MutableParameter _key, params string[] commandData)
     {
@@ -692,6 +693,7 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         error = CommandReturn.Red("Argument must be a KeyCode name (e.g. Space) or mouse button index (e.g. 0).");
         return false;
     }
+    #endif
 
     #endregion
 }

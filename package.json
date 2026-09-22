@@ -1,12 +1,11 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "5.2.2",
+  "version": "5.2.3",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.textmeshpro": "3.0.6",
-    "com.unity.inputsystem": "1.14.2",
     "com.unity.splines": "2.7.2",
     "com.unity.serialization": "3.1.5"
   },
@@ -20,11 +19,6 @@
       "displayName": "SHUU_UserSide (Required)",
       "description": "A set of scripts required for SHUU that the user can modify.",
       "path": "Samples~/SHUU_UserSide"
-    },
-    {
-      "displayName": "Dev Console",
-      "description": "Prefabs and scripts that implement the developer console.",
-      "path": "Samples~/DevConsole"
     },
     {
       "displayName": "Blobatar Generator",
