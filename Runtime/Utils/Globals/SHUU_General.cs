@@ -93,7 +93,7 @@ namespace SHUU.Utils.Globals
         /// <param name="sceneName">Name of the scene to go to.</param>
         /// <param name="fade">Whether to fade in when leaving the scene. If null, uses the default setting.</param>
         #endregion
-        public static void GoToScene(string sceneName, bool? fade = null) => instance?._GoToScene(sceneName, fade);
+        public static void GoToScene(string sceneName, bool? fade = null) => Instance?._GoToScene(sceneName, fade);
         private void _GoToScene(string sceneName, bool? fade = null, bool? useLoadingScreen = null)
         {
             if (fade == null) fade = fadeInAtSceneRoomLeave;

@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 3971717330311365469}
   - component: {fileID: 8127249037554257894}
   - component: {fileID: 8531355632421192761}
+  - component: {fileID: 4065240040968271867}
   m_Layer: 0
   m_Name: GLOBALS
   m_TagString: Untagged
@@ -185,6 +186,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioChannelGroup: {fileID: 11400000, guid: aa9e9896d6bd6db4bb5995aa609a4a88, type: 2}
+--- !u!114 &4065240040968271867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545271558169626691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baca13c66794473ba3832ca275943ab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU.UserSide.Addons::SHUU.UserSide.Addons.CullingSystem.SHUU_Culling
+  handleGameobject: 1
+  targetCamera: {fileID: 0}
+  objectsCheckedPerFrame: 20
 --- !u!1 &2093164103080531723
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
 using SHUU.InnerWorkings.Preferences;
-using System;
-using System.Collections;
 using SHUU.Utils.Globals;
 
 namespace SHUU.Utils.SceneManagement
@@ -49,11 +48,11 @@ namespace SHUU.Utils.SceneManagement
         private static bool Initialized;
 
 
-        private static string FallbackSceneName => SHUUPreferences_SceneLoader.Instance?.fallbackSceneName;
+        public static string FallbackSceneName => SHUUPreferences_SceneLoader.Instance?.fallbackSceneName;
         private static string LoadingSceneName => SHUUPreferences_SceneLoader.Instance?.loadingSceneName;
 
         private static bool UseLoadingScreen => SHUUPreferences_SceneLoader.Instance != null && SHUUPreferences_SceneLoader.Instance.useLoadingScreenDefault;
-        private static bool DebugLogEmission => SHUUPreferences_SceneLoader.Instance != null && SHUUPreferences_SceneLoader.Instance.debugLogEmission;
+        public static bool DebugLogEmission => SHUUPreferences_SceneLoader.Instance != null && SHUUPreferences_SceneLoader.Instance.debugLogEmission;
         #endregion
 
 
@@ -98,14 +97,14 @@ namespace SHUU.Utils.SceneManagement
         /// </summary>
         /// <param name="null">The name of the scene to load.</param>
         #endregion
-        public static void Load(string sceneName = null) => Load(sceneName, !UseLoadingScreen);
-        public static void Load(string sceneName = null, bool useLoadingScreen = true)
+        public static void Load(string sceneName) => Load(sceneName, UseLoadingScreen);
+        public static void Load(string sceneName, bool useLoadingScreen)
         {
             if (sceneName == null || sceneName == "") sceneName = FallbackSceneName;
 
             OnSceneLoadRequested?.Invoke(sceneName);
 
-            if (!UseLoadingScreen)
+            if (!useLoadingScreen)
             {
                 if (SceneExists(sceneName)) SceneManager.LoadScene(sceneName);
                 else if (DebugLogEmission)

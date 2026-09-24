@@ -21,6 +21,8 @@ namespace SHUU.UserSide.Addons.AudioSystem
 
 
 
+        #region Commands
+
         #region Playback
         [DevConsoleCommand("playaudio", "Plays a clip by name from a channel's AudioLookup (path is relative to the root, e.g. 'SFX')", "Debug")]
         public static CommandReturn PlayAudio(string clipName, OptionalParameter<string> channelPath)
@@ -204,6 +206,8 @@ namespace SHUU.UserSide.Addons.AudioSystem
 
             return new CommandReturn($"'{pool.name}': {pool.activesCount} active, {pool.poolCount} pooled, {pool.totalCount} total.");
         }
+        #endregion
+    
         #endregion
     }
 }

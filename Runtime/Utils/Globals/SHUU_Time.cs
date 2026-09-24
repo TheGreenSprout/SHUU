@@ -115,9 +115,9 @@ namespace SHUU.Utils.Globals
         {
             if (seconds <= 0) return null;
 
-            if (instance == null)
+            if (Instance == null)
             {
-                Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
+                Debug.LogError("No SHUU_Time Instance found in the scene. Unable to create timer. Wait until Instance is created.");
 
                 return null;
             }
@@ -137,9 +137,9 @@ namespace SHUU.Utils.Globals
         {
             if (frames <= 0) return null;
 
-            if (instance == null)
+            if (Instance == null)
             {
-                Debug.LogError("No SHUU_Time instance found in the scene. Unable to create timer. Wait until instance is created.");
+                Debug.LogError("No SHUU_Time Instance found in the scene. Unable to create timer. Wait until Instance is created.");
 
                 return null;
             }
@@ -150,14 +150,14 @@ namespace SHUU.Utils.Globals
             SHUU_Timer timer = new SHUU_Timer { remainingFrames = frames };
             timer.onComplete += onComplete;
 
-            instance.StartCoroutine(RunFrames(timer, ignoreTimeScale));
+            Instance.StartCoroutine(RunFrames(timer, ignoreTimeScale));
 
             return timer;
         }
 
         public static void FreezeFrame(float duration, bool ignoreTimeScale = false)
         {
-            if (FreezeCoroutine != null) instance.StopCoroutine(FreezeCoroutine);
+            if (FreezeCoroutine != null) Instance.StopCoroutine(FreezeCoroutine);
 
             FreezeCoroutine = StartCoroutineStatic(RunFreezeFrame(duration, ignoreTimeScale));
         }
@@ -286,14 +286,14 @@ namespace SHUU.Utils.Globals
         #region Helpers
         public static Coroutine StartCoroutineStatic(IEnumerator routine)
         {
-            if (instance == null)
+            if (Instance == null)
             {
-                Debug.LogError("No SHUU_Time instance found in the scene. Unable to start coroutine. Wait until instance is created.");
+                Debug.LogError("No SHUU_Time Instance found in the scene. Unable to start coroutine. Wait until Instance is created.");
 
                 return null;
             }
 
-            return instance.StartCoroutine(routine);
+            return Instance.StartCoroutine(routine);
         }
         #endregion
         

@@ -570,7 +570,7 @@ namespace SHUU.Utils.Helpers
     public abstract class HiddenSingleton_MonoBehaviour<T> : MonoBehaviour where T : HiddenSingleton_MonoBehaviour<T>
     {
         #region Variables
-        protected static T instance;
+        private static T instance;
         
         public static T Instance
         {
@@ -580,6 +580,8 @@ namespace SHUU.Utils.Helpers
 
                 return instance;
             }
+
+            protected set => instance = value;
         }
 
 
@@ -620,6 +622,12 @@ namespace SHUU.Utils.Helpers
         protected virtual void OnCreation() { }
 
 
+        protected virtual void OnDestroy()
+        {
+            if (instance == this) instance = null;
+        }
+
+
         protected void Dispose() => Destroy(this);
         #endregion
     }
@@ -630,7 +638,7 @@ namespace SHUU.Utils.Helpers
         #region Variables
 
         #region Singleton
-        protected static T instance;
+        private static T instance;
         
         public static T Instance
         {
@@ -640,6 +648,8 @@ namespace SHUU.Utils.Helpers
 
                 return instance;
             }
+
+            protected set => instance = value;
         }
 
 
@@ -687,6 +697,12 @@ namespace SHUU.Utils.Helpers
         }
 
         protected virtual void OnCreation() { }
+
+
+        protected virtual void OnDestroy()
+        {
+            if (instance == this) instance = null;
+        }
 
 
         protected void Dispose() => Destroy(handleGameobject ? gameObject : this);
@@ -739,7 +755,7 @@ namespace SHUU.Utils.Helpers
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.activeSceneChanged -= OnSceneChanged;
 
-           instance = null;
+            Instance = null;
 
             
             Dispose();
@@ -797,7 +813,7 @@ namespace SHUU.Utils.Helpers
     public abstract class Singleton_ScriptableObject<T> : ScriptableObject where T : Singleton_ScriptableObject<T>
     {
         #region Variables
-        protected static T instance;
+        private static T instance;
 
         public static T Instance
         {
@@ -807,6 +823,8 @@ namespace SHUU.Utils.Helpers
 
                 return instance;
             }
+
+            protected set => instance = value;
         }
 
 
@@ -842,10 +860,17 @@ namespace SHUU.Utils.Helpers
 
             instance = this as T;
         }
+
+
+        // Only the registered instance clears itself: a duplicate destroyed by OnEnable() above never got this far, so it can't null out the real one.
+        protected virtual void OnDestroy()
+        {
+            if (instance == this) instance = null;
+        }
         #endregion
     }
     #endregion
-    
+
     #endregion
 
 
@@ -1128,8 +1153,10 @@ namespace SHUU.Utils.Helpers
 
         private bool finalSave = false;
 
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+
             if (finalSave) return;
 
             finalSave = true;
@@ -1197,8 +1224,10 @@ namespace SHUU.Utils.Helpers
 
         private bool finalSave = false;
 
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+
             if (finalSave) return;
 
             finalSave = true;
@@ -1238,7 +1267,12 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        protected virtual void OnDestroy() => SaveFile();
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            SaveFile();
+        }
         #endregion
 
 

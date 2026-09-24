@@ -1,35 +1,25 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace SHUU.Utils.SceneManagement
 {
-    public class LoadingScreen : MonoBehaviour
+    public abstract class LoadingScreenBase : MonoBehaviour
     {
         #region Variables
-        [SerializeField] private Slider progressBar;
-
-        [SerializeField] private TMP_Text progressText;
-
-
-        private string sceneToLoad;
+        protected string sceneToLoad;
         #endregion
 
 
 
-        
+
         #region Main
-        private void Awake()
+        protected virtual void Awake()
         {
             sceneToLoad = SceneLoader.NextScene;
-
             SceneLoader.NextScene = null;
 
-
-            if (sceneToLoad == null || sceneToLoad == "") sceneToLoad = "ErrorScene";
-
+            if (string.IsNullOrEmpty(sceneToLoad) || !SceneLoader.SceneExists(sceneToLoad)) sceneToLoad = SceneLoader.FallbackSceneName;
 
             StartCoroutine(LoadAsyncScene());
         }
@@ -45,9 +35,8 @@ namespace SHUU.Utils.SceneManagement
             while (!op.isDone)
             {
                 float progress = Mathf.Clamp01(op.progress / 0.9f);
-                
-                if (progressBar != null) progressBar.value = progress;
-                if (progressText != null) progressText.text = $"Loading… {(int)(progress * 100f)}%";
+
+                UpdateProgress(progress);
 
                 if (op.progress >= 0.9f && ProgressScene()) op.allowSceneActivation = true;
 
@@ -60,7 +49,10 @@ namespace SHUU.Utils.SceneManagement
 
 
         #region Override Points
-        protected virtual bool ProgressScene() => true;
+        protected abstract void UpdateProgress(float progress);
+
+
+        protected abstract bool ProgressScene();
         #endregion
     }
 }

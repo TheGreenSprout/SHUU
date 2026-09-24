@@ -11,7 +11,7 @@ using static SHUU.Utils.Helpers.HandyFunctions;
 namespace SHUU.Utils.Developer.Debugging
 {
     [DefaultExecutionOrder(-10000)]
-    public class SHUU_Debug : Singleton_MonoBehaviour<SHUU_Debug>
+    public class SHUU_Debug : HiddenSingleton_MonoBehaviour<SHUU_Debug>
     {
         #region Variables
         protected override bool PersistantSingleton() => false;
@@ -151,43 +151,43 @@ namespace SHUU.Utils.Developer.Debugging
         #region Debug Colliders
         public static bool? DebugColliders_Toggle(bool? toggle = null)
         {
-            if (!instance || !instance.colliderVisualizer) return null;
+            if (!Instance || !Instance.colliderVisualizer) return null;
 
-            return instance.colliderVisualizer.Toggle(toggle);
+            return Instance.colliderVisualizer.Toggle(toggle);
         }
 
         public static bool? DebugColliders_ToggleWireRender(bool? toggle = null)
         {
-            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer_enabled) return null;
+            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer_enabled) return null;
 
-            return instance.colliderVisualizer.Toggle_WireRender(toggle);
+            return Instance.colliderVisualizer.Toggle_WireRender(toggle);
         }
         public static bool? DebugColliders_ToggleFillRender(bool? toggle = null)
         {
-            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer_enabled) return null;
+            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer_enabled) return null;
 
-            return instance.colliderVisualizer.Toggle_FillRender(toggle);
+            return Instance.colliderVisualizer.Toggle_FillRender(toggle);
         }
 
         public static bool DebugColliders_CacheReload()
         {
-            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer.proxy || !instance.colliderVisualizer_enabled) return false;
+            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer.proxy || !Instance.colliderVisualizer_enabled) return false;
 
-            instance.colliderVisualizer.CacheReload();
+            Instance.colliderVisualizer.CacheReload();
             return true;
         }
         public static bool DebugColliders_CacheColliders()
         {
-            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer.proxy || !instance.colliderVisualizer_enabled) return false;
+            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer.proxy || !Instance.colliderVisualizer_enabled) return false;
 
-            instance.colliderVisualizer.CacheColliders();
+            Instance.colliderVisualizer.CacheColliders();
             return true;
         }
         public static bool DebugColliders_RebuildCache()
         {
-            if (!instance || !instance.colliderVisualizer || !instance.colliderVisualizer.proxy || !instance.colliderVisualizer_enabled) return false;
+            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer.proxy || !Instance.colliderVisualizer_enabled) return false;
 
-            instance.colliderVisualizer.RebuildCache();
+            Instance.colliderVisualizer.RebuildCache();
             return true;
         }
         #endregion
@@ -197,20 +197,20 @@ namespace SHUU.Utils.Developer.Debugging
         #region Screen Logs
         public static bool? ScreenLogs_Toggle()
         {
-            if (!instance || instance.screenLogs == null) return null;
+            if (!Instance || Instance.screenLogs == null) return null;
 
-            return instance.screenLogs_enabled = !instance.screenLogs_enabled;
+            return Instance.screenLogs_enabled = !Instance.screenLogs_enabled;
         }
         public static bool? ScreenLogsListener_Toggle()
         {
-            if (!instance || instance.screenLogs == null || !instance.screenLogs_enabled) return null;
+            if (!Instance || Instance.screenLogs == null || !Instance.screenLogs_enabled) return null;
 
-            return instance.screenLogs_listenForDebugLogs = !instance.screenLogs_listenForDebugLogs;
+            return Instance.screenLogs_listenForDebugLogs = !Instance.screenLogs_listenForDebugLogs;
         }
 
-        public static void ScreenLog(string message, Color? color = null) => instance?.screenLogs?.ScreenLog(message, color);
-        public static void ScreenLog_Warning(string message) => instance?.screenLogs?.ScreenLog_Warning(message);
-        public static void ScreenLog_Error(string message) => instance?.screenLogs?.ScreenLog_Error(message);
+        public static void ScreenLog(string message, Color? color = null) => Instance?.screenLogs?.ScreenLog(message, color);
+        public static void ScreenLog_Warning(string message) => Instance?.screenLogs?.ScreenLog_Warning(message);
+        public static void ScreenLog_Error(string message) => Instance?.screenLogs?.ScreenLog_Error(message);
         #endregion
     
         #endregion

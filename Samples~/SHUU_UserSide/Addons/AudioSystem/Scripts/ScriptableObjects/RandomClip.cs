@@ -5,8 +5,8 @@ using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.UserSide.Addons
 {
-    [CreateAssetMenu(fileName = "Random_AudioClip", menuName = "SHUU/Audio System/Random_AudioClip")]
-    public class Random_AudioClip : ScriptableObject
+    [CreateAssetMenu(fileName = "RandomClip", menuName = "SHUU/Audio System/RandomClip")]
+    public class RandomClip : ScriptableObject
     {
         #region Variables
         [SerializeField] private List<AudioClip> audioClips = new();

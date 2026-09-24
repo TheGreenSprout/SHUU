@@ -1,0 +1,16 @@
+{
+    "name": "SproutingGames.Sprouts.ETB.UserSide",
+    "rootNamespace": "SETB.UserSide",
+    "references": [
+        "GUID:af6dd72da185b2541babbb39fac02005"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

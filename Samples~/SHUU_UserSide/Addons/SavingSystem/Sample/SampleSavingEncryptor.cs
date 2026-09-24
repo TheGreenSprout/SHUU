@@ -9,8 +9,7 @@ using SHUU.Utils.Data;
 
 namespace SHUU.UserSide.Addons
 {
-    [RequireComponent(typeof(SavingManager))]
-    public class Sample_DataEncryptor : MonoBehaviour
+    public class SampleSavingEncryptor : MonoBehaviour
     {
         #region Variables
         #region XML doc

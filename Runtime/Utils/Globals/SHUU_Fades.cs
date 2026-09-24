@@ -40,13 +40,13 @@ namespace SHUU.Utils.Globals
 
 
         #region Main
-        public static void CreateFade(FadeOptions fadeOptions = null) => instance._CreateFade(fadeOptions);
+        public static void CreateFade(FadeOptions fadeOptions = null) => Instance._CreateFade(fadeOptions);
 
-        public static void CreateFade_In(FadeOptions fadeOptions = null) => instance._CreateFade_In(fadeOptions);
-        public static void CreateFade_Out(FadeOptions fadeOptions = null) => instance._CreateFade_Out(fadeOptions);
+        public static void CreateFade_In(FadeOptions fadeOptions = null) => Instance._CreateFade_In(fadeOptions);
+        public static void CreateFade_Out(FadeOptions fadeOptions = null) => Instance._CreateFade_Out(fadeOptions);
 
 
-        public static void CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null) => instance._CreateFade_PingPong(pingPongOptions);
+        public static void CreateFade_PingPong(PingPong_FadeOptions pingPongOptions = null) => Instance._CreateFade_PingPong(pingPongOptions);
         #endregion
 
 

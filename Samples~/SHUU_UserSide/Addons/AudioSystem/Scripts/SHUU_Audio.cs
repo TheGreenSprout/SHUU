@@ -21,7 +21,7 @@ namespace SHUU.UserSide.Addons.AudioSystem
 
 
         [SerializeField] private AudioChannelGroup audioChannelGroup;
-        private static IAudioChannel IaudioChannelGroup => instance?.audioChannelGroup;
+        private static IAudioChannel IaudioChannelGroup => Instance?.audioChannelGroup;
 
 
         private static Dictionary<string, AudioLookup> AudioLookupDict = null;
@@ -110,7 +110,7 @@ namespace SHUU.UserSide.Addons.AudioSystem
                 else
                 {
                     SHUU_AudioInstance audioInstance = channel.GetAudioInstance(options);
-                    if (audioInstance != null) Debug.LogError("Failed to get an audio instance from the channel. Please check the channel's configuration.");
+                    if (audioInstance != null) Debug.LogError("Failed to get an audio Instance from the channel. Please check the channel's configuration.");
                     
                     audioInstance.gameObject.transform.SetParent(parent, true);
                     return audioInstance;
@@ -130,12 +130,12 @@ namespace SHUU.UserSide.Addons.AudioSystem
             }
 
             
-            var instance = GetAudioInstance(channelPath, parent, options);
+            var Instance = GetAudioInstance(channelPath, parent, options);
 
-            if (instance) instance.clip = clip;
-            instance?.Play();
+            if (Instance) Instance.clip = clip;
+            Instance?.Play();
 
-            return instance;
+            return Instance;
         }
         public static SHUU_AudioInstance PlayAudio(string clipName, string channelPath = null, Transform parent = null, SHUU_AudioInstance.Options options = null)
         {
@@ -152,12 +152,12 @@ namespace SHUU.UserSide.Addons.AudioSystem
             SHUU_AudioInstance.Options newOptions = options.InheritOptionsNewClass(lookupItem.options);
 
             
-            var instance = GetAudioInstance(channelPath, parent, newOptions);
+            var Instance = GetAudioInstance(channelPath, parent, newOptions);
 
-            if (instance) instance.clip = lookupItem.clip;
-            instance?.Play();
+            if (Instance) Instance.clip = lookupItem.clip;
+            Instance?.Play();
 
-            return instance;
+            return Instance;
         }
         #endregion
     

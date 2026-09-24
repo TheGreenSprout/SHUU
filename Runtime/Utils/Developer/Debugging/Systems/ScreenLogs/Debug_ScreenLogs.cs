@@ -6,7 +6,7 @@ using SHUU.Utils.Helpers;
 namespace SHUU.Utils.Developer.Debugging.Systems
 {
     [DefaultExecutionOrder(-10000)]
-    public class Debug_ScreenLogs : Singleton_MonoBehaviour<Debug_ScreenLogs>
+    public class Debug_ScreenLogs : HiddenSingleton_MonoBehaviour<Debug_ScreenLogs>
     {
         #region Variables
 
@@ -36,24 +36,24 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
 
         #region Inspector
-        private bool active => SHUU_Debug.instance.screenLogs_enabled;
+        private bool active => SHUU_Debug.Instance.screenLogs_enabled;
 
 
-        private bool listenForDebugLogs => SHUU_Debug.instance.screenLogs_listenForDebugLogs;
+        private bool listenForDebugLogs => SHUU_Debug.Instance.screenLogs_listenForDebugLogs;
 
-        private bool listenForNormalLogs => SHUU_Debug.instance.screenLogs_listenForNormalLogs;
-        private bool listenForWarningLogs => SHUU_Debug.instance.screenLogs_listenForWarningLogs;
-        private bool listenForErrorLogs => SHUU_Debug.instance.screenLogs_listenForErrorLogs;
-        private bool listenForExceptionLogs => SHUU_Debug.instance.screenLogs_listenForExceptionLogs;
-        private bool listenForAssertLogs => SHUU_Debug.instance.screenLogs_listenForAssertLogs;
-
-
-        private Color defaultTextColor => SHUU_Debug.instance.screenLogs_defaultTextColor;
-
-        private Debug_LogMessage logMessagePrefab => SHUU_Debug.instance.screenLogs_logMessagePrefab;
+        private bool listenForNormalLogs => SHUU_Debug.Instance.screenLogs_listenForNormalLogs;
+        private bool listenForWarningLogs => SHUU_Debug.Instance.screenLogs_listenForWarningLogs;
+        private bool listenForErrorLogs => SHUU_Debug.Instance.screenLogs_listenForErrorLogs;
+        private bool listenForExceptionLogs => SHUU_Debug.Instance.screenLogs_listenForExceptionLogs;
+        private bool listenForAssertLogs => SHUU_Debug.Instance.screenLogs_listenForAssertLogs;
 
 
-        private int initialPoolSize => SHUU_Debug.instance.screenLogs_initialPoolSize;
+        private Color defaultTextColor => SHUU_Debug.Instance.screenLogs_defaultTextColor;
+
+        private Debug_LogMessage logMessagePrefab => SHUU_Debug.Instance.screenLogs_logMessagePrefab;
+
+
+        private int initialPoolSize => SHUU_Debug.Instance.screenLogs_initialPoolSize;
         #endregion
 
 
@@ -244,13 +244,13 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
         public Debug_LogMessage GetLog(RectTransform content, string logString, Color color)
         {
-            Debug_LogMessage instance = pool?.Get().Init(logString, color, pool);
+            Debug_LogMessage Instance = pool?.Get().Init(logString, color, pool);
 
-            if (instance == null) return null;
+            if (Instance == null) return null;
 
-            instance.gameObject.transform.SetParent(content, false);
+            Instance.gameObject.transform.SetParent(content, false);
 
-            return instance;
+            return Instance;
         }
 
         public void Dispose() => pool.Dispose();

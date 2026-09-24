@@ -7,7 +7,7 @@ using SHUU.Utils.Helpers;
 namespace SHUU.Utils.Developer.Debugging.Systems
 {
     [DefaultExecutionOrder(-10000)]
-    public class Debug_ColliderVisualizer : Singleton_MonoBehaviour<Debug_ColliderVisualizer>
+    public class Debug_ColliderVisualizer : HiddenSingleton_MonoBehaviour<Debug_ColliderVisualizer>
     {
         #region Variables
 
@@ -33,38 +33,38 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
 
         #region Inspector
-        private bool active => SHUU_Debug.instance.colliderVisualizer_enabled;
-        private bool beginEnabled => SHUU_Debug.instance.colliderVisualizer_beginEnabled;
+        private bool active => SHUU_Debug.Instance.colliderVisualizer_enabled;
+        private bool beginEnabled => SHUU_Debug.Instance.colliderVisualizer_beginEnabled;
 
 
         #if ENABLE_INPUT_SYSTEM
-        public KeyCode activationKey => SHUU_Debug.instance.colliderVisualizer_activationKey;
+        public KeyCode activationKey => SHUU_Debug.Instance.colliderVisualizer_activationKey;
         #endif
-        public string activationActionPath => SHUU_Debug.instance.colliderVisualizer_activationActionPath;
+        public string activationActionPath => SHUU_Debug.Instance.colliderVisualizer_activationActionPath;
 
 
-        public Shader matShader => SHUU_Debug.instance.colliderVisualizer_matShader;
+        public Shader matShader => SHUU_Debug.Instance.colliderVisualizer_matShader;
 
-        public bool alwaysRenderWire => SHUU_Debug.instance.colliderVisualizer_alwaysRenderWire;
-        public bool alwaysRenderFill => SHUU_Debug.instance.colliderVisualizer_alwaysRenderFill;
+        public bool alwaysRenderWire => SHUU_Debug.Instance.colliderVisualizer_alwaysRenderWire;
+        public bool alwaysRenderFill => SHUU_Debug.Instance.colliderVisualizer_alwaysRenderFill;
 
-        public float updateCollidersInterval => SHUU_Debug.instance.colliderVisualizer_updateCollidersInterval;
-        public float rebuildCacheInterval => SHUU_Debug.instance.colliderVisualizer_rebuildCacheInterval;
+        public float updateCollidersInterval => SHUU_Debug.Instance.colliderVisualizer_updateCollidersInterval;
+        public float rebuildCacheInterval => SHUU_Debug.Instance.colliderVisualizer_rebuildCacheInterval;
 
-        public float maxDistance => SHUU_Debug.instance.colliderVisualizer_maxDistance;
-
-
-        public Color defaultWireColor => SHUU_Debug.instance.colliderVisualizer_defaultWireColor;
-        public Color defaultFillColor => SHUU_Debug.instance.colliderVisualizer_defaultFillColor;
-
-        public float triggerAlphaMultiplier => SHUU_Debug.instance.colliderVisualizer_triggerAlphaMultiplier;
-        public float disabledAlphaMultiplier => SHUU_Debug.instance.colliderVisualizer_disabledAlphaMultiplier;
+        public float maxDistance => SHUU_Debug.Instance.colliderVisualizer_maxDistance;
 
 
-        public LayerMask excludedLayers => SHUU_Debug.instance.colliderVisualizer_excludedLayers;
-        public TagMask excludedTags => SHUU_Debug.instance.colliderVisualizer_excludedTags;
+        public Color defaultWireColor => SHUU_Debug.Instance.colliderVisualizer_defaultWireColor;
+        public Color defaultFillColor => SHUU_Debug.Instance.colliderVisualizer_defaultFillColor;
 
-        public List<CustomColors> customColors => SHUU_Debug.instance.colliderVisualizer_customColors;
+        public float triggerAlphaMultiplier => SHUU_Debug.Instance.colliderVisualizer_triggerAlphaMultiplier;
+        public float disabledAlphaMultiplier => SHUU_Debug.Instance.colliderVisualizer_disabledAlphaMultiplier;
+
+
+        public LayerMask excludedLayers => SHUU_Debug.Instance.colliderVisualizer_excludedLayers;
+        public TagMask excludedTags => SHUU_Debug.Instance.colliderVisualizer_excludedTags;
+
+        public List<CustomColors> customColors => SHUU_Debug.Instance.colliderVisualizer_customColors;
         #endregion
 
         #endregion

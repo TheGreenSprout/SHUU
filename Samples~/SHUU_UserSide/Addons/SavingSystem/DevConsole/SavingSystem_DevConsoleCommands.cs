@@ -23,6 +23,8 @@ namespace SHUU.UserSide.Addons.SavingSystem
 
 
 
+        #region Commands
+
         #region Saving/Loading
         [DevConsoleCommand("save", "Saves the scene into memory (temporary, nothing is written to disk)", "Debug")]
         public static CommandReturn Save()
@@ -159,6 +161,8 @@ namespace SHUU.UserSide.Addons.SavingSystem
 
             return CommandReturn.Green("PlayerPrefs deleted successfully.");
         }
+        #endregion
+
         #endregion
     }
 }
