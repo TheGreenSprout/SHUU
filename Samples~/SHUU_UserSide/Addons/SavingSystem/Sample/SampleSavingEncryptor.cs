@@ -12,11 +12,6 @@ namespace SHUU.UserSide.Addons
     public class SampleSavingEncryptor : MonoBehaviour
     {
         #region Variables
-        #region XML doc
-        /// <summary>
-        /// Applied in order when encrypting, and undone in the REVERSE order when decrypting (like peeling the layers of an onion back off).
-        /// </summary>
-        #endregion
         [Title("Encryption Modes")]
         [SerializeField] private EncryptionModeSettings[] modes = new EncryptionModeSettings[0];
         #endregion
@@ -127,13 +122,6 @@ namespace SHUU.UserSide.Addons
         [Serializable]
         public class EncryptionModeSettings
         {
-            #region XML doc
-            /// <summary>
-            /// Which encryption to apply for this step.
-            /// RSA can only encrypt small amounts of data directly (about 245 bytes for a 2048-bit key) - it throws above that, it doesn't truncate or corrupt anything.
-            /// A save file's json is almost always bigger than that, so RSA on its own isn't practical for Save Data Write/Read; AES or BASE64 have no such limit.
-            /// </summary>
-            #endregion
             public EncryptionTypes type = EncryptionTypes.BASE64;
 
 
