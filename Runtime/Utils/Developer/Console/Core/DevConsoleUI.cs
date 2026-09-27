@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,8 +34,8 @@ namespace SHUU.Utils.Developer.Console
 
         // Internal
         private static List<string> PreviousCommands = new();
-
         private static int PreviousCommandIndex = -1;
+        private bool moveCaretToEnd;
 
 
         private bool _printing = false;
@@ -50,6 +51,7 @@ namespace SHUU.Utils.Developer.Console
             }
         }
         private Queue<Action> printingQueue = new();
+        private int printGeneration;
         #endregion
 
 
@@ -68,18 +70,28 @@ namespace SHUU.Utils.Developer.Console
         {
             controller.inputModule.previousCommand += PreviousCommand;
             controller.inputModule.nextCommand += NextCommand;
+            controller.inputModule.autocomplete += Autocomplete;
         }
         
         private void OnDisable()
         {
             controller.inputModule.previousCommand -= PreviousCommand;
             controller.inputModule.nextCommand -= NextCommand;
+            controller.inputModule.autocomplete -= Autocomplete;
         }
 
 
         private void Update()
         {
             if (PreviousCommands.Count == 0) return;
+        }
+
+        private void LateUpdate()
+        {
+            if (!moveCaretToEnd) return;
+
+            moveCaretToEnd = false;
+            inputField.MoveTextEnd(false);
         }
         #endregion
 
@@ -97,6 +109,20 @@ namespace SHUU.Utils.Developer.Console
 
             if (gameObject.activeInHierarchy) inputField.ActivateInputField();
         }
+
+
+        public void Clear()
+        {
+            printGeneration++;
+            printingQueue.Clear();
+            _printing = false;
+
+            controller.firstInput = true;
+
+            outputText.text = "";
+
+            FixScrollRect();
+        }
         #endregion
 
 
@@ -110,7 +136,7 @@ namespace SHUU.Utils.Developer.Console
             {
                 PreviousCommandIndex--;
                 inputField.text = PreviousCommands[PreviousCommands.Count - 1 - PreviousCommandIndex];
-                inputField.caretPosition = inputField.text.Length;
+                moveCaretToEnd = true;
             }
             else ResetPreviousCommandIndex();
         }
@@ -123,7 +149,7 @@ namespace SHUU.Utils.Developer.Console
             {
                 PreviousCommandIndex++;
                 inputField.text = PreviousCommands[PreviousCommands.Count - 1 - PreviousCommandIndex];
-                inputField.caretPosition = inputField.text.Length;
+                moveCaretToEnd = true;
             }
         }
 
@@ -137,6 +163,37 @@ namespace SHUU.Utils.Developer.Console
 
 
 
+        #region Autocomplete
+        private const int MaxListedOptions = 50;
+
+
+        private void Autocomplete()
+        {
+            string text = inputField.text;
+
+            ConsoleAutocomplete.Result result = ConsoleAutocomplete.Complete(
+                text,
+                inputField.caretPosition,
+                DevCommandRegistry.AllCommands().Select(command => command.Item1),
+                commandName => DevCommandRegistry.TryGet(commandName, out DevCommandRegistry.DevCommandInfo info) ? info.Method.GetParameters() : null,
+                SavedConsoleVariables.GetAll().Keys);
+
+            if (result.text != text)
+            {
+                inputField.text = result.text;
+                inputField.caretPosition = result.caret;
+            }
+
+
+            if (result.options.Count == 0) return;
+
+            Print("> " + text);
+            Print(result.options.Count > MaxListedOptions ? $"{result.options.Count} possibilities, type a few more letters first." : string.Join("  ", result.options));
+        }
+        #endregion
+
+
+
         #region Command submission
         public void Button_SubmitCommand() => SubmitCommand(inputField.text);
         public void SubmitCommand(string text)
@@ -144,12 +201,10 @@ namespace SHUU.Utils.Developer.Console
             if (string.IsNullOrEmpty(text)) return;
 
 
-            if (controller.ProcessInput(text))
-            {
-                if (PreviousCommands.Contains(text)) PreviousCommands.Remove(text);
+            controller.ProcessInput(text);
 
-                PreviousCommands.Add(text);
-            }
+            if (PreviousCommands.Contains(text)) PreviousCommands.Remove(text);
+            PreviousCommands.Add(text);
 
             ResetPreviousCommandIndex();
             inputField.ActivateInputField();
@@ -244,7 +299,8 @@ namespace SHUU.Utils.Developer.Console
             if (clip != null && controller.gameObject.activeInHierarchy) source.PlayOneShot(clip);
 
             index++;
-            if (controller.gameObject.activeInHierarchy) SHUU_Time.Timer(delay, () => _PrintGradually(true, delay, index, clip, textColor, message), true);
+            int generation = printGeneration;
+            if (controller.gameObject.activeInHierarchy) SHUU_Time.Timer(delay, () => { if (generation == printGeneration) _PrintGradually(true, delay, index, clip, textColor, message); }, true);
             else _PrintGradually(true, delay, index, clip, textColor, message);
         }
         public void PrintGradually(float delay, int index, AudioClip clip, params (string, Color?)[] message) => _PrintGradually(false, delay, index, clip, message);
@@ -271,7 +327,8 @@ namespace SHUU.Utils.Developer.Console
             if (clip != null && controller.gameObject.activeInHierarchy) source.PlayOneShot(clip);
 
             index++;
-            if (controller.gameObject.activeInHierarchy) SHUU_Time.Timer(delay, () => _PrintGradually(true, delay, index++, clip, message), true);
+            int generation = printGeneration;
+            if (controller.gameObject.activeInHierarchy) SHUU_Time.Timer(delay, () => { if (generation == printGeneration) _PrintGradually(true, delay, index++, clip, message); }, true);
             else _PrintGradually(true, delay, index, clip, message);
         }
 

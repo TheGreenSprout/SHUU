@@ -18,8 +18,6 @@ namespace SHUU.Utils.Developer.Debugging
 
 
 
-        private Debug_ColliderVisualizer colliderVisualizer;
-
         private Debug_ScreenLogs screenLogs;
 
 
@@ -57,27 +55,27 @@ namespace SHUU.Utils.Developer.Debugging
         internal bool screenLogs_listenForAssertLogs = true;
 
 
+        [SerializeField, BoxGroup("Screen Logs/ObjectPool"), LabelText("LogMessagePrefab"), ShowIf("screenLogs_enabled")]
+        internal Debug_LogMessage screenLogs_logMessagePrefab;
+        [SerializeField, BoxGroup("Screen Logs/ObjectPool"), LabelText("InitialPoolSize"), ShowIf("screenLogs_enabled"), Min(0)]
+        internal int screenLogs_initialPoolSize = 10;
+
+
         [SerializeField, BoxGroup("Screen Logs/Misc"), LabelText("DefaultTextColor"), ShowIf("screenLogs_enabled")]
         internal Color screenLogs_defaultTextColor = Color.white;
-        [SerializeField, BoxGroup("Screen Logs/Misc"), LabelText("LogMessagePrefab"), ShowIf("screenLogs_enabled")]
-        internal Debug_LogMessage screenLogs_logMessagePrefab;
-
-
-        [SerializeField, BoxGroup("Screen Logs/Misc"), LabelText("InitialPoolSize"), Tooltip("If 0, the screen logs won't use an object pool."), ShowIf("screenLogs_enabled"), Min(0)]
-        internal int screenLogs_initialPoolSize = 10;
         #endregion
 
 
 
         #region Debug Colliders
         [SerializeField, BoxGroup("Colliders"), LabelText("Enabled")]
-        internal bool colliderVisualizer_enabled;
+        public bool colliderVisualizer_enabled;
 
 
         [SerializeField, BoxGroup("Colliders"), LabelText("Begin Enabled"), ShowIf("colliderVisualizer_enabled")]
         internal bool colliderVisualizer_beginEnabled = false;
         
-        #if ENABLE_INPUT_SYSTEM
+        #if ENABLE_LEGACY_INPUT_MANAGER
         [SerializeField, BoxGroup("Colliders/Input"), LabelText("Activation Key"), ShowIf("colliderVisualizer_enabled")]
         internal KeyCode colliderVisualizer_activationKey = KeyCode.None;
         #endif
@@ -138,8 +136,6 @@ namespace SHUU.Utils.Developer.Debugging
             base.Awake();
 
 
-            colliderVisualizer = transform.SearchComponent_InSelfAndChildren<Debug_ColliderVisualizer>();
-
             screenLogs = transform.SearchComponent_InSelfAndChildren<Debug_ScreenLogs>();
         }
         #endregion
@@ -149,47 +145,14 @@ namespace SHUU.Utils.Developer.Debugging
         #region Proxy
         
         #region Debug Colliders
-        public static bool? DebugColliders_Toggle(bool? toggle = null)
-        {
-            if (!Instance || !Instance.colliderVisualizer) return null;
+        public static bool? DebugColliders_Toggle(bool? toggle = null) => Debug_ColliderVisualizer.Toggle(toggle);
 
-            return Instance.colliderVisualizer.Toggle(toggle);
-        }
+        public static bool? DebugColliders_ToggleWireRender(bool? toggle = null) => Debug_ColliderVisualizer.Toggle_WireRender(toggle);
+        public static bool? DebugColliders_ToggleFillRender(bool? toggle = null) => Debug_ColliderVisualizer.Toggle_FillRender(toggle);
 
-        public static bool? DebugColliders_ToggleWireRender(bool? toggle = null)
-        {
-            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer_enabled) return null;
-
-            return Instance.colliderVisualizer.Toggle_WireRender(toggle);
-        }
-        public static bool? DebugColliders_ToggleFillRender(bool? toggle = null)
-        {
-            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer_enabled) return null;
-
-            return Instance.colliderVisualizer.Toggle_FillRender(toggle);
-        }
-
-        public static bool DebugColliders_CacheReload()
-        {
-            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer.proxy || !Instance.colliderVisualizer_enabled) return false;
-
-            Instance.colliderVisualizer.CacheReload();
-            return true;
-        }
-        public static bool DebugColliders_CacheColliders()
-        {
-            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer.proxy || !Instance.colliderVisualizer_enabled) return false;
-
-            Instance.colliderVisualizer.CacheColliders();
-            return true;
-        }
-        public static bool DebugColliders_RebuildCache()
-        {
-            if (!Instance || !Instance.colliderVisualizer || !Instance.colliderVisualizer.proxy || !Instance.colliderVisualizer_enabled) return false;
-
-            Instance.colliderVisualizer.RebuildCache();
-            return true;
-        }
+        public static bool DebugColliders_CacheReload() => Debug_ColliderVisualizer.CacheReload();
+        public static bool DebugColliders_CacheColliders() => Debug_ColliderVisualizer.CacheColliders();
+        public static bool DebugColliders_RebuildCache() => Debug_ColliderVisualizer.RebuildCache();
         #endregion
 
 

@@ -24,7 +24,7 @@ namespace SHUU.UserSide.Addons.AudioSystem
         #region Commands
 
         #region Playback
-        [DevConsoleCommand("playaudio", "Plays a clip by name from a channel's AudioLookup (path is relative to the root, e.g. 'SFX')", "Debug")]
+        [DevConsoleCommand("playaudio", "Plays a clip by name from a channel's AudioLookup", "Debug")]
         public static CommandReturn PlayAudio(string clipName, OptionalParameter<string> channelPath)
         {
             string path;
@@ -57,6 +57,29 @@ namespace SHUU.UserSide.Addons.AudioSystem
             LastPlayed.Stop();
 
             return CommandReturn.Green("Stopped.");
+        }
+
+        [DevConsoleCommand("audiostopall", "Stops every sound playing on a channel and its sub-channels", "Debug")]
+        public static CommandReturn StopAllAudio(OptionalParameter<string> channelPath)
+        {
+            string path = ChannelPathOf(channelPath);
+
+
+            try
+            {
+                if (SHUU_Audio.GetChannel(path) == null) return CommandReturn.Red($"No channel found at '{path}' (check the channel path).");
+            }
+            catch (Exception e) { return CommandReturn.Red($"Couldn't find the channel '{path}': {e.Message}"); }
+
+
+            int stopped;
+
+            try { stopped = SHUU_Audio.StopAll(path); }
+            catch (Exception e) { return CommandReturn.Red($"Couldn't stop the sounds: {e.Message}"); }
+
+            if (stopped == 0) return CommandReturn.Yellow("Nothing was playing.");
+
+            return CommandReturn.Green($"Stopped {stopped} sound(s).");
         }
 
         [DevConsoleCommand("audiopause", "Pauses the sound started by the last playaudio call", "Debug")]
@@ -164,7 +187,7 @@ namespace SHUU.UserSide.Addons.AudioSystem
         #endregion
 
 
-        [DevConsoleCommand("audioclips", "Lists every clip name in a channel's AudioLookup.", "Information")]
+        [DevConsoleCommand("audioclips", "Lists every clip name in a channel's AudioLookup", "Information")]
         public static CommandReturn AudioClips(OptionalParameter<string> channelPath)
         {
             string path = ChannelPathOf(channelPath);

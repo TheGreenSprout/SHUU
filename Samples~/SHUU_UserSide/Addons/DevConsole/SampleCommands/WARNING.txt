@@ -18,7 +18,7 @@ with Color? being the color of these lines (if left null the lines will be white
 also, if you want an array of elements as a parameter, currently only "params" at the end of the parameters is supported:
 
 [DevConsoleCommand("command", "description")]
-public static (string[], Color?) ClearSet(int num1, int num2, params int[] numarray)
+public static CommandReturn ClearSet(int num1, int num2, params int[] numarray)
 {
     
 }
@@ -27,7 +27,7 @@ public static (string[], Color?) ClearSet(int num1, int num2, params int[] numar
 theres also 2 custom parameter types: OptionalParameter<T> and MutableParameter
 
 [DevConsoleCommand("command", "description")]
-public static (string[], Color?) ClearSet(OptionalParameter<float> optional, MutableParameter mutable)
+public static CommandReturn ClearSet(OptionalParameter<float> optional, MutableParameter mutable)
 {
     // OPTIONAL
     if (!optional.TryGetValue(out float _optional)) // method handles _optional;

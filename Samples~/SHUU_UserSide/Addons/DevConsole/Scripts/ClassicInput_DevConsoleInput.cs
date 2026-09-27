@@ -16,6 +16,8 @@ namespace SHUU.UserSide.Addons.DevConsole
         [SerializeField] private KeyCode previousCommandKey = KeyCode.UpArrow;
 
         [SerializeField] private KeyCode nextCommandKey = KeyCode.DownArrow;
+
+        [SerializeField] private KeyCode autocompleteKey = KeyCode.Tab;
         #endregion
 
 
@@ -42,6 +44,8 @@ namespace SHUU.UserSide.Addons.DevConsole
         protected override bool PreviousCommand_Key() => Input.GetKeyDown(previousCommandKey);
 
         protected override bool NextCommand_Key() => Input.GetKeyDown(nextCommandKey);
+
+        protected override bool Autocomplete_Key() => Input.GetKeyDown(autocompleteKey);
         #endregion
     }
 }

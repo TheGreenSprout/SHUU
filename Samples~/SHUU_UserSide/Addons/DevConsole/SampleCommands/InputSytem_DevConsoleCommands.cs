@@ -153,11 +153,11 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         bool specific = commandData != null && commandData.Length > 0;
 
         if (!BoundCommands.UnBindDirectCommands(_controlPath, specific ? commandData : null)) return CommandReturn.Red(specific
-                                                                                                ? $"Command '{string.Join(" ", commandData)}' not found on '{_controlPath}'."
+                                                                                                ? $"Command '{ConsoleTokenizer.Join(commandData)}' not found on '{_controlPath}'."
                                                                                                 : $"No commands bound to '{_controlPath}'.");
 
         return CommandReturn.Green(specific
-            ? $"Command '{string.Join(" ", commandData)}' unbound from '{_controlPath}'."
+            ? $"Command '{ConsoleTokenizer.Join(commandData)}' unbound from '{_controlPath}'."
             : $"All commands unbound from '{_controlPath}'.");
     }
 
@@ -180,11 +180,11 @@ public class InputSytem_DevConsoleCommands : MonoBehaviour
         bool specific = commandData != null && commandData.Length > 0;
 
         if (!BoundCommands.UnBindCommands(_actionPath, specific ? commandData : null)) return CommandReturn.Red(specific
-                                                                                        ? $"Command '{string.Join(" ", commandData)}' not found on '{_actionPath}'."
+                                                                                        ? $"Command '{ConsoleTokenizer.Join(commandData)}' not found on '{_actionPath}'."
                                                                                         : $"No commands bound to '{_actionPath}'.");
 
         return CommandReturn.Green(specific
-            ? $"Command '{string.Join(" ", commandData)}' unbound from '{_actionPath}'."
+            ? $"Command '{ConsoleTokenizer.Join(commandData)}' unbound from '{_actionPath}'."
             : $"All commands unbound from '{_actionPath}'.");
     }
     #endregion

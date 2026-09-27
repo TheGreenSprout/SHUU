@@ -829,6 +829,7 @@ namespace SHUU.Utils.Helpers
 
 
         protected virtual string resourcesPath => name;
+        public static string ResourcesPath => instance != null ? instance.resourcesPath : GetResourcesPath();
 
         private static string CachedPath;
         private static string GetResourcesPath()
@@ -862,7 +863,6 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        // Only the registered instance clears itself: a duplicate destroyed by OnEnable() above never got this far, so it can't null out the real one.
         protected virtual void OnDestroy()
         {
             if (instance == this) instance = null;

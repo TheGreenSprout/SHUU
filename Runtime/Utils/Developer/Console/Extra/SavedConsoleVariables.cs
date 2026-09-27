@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 using SHUU.Utils.Helpers;
@@ -29,144 +30,162 @@ namespace SHUU.Utils.Developer.Console
 
 
         /*
-        ⚠️‼️ AI ASSISTED CODE
+        ⚠️‼️ AI ASSISTED SNIPPET
 
-        This code was written with the assistance of AI.
+        This code snippet was written with the assistance of AI.
         */
         #region Parse
-        public static string ParseVariable(string input)
+        #region XML doc
+        /// <summary>
+        /// Variable names start with a letter or _ and go on with letters, numbers and _, so they can be told apart from the text around them.
+        /// </summary>
+        #endregion
+        public static bool IsValidName(string name)
         {
-            string[] parts = input.Split(' ');
+            if (string.IsNullOrEmpty(name) || !IsNameStart(name[0])) return false;
 
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (!parts[i].StartsWith("$"))
-                {
-                    parts[i] = parts[i].Replace("$", "");
-                    continue;
-                }
+            for (int i = 1; i < name.Length; i++)
+                if (!IsNameCharacter(name[i])) return false;
 
-                var (name, start, count) = ParseVariableToken(parts[i]);
-
-                if (!TryGet(name, out var value))
-                {
-                    parts[i] = parts[i].Replace("$", "");
-                    continue;
-                }
-
-                int actualStart = 0;
-
-                // >X
-                if (start.HasValue && value.Count > start.Value) actualStart = start.Value;
-
-                int available = value.Count - actualStart;
-
-                // <Y
-                int actualCount = count.HasValue ? Math.Min(count.Value, available) : available;
-
-                if (actualStart < 0) actualStart = 0;
-                if (actualStart > value.Count) actualStart = value.Count;
-                if (actualCount < 0) actualCount = 0;
-
-                var sliced = value.GetRange(actualStart, actualCount);
-
-                parts[i] = string.Join(" ", sliced);
-            }
-
-            return string.Join(" ", parts);
+            return true;
         }
-        public static string ParseVariable(string input, out CommandReturn error)
+
+        private static bool IsNameStart(char c) => char.IsLetter(c) || c == '_';
+        private static bool IsNameCharacter(char c) => char.IsLetterOrDigit(c) || c == '_';
+        private static bool IsDigit(char c) => c >= '0' && c <= '9';
+
+
+        #region XML doc
+        /// <summary>
+        /// Replaces every $variable in the text, wherever it is in a word (hp&lt;$health,ammo=$ammo). One that doesn't exist loses its $.
+        /// </summary>
+        #endregion
+        public static string ParseVariable(string input) => Expand(input, int.MaxValue, false, out _);
+
+        #region XML doc
+        /// <summary>
+        /// Same, but a variable that doesn't exist is an error, and so is the result getting longer than maxLength. On an error the text comes back unchanged.
+        /// </summary>
+        #endregion
+        public static string ParseVariable(string input, out CommandReturn error, int maxLength = int.MaxValue)
+        {
+            string result = Expand(input, maxLength, true, out error);
+
+            return error == null ? result : input;
+        }
+
+
+        private static string Expand(string input, int maxLength, bool reportMissing, out CommandReturn error)
         {
             error = null;
 
-            string[] parts = input.Split(' ');
+            if (input.IndexOf('$') < 0) return input;
 
-            for (int i = 0; i < parts.Length; i++)
+
+            StringBuilder result = new StringBuilder(input.Length);
+            List<string> missing = new List<string>();
+
+            int i = 0;
+
+            // Where the text is inside quotes (the same way the console reads them), because a variable is put in differently there.
+            bool inQuotes = false;
+            int backslashes = 0;
+
+            while (i < input.Length)
             {
-                if (!parts[i].StartsWith("$")) continue;
-
-                var (name, start, count) = ParseVariableToken(parts[i]);
-
-                if (!TryGet(name, out var value))
+                // A '$' that isn't followed by a name (like the one in "cost$5") is just text.
+                if (input[i] != '$' || i + 1 >= input.Length || !IsNameStart(input[i + 1]))
                 {
-                    error = new CommandReturn(Color.red, $"Variable '{name}' not found");
+                    if (input[i] == '\\') backslashes++;
+                    else
+                    {
+                        if (input[i] == '"' && backslashes % 2 == 0) inQuotes = !inQuotes;
+
+                        backslashes = 0;
+                    }
+
+                    result.Append(input[i]);
+                    i++;
+
                     continue;
                 }
 
-                int actualStart = 0;
 
-                // >X
-                if (start.HasValue && value.Count > start.Value) actualStart = start.Value;
+                int nameStart = i + 1;
+                int nameEnd = nameStart + 1;
 
-                int available = value.Count - actualStart;
+                while (nameEnd < input.Length && IsNameCharacter(input[nameEnd])) nameEnd++;
 
-                // <Y
-                int actualCount = count.HasValue ? Math.Min(count.Value, available) : available;
+                int end = nameEnd;
+                ReadSlice(input, ref end, out int? start, out int? count);
 
-                if (actualStart < 0) actualStart = 0;
-                if (actualStart > value.Count) actualStart = value.Count;
-                if (actualCount < 0) actualCount = 0;
+                string name = input.Substring(nameStart, nameEnd - nameStart);
 
-                var sliced = value.GetRange(actualStart, actualCount);
+                if (TryGet(name, out var value))
+                {
+                    List<string> words = Slice(value, start, count);
 
-                parts[i] = string.Join(" ", sliced);
+                    // Outside quotes every word that has a space in it gets its own, so it stays one word. Inside quotes they just join the quoted text.
+                    result.Append(inQuotes ? ConsoleTokenizer.EscapeForQuotes(string.Join(" ", words), end < input.Length && input[end] == '"') : ConsoleTokenizer.Join(words));
+                }
+                else if (reportMissing) { if (!missing.Contains(name)) missing.Add(name); }
+                else result.Append(input, nameStart, end - nameStart);
+
+                backslashes = 0;
+                i = end;
+
+
+                // Checked as it grows, so a variable that contains itself never gets to build a huge line.
+                if (result.Length > maxLength)
+                {
+                    error = CommandReturn.Red($"The line got longer than {maxLength} characters once the variables were replaced (does a variable contain itself?).");
+
+                    return input;
+                }
             }
 
-            return string.Join(" ", parts);
+
+            if (missing.Count > 0)
+            {
+                error = CommandReturn.Red(missing.Count == 1 ? $"Variable '{missing[0]}' not found" : $"Variables '{string.Join("', '", missing)}' not found");
+
+                return input;
+            }
+
+            return result.ToString();
         }
 
-        private static (string name, int? start, int? end) ParseVariableToken(string token)
+        // >X skips the first X words, <Y keeps only Y of them (after skipping). Going past the end gives fewer words, or none.
+        private static List<string> Slice(List<string> words, int? start, int? count)
         {
-            int? start = null;
-            int? end = null;
+            int from = Math.Clamp(start ?? 0, 0, words.Count);
+            int take = Math.Clamp(count ?? words.Count - from, 0, words.Count - from);
 
-            // extract name
-            int varEnd = token.Length;
+            return words.GetRange(from, take);
+        }
 
-            for (int i = 0; i < token.Length; i++)
+        // Reads the >X and <Y written right after a name. They only count when a number follows, so in "$max<$min" the < stays as text.
+        private static void ReadSlice(string text, ref int index, out int? start, out int? count)
+        {
+            start = null;
+            count = null;
+
+            while (index + 1 < text.Length && (text[index] == '<' || text[index] == '>') && IsDigit(text[index + 1]))
             {
-                if (token[i] == '<' || token[i] == '>')
+                bool isCount = text[index] == '<';
+                index++;
+
+                long number = 0;
+
+                while (index < text.Length && IsDigit(text[index]))
                 {
-                    varEnd = i;
-                    break;
+                    number = Math.Min(number * 10 + (text[index] - '0'), int.MaxValue);
+                    index++;
                 }
+
+                if (isCount) count = (int)number;
+                else start = (int)number;
             }
-
-            string name = token.Substring(1, varEnd - 1); // skip $
-
-            string modifiers = token.Substring(varEnd);
-
-            int iMod = 0;
-            while (iMod < modifiers.Length)
-            {
-                char c = modifiers[iMod];
-
-                if (c == '<')
-                {
-                    iMod++;
-                    int val = 0;
-                    while (iMod < modifiers.Length && char.IsDigit(modifiers[iMod]))
-                    {
-                        val = val * 10 + (modifiers[iMod] - '0');
-                        iMod++;
-                    }
-                    end = val-1;
-                }
-                else if (c == '>')
-                {
-                    iMod++;
-                    int val = 0;
-                    while (iMod < modifiers.Length && char.IsDigit(modifiers[iMod]))
-                    {
-                        val = val * 10 + (modifiers[iMod] - '0');
-                        iMod++;
-                    }
-                    start = val;
-                }
-                else iMod++;
-            }
-
-            return (name, start, end);
         }
         #endregion
         

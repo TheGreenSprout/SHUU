@@ -187,6 +187,7 @@ MonoBehaviour:
   toggleBind: Console_Toggle
   previousCommandBind: Console_PreviousCommand
   nextCommandBind: Console_NextCommand
+  autocompleteBind: Console_Autocomplete
 --- !u!114 &7568605695224927863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,7 +214,7 @@ MonoBehaviour:
   inputModule: {fileID: 0}
   typewriterLines: 1
   typewriterDelay: 0.05
-  playTypewriterSFX: 1
+  playTypewriterSFX: 0
   typewriterSFX: {fileID: 0}
 --- !u!114 &5871272403144840486
 MonoBehaviour:

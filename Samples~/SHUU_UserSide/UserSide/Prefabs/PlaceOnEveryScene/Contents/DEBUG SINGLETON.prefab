@@ -78,7 +78,6 @@ GameObject:
   - component: {fileID: 119179334975042072}
   - component: {fileID: 8159448382580803626}
   - component: {fileID: 3738865203328835253}
-  - component: {fileID: 6874974161951889258}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -98,7 +97,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5338011690606901506}
   m_Father: {fileID: 5886737878205337909}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8159448382580803626
@@ -125,20 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 456e9f9f32654bd428060a084764d9af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleGameobject: 0
---- !u!114 &6874974161951889258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5582792813097023972}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 563f00a97ccdf1842b1d847c35311953, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handleGameobject: 0
+  poolParent: {fileID: 5338011690606901506}
 --- !u!1 &6373702377639606796
 GameObject:
   m_ObjectHideFlags: 0
@@ -197,7 +184,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f3c0a146f79b3945876e82a39900ce3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleGameobject: 1
   methodBind_enabled: 0
   debugInfo_enabled: 0
   screenLogs_enabled: 0
@@ -207,9 +193,9 @@ MonoBehaviour:
   screenLogs_listenForErrorLogs: 1
   screenLogs_listenForExceptionLogs: 1
   screenLogs_listenForAssertLogs: 1
-  screenLogs_defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
   screenLogs_logMessagePrefab: {fileID: 6211499101935233359, guid: 02ab36f51432d49479bf67c75b9dd88d, type: 3}
   screenLogs_initialPoolSize: 10
+  screenLogs_defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
   colliderVisualizer_enabled: 0
   colliderVisualizer_beginEnabled: 0
   colliderVisualizer_activationKey: 0
@@ -230,3 +216,65 @@ MonoBehaviour:
   colliderVisualizer_excludedTags:
     mask: 0
   colliderVisualizer_customColors: []
+--- !u!1 &6632864156203145690
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5338011690606901506}
+  - component: {fileID: 890482504781214023}
+  m_Layer: 0
+  m_Name: ScreenLogs_Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5338011690606901506
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6632864156203145690}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 119179334975042072}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &890482504781214023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6632864156203145690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95db6fe5cf880fc488eeea7f99d2aa43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.SHUU_HierarchyFolder
+  dissolveOnPlay: 0
+  textStyle: 1
+  textAlignment: 0
+  iconSize: 1
+  iconOffset: {x: -1.2, y: 0}
+  customIcon: {fileID: 0}
+  customGradient: {fileID: 0}
+  coloredIcon: 1
+  iconColor: {r: 1, g: 0.33490568, b: 0.9930876, a: 1}
+  coloredText: 1
+  textColor: {r: 1, g: 0.4764151, b: 0.9938403, a: 1}
+  coloredHighlight: 0
+  highlightColor: {r: 0.4, g: 0.75, b: 1, a: 1}
+  prefabTint: 2
+  prefabIconTint: {r: 0.5, g: 0.85, b: 1, a: 1}
+  prefabTextTint: {r: 0.45, g: 0.62, b: 0.86, a: 1}
+  prefabHighlightTint: {r: 0.5, g: 0.85, b: 1, a: 1}
+  prefabTintStrength: 0.8

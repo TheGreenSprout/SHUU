@@ -110,9 +110,9 @@ namespace SHUU.UserSide.Addons.AudioSystem
                 else
                 {
                     SHUU_AudioInstance audioInstance = channel.GetAudioInstance(options);
-                    if (audioInstance != null) Debug.LogError("Failed to get an audio Instance from the channel. Please check the channel's configuration.");
+                    if (audioInstance == null) Debug.LogError("Failed to get an audio Instance from the channel. Please check the channel's configuration.");
                     
-                    audioInstance.gameObject.transform.SetParent(parent, true);
+                    audioInstance?.gameObject.transform.SetParent(parent, true);
                     return audioInstance;
                 }
             }
@@ -158,6 +158,46 @@ namespace SHUU.UserSide.Addons.AudioSystem
             Instance?.Play();
 
             return Instance;
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Stops every sound playing on a channel and all of its sub-channels.
+        /// </summary>
+        /// <param name="channelPath">Path of the channel. Empty stops everything.</param>
+        /// <returns>How many sounds were stopped.</returns>
+        #endregion
+        public static int StopAll(string channelPath = "")
+        {
+            IAudioChannel channel = GetChannel(channelPath);
+            if (channel == null) return 0;
+
+            int stopped = 0;
+
+            StopChannel(channel, new HashSet<SHUU_ObjectPool<SHUU_AudioInstance>>(), ref stopped);
+
+            return stopped;
+        }
+
+        private static void StopChannel(IAudioChannel channel, HashSet<SHUU_ObjectPool<SHUU_AudioInstance>> visitedPools, ref int stopped)
+        {
+            SHUU_ObjectPool<SHUU_AudioInstance> pool = channel.GetObjectPool();
+
+            // A channel can share its parent's pool, so each pool is only stopped once.
+            if (pool != null && visitedPools.Add(pool))
+            {
+                foreach (SHUU_AudioInstance instance in pool.GetActives())
+                {
+                    if (instance == null) continue;
+
+                    instance.Stop();
+                    stopped++;
+                }
+            }
+
+            foreach (IAudioChannel child in channel.GetChildren())
+                StopChannel(child, visitedPools, ref stopped);
         }
         #endregion
     

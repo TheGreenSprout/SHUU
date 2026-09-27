@@ -27,3 +27,8 @@ MonoBehaviour:
     application_persistentDataPath: 1
     startPoints:
     - Developer
+  - id: DevConsole.exec
+    path: exec
+    application_persistentDataPath: 1
+    startPoints:
+    - DevConsole

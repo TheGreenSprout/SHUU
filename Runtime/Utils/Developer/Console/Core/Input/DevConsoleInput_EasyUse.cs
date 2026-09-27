@@ -11,6 +11,8 @@ namespace SHUU.Utils.Developer.Console
 
             if (PreviousCommand_Key()) PreviousCommand();
             if (NextCommand_Key()) NextCommand();
+
+            if (Autocomplete_Key()) Autocomplete();
         }
         #endregion
 
@@ -23,6 +25,9 @@ namespace SHUU.Utils.Developer.Console
         protected abstract bool PreviousCommand_Key();
 
         protected abstract bool NextCommand_Key();
+
+        // Not abstract, so an input class written before Tab completion existed still works (it just doesn't have it).
+        protected virtual bool Autocomplete_Key() => false;
         #endregion
     }
 }

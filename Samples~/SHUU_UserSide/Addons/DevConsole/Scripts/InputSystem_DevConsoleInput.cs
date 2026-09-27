@@ -21,6 +21,8 @@ namespace SHUU.UserSide.Addons.DevConsole
         private string previousCommand_actionPath => $"{mapName}/{previousCommandBind}";
         [SerializeField] private string nextCommandBind = "Console_NextCommand";
         private string nextCommand_actionPath => $"{mapName}/{nextCommandBind}";
+        [SerializeField] private string autocompleteBind = "Console_Autocomplete";
+        private string autocomplete_actionPath => $"{mapName}/{autocompleteBind}";
         #endregion
 
 
@@ -34,6 +36,9 @@ namespace SHUU.UserSide.Addons.DevConsole
             SHUU_Input.RegisterListener_Down(toggle_actionPath, Toggle);
             SHUU_Input.RegisterListener_Down(previousCommand_actionPath, PreviousCommand);
             SHUU_Input.RegisterListener_Down(nextCommand_actionPath, NextCommand);
+
+            // Only if the action asset has it, so an asset made before Tab completion existed keeps working (add a Console_Autocomplete button, bound to Tab, to get it).
+            if (SHUU_Input.GetAction(autocomplete_actionPath) != null) SHUU_Input.RegisterListener_Down(autocomplete_actionPath, Autocomplete);
         }
 
         private void OnDisable()
@@ -41,6 +46,7 @@ namespace SHUU.UserSide.Addons.DevConsole
             SHUU_Input.UnregisterListener_Down(toggle_actionPath, Toggle);
             SHUU_Input.UnregisterListener_Down(previousCommand_actionPath, PreviousCommand);
             SHUU_Input.UnregisterListener_Down(nextCommand_actionPath, NextCommand);
+            SHUU_Input.UnregisterListener_Down(autocomplete_actionPath, Autocomplete);
 
             SHUU_Input.DisableMap(mapName);
         }

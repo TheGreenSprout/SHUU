@@ -161,7 +161,7 @@ namespace SHUU.Utils.Developer.Console
                 dict[key] = list;
             }
 
-            list.Add(string.Join(" ", commandData));
+            list.Add(ConsoleTokenizer.Join(commandData));
         }
 
         private static bool Unbind<TKey>(Dictionary<TKey, List<string>> dict, TKey key, string[] commandData = null)
@@ -174,7 +174,7 @@ namespace SHUU.Utils.Developer.Console
                 return true;
             }
 
-            string joined = string.Join(" ", commandData);
+            string joined = ConsoleTokenizer.Join(commandData);
             int removed = list.RemoveAll(c => c == joined);
             if (list.Count == 0) dict.Remove(key);
 

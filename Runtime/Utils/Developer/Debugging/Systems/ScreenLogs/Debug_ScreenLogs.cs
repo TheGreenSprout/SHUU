@@ -54,6 +54,9 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
 
         private int initialPoolSize => SHUU_Debug.Instance.screenLogs_initialPoolSize;
+
+
+        [SerializeField] private Transform poolParent = null;
         #endregion
 
 
@@ -79,7 +82,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             if (!proxy.content.gameObject.activeInHierarchy) proxy.content.gameObject.SetActive(true);
 
 
-            CreateFactory(proxy);
+            CreateFactory();
         }
 
         private void OnProxyRemoved(Debug_ScreenLogsProxy proxy)
@@ -93,14 +96,13 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         }
 
 
-        private void CreateFactory(Debug_ScreenLogsProxy proxy)
+        private void CreateFactory()
         {
             if (factory != null) factory.Dispose();
 
             if (!listenForDebugLogs) return;
 
-            if (initialPoolSize == 0) factory = new Basic_ScreenLog_Factory(logMessagePrefab);
-            else if (proxy != null) factory = new ObjectPool_ScreenLog_Factory(logMessagePrefab, initialPoolSize, proxy.poolParent);
+            factory = new ScreenLog_Factory(logMessagePrefab, initialPoolSize, poolParent);
         }
         #endregion
 
@@ -149,17 +151,14 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         }
         private void HandleLog(string logString, Color? color)
         {
-            if (color == null) color = defaultTextColor;
+            Color c;
+            if (color == null) c = defaultTextColor;
+            else c = color.Value;
 
-            Actual_HandleLog(logString, color.Value);
-        }
 
-
-        private void Actual_HandleLog(string logString, Color color)
-        {
             if (factory == null) return;
 
-            factory?.GetLog(proxy?.content, logString, color);
+            factory?.GetLog(proxy?.content, logString, c);
 
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(proxy?.content);
@@ -194,30 +193,8 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
 
 
-    #region Helper class
-    public interface ScreenLog_Factory
-    {
-        public Debug_LogMessage GetLog(RectTransform content, string logString, Color color);
-
-        public void Dispose();
-    }
-
-
-
-    public class Basic_ScreenLog_Factory : ScreenLog_Factory
-    {
-        private Debug_LogMessage prefab = null;
-
-
-        public Basic_ScreenLog_Factory(Debug_LogMessage prefab) => this.prefab = prefab;
-
-        public Debug_LogMessage GetLog(RectTransform content, string logString, Color color) => Object.Instantiate(prefab, content).Init(logString, color);
-
-        public void Dispose() { }
-    }
-
-
-    public class ObjectPool_ScreenLog_Factory : ScreenLog_Factory
+    #region Factory
+    public class ScreenLog_Factory
     {
         private SHUU_ObjectPool<Debug_LogMessage> _pool = null;
         private SHUU_ObjectPool<Debug_LogMessage> pool
@@ -235,7 +212,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         private Transform parent;
 
 
-        public ObjectPool_ScreenLog_Factory(Debug_LogMessage prefab, int initPoolSize, Transform parent)
+        public ScreenLog_Factory(Debug_LogMessage prefab, int initPoolSize, Transform parent)
         {
             this.prefab = prefab;
             this.initPoolSize = initPoolSize;

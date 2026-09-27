@@ -8,11 +8,10 @@ using Alchemy.Inspector;
 using SHUU.Utils.SettingsSystem;
 using SHUU.Utils.Helpers;
 using SHUU.Utils.Developer.Console;
-
-using static SHUU.Utils.Helpers.HandyFunctions;
-using SHUU.Utils.Developer.Debugging.Systems;
 using SHUU.Utils.Developer.Debugging;
 using SHUU.Utils.Globals;
+
+using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.UserSide.Addons.SettingsSystemUpdater
 {
@@ -144,6 +143,8 @@ namespace SHUU.UserSide.Addons.SettingsSystemUpdater
         public void InfoMenuEnabled_Update(SettingsAtlas data, string mapName, string field) => SHUU_Debug.Instance.debugInfo_enabled = data.GetBool(mapName, field);
 
         public void ScreenLogsEnabled_Update(SettingsAtlas data, string mapName, string field) => SHUU_Debug.Instance.screenLogs_enabled = data.GetBool(mapName, field);
+
+        public void CollidersEnabled_Update(SettingsAtlas data, string mapName, string field) => SHUU_Debug.Instance.colliderVisualizer_enabled = data.GetBool(mapName, field);
         #endregion
 
         #endregion

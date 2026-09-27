@@ -1,6 +1,12 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
+#endif
 
 using SHUU.Utils.SceneManagement;
 
@@ -13,6 +19,13 @@ namespace SHUU.UserSide.Addons.LoadingScreen
         [SerializeField] private TMP_Text progressText;
 
         [SerializeField] private GameObject finishedText;
+
+
+#if ENABLE_INPUT_SYSTEM
+        private bool anyButtonPressed;
+        private IDisposable anyButtonListener;
+#endif
+
         #endregion
 
 
@@ -25,6 +38,11 @@ namespace SHUU.UserSide.Addons.LoadingScreen
 
             finishedText.SetActive(false);
         }
+
+#if ENABLE_INPUT_SYSTEM
+        private void OnDestroy() => anyButtonListener?.Dispose();
+#endif
+
         #endregion
 
 
@@ -46,8 +64,12 @@ namespace SHUU.UserSide.Addons.LoadingScreen
                 finishedText.SetActive(true);
             }
 
-            if (Input.anyKeyDown) return true;
-            return false;
+#if ENABLE_INPUT_SYSTEM
+            anyButtonListener ??= InputSystem.onAnyButtonPress.CallOnce(_ => anyButtonPressed = true);
+            return anyButtonPressed;
+#else
+            return Input.anyKeyDown;
+#endif
         }
         #endregion
     }

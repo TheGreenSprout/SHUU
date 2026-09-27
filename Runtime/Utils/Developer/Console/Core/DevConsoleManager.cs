@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+
+using Alchemy.Inspector;
 
 namespace SHUU.Utils.Developer.Console
 {
@@ -44,11 +47,12 @@ namespace SHUU.Utils.Developer.Console
 
         public bool typewriterLines = true;
 
-        public float typewriterDelay = 0.05f;
+        [ShowIf(nameof(typewriterLines))] public float typewriterDelay = 0.05f;
 
-        public bool playTypewriterSFX = true;
-        public AudioClip typewriterSFX = null;
-        private AudioClip _typewriterSFX => typewriterSFX != null ? typewriterSFX : typewriterSFX;
+        [ShowIf(nameof(typewriterLines))] public bool playTypewriterSFX = false;
+        private bool showAudioClipField => typewriterLines && playTypewriterSFX;
+        [ShowIf(nameof(showAudioClipField))] public AudioClip typewriterSFX = null;
+        private AudioClip _typewriterSFX => playTypewriterSFX ? typewriterSFX : null;
         #endregion
 
 
@@ -66,10 +70,17 @@ namespace SHUU.Utils.Developer.Console
             inputModule = GetComponent<DevConsoleInput>();
 
             inputModule.toggle += devConsoleUI.Toggle;
+
+            ConsoleScripts.EnsureAutoexec();
         }
 
 
-        private void OnDestroy() => inputModule.toggle -= devConsoleUI.Toggle;
+        private void OnDestroy()
+        {
+            inputModule.toggle -= devConsoleUI.Toggle;
+
+            ConsoleScripts.Cancel();
+        }
         #endregion
 
 
@@ -77,7 +88,7 @@ namespace SHUU.Utils.Developer.Console
         #region Logic
 
         #region Input processing
-        private bool firstInput = true;
+        internal bool firstInput = true;
 
 
         public static bool ProcessConsoleInput(string input) => Instance.ProcessInput(input);
@@ -92,7 +103,7 @@ namespace SHUU.Utils.Developer.Console
             if (string.IsNullOrWhiteSpace(input)) return false;
 
 
-            if (ParseCommand(input, out var cmd, out var args, out var info))
+            if (ParseCommand(input, out var cmd, out var args, out var info, out CommandReturn lineError))
             {
                 try
                 {
@@ -113,7 +124,7 @@ namespace SHUU.Utils.Developer.Console
                         Array array = Array.CreateInstance(elementType, args.Length-fixedCount);
 
                         for (int i = fixedCount; i < args.Length; i++)
-                            array.SetValue(Convert.ChangeType(args[i], elementType), i-fixedCount);
+                            array.SetValue(ConvertArgument(args[i], elementType, null), i-fixedCount);
 
                         parsedArgs[parsedArgs.Length-1] = array;
                     }
@@ -127,10 +138,16 @@ namespace SHUU.Utils.Developer.Console
                 }
                 catch (Exception ex)
                 {
-                    PrintDelegate($"Error: {ex.Message}", Color.red);
+                    PrintDelegate($"Error: {Unwrap(ex).Message}", Color.red);
 
                     return false;
                 }
+            }
+            else if (lineError != null)
+            {
+                PrintDelegate(lineError.output, lineError.color);
+
+                return false;
             }
             else
             {
@@ -159,7 +176,7 @@ namespace SHUU.Utils.Developer.Console
             if (string.IsNullOrWhiteSpace(input)) return false;
 
 
-            if (ParseCommand(input, out var cmd, out var args, out var info))
+            if (ParseCommand(input, out var cmd, out var args, out var info, out CommandReturn lineError))
             {
                 try
                 {
@@ -180,7 +197,7 @@ namespace SHUU.Utils.Developer.Console
                         Array array = Array.CreateInstance(elementType, args.Length-fixedCount);
 
                         for (int i = fixedCount; i < args.Length; i++)
-                            array.SetValue(Convert.ChangeType(args[i], elementType), i-fixedCount);
+                            array.SetValue(ConvertArgument(args[i], elementType, null), i-fixedCount);
 
                         parsedArgs[parsedArgs.Length-1] = array;
                     }
@@ -206,11 +223,18 @@ namespace SHUU.Utils.Developer.Console
                 }
                 catch (Exception ex)
                 {
-                    output = new CommandReturn(Color.red, $"Error: {ex.Message}");
-                    PrintDelegate($"Error: {ex.Message}", Color.red);
+                    output = new CommandReturn(Color.red, $"Error: {Unwrap(ex).Message}");
+                    PrintDelegate($"Error: {Unwrap(ex).Message}", Color.red);
 
                     return false;
                 }
+            }
+            else if (lineError != null)
+            {
+                output = lineError;
+                PrintDelegate(lineError.output, lineError.color);
+
+                return false;
             }
             else
             {
@@ -228,33 +252,67 @@ namespace SHUU.Utils.Developer.Console
 
 
         #region Parsing
-        private bool ParseCommand(string input, out string cmd, out string[] args, out DevCommandRegistry.DevCommandInfo info)
+        private const int MaxVariableExpansions = 16;
+        private const int MaxExpandedLength = 10000;
+
+        private bool ParseCommand(string input, out string cmd, out string[] args, out DevCommandRegistry.DevCommandInfo info, out CommandReturn lineError)
         {
             args = null;
             cmd = null;
 
             info = default;
+            lineError = null;
 
 
             if (input == null || string.IsNullOrWhiteSpace(input)) return false;
 
-            if (!input.ToLower().StartsWith("setvar"))
-            {
-                while (input.Contains("$"))
-                {
-                    input = SavedConsoleVariables.ParseVariable(input, out CommandReturn varError);
+            if (!input.ToLower().StartsWith("setvar") && !ExpandVariables(ref input, out lineError)) return false;
 
-                    if (varError != null) PrintDelegate(varError.output, varError.color);
-                }
+            if (!ConsoleTokenizer.TryTokenize(input, out string[] parts, out string quoteError))
+            {
+                lineError = CommandReturn.Red(quoteError);
+
+                return false;
             }
 
-            string[] parts = input.Split(' ');
+            // Nothing left (a variable that held nothing, say).
+            if (parts.Length == 0)
+            {
+                cmd = "";
+
+                return false;
+            }
 
             cmd = parts[0];
             args = parts.Skip(1).ToArray();
 
 
             return DevCommandRegistry.TryGet(cmd, out info);
+        }
+
+
+        private static Exception Unwrap(Exception ex) => ex is TargetInvocationException && ex.InnerException != null ? ex.InnerException : ex;
+
+
+        private static bool ExpandVariables(ref string input, out CommandReturn error)
+        {
+            error = null;
+
+            for (int pass = 0; pass < MaxVariableExpansions; pass++)
+            {
+                if (!input.Contains("$")) return true;
+
+                string expanded = SavedConsoleVariables.ParseVariable(input, out error, MaxExpandedLength);
+                if (error != null) return false;
+
+                if (expanded == input) return true;
+
+                input = expanded;
+            }
+
+            error = CommandReturn.Red("Too many nested variables (does a variable refer to itself?).");
+
+            return false;
         }
 
 
@@ -294,8 +352,36 @@ namespace SHUU.Utils.Developer.Console
                 return;
             }
 
-            // Primitive
-            parsedArgs[i] = Convert.ChangeType(raw, paramType);
+            // QueryParameter
+            if (paramType == typeof(QueryParameter))
+            {
+                parsedArgs[i] = QueryParameter.Parse(raw);
+                return;
+            }
+
+            // Primitive or enum
+            parsedArgs[i] = ConvertArgument(raw, paramType, p.Name);
+        }
+
+
+        public static object ConvertArgument(string raw, Type type, string parameterName)
+        {
+            if (!type.IsEnum)
+            {
+                // Not through Convert.ChangeType: it would read "0,5" as 5 (the comma as a thousands separator).
+                if (type == typeof(float)) return float.Parse(raw, NumberStyles.Float, CultureInfo.InvariantCulture);
+                if (type == typeof(double)) return double.Parse(raw, NumberStyles.Float, CultureInfo.InvariantCulture);
+                if (type == typeof(decimal)) return decimal.Parse(raw, NumberStyles.Float, CultureInfo.InvariantCulture);
+
+                return Convert.ChangeType(raw, type, CultureInfo.InvariantCulture);
+            }
+
+
+            bool isFlags = Attribute.IsDefined(type, typeof(FlagsAttribute));
+
+            if ((isFlags || !raw.Contains(',')) && Enum.TryParse(type, raw, true, out object value) && (isFlags || Enum.IsDefined(type, value))) return value;
+
+            throw new Exception($"'{raw}' isn't a valid {parameterName ?? type.Name}. Use one of: {string.Join(", ", Enum.GetNames(type)).ToLowerInvariant()}.");
         }
 
 
@@ -318,8 +404,15 @@ namespace SHUU.Utils.Developer.Console
                 return;
             }
 
+            // Optional<QueryParameter>
+            if (innerType == typeof(QueryParameter))
+            {
+                parsedArgs[i] = Activator.CreateInstance(p.ParameterType, QueryParameter.Parse(raw));
+                return;
+            }
+
             // Optional<T>
-            object converted = Convert.ChangeType(raw, innerType);
+            object converted = ConvertArgument(raw, innerType, p.Name);
             parsedArgs[i] = Activator.CreateInstance(p.ParameterType, converted);
         }
 
@@ -331,13 +424,13 @@ namespace SHUU.Utils.Developer.Console
                 return;
             }
 
-            if (int.TryParse(raw, out int intVal))
+            if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intVal))
             {
                 parsedArgs[i] = new MutableParameter(intVal);
                 return;
             }
 
-            if (float.TryParse(raw, out float floatVal))
+            if (float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out float floatVal))
             {
                 parsedArgs[i] = new MutableParameter(floatVal);
                 return;

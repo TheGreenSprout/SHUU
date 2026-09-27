@@ -28,6 +28,8 @@ namespace SHUU.Utils.Developer.Console
         [HideInInspector] public Action previousCommand;
         [HideInInspector] public Action nextCommand;
 
+        [HideInInspector] public Action autocomplete;
+
 
         [SerializeField] private bool changeCursorVisivility = true;
         #endregion
@@ -75,6 +77,8 @@ namespace SHUU.Utils.Developer.Console
         protected void PreviousCommand() => previousCommand?.Invoke();
 
         protected void NextCommand() => nextCommand?.Invoke();
+
+        protected void Autocomplete() => autocomplete?.Invoke();
         #endregion
     }
 }

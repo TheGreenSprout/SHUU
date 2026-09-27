@@ -58,9 +58,9 @@ namespace SHUU.UserSide.Addons.CullingSystem
 
 
         #region Main
-        protected virtual void OnEnable() => SHUU_Culling.Instance?.Register(this);
+        protected virtual void Awake() => SHUU_Culling.Instance?.Register(this);
 
-        protected virtual void OnDisable() => SHUU_Culling.Instance?.Unregister(this);
+        protected virtual void OnDestroy() => SHUU_Culling.Instance?.Unregister(this);
         #endregion
     }
 }

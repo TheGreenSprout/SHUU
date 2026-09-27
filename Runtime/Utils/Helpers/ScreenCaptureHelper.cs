@@ -155,14 +155,12 @@ namespace SHUU.Utils.Helpers
         }
 
 
-        // Whatever is actually on screen (every camera, all UI), not tied to a single Camera like CaptureCamera is.
         public static Texture2D CaptureScreenshotAsTexture() => ScreenCapture.CaptureScreenshotAsTexture();
         #endregion
 
 
 
         #region Resize
-        // Downscales (never upscales) a texture to a target height, keeping its aspect ratio. Doesn't touch/destroy "source", that's the caller's.
         public static Texture2D ResizeTexture(Texture2D source, int targetHeight)
         {
             if (source == null) return null;

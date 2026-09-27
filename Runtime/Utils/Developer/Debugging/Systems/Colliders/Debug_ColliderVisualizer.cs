@@ -1,106 +1,215 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
-using System.Collections.Generic;
 
+using SHUU.Utils.Globals;
 using SHUU.Utils.Helpers;
+using SHUU.Utils.InputSystem;
+using SHUU.Utils.SceneManagement;
 
 namespace SHUU.Utils.Developer.Debugging.Systems
 {
-    [DefaultExecutionOrder(-10000)]
-    public class Debug_ColliderVisualizer : HiddenSingleton_MonoBehaviour<Debug_ColliderVisualizer>
+    public static class Debug_ColliderVisualizer
     {
         #region Variables
+        public static bool Active => settings != null && settings.colliderVisualizer_enabled;
 
-        #region Singleton
-        protected override bool PersistantSingleton() => false;
-
-
-        private Debug_ColliderVisualizerProxy _proxy;
-
-        public Debug_ColliderVisualizerProxy proxy
-        {
-            get => _proxy;
-            set
-            {
-                if (value == null) OnProxyRemoved(_proxy);
-                else OnProxyAdded(value);
-
-                _proxy = value;
-            }
-        }
-        #endregion
+        public static bool Visible => visible;
+        public static bool AlwaysRenderWire => alwaysRenderWire;
+        public static bool AlwaysRenderFill => alwaysRenderFill;
 
 
 
-        #region Inspector
-        private bool active => SHUU_Debug.Instance.colliderVisualizer_enabled;
-        private bool beginEnabled => SHUU_Debug.Instance.colliderVisualizer_beginEnabled;
+        // Internal
+        private static SHUU_Debug settings;
 
+        private static ColliderVisualizer_Cache cache;
 
-        #if ENABLE_INPUT_SYSTEM
-        public KeyCode activationKey => SHUU_Debug.Instance.colliderVisualizer_activationKey;
-        #endif
-        public string activationActionPath => SHUU_Debug.Instance.colliderVisualizer_activationActionPath;
+        private static bool started;
 
+        private static bool visible;
+        private static bool alwaysRenderWire;
+        private static bool alwaysRenderFill;
 
-        public Shader matShader => SHUU_Debug.Instance.colliderVisualizer_matShader;
-
-        public bool alwaysRenderWire => SHUU_Debug.Instance.colliderVisualizer_alwaysRenderWire;
-        public bool alwaysRenderFill => SHUU_Debug.Instance.colliderVisualizer_alwaysRenderFill;
-
-        public float updateCollidersInterval => SHUU_Debug.Instance.colliderVisualizer_updateCollidersInterval;
-        public float rebuildCacheInterval => SHUU_Debug.Instance.colliderVisualizer_rebuildCacheInterval;
-
-        public float maxDistance => SHUU_Debug.Instance.colliderVisualizer_maxDistance;
-
-
-        public Color defaultWireColor => SHUU_Debug.Instance.colliderVisualizer_defaultWireColor;
-        public Color defaultFillColor => SHUU_Debug.Instance.colliderVisualizer_defaultFillColor;
-
-        public float triggerAlphaMultiplier => SHUU_Debug.Instance.colliderVisualizer_triggerAlphaMultiplier;
-        public float disabledAlphaMultiplier => SHUU_Debug.Instance.colliderVisualizer_disabledAlphaMultiplier;
-
-
-        public LayerMask excludedLayers => SHUU_Debug.Instance.colliderVisualizer_excludedLayers;
-        public TagMask excludedTags => SHUU_Debug.Instance.colliderVisualizer_excludedTags;
-
-        public List<CustomColors> customColors => SHUU_Debug.Instance.colliderVisualizer_customColors;
-        #endregion
-
+        private static SHUU_Timer cacheColliders_timer;
+        private static SHUU_Timer rebuildCache_timer;
         #endregion
 
 
 
 
         #region Main
-        private void OnProxyAdded(Debug_ColliderVisualizerProxy proxy)
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init()
         {
-            if (!proxy) return;
+            Dispose();
 
-            if (active) proxy.Init(this, beginEnabled);
+            settings = null;
+            started = false;
+            visible = false;
+            alwaysRenderWire = false;
+            alwaysRenderFill = false;
+
+
+            SceneLoader.OnSceneLoaded -= HandleSceneLoaded;
+            SceneLoader.OnSceneLoaded += HandleSceneLoaded;
+
+            Application.quitting -= Dispose;
+            Application.quitting += Dispose;
+
+            SHUU_Time.OnUpdate -= Tick;
+            SHUU_Time.OnUpdate += Tick;
         }
 
-        private void OnProxyRemoved(Debug_ColliderVisualizerProxy proxy)
+        private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (!proxy) return;
+            settings = SHUU_Debug.Instance;
 
-            if (active) proxy.initialized = false;
+            StopTimers();
+            cache?.ClearMeshes();
+
+            if (settings == null) return;
+
+
+            if (!Active) return;
+
+            bool wasStarted = started;
+
+            EnsureStarted();
+            cache.camera = Camera.main;
+
+            if (wasStarted && visible) CacheReload();
+        }
+
+
+        private static void Tick()
+        {
+            if (!Active) return;
+
+            EnsureStarted();
+            HandleInput();
+
+            if (!visible) return;
+
+            cache.Draw(alwaysRenderWire, alwaysRenderFill);
         }
         #endregion
 
 
 
+
         #region Logic
-        public bool? Toggle(bool? toggle = null) => proxy && active ? proxy.Toggle(toggle) : null;
 
-        public bool? Toggle_WireRender(bool? toggle = null) => proxy && active ? proxy.Toggle_WireRender(toggle) : null;
-        public bool? Toggle_FillRender(bool? toggle = null) => proxy && active ? proxy.Toggle_FillRender(toggle) : null;
+        #region Main
+        private static void EnsureStarted()
+        {
+            cache ??= new ColliderVisualizer_Cache();
+            cache.EnsureMaterials(settings.colliderVisualizer_matShader);
+
+            if (started) return;
+            started = true;
+
+            alwaysRenderWire = settings.colliderVisualizer_alwaysRenderWire;
+            alwaysRenderFill = settings.colliderVisualizer_alwaysRenderFill;
+            cache.camera = Camera.main;
+
+            SetVisible(settings.colliderVisualizer_beginEnabled);
+        }
 
 
-        public void CacheReload() => proxy?.CacheReload();
+        private static void HandleInput()
+        {
+            string actionPath = settings.colliderVisualizer_activationActionPath;
 
-        public void CacheColliders() => proxy?.CacheColliders();
-        public void RebuildCache() => proxy?.RebuildCache();
+            if (!string.IsNullOrEmpty(actionPath) && SHUU_Input.GetInputDown(actionPath)) Toggle();
+#if ENABLE_LEGACY_INPUT_MANAGER
+            else if (settings.colliderVisualizer_activationKey != KeyCode.None && Input.GetKeyDown(settings.colliderVisualizer_activationKey)) Toggle();
+#endif
+        }
+
+
+        private static void Dispose()
+        {
+            StopTimers();
+
+            cache?.Dispose();
+            cache = null;
+        }
+        #endregion
+
+
+
+        #region Toggles
+        public static bool? Toggle(bool? toggle = null)
+        {
+            if (!Active) return null;
+
+            EnsureStarted();
+            SetVisible(toggle ?? !visible);
+
+            return visible;
+        }
+
+        public static bool? Toggle_WireRender(bool? toggle = null) => Active ? (alwaysRenderWire = toggle ?? !alwaysRenderWire) : null;
+        public static bool? Toggle_FillRender(bool? toggle = null) => Active ? (alwaysRenderFill = toggle ?? !alwaysRenderFill) : null;
+
+
+        private static void SetVisible(bool value)
+        {
+            visible = value;
+
+            if (visible) CacheReload();
+            else StopTimers();
+        }
+        #endregion
+
+
+
+        #region Cache
+        public static bool CacheReload()
+        {
+            if (!CacheColliders()) return false;
+
+            return RebuildCache();
+        }
+
+        public static bool CacheColliders()
+        {
+            if (!Active) return false;
+            EnsureStarted();
+
+            cacheColliders_timer?.Cancel();
+            cacheColliders_timer = visible ? StartTimer(settings.colliderVisualizer_updateCollidersInterval, () => CacheColliders()) : null;
+
+            cache.CacheColliders(settings);
+            return true;
+        }
+
+        public static bool RebuildCache()
+        {
+            if (!Active) return false;
+            EnsureStarted();
+
+            rebuildCache_timer?.Cancel();
+            rebuildCache_timer = visible ? StartTimer(settings.colliderVisualizer_rebuildCacheInterval, () => RebuildCache()) : null;
+
+            cache.Rebuild(settings);
+            return true;
+        }
+
+
+        private static SHUU_Timer StartTimer(float seconds, Action onComplete)=> seconds > 0f && SHUU_Time.Instance != null ? SHUU_Time.Timer(seconds, onComplete) : null;
+
+        private static void StopTimers()
+        {
+            cacheColliders_timer?.Cancel();
+            rebuildCache_timer?.Cancel();
+
+            cacheColliders_timer = null;
+            rebuildCache_timer = null;
+        }
+        #endregion
+
         #endregion
     }
 

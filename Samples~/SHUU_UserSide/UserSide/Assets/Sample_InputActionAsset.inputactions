@@ -1040,6 +1040,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Console_Autocomplete",
+                    "type": "Button",
+                    "id": "67b1c2cf-3005-4dee-a098-1a610284a26f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Info_Toggle",
                     "type": "Button",
                     "id": "b942b89c-ad92-464b-a3c8-c15683ebd594",
@@ -1185,6 +1194,17 @@
                     "processors": "",
                     "groups": "Player;Gamepad",
                     "action": "Console_NextCommand",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b57510cb-90a8-4b8e-bfab-209e04328ccc",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player;KeyboardMouse",
+                    "action": "Console_Autocomplete",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

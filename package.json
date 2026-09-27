@@ -1,13 +1,14 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "5.2.5",
+  "version": "5.3.2",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.splines": "2.7.2",
-    "com.unity.serialization": "3.1.5"
+    "com.unity.serialization": "3.1.5",
+    "com.unity.inputsystem": "1.14.2"
   },
   "author": {
     "name": "TheGreenSprout",

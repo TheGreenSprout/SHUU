@@ -233,7 +233,7 @@ MonoBehaviour:
               m_CallState: 2
       - field: InfoMenu Enabled
         updateOnFirstStart: 1
-        updateOnSceneChange: 1
+        updateOnSceneChange: 0
         updateEvent:
           m_PersistentCalls:
             m_Calls:
@@ -252,7 +252,7 @@ MonoBehaviour:
               m_CallState: 2
       - field: ScreenLogs Enabled
         updateOnFirstStart: 1
-        updateOnSceneChange: 1
+        updateOnSceneChange: 0
         updateEvent:
           m_PersistentCalls:
             m_Calls:
@@ -260,6 +260,25 @@ MonoBehaviour:
               m_TargetAssemblyTypeName: SHUU.UserSide.Addons.SettingsSystemUpdater.SampleSettingsUpdater,
                 SproutingGames.Sprouts.HUU.UserSide.Addons
               m_MethodName: ScreenLogsEnabled_Update
+              m_Mode: 0
+              m_Arguments:
+                m_ObjectArgument: {fileID: 0}
+                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+                m_IntArgument: 0
+                m_FloatArgument: 0
+                m_StringArgument: 
+                m_BoolArgument: 0
+              m_CallState: 2
+      - field: Colliders Enabled
+        updateOnFirstStart: 1
+        updateOnSceneChange: 0
+        updateEvent:
+          m_PersistentCalls:
+            m_Calls:
+            - m_Target: {fileID: 8875129942504313082}
+              m_TargetAssemblyTypeName: SHUU.UserSide.Addons.SettingsSystemUpdater.SampleSettingsUpdater,
+                SproutingGames.Sprouts.HUU.UserSide.Addons
+              m_MethodName: CollidersEnabled_Update
               m_Mode: 0
               m_Arguments:
                 m_ObjectArgument: {fileID: 0}

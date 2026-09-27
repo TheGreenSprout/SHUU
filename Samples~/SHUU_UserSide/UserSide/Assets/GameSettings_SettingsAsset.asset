@@ -75,7 +75,7 @@ MonoBehaviour:
         floatMin: 0
         floatMax: 0
       groupName: Camera
-    lastDefaultSetDateTime: 2026-09-22 12:50:08
+    lastDefaultSetDateTime: 2026-09-27 10:35:50
     defaultFields:
       mapName: Game
       hasValue: 1
@@ -201,7 +201,7 @@ MonoBehaviour:
         floatMin: 0
         floatMax: 100
       groupName: Volume
-    lastDefaultSetDateTime: 2026-09-22 12:50:08
+    lastDefaultSetDateTime: 2026-09-27 10:35:50
     defaultFields:
       mapName: Audio
       hasValue: 1
@@ -341,7 +341,7 @@ MonoBehaviour:
         floatMin: 0
         floatMax: 0
       groupName: Graphics
-    lastDefaultSetDateTime: 2026-09-22 12:50:08
+    lastDefaultSetDateTime: 2026-09-27 10:35:50
     defaultFields:
       mapName: Video
       hasValue: 1
@@ -449,6 +449,20 @@ MonoBehaviour:
       intMax: 0
       floatMin: 0
       floatMax: 0
+    - key: Colliders Enabled
+      type: 0
+      boolValue: 0
+      intValue: 0
+      floatValue: 0
+      stringValue: 
+      enumTypeName: 
+      enumValue: 0
+      useMin: 0
+      useMax: 0
+      intMin: 0
+      intMax: 0
+      floatMin: 0
+      floatMax: 0
     mapName: Developer
     groups:
     - fields:
@@ -481,7 +495,7 @@ MonoBehaviour:
         floatMin: 0
         floatMax: 0
       groupName: Console
-    lastDefaultSetDateTime: 2026-09-22 12:50:08
+    lastDefaultSetDateTime: 2026-09-27 10:35:50
     defaultFields:
       mapName: Developer
       hasValue: 1
@@ -501,6 +515,20 @@ MonoBehaviour:
         floatMin: 0
         floatMax: 0
       - key: ScreenLogs Enabled
+        type: 0
+        boolValue: 0
+        intValue: 0
+        floatValue: 0
+        stringValue: 
+        enumTypeName: 
+        enumValue: 0
+        useMin: 0
+        useMax: 0
+        intMin: 0
+        intMax: 0
+        floatMin: 0
+        floatMax: 0
+      - key: Colliders Enabled
         type: 0
         boolValue: 0
         intValue: 0
@@ -546,7 +574,7 @@ MonoBehaviour:
           intMax: 0
           floatMin: 0
           floatMax: 0
-  lastDefaultSetDateTime: 2026-09-22 12:50:08
+  lastDefaultSetDateTime: 2026-09-27 10:35:50
   defaultData:
     hasValue: 1
     maps:
@@ -771,6 +799,20 @@ MonoBehaviour:
         floatMin: 0
         floatMax: 0
       - key: ScreenLogs Enabled
+        type: 0
+        boolValue: 0
+        intValue: 0
+        floatValue: 0
+        stringValue: 
+        enumTypeName: 
+        enumValue: 0
+        useMin: 0
+        useMax: 0
+        intMin: 0
+        intMax: 0
+        floatMin: 0
+        floatMax: 0
+      - key: Colliders Enabled
         type: 0
         boolValue: 0
         intValue: 0
