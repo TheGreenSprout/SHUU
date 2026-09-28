@@ -1,6 +1,6 @@
 {
   "name": "com.sproutinggames.sprouts.huu",
-  "version": "5.3.7",
+  "version": "5.3.8",
   "displayName": "SproutsHUU",
   "description": "A bunch of handy Unity things, all in a single package!",
   "dependencies": {

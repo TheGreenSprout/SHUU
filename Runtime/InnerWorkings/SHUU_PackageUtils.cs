@@ -25,7 +25,7 @@ namespace SHUU.InnerWorkings
         {
             get
             {
-                if (_pathsAsset == null) _scriptableObjectLoader = Resources.Load<ScriptableObjectLoader>("SHUUResources/ScriptableObjectLoader_Asset");
+                if (_scriptableObjectLoader == null) _scriptableObjectLoader = Resources.Load<ScriptableObjectLoader>("SHUUResources/ScriptableObjectLoader_Asset");
 
                 return _scriptableObjectLoader;
             }
