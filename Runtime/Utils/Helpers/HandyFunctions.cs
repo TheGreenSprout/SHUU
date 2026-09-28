@@ -5,6 +5,7 @@ using UnityEditor;
 using System.Linq;
 using UnityEngine.UI;
 using System.Text;
+using UnityEngine.InputSystem;
 
 namespace SHUU.Utils.Helpers
 {
@@ -660,6 +661,7 @@ namespace SHUU.Utils.Helpers
         public static Vector2 GetMouseScreenCoords(this RectTransform canvasRect, Camera cam = null)
         {
             Vector2 mousePos;
+
 #if ENABLE_LEGACY_INPUT_MANAGER
             mousePos = Input.mousePosition;
 #else
