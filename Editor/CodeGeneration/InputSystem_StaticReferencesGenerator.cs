@@ -120,9 +120,12 @@ namespace SHUU._Editor.CodeGeneration
 
             sb.AppendLine();
             
-            sb.AppendLine($"public static class {className}");
+            sb.AppendLine($"namespace SHUU.Utils.InputSystem");
             sb.AppendLine("{");
-            sb.Append(BuildCode(asset, 1));
+                sb.AppendLine($"{Indent(1)}public static class {className}");
+                sb.AppendLine($"{Indent(1)}{{");
+                    sb.Append(BuildCode(asset, 2));
+                sb.AppendLine($"{Indent(1)}}}");
             sb.AppendLine("}");
 
             sb.AppendLine();

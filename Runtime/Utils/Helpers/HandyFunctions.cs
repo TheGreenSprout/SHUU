@@ -660,8 +660,13 @@ namespace SHUU.Utils.Helpers
         public static Vector2 GetMouseScreenCoords(this RectTransform canvasRect, Camera cam = null)
         {
             Vector2 mousePos;
+#if ENABLE_LEGACY_INPUT_MANAGER
+            mousePos = Input.mousePosition;
+#else
+            mousePos = Mouse.current.position.ReadValue();
+#endif
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, cam, out mousePos);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, mousePos, cam, out mousePos);
 
 
             return mousePos;
