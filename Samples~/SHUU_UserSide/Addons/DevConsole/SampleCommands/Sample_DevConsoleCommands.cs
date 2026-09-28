@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -413,6 +412,55 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         if (value == null) return CommandReturn.Red($"Field '{fieldName}' has an unsupported type ({field.type}).");
 
         return new CommandReturn($"'{fieldName}' on '{target.name}' ({field.type}) = {value}");
+    }
+
+    [DevConsoleCommand("listsettings", "Lists the fields of a settings atlas (name and type), across all its maps or just one, e.g. 'listsettings Settings Audio'", "Utilities")]
+    public static CommandReturn ListSettings(string atlasName, OptionalParameter<string> mapName)
+    {
+        SettingsAtlas atlas = SettingsAtlas.GetSettingsAtlas(atlasName);
+        if (atlas == null) return CommandReturn.Red($"Atlas '{atlasName}' not found.");
+
+        List<SettingMap> maps;
+
+        if (mapName.TryGetValue(out string wanted))
+        {
+            if (!atlas.TryGetMap(wanted, out SettingMap map)) return CommandReturn.Red($"Map '{wanted}' not found on '{atlas.name}'.");
+
+            maps = new List<SettingMap> { map };
+        }
+        else maps = atlas.maps;
+
+        if (maps.Count == 0) return CommandReturn.Yellow($"'{atlas.name}' has no maps.");
+
+
+        const int maxFieldsPerMap = 60;
+
+        List<string> lines = new List<string>();
+
+        foreach (SettingMap map in maps)
+        {
+            List<(string key, SettingField field)> all = map.fields.Select(f => (f.key, f)).ToList();
+
+            foreach (SettingGroup group in map.groups)
+                all.AddRange(group.fields.Select(f => (f.key, f)));
+
+            lines.Add($"{map.mapName} ({all.Count} field(s)):");
+
+            foreach (var (key, field) in all.Take(maxFieldsPerMap)) lines.Add($"  {key} : {DescribeSettingType(field)}");
+
+            if (all.Count > maxFieldsPerMap) lines.Add($"  ... and {all.Count - maxFieldsPerMap} more.");
+            else if (all.Count == 0) lines.Add("  (no fields)");
+        }
+
+        return new CommandReturn(lines.ToArray());
+    }
+    private static string DescribeSettingType(SettingField field)
+    {
+        if (field.type != SettingType.Enum) return field.type.ToString().ToLowerInvariant();
+
+        Type resolved = field.Type();
+
+        return resolved != null ? $"enum ({resolved.Name})" : $"enum (unresolved: {field.enumTypeName})";
     }
 
 
