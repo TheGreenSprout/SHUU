@@ -31,14 +31,10 @@ namespace SHUU.UserSide.Addons.DevConsole
         #region Main
         private void OnEnable()
         {
-            SHUU_Input.EnableMap(mapName);
-
             SHUU_Input.RegisterListener_Down(toggle_actionPath, Toggle);
             SHUU_Input.RegisterListener_Down(previousCommand_actionPath, PreviousCommand);
             SHUU_Input.RegisterListener_Down(nextCommand_actionPath, NextCommand);
-
-            // Only if the action asset has it, so an asset made before Tab completion existed keeps working (add a Console_Autocomplete button, bound to Tab, to get it).
-            if (SHUU_Input.GetAction(autocomplete_actionPath) != null) SHUU_Input.RegisterListener_Down(autocomplete_actionPath, Autocomplete);
+            SHUU_Input.RegisterListener_Down(autocomplete_actionPath, Autocomplete);
         }
 
         private void OnDisable()
@@ -47,8 +43,6 @@ namespace SHUU.UserSide.Addons.DevConsole
             SHUU_Input.UnregisterListener_Down(previousCommand_actionPath, PreviousCommand);
             SHUU_Input.UnregisterListener_Down(nextCommand_actionPath, NextCommand);
             SHUU_Input.UnregisterListener_Down(autocomplete_actionPath, Autocomplete);
-
-            SHUU_Input.DisableMap(mapName);
         }
         #endregion
     }

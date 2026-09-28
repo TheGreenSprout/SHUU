@@ -8,6 +8,10 @@ namespace SHUU.Utils.UI
     public class OverlayCanvas_MouseCursor : MonoBehaviour
     {
         #region Variables
+        [HideInInspector] public bool followMouse = true;
+
+
+
         private Canvas canvas;
         private RectTransform canvasRect;
         private Camera canvasCam;
@@ -68,6 +72,9 @@ namespace SHUU.Utils.UI
 
         private void Update()
         {
+            if (!followMouse) return;
+
+            
             Vector2 mousePos = HandyFunctions.GetMouseScreenCoords(canvasRect, canvasCam);
 
             rectTransform.anchoredPosition = mousePos;
