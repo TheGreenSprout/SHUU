@@ -8,22 +8,10 @@ namespace SHUU.Utils.Developer.Console
     public static class DevCommandRegistry
     {
         #region Variables
-        #region Helper class
-        public struct DevCommandInfo
-        {
-            public MethodInfo Method;
-            public string Description;
-
-            public string Tag;
-
-            public int Order;
-        }
-        #endregion
-        
         private static int OrderCounter = 0;
 
 
-        private static Dictionary<string, DevCommandInfo> Commands = new();
+        private static Dictionary<string, DevCommandInfo> Commands = null;
         #endregion
 
 
@@ -32,6 +20,9 @@ namespace SHUU.Utils.Developer.Console
         #region Logic
         public static void RegisterCommands()
         {
+            if (Commands != null) return;
+            Commands = new();
+            
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 foreach (var type in assembly.GetTypes())
                     foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
@@ -54,6 +45,21 @@ namespace SHUU.Utils.Developer.Console
         public static bool TryGet(string name, out DevCommandInfo info) => Commands.TryGetValue(name.ToLower(), out info);
 
         public static IEnumerable<(string, DevCommandInfo)> AllCommands() => Commands.Select(pair => (pair.Key, pair.Value));
+        #endregion
+
+
+
+
+        #region Helper class
+        public struct DevCommandInfo
+        {
+            public MethodInfo Method;
+            public string Description;
+
+            public string Tag;
+
+            public int Order;
+        }
         #endregion
     }
 }
