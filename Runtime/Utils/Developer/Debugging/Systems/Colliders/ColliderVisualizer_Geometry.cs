@@ -13,6 +13,12 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 {
     internal static class ColliderVisualizer_Geometry
     {
+        private const float SizeFraction = 0.0006f;
+
+        private static Vector3 PushedVertex(Vector3[] verts, Vector3[] normals, bool hasNormals, float push, int index)
+            => hasNormals ? verts[index] + normals[index] * push : verts[index];
+
+
         #region Wire geometry
         internal static void BuildWire(Collider col, List<Vector3> v, List<int> idx)
         {
@@ -25,7 +31,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         private static void DrawBox(BoxCollider box, List<Vector3> v, List<int> idx)
         {
             Transform t = box.transform;
-            Matrix4x4 m = Matrix4x4.TRS(t.TransformPoint(box.center), t.rotation, Vector3.Scale(box.size, t.lossyScale));
+            Matrix4x4 m = Matrix4x4.TRS(t.TransformPoint(box.center), t.rotation, Vector3.Scale(box.size * (1f + SizeFraction), t.lossyScale));
 
             int b = v.Count;
             v.Add(m.MultiplyPoint3x4(new(-.5f, -.5f, -.5f)));
@@ -45,7 +51,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         {
             Transform t = s.transform;
             Vector3 c = t.TransformPoint(s.center);
-            float r = s.radius * Mathf.Max(t.lossyScale.x, t.lossyScale.y, t.lossyScale.z);
+            float r = s.radius * Mathf.Max(t.lossyScale.x, t.lossyScale.y, t.lossyScale.z) * (1f + SizeFraction);
 
             DrawCircle(c, t.right, t.up, r, seg, v, idx);
             DrawCircle(c, t.up, t.forward, r, seg, v, idx);
@@ -63,8 +69,8 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             Vector3 orthoB = Vector3.Cross(axis, orthoA).normalized;
 
             float scale = Mathf.Max(t.lossyScale.x, t.lossyScale.y, t.lossyScale.z);
-            float r = c.radius * scale;
-            float h = Mathf.Max(0, c.height * scale - 2 * r);
+            float r = c.radius * scale * (1f + SizeFraction);
+            float h = Mathf.Max(0, c.height * scale - 2 * c.radius * scale);
 
             Vector3 top = center + axis * h * 0.5f;
             Vector3 bottom = center - axis * h * 0.5f;
@@ -99,12 +105,16 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             Vector3[] verts = mesh.vertices;
             int[] tris = mesh.triangles;
 
+            Vector3[] normals = mesh.normals;
+            bool hasNormals = normals != null && normals.Length == verts.Length;
+            float push = mesh.bounds.extents.magnitude * SizeFraction;
+
             for (int i = 0; i < tris.Length; i += 3)
             {
                 int b = v.Count;
-                v.Add(t.TransformPoint(verts[tris[i]]));
-                v.Add(t.TransformPoint(verts[tris[i + 1]]));
-                v.Add(t.TransformPoint(verts[tris[i + 2]]));
+                v.Add(t.TransformPoint(PushedVertex(verts, normals, hasNormals, push, tris[i])));
+                v.Add(t.TransformPoint(PushedVertex(verts, normals, hasNormals, push, tris[i + 1])));
+                v.Add(t.TransformPoint(PushedVertex(verts, normals, hasNormals, push, tris[i + 2])));
                 idx.Add(b);
                 idx.Add(b + 1);
                 idx.Add(b + 1);
@@ -176,7 +186,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         private static void FillBox(BoxCollider box, List<Vector3> v, List<int> idx)
         {
             Transform t = box.transform;
-            Matrix4x4 m = Matrix4x4.TRS(t.TransformPoint(box.center), t.rotation, Vector3.Scale(box.size, t.lossyScale));
+            Matrix4x4 m = Matrix4x4.TRS(t.TransformPoint(box.center), t.rotation, Vector3.Scale(box.size * (1f + SizeFraction), t.lossyScale));
 
             int b = v.Count;
             v.Add(m.MultiplyPoint3x4(new(-.5f, -.5f, -.5f)));
@@ -196,7 +206,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         {
             Transform t = s.transform;
             Vector3 c = t.TransformPoint(s.center);
-            float r = s.radius * Mathf.Max(t.lossyScale.x, t.lossyScale.y, t.lossyScale.z);
+            float r = s.radius * Mathf.Max(t.lossyScale.x, t.lossyScale.y, t.lossyScale.z) * (1f + SizeFraction);
 
             for (int y = 0; y < lat; y++)
             {
@@ -237,8 +247,8 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             Vector3 orthoB = Vector3.Cross(axis, orthoA).normalized;
 
             float scale = Mathf.Max(t.lossyScale.x, t.lossyScale.y, t.lossyScale.z);
-            float r = c.radius * scale;
-            float h = Mathf.Max(0, c.height * scale - 2 * r);
+            float r = c.radius * scale * (1f + SizeFraction);
+            float h = Mathf.Max(0, c.height * scale - 2 * c.radius * scale);
 
             Vector3 top = center + axis * h * 0.5f;
             Vector3 bottom = center - axis * h * 0.5f;
@@ -253,7 +263,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                 int b = v.Count;
                 v.Add(bottom + o0);
                 v.Add(top + o0);
-                v.Add(top + o1); 
+                v.Add(top + o1);
                 v.Add(bottom + o1);
                 idx.Add(b);
                 idx.Add(b+1);
@@ -276,9 +286,13 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             Vector3[] verts = mesh.vertices;
             int[] tris = mesh.triangles;
 
+            Vector3[] normals = mesh.normals;
+            bool hasNormals = normals != null && normals.Length == verts.Length;
+            float push = mesh.bounds.extents.magnitude * SizeFraction;
+
             int b = v.Count;
             for (int i = 0; i < verts.Length; i++)
-                v.Add(t.TransformPoint(verts[i]));
+                v.Add(t.TransformPoint(PushedVertex(verts, normals, hasNormals, push, i)));
             for (int i = 0; i < tris.Length; i++)
                 idx.Add(b + tris[i]);
         }

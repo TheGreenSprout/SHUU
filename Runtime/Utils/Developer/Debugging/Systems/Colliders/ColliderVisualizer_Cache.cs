@@ -157,21 +157,27 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                 string tag = col.tag;
 
                 // Fill
-                Color fillColor = ApplyAlpha(col, GetColor(settings, layer, tag, false), settings);
-                if (fillColor.a > 0f)
+                if (TryGetColor(settings, layer, tag, false, out Color rawFillColor))
                 {
-                    tempVerts.Clear(); tempIdx.Clear();
-                    ColliderVisualizer_Geometry.BuildFill(col, tempVerts, tempIdx);
-                    if (tempVerts.Count > 0) AppendToScratch(fillColor, tempVerts, tempIdx, fillScratch);
+                    Color fillColor = ApplyAlpha(col, rawFillColor, settings);
+                    if (fillColor.a > 0f)
+                    {
+                        tempVerts.Clear(); tempIdx.Clear();
+                        ColliderVisualizer_Geometry.BuildFill(col, tempVerts, tempIdx);
+                        if (tempVerts.Count > 0) AppendToScratch(fillColor, tempVerts, tempIdx, fillScratch);
+                    }
                 }
 
                 // Wire
-                Color wireColor = ApplyAlpha(col, GetColor(settings, layer, tag, true), settings);
-                if (wireColor.a > 0f)
+                if (TryGetColor(settings, layer, tag, true, out Color rawWireColor))
                 {
-                    tempVerts.Clear(); tempIdx.Clear();
-                    ColliderVisualizer_Geometry.BuildWire(col, tempVerts, tempIdx);
-                    if (tempVerts.Count > 0) AppendToScratch(wireColor, tempVerts, tempIdx, wireScratch);
+                    Color wireColor = ApplyAlpha(col, rawWireColor, settings);
+                    if (wireColor.a > 0f)
+                    {
+                        tempVerts.Clear(); tempIdx.Clear();
+                        ColliderVisualizer_Geometry.BuildWire(col, tempVerts, tempIdx);
+                        if (tempVerts.Count > 0) AppendToScratch(wireColor, tempVerts, tempIdx, wireScratch);
+                    }
                 }
             }
 
@@ -244,15 +250,18 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             if (fillMat != null)
             {
                 foreach (Mesh m in fillMeshes)
-                    if (m != null) Graphics.DrawMesh(m, Matrix4x4.identity, fillMat, 0);
+                    if (m != null) DrawOverlay(m, fillMat);
             }
 
             if (wireMat != null)
             {
                 foreach (Mesh m in wireMeshes)
-                    if (m != null) Graphics.DrawMesh(m, Matrix4x4.identity, wireMat, 0);
+                    if (m != null) DrawOverlay(m, wireMat);
             }
         }
+
+        private static void DrawOverlay(Mesh mesh, Material material)
+            => Graphics.DrawMesh(mesh, Matrix4x4.identity, material, 0, null, 0, null, ShadowCastingMode.Off, false);
         #endregion
 
 
@@ -268,14 +277,15 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             return new Color(c.r, c.g, c.b, a);
         }
 
-        private static Color GetColor(SHUU_Debug settings, int layer, string tag, bool wire)
+        private static bool TryGetColor(SHUU_Debug settings, int layer, string tag, bool wire, out Color color)
         {
             CustomColors best = null;
             int bestScore = -1;
 
             foreach (var custom in settings.colliderVisualizer_customColors)
             {
-                if (wire ? !custom.overrideWireColor : !custom.overrideFillColor) continue;
+                bool relevant = wire ? (custom.overrideWireColor || custom.hideWire) : (custom.overrideFillColor || custom.hideFill);
+                if (!relevant) continue;
 
                 bool layerMatch = custom.layerMask.Contains(layer);
                 bool tagMatch = custom.tagMask.Contains(tag);
@@ -292,9 +302,20 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                 }
             }
 
-            if (best != null) return wire ? best.wireColor : best.fillColor;
+            if (best != null)
+            {
+                if (wire ? best.hideWire : best.hideFill)
+                {
+                    color = default;
+                    return false;
+                }
 
-            return wire ? settings.colliderVisualizer_defaultWireColor : settings.colliderVisualizer_defaultFillColor;
+                color = wire ? best.wireColor : best.fillColor;
+                return true;
+            }
+
+            color = wire ? settings.colliderVisualizer_defaultWireColor : settings.colliderVisualizer_defaultFillColor;
+            return true;
         }
         #endregion
 

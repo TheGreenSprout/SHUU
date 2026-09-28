@@ -198,7 +198,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         }
 
 
-        private static SHUU_Timer StartTimer(float seconds, Action onComplete)=> seconds > 0f && SHUU_Time.Instance != null ? SHUU_Time.Timer(seconds, onComplete) : null;
+        private static SHUU_Timer StartTimer(float seconds, Action onComplete)=> seconds > 0f && SHUU_Time.Instance != null ? SHUU_Time.Timer(seconds, onComplete, ignoreTimeScale: true) : null;
 
         private static void StopTimers()
         {
@@ -232,6 +232,13 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
         public bool overrideFillColor = true;
         public Color fillColor;
+
+
+        [Tooltip("Matching colliders never draw a wire, regardless of wireColor or the default wire color.")]
+        public bool hideWire = false;
+
+        [Tooltip("Matching colliders never draw a fill, regardless of fillColor or the default fill color.")]
+        public bool hideFill = false;
     }
     #endregion
 }

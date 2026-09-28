@@ -24,6 +24,8 @@ Shader "Debug/GLDebug"
             Cull Off
             Blend SrcAlpha OneMinusSrcAlpha
 
+            Offset -1, -1
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
