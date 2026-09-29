@@ -114,7 +114,6 @@ namespace SHUU._Editor.CodeGeneration
             sb.AppendLine("using System;");
             sb.AppendLine("using System.Collections.Generic;");
             sb.AppendLine("using UnityEngine;");
-            sb.AppendLine("using UnityEngine.InputSystem;");
             sb.AppendLine();
             sb.AppendLine("using SHUU.Utils.InputSystem;");
 

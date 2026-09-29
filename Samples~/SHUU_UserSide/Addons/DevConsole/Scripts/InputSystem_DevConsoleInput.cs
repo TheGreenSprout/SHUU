@@ -31,7 +31,7 @@ namespace SHUU.UserSide.Addons.DevConsole
         #region Main
         private void OnEnable()
         {
-            SHUU_Input.RegisterListener_Down(toggle_actionPath, Toggle);
+            SHUU_Input.RegisterListener_Down(toggle_actionPath, CustomToggle);
             SHUU_Input.RegisterListener_Down(previousCommand_actionPath, PreviousCommand);
             SHUU_Input.RegisterListener_Down(nextCommand_actionPath, NextCommand);
             SHUU_Input.RegisterListener_Down(autocomplete_actionPath, Autocomplete);
@@ -39,10 +39,26 @@ namespace SHUU.UserSide.Addons.DevConsole
 
         private void OnDisable()
         {
-            SHUU_Input.UnregisterListener_Down(toggle_actionPath, Toggle);
+            SHUU_Input.UnregisterListener_Down(toggle_actionPath, CustomToggle);
             SHUU_Input.UnregisterListener_Down(previousCommand_actionPath, PreviousCommand);
             SHUU_Input.UnregisterListener_Down(nextCommand_actionPath, NextCommand);
             SHUU_Input.UnregisterListener_Down(autocomplete_actionPath, Autocomplete);
+        }
+        #endregion
+
+
+
+        #region Logic
+        private void CustomToggle()
+        {
+            Toggle();
+            
+            if (DevConsoleManager.DevConsole_On) SHUU_Input.PushContext(mapName);
+            else
+            {
+                SHUU_Input.PopContext();
+                SHUU_Input.EnableMap(mapName);
+            }
         }
         #endregion
     }

@@ -8,6 +8,8 @@ using SHUU.UserSide.Addons.AudioSystem.Preferences;
 using System.IO;
 using System.Text;
 using UnityEditor;
+
+using static SETB.EditorHelpers;
 #endif
 
 using Alchemy.Inspector;
@@ -15,8 +17,6 @@ using Alchemy.Inspector;
 using SHUU.Utils.Data;
 
 using static SHUU.Utils.Helpers.HandyFunctions;
-
-using static SETB.EditorHelpers;
 
 namespace SHUU.UserSide.Addons.AudioSystem.ScriptableObjects
 {

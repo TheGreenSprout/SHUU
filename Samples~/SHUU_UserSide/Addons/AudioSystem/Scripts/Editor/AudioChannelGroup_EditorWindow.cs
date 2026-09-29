@@ -6,6 +6,7 @@ This code was written with the assistance of AI.
 
 
 
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1212,3 +1213,4 @@ namespace SHUU.UserSide.Addons.AudioSystem._Editor
     }
     #endregion
 }
+#endif
