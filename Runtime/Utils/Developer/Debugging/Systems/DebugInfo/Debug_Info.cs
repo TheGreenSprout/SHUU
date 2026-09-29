@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using TMPro;
 
+#if !ENABLE_LEGACY_INPUT_MANAGER
+using UnityEngine.InputSystem;
+#endif
+
 using Alchemy.Inspector;
 
 using SHUU.Utils.Helpers;
@@ -217,7 +221,13 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             // Look target
             if (showLookTarget && cam != null)
             {
-                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                Vector3 mousePos;
+                #if ENABLE_LEGACY_INPUT_MANAGER
+                mousePos = Input.mousePosition;
+                #else
+                mousePos = Mouse.current.position.ReadValue();
+                #endif
+                Ray ray = cam.ScreenPointToRay(mousePos);
                 RaycastHit hit;
                 bool hitRegistered = lookMaxDistance > 0 ? Physics.Raycast(ray, out hit, lookMaxDistance) : Physics.Raycast(ray, out hit);
                 if (hitRegistered && hit.collider == null && hit.collider.gameObject.TryGetComponent(out IDebug_InfoTarget infoTarget)) lastInfoTarget = infoTarget;
