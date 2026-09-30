@@ -112,39 +112,39 @@ namespace SHUU.UserSide.Addons.SettingsSystemUpdater
         #region Logic
 
         #region Audio
-        public void Volume_Update(SettingsAtlas data, string mapName, string field)
+        public void Volume_Update(SettingsAtlas data, string map, string field)
         {
-            if (volumeFieldsDict.ContainsKey(field)) audioMixer.SetFloat(volumeFieldsDict[field], VolumePercentage_ToDB(data.GetFloat(mapName, field)));
+            if (volumeFieldsDict.ContainsKey(field)) audioMixer.SetFloat(volumeFieldsDict[field], VolumePercentage_ToDB(data.GetFloat(map, field)));
         }
         #endregion
 
 
         #region Video/Quality
-        public void FullscreenMode_Update(SettingsAtlas data, string mapName, string field) => Screen.fullScreenMode = data.GetEnum<FullScreenMode>(mapName, field);
+        public void FullscreenMode_Update(SettingsAtlas data, string map, string field) => Screen.fullScreenMode = data.GetEnum<FullScreenMode>(map, field);
 
-        public void ResolutionIndex_Update(SettingsAtlas data, string mapName, string field)
+        public void ResolutionIndex_Update(SettingsAtlas data, string map, string field)
         {
-            int index = data.GetInt(mapName, field);
+            int index = data.GetInt(map, field);
             if (!Resolutions.IndexIsValid(index)) return;
 
             Resolution r = Resolutions[index];
             Screen.SetResolution(r.width, r.height, Screen.fullScreenMode);
         }
 
-        public void QualityIndex_Update(SettingsAtlas data, string mapName, string field) => QualitySettings.SetQualityLevel(data.GetInt(mapName, field));
+        public void QualityIndex_Update(SettingsAtlas data, string map, string field) => QualitySettings.SetQualityLevel(data.GetInt(map, field));
         #endregion
 
 
         #region Developer
-        public void ConsoleEnabled_Update(SettingsAtlas data, string mapName, string field) => devConsole_Options.canToggle_devConsole = data.GetBool(mapName, field);
-        public void ConsoleScroll_Update(SettingsAtlas data, string mapName, string field)
-            => SHUU_Time.OnNextFrame += () => DevConsoleManager.Instance.devConsoleUI.scrollSensitivity = data.GetFloat(mapName, field);
+        public void ConsoleEnabled_Update(SettingsAtlas data, string map, string field) => devConsole_Options.canToggle_devConsole = data.GetBool(map, field);
+        public void ConsoleScroll_Update(SettingsAtlas data, string map, string field)
+            => SHUU_Time.OnNextFrame += () => DevConsoleManager.Instance.devConsoleUI.scrollSensitivity = data.GetFloat(map, field);
 
-        public void InfoMenuEnabled_Update(SettingsAtlas data, string mapName, string field) => SHUU_Debug.Instance.debugInfo_enabled = data.GetBool(mapName, field);
+        public void InfoMenuEnabled_Update(SettingsAtlas data, string map, string field) => SHUU_Debug.Instance.debugInfo_enabled = data.GetBool(map, field);
 
-        public void ScreenLogsEnabled_Update(SettingsAtlas data, string mapName, string field) => SHUU_Debug.Instance.screenLogs_enabled = data.GetBool(mapName, field);
+        public void ScreenLogsEnabled_Update(SettingsAtlas data, string map, string field) => SHUU_Debug.Instance.screenLogs_enabled = data.GetBool(map, field);
 
-        public void CollidersEnabled_Update(SettingsAtlas data, string mapName, string field) => SHUU_Debug.Instance.colliderVisualizer_enabled = data.GetBool(mapName, field);
+        public void CollidersEnabled_Update(SettingsAtlas data, string map, string field) => SHUU_Debug.Instance.colliderVisualizer_enabled = data.GetBool(map, field);
         #endregion
 
         #endregion
