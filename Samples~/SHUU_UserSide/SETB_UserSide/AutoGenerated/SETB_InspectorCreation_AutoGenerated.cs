@@ -9,11 +9,7 @@ namespace SETB.UserSide
     {
         //! DO NOT MODIFY THIS CODE. IT IS AUTO GENERATED, CHANGES WILL BE OVERRIDEN.
         //! DO NOT DELETE THIS SCRIPT, IT'S NECESSARY FOR SAUB TO WORK.
-		
-		
-		
-		
-		
+	
 		
 		// <AUTO_GENERATED_START:SHUU_InspectorCreationAssets>
 		[MenuItem("GameObject/Create Folder (SHUU)", false, 0)]

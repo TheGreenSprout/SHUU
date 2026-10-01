@@ -13,39 +13,47 @@ MonoBehaviour:
   m_Name: SHUU_InspectorCreationAssets
   m_EditorClassIdentifier: Sprouts.ETB.Editor::SETB._CustomEditor.ScriptableObjects.InspectorCreationAssets
   lastName: SHUU_InspectorCreationAssets
+  removeMethodsOnDelete: 1
   data:
   - path: Create Folder (SHUU)
     prefab: {fileID: 1093772259444442373, guid: b782f4e4c287549429930e9726a499d4, type: 3}
     validateFunction: 0
     priority: 0
     unpack: 1
+    addRectTransformUnderCanvas: 1
   - path: SHUU/OnEveryScene
     prefab: {fileID: 5225186638109007582, guid: 0d3c4b398dd720c40ba1bb00a2b30364, type: 3}
     validateFunction: 0
     priority: 48
     unpack: 0
+    addRectTransformUnderCanvas: 0
   - path: SHUU/SplineCollider
     prefab: {fileID: 3054837475409747340, guid: 6a1753043c31820499ca04dfb7c84d8f, type: 3}
     validateFunction: 0
     priority: 49
     unpack: 1
+    addRectTransformUnderCanvas: 0
   - path: SHUU/Audio/AudioAmbienceZone_Collider
     prefab: {fileID: 1838851972413968915, guid: 2c26d5059ced49b41a3c0861b853ba26, type: 3}
     validateFunction: 0
     priority: 50
     unpack: 1
+    addRectTransformUnderCanvas: 0
   - path: SHUU/Audio/AudioAmbienceZone_Shape
     prefab: {fileID: 6659164105624825215, guid: 1f70a73a20998c245ae4099a8981f46c, type: 3}
     validateFunction: 0
     priority: 50
     unpack: 1
+    addRectTransformUnderCanvas: 0
   - path: SHUU/Audio/AudioAmbienceZone_Path
     prefab: {fileID: 9140256030398877347, guid: c34bfa39dc2664846a691e50b9d6bd2b, type: 3}
     validateFunction: 0
     priority: 50
     unpack: 1
+    addRectTransformUnderCanvas: 0
   - path: SHUU/UI/Chained_EventSystem
     prefab: {fileID: 3217881030242003166, guid: 4c454124edee7ab4fa1171a7208d57ac, type: 3}
     validateFunction: 0
     priority: 51
     unpack: 1
+    addRectTransformUnderCanvas: 1
