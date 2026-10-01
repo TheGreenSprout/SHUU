@@ -62,6 +62,15 @@ namespace SHUU.Utils.Globals
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            OnUpdate = null;
+            OnLateUpdate = null;
+            OnFixedUpdate = null;
+        }
+
+
         protected override void Awake()
         {
             base.Awake();
@@ -70,9 +79,6 @@ namespace SHUU.Utils.Globals
             CurrentTimeScale = 1f;
             NextFrameQueue = null;
             ExecuteQueue = null;
-            //OnUpdate = null;
-            //OnLateUpdate = null;
-            //OnFixedUpdate = null;
             FreezeCoroutine = null;
             Frozen = false;
             Stepping = false;

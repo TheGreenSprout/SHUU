@@ -62,6 +62,15 @@ namespace SHUU.Utils.SceneManagement
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Init()
         {
+            #region ResetStatics
+            NextScene = "";
+
+            OnSceneLoadRequested = null;
+            OnSceneLoaded = null;
+            OnSceneLoadedDelayed = null;
+            #endregion
+
+
             if (Initialized) return;
             Initialized = true;
 

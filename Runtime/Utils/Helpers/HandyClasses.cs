@@ -75,6 +75,10 @@ namespace SHUU.Utils.Helpers
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => TagCache = null;
+
+        
         public static TagMask Everything => new() { mask = ~0 };
         public static TagMask Nothing => new() { mask = 0 };
         #endregion

@@ -35,6 +35,17 @@ namespace SHUU.InnerWorkings
 
 
 
+        #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            _pathsAsset = null;
+            _scriptableObjectLoader = null;
+        }
+        #endregion
+
+
+
         #region Logic
         public static string GetPath(string id, string endPoint = null) => PathsAsset.GetPath(id, endPoint, true);
 

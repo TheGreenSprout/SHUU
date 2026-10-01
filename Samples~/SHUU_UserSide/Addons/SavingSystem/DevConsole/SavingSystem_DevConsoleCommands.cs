@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using SHUU.Utils.Developer.Console;
+using SHUU.Utils.Helpers;
 
 namespace SHUU.UserSide.Addons.SavingSystem
 {
@@ -35,6 +36,27 @@ namespace SHUU.UserSide.Addons.SavingSystem
         [DevConsoleCommand("filesave", "Saves the game into the current save file", "Debug")]
         public static CommandReturn FileSave()
             => SHUU_Saving.FullSave() ? CommandReturn.Green("Game saved successfully.") : CommandReturn.Red("The game couldn't be saved (check the console).");
+
+        [DevConsoleCommand("filesavewscreen", "Saves the game into the current save file with a screenshot thumbnail (optional thumbnail height and aspect ratio like 16:9)", "Debug")]
+        public static CommandReturn SaveScreenshot(OptionalParameter<int> thumbnailHeight, OptionalParameter<string> aspectRatio, OptionalParameter<string> id)
+        {
+            if (SavingManager.Instance == null) return NoManager();
+
+            int height = thumbnailHeight.TryGetValue(out int h) ? h : 180;
+
+            float? ratio = null;
+            if (aspectRatio.TryGetValue(out string ratioText))
+            {
+                if (!ScreenCaptureHelper.TryParseAspectRatio(ratioText, out float parsed))
+                    return CommandReturn.Red($"'{ratioText}' isn't a valid aspect ratio (try 16:9, 16/9, or 1.78).");
+
+                ratio = parsed;
+            }
+
+            SHUU_Saving.SaveWithScreenshot(id.TryGetValue(out string idValue) ? idValue : null, height, ratio);
+
+            return CommandReturn.Green("Saving with a screenshot...");
+        }
 
 
         [DevConsoleCommand("load", "Loads the data in memory into the scene", "Debug")]

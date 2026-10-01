@@ -14,8 +14,11 @@ namespace SHUU.UserSide.Addons.AudioSystem
 
 
 
-
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => Instance = null;
+
+
         public Transform Init(string channelName, bool dontDestroyOnLoad = false)
         {
             name = name.Replace(nameReplacePoint, channelName);

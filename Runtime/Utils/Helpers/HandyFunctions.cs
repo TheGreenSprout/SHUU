@@ -42,6 +42,21 @@ namespace SHUU.Utils.Helpers
 
 
 
+        #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            OnCursorStateChange = null;
+
+            SavedCursorState = null;
+            SavedCursorVisibility = null;
+        }
+        #endregion
+
+
+
+        #region Handy Functions
+
         #region Strings
         #region XML doc
         /// <summary>
@@ -1054,5 +1069,7 @@ namespace SHUU.Utils.Helpers
 #endif
         }
         #endregion*/
+
+        #endregion
     }
 }

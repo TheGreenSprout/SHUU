@@ -31,7 +31,7 @@ namespace SHUU.Utils.InputSystem
         #endregion
 
 
-
+        
         #region Variables
         private PlayerInput playerInput;
 
@@ -77,6 +77,14 @@ namespace SHUU.Utils.InputSystem
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            OnPlayerJoined = null;
+            OnPlayerLeft = null;
+        }
+
+        
         private void Awake()
         {
             playerInput = GetComponent<PlayerInput>();

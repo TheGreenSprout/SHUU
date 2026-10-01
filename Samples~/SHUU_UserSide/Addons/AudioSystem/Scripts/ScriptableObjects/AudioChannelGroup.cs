@@ -53,6 +53,15 @@ namespace SHUU.UserSide.Addons.AudioSystem.ScriptableObjects
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            CurrentScene = null;
+            ObjectPool = null;
+            PersistantPool = false;
+        }
+
+
         void IAudioChannel.Init(IAudioChannel parent)
         {
             if (scenePersistant) PersistantPool = SHUU_AudioObjectPoolParent.Instance != null;

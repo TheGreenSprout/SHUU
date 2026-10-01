@@ -23,6 +23,19 @@ namespace SHUU.Utils.Interaction
 
 
 
+        #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            AlternateCursorState = null;
+
+            AmmountOfInteracts.Clear();
+            ActionCalled = false;
+        }
+        #endregion
+
+
+        
         #region Logic
         public static void AddCursorAffector(GameObject id)
         {

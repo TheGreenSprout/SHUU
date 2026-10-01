@@ -1186,6 +1186,52 @@ public class Sample_DevConsoleCommands : MonoBehaviour
         else return CommandReturn.Green("Capturing scaled screenshot...");
     }
 
+    [DevConsoleCommand("cropshot", "Takes a screenshot, resizes it to a height, optionally cropping to an aspect ratio (16:9, 16/9, 1.78...), and saves it", "Utilities")]
+    public static CommandReturn Cropshot(int height, OptionalParameter<string> _aspectRatio, OptionalParameter<bool> _showScreenshot, OptionalParameter<string> _prefix, OptionalParameter<string> _customDir)
+    {
+        if (!_prefix.TryGetValue(out string prefix)) prefix = null;
+        if (!_customDir.TryGetValue(out string customDir)) customDir = null;
+
+        if (!_showScreenshot.TryGetValue(out bool showScreenshot)) showScreenshot = false;
+
+
+        float? aspectRatio = null;
+        if (_aspectRatio.TryGetValue(out string aspectRatioText))
+        {
+            if (!ScreenCaptureHelper.TryParseAspectRatio(aspectRatioText, out float parsed))
+                return CommandReturn.Red($"'{aspectRatioText}' isn't a valid aspect ratio (try 16:9, 16/9, or 1.78).");
+
+            aspectRatio = parsed;
+        }
+
+
+        GameObject[] hideUI = { DevConsoleManager.Instance.gameObject };
+        ScreenCaptureHelper.HideUI(hideUI);
+
+        Texture2D screenshot = ScreenCaptureHelper.CaptureScreenshotAsTexture();
+
+        ScreenCaptureHelper.ShowUI();
+
+        if (screenshot == null) return CommandReturn.Red("Couldn't capture the screen.");
+
+        Texture2D resized = aspectRatio.HasValue
+            ? ScreenCaptureHelper.ResizeTexture(screenshot, height, aspectRatio.Value)
+            : ScreenCaptureHelper.ResizeTexture(screenshot, height);
+        Destroy(screenshot);
+
+        if (resized == null) return CommandReturn.Red("Couldn't resize the screenshot.");
+
+
+        int width = resized.width, resultHeight = resized.height;
+        string path = ScreenCaptureHelper.SaveTexture(resized, prefix, customDir, showScreenshot);
+        Destroy(resized);
+
+        string ratioNote = aspectRatio.HasValue ? $", cropped to {aspectRatioText}" : "";
+
+        if (showScreenshot) return CommandReturn.Green($"Saved a {width}x{resultHeight} screenshot{ratioNote} to {path}", "Opening screenshot...");
+        else return CommandReturn.Green($"Saved a {width}x{resultHeight} screenshot{ratioNote} to {path}");
+    }
+
 
     [DevConsoleCommand("openshot", "Opens the last saved screenshot in the file browser", "Utilities")]
     public static CommandReturn OpenShot()

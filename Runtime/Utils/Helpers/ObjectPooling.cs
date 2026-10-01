@@ -261,9 +261,14 @@ namespace SHUU.Utils.Helpers
         public static class ObjectPooling
         {
             public static Transform Default_parent = null;
-
-
             public static List<IObjectPool> Pools = new();
+
+            [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+            private static void ResetStatics()
+            {
+                Default_parent = null;
+                Pools.Clear();
+            }
         }
 
 

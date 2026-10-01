@@ -36,6 +36,10 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => _instance = null;
+
+
         private void OnEnable()
         {
             if (_instance != null && _instance != this)
@@ -54,9 +58,33 @@ namespace SHUU.UserSide.Commons.InnerWorkings.ScriptableObjects
 
 
 #if UNITY_EDITOR
-            _tagRegistry = new(UnityEditorInternal.InternalEditorUtility.tags);
+            RefreshTags();
 #endif
         }
         #endregion
+
+
+
+#if UNITY_EDITOR
+        #region Editor
+        private void RefreshTags() => _tagRegistry = new(UnityEditorInternal.InternalEditorUtility.tags);
+
+        [MenuItem("Tools/Sprout's Handy Unity Utils/Quick Tools/Reload Tag Registry")]
+        private static void ReloadTagRegistry()
+        {
+            if (Instance == null)
+            {
+                Debug.LogWarning("No SHUU_TagRegistry asset found (expected at Resources/SHUUResources/SHUU_TagRegistry).");
+
+                return;
+            }
+
+            Instance.RefreshTags();
+            EditorUtility.SetDirty(Instance);
+
+            Debug.Log("SHUU_TagRegistry reloaded from the project's tags.");
+        }
+        #endregion
+#endif
     }
 }

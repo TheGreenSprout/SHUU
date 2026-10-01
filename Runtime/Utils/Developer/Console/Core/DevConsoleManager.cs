@@ -59,6 +59,10 @@ namespace SHUU.Utils.Developer.Console
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => Instance = null;
+
+
         private void Awake()
         {
             Instance = this;

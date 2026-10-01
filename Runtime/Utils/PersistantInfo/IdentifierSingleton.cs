@@ -53,6 +53,10 @@ namespace SHUU.Utils.PersistantInfo
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => AllInstances.Clear();
+
+
         protected virtual void Awake()
         {
             if (Check())

@@ -39,7 +39,8 @@ namespace SHUU.UserSide.Addons.SavingSystem
         public static bool FullSave(string id = null) => Manager()?.Save(id) ?? false;
 
         
-        public static Coroutine SaveWithScreenshot(string id = null, int thumbnailHeight = 180) => Manager()?.SaveWithScreenshot(id, thumbnailHeight);
+        public static Coroutine SaveWithScreenshot(string id = null, int thumbnailHeight = 180, float? aspectRatio = null)
+            => Manager()?.SaveWithScreenshot(id, thumbnailHeight, aspectRatio);
         #endregion
 
 

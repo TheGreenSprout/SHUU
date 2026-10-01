@@ -75,9 +75,14 @@ namespace SHUU.Utils.InputSystem
             if (InputActionAsset != null) InputActionAsset.Enable();
             else Debug.LogError("SHUU_Input: No InputActionAsset assigned in SHUU_Preferences nor InputActionAsset assigned as project-wide..");
 
+            SHUU_Time.OnUpdate -= Update;
             SHUU_Time.OnUpdate += Update;
 
 
+            Hooks.Clear();
+            ContextStack.Clear();
+
+            GamepadRumble.Clear();
             foreach (var pad in Gamepad.all)
                 GamepadRumble[pad.deviceId, pad] = false;
             

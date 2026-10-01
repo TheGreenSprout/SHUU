@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -18,6 +19,18 @@ namespace SHUU.Utils.Helpers
         private static GameObject[] Cache_objs;
         #endregion
 
+
+
+
+        #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            LastPath = null;
+            LastScreenshotTexture = null;
+            Cache_objs = null;
+        }
+        #endregion
 
 
 
@@ -156,11 +169,66 @@ namespace SHUU.Utils.Helpers
 
 
         public static Texture2D CaptureScreenshotAsTexture() => ScreenCapture.CaptureScreenshotAsTexture();
+
+
+        #region XML doc
+        /// <summary>
+        /// Encodes a texture to PNG and saves it, using the same file naming and folder convention as Capture/CaptureScaled. Useful for
+        /// saving a texture you've already processed yourself (resized, cropped...) rather than capturing straight to a file.
+        /// </summary>
+        #endregion
+        public static string SaveTexture(Texture2D texture, string prefix = null, string customDir = null, bool showScreenshot = false)
+        {
+            if (texture == null) return null;
+
+            string path = BuildFullPath(prefix, customDir, "png");
+            LastPath = path;
+
+            File.WriteAllBytes(path, texture.EncodeToPNG());
+            LastScreenshotTexture = texture;
+
+
+            if (showScreenshot) Delayed_OpenLastScreenshot();
+
+            return path;
+        }
         #endregion
 
 
 
         #region Resize
+        #region XML doc
+        /// <summary>
+        /// Parses a width-divided-by-height ratio from text: "16:9", "16/9", or a plain number like "1.78". Returns false for anything else
+        /// (missing/zero height, not a number...).
+        /// </summary>
+        #endregion
+        public static bool TryParseAspectRatio(string text, out float ratio)
+        {
+            ratio = 0f;
+            if (string.IsNullOrWhiteSpace(text)) return false;
+
+            int separatorIndex = text.IndexOfAny(new[] { ':', '/' });
+
+            if (separatorIndex >= 0)
+            {
+                if (!float.TryParse(text.Substring(0, separatorIndex), NumberStyles.Float, CultureInfo.InvariantCulture, out float w)) return false;
+                if (!float.TryParse(text.Substring(separatorIndex + 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float h)) return false;
+                if (h <= 0f) return false;
+
+                ratio = w / h;
+            }
+            else if (!float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out ratio)) return false;
+
+            return ratio > 0f;
+        }
+
+
+        #region XML doc
+        /// <summary>
+        /// Resizes to a given height, keeping the source's own aspect ratio (the width follows from it, so nothing is cropped or stretched).
+        /// </summary>
+        #endregion
         public static Texture2D ResizeTexture(Texture2D source, int targetHeight)
         {
             if (source == null) return null;
@@ -168,12 +236,67 @@ namespace SHUU.Utils.Helpers
             int height = Mathf.Clamp(targetHeight, 16, Mathf.Max(16, source.height));
             int width = Mathf.Max(1, Mathf.RoundToInt(height * (float)source.width / source.height));
 
+            return Blit(source, width, height, Vector2.one, Vector2.zero);
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Resizes to a given height and a width worked out from it and an aspect ratio (width divided by height: 16f/9f, 1f for square...),
+        /// cropping the source first (centered) to match that ratio. Same idea as the plain height overload, just with a chosen ratio instead
+        /// of the source's own.
+        /// </summary>
+        #endregion
+        public static Texture2D ResizeTexture(Texture2D source, int targetHeight, float aspectRatio)
+        {
+            if (source == null) return null;
+
+            int height = Mathf.Clamp(targetHeight, 16, Mathf.Max(16, source.height));
+            int width = Mathf.Max(1, Mathf.RoundToInt(height * aspectRatio));
+
+            return ResizeTexture(source, width, height);
+        }
+
+        #region XML doc
+        /// <summary>
+        /// Resizes to an exact width and height by cropping the source first (centered), so the result fills the whole frame without being
+        /// stretched. Whichever side the source has "too much" of, compared to the target's own ratio, is trimmed off both edges equally.
+        /// </summary>
+        #endregion
+        public static Texture2D ResizeTexture(Texture2D source, int targetWidth, int targetHeight)
+        {
+            if (source == null) return null;
+
+            int width = Mathf.Max(1, targetWidth);
+            int height = Mathf.Max(1, targetHeight);
+
+            float sourceAspect = (float)source.width / source.height;
+            float targetAspect = (float)width / height;
+
+            Vector2 scale, offset;
+
+            if (sourceAspect > targetAspect)
+            {
+                scale = new Vector2(targetAspect / sourceAspect, 1f);
+                offset = new Vector2((1f - scale.x) * 0.5f, 0f);
+            }
+            else
+            {
+                scale = new Vector2(1f, sourceAspect / targetAspect);
+                offset = new Vector2(0f, (1f - scale.y) * 0.5f);
+            }
+
+            return Blit(source, width, height, scale, offset);
+        }
+
+
+        private static Texture2D Blit(Texture2D source, int width, int height, Vector2 scale, Vector2 offset)
+        {
             RenderTexture previous = RenderTexture.active;
             RenderTexture target = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
 
             try
             {
-                Graphics.Blit(source, target);
+                Graphics.Blit(source, target, scale, offset);
                 RenderTexture.active = target;
 
                 Texture2D resized = new Texture2D(width, height, TextureFormat.RGB24, false);

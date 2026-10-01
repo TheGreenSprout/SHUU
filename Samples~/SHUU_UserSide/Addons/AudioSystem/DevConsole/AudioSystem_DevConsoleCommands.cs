@@ -12,12 +12,24 @@ namespace SHUU.UserSide.Addons.AudioSystem
     {
         #region Variables
         private static SHUU_AudioInstance LastPlayed;
-        private static CommandReturn NoInstance() => CommandReturn.Red("Nothing has been played yet (use playaudio first).");
-
-
-        private static string ChannelPathOf(OptionalParameter<string> channelPath) => channelPath.TryGetValue(out string value) ? value : "";
         #endregion
 
+
+
+
+        #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => LastPlayed = null;
+        #endregion
+
+
+
+        #region Logic
+        private static CommandReturn NoInstance() => CommandReturn.Red("Nothing has been played yet (use playaudio first).");
+
+        
+        private static string ChannelPathOf(OptionalParameter<string> channelPath) => channelPath.TryGetValue(out string value) ? value : "";
+        #endregion
 
 
 

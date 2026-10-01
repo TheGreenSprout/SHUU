@@ -673,11 +673,13 @@ namespace SHUU.UserSide.Addons.SavingSystem
         /// Saves the game with a screenshot of what's on screen as the thumbnail. The screenshot is taken at the end of the frame, so it includes any UI that's showing.
         /// </summary>
         /// <param name="id">Which save to write to. Null uses the current one (Dynamic mode makes a new save if there's none).</param>
-        /// <param name="thumbnailHeight">Height of the thumbnail in pixels (the width follows the screen's aspect ratio).</param>
+        /// <param name="thumbnailHeight">Height of the thumbnail in pixels.</param>
+        /// <param name="aspectRatio">Width divided by height (16f/9f, 1f for square...). Null keeps the screen's own aspect ratio (so nothing
+        /// is cropped); given one, the screenshot is cropped to it (centered) first, so the thumbnail is never stretched.</param>
         #endregion
-        public Coroutine SaveWithScreenshot(string id = null, int thumbnailHeight = 180) => StartCoroutine(SaveWithScreenshotRoutine(id, thumbnailHeight));
+        public Coroutine SaveWithScreenshot(string id = null, int thumbnailHeight = 180, float? aspectRatio = null) => StartCoroutine(SaveWithScreenshotRoutine(id, thumbnailHeight, aspectRatio));
 
-        private IEnumerator SaveWithScreenshotRoutine(string id, int thumbnailHeight)
+        private IEnumerator SaveWithScreenshotRoutine(string id, int thumbnailHeight, float? aspectRatio)
         {
             if (!Ready()) yield break;
 
@@ -688,7 +690,7 @@ namespace SHUU.UserSide.Addons.SavingSystem
             yield return new WaitForEndOfFrame();
 
 
-            Texture2D thumbnail = CaptureThumbnail(thumbnailHeight);
+            Texture2D thumbnail = CaptureThumbnail(thumbnailHeight, aspectRatio);
 
             if (thumbnail != null)
             {
@@ -699,15 +701,18 @@ namespace SHUU.UserSide.Addons.SavingSystem
             Save(entry.id);
         }
 
-        private static Texture2D CaptureThumbnail(int height)
+        private static Texture2D CaptureThumbnail(int height, float? aspectRatio)
         {
             Texture2D screenshot = null;
 
             try
             {
                 screenshot = ScreenCaptureHelper.CaptureScreenshotAsTexture();
+                if (screenshot == null) return null;
 
-                return screenshot != null ? ScreenCaptureHelper.ResizeTexture(screenshot, height) : null;
+                return aspectRatio != null
+                    ? ScreenCaptureHelper.ResizeTexture(screenshot, height, aspectRatio.Value)
+                    : ScreenCaptureHelper.ResizeTexture(screenshot, height);
             }
             catch (Exception e)
             {

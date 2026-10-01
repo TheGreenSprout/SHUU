@@ -56,6 +56,19 @@ namespace SHUU.Utils.Globals
 
 
         #region Main
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            OnSceneChange = null;
+
+            OnLostFocus = null;
+            OnGainedFocus = null;
+
+            OnAppPause = null;
+            OnAppResume = null;
+        }
+
+
         protected override void Awake()
         {
             base.Awake();
