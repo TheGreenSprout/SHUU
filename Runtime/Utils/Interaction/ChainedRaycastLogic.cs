@@ -24,6 +24,11 @@ namespace SHUU.Utils.Interaction
 
 
         protected bool inChain = false;
+
+
+
+        private const int MaxPenetrateHits = 64;
+        private static readonly RaycastHit[] HitBuffer = new RaycastHit[MaxPenetrateHits];
         #endregion
 
 
@@ -46,9 +51,10 @@ namespace SHUU.Utils.Interaction
         #region Logic
         protected override bool CastRay()
         {
-            if (!cam || !CleanSurfaces())
+            if (!cam)
             {
                 ClearInteractHover(ref previousInact, modifyDynamicCursor);
+                ExitChain();
 
                 return false;
             }
@@ -56,133 +62,150 @@ namespace SHUU.Utils.Interaction
             if (chainedInputModule != null && chainedInputModule.BlockingUI())
             {
                 ClearInteractHover(ref previousInact, modifyDynamicCursor);
-
-                chainedInputModule.SetExternalRaycast(false, Vector2.zero);
+                ExitChain();
 
                 return false;
             }
 
 
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-
-            RaycastHit? hit = GetFirstHit(ray);
-
-            if (hit.HasValue)
+            if (!AnySurfaceUsable())
             {
-                if (GetSurface(hit.Value, out ChainedUISurface surface) && surface.detectionTagMask.Contains(hit.Value.collider.tag))
-                {
-                    Vector2 uv = hit.Value.textureCoord;
+                ExitChain();
 
-                    float x = surface.flipX ? (1f - uv.x) : uv.x;
-                    float y = surface.flipY ? (1f - uv.y) : uv.y;
-
-                    Vector2 pointerPos = new Vector2(x * surface.renderTexture.width, y * surface.renderTexture.height);
-
-                    inChain = true;
-
-                    chainedInputModule?.SetExternalRaycast(true, pointerPos, surface.raycaster);
-
-
-                    Ray renderTextureRay = surface.renderCamera.ScreenPointToRay(pointerPos);
-                    
-                    if (!InteractionRaycast(ref previousInact, renderTextureRay, surface.interactionRange, surface.layerMask, surface.tagMask, surface.tagMaskPenetrate, surface.modifyDynamicCursor))
-                    {
-                        ClearInteractHover(ref previousInact, surface.modifyDynamicCursor);
-
-                        return false;
-                    }
-                }
-                else
-                {
-                    inChain = false;
-
-                    chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
-
-
-                    if (hit.Value.InteractionRaycast_Check(out IfaceInteractable inact, tagMask))
-                    {
-                        if (previousInact != inact)
-                        {
-                            ClearInteractHover(ref previousInact, modifyDynamicCursor);
-
-                            previousInact = inact;
-
-
-                            inact.HoverStart(modifyDynamicCursor);
-                        }
-                    }
-                    else
-                    {
-                        ClearInteractHover(ref previousInact, modifyDynamicCursor);
-                    
-                        return false;
-                    }
-                }
+                return base.CastRay();
             }
-            else
+
+
+            Ray ray = cam.ScreenPointToRay(PointerPosition());
+
+            if (!GetFirstHit(ray, out RaycastHit hit))
+            {
+                ClearInteractHover(ref previousInact, modifyDynamicCursor);
+                ExitChain();
+
+                return false;
+            }
+
+
+            if (GetSurface(hit, out ChainedUISurface surface) && surface.detectionTagMask.Contains(hit.collider.tag))
+            {
+                Vector2 uv = hit.textureCoord;
+
+                float x = surface.flipX ? (1f - uv.x) : uv.x;
+                float y = surface.flipY ? (1f - uv.y) : uv.y;
+
+                Vector2 pointerPos = new Vector2(x * surface.renderTexture.width, y * surface.renderTexture.height);
+
+                inChain = true;
+
+                chainedInputModule?.SetExternalRaycast(true, pointerPos, surface.raycaster);
+
+
+                Ray renderTextureRay = surface.renderCamera.ScreenPointToRay(pointerPos);
+
+                if (!InteractionRaycast(ref previousInact, renderTextureRay, surface.interactionRange, surface.layerMask, surface.tagMask, surface.tagMaskPenetrate, surface.modifyDynamicCursor))
+                {
+                    ClearInteractHover(ref previousInact, surface.modifyDynamicCursor);
+
+                    return false;
+                }
+
+                return true;
+            }
+
+
+            ExitChain();
+
+            if (!hit.InteractionRaycast_Check(out IfaceInteractable inact, tagMask))
             {
                 ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
-                chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
-
                 return false;
             }
 
+            if (previousInact != inact)
+            {
+                ClearInteractHover(ref previousInact, modifyDynamicCursor);
+
+                previousInact = inact;
+
+                inact.HoverStart(modifyDynamicCursor);
+            }
 
             return true;
         }
 
-        private RaycastHit? GetFirstHit(Ray ray)
+
+        private void ExitChain()
         {
-            if (tagMaskPenetrate)
-            {
-                RaycastHit[] hits = Physics.RaycastAll(ray, interactionRange, layerMask);
-                Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            if (!inChain) return;
+            inChain = false;
 
-                foreach (RaycastHit hit in hits)
-                {
-                    if (GetSurface(hit, out _)) return hit;
-
-                    if (tagMask.Contains(hit.collider.tag)) return hit;
-                }
-
-                return null;
-            }
-            else
-            {
-                if (Physics.Raycast(ray, out RaycastHit hit, interactionRange, layerMask)) return hit;
-
-                return null;
-            }
+            chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
         }
 
 
-        private bool CleanSurfaces()
+        private bool GetFirstHit(Ray ray, out RaycastHit result)
         {
-            if (surfaces == null || surfaces.Count == 0) return true;
-            
-            List<ChainedUISurface> ret = new();
+            result = default;
 
-            foreach (var surface in surfaces)
-                if (surface.renderCamera != null && surface.rendererPlane != null && surface.renderTexture != null) ret.Add(surface);
+            if (!tagMaskPenetrate) return Physics.Raycast(ray, out result, interactionRange, layerMask);
 
-            return ret.Count != 0;
+
+            int count = Physics.RaycastNonAlloc(ray, HitBuffer, interactionRange, layerMask);
+
+            bool found = false;
+            float closest = float.MaxValue;
+
+            for (int i = 0; i < count; i++)
+            {
+                RaycastHit hit = HitBuffer[i];
+
+                if (hit.distance >= closest) continue;
+                if (!GetSurface(hit, out _) && !tagMask.Contains(hit.collider.tag)) continue;
+
+                closest = hit.distance;
+                result = hit;
+                found = true;
+            }
+
+            return found;
         }
+
+
+        #region Surfaces
+        private bool AnySurfaceUsable()
+        {
+            if (surfaces == null) return false;
+
+            for (int i = 0; i < surfaces.Count; i++)
+                if (IsUsable(surfaces[i])) return true;
+
+            return false;
+        }
+
+        private static bool IsUsable(ChainedUISurface s)
+            => s != null && s.renderCamera != null && s.renderTexture != null && s.rendererPlane != null && s.rendererPlane.gameObject.activeInHierarchy;
 
         private bool GetSurface(RaycastHit hit, out ChainedUISurface surface)
         {
-            surface = null;
+            GameObject hitObject = hit.collider.gameObject;
 
-            foreach (var s in surfaces)
+            for (int i = 0; i < surfaces.Count; i++)
             {
-                if (s.rendererPlane == null || hit.collider.gameObject != s.rendererPlane.gameObject) continue;
+                ChainedUISurface s = surfaces[i];
+
+                if (!IsUsable(s) || hitObject != s.rendererPlane.gameObject) continue;
 
                 surface = s;
                 return true;
             }
 
+            surface = null;
             return false;
         }
+        #endregion
+
         #endregion
     }
 

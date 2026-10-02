@@ -12,7 +12,7 @@ namespace SHUU.Utils.Interaction
         {
             IfaceInteractable inact = null;
 
-            if (tagMaskPenetrate && tagMask != null && !tagMask.Value.Equals(TagMask.Everything))
+            if (tagMaskPenetrate && tagMask != null && tagMask.Value.mask != TagMask.Everything.mask)
             {
                 RaycastHit[] hits = Physics.RaycastAll(ray, interactionRange, interactionLayers ?? Physics.DefaultRaycastLayers);
                 Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
@@ -52,11 +52,11 @@ namespace SHUU.Utils.Interaction
         {
             if (camera == null) return InteractionRaycast(ref previousInact, interactionRange, interactionLayers, tagMask, tagMaskPenetrate, modifyDynamicCursor);
 
-            return InteractionRaycast(ref previousInact, camera.ScreenPointToRay(Input.mousePosition), interactionRange, interactionLayers, tagMask, tagMaskPenetrate, modifyDynamicCursor);
+            return InteractionRaycast(ref previousInact, camera.ScreenPointToRay(PointerPosition()), interactionRange, interactionLayers, tagMask, tagMaskPenetrate, modifyDynamicCursor);
         }
 
         public static bool InteractionRaycast(ref IfaceInteractable previousInact, float interactionRange, LayerMask? interactionLayers = null, TagMask? tagMask = null, bool tagMaskPenetrate = false, bool modifyDynamicCursor = true)
-            => InteractionRaycast(ref previousInact, Camera.main.ScreenPointToRay(Input.mousePosition), interactionRange, interactionLayers, tagMask, tagMaskPenetrate, modifyDynamicCursor);
+            => InteractionRaycast(ref previousInact, Camera.main.ScreenPointToRay(PointerPosition()), interactionRange, interactionLayers, tagMask, tagMaskPenetrate, modifyDynamicCursor);
 
 
         public static bool InteractionRaycast_Check(this RaycastHit hit, out IfaceInteractable inactScript, TagMask? tagMask = null)
@@ -80,6 +80,18 @@ namespace SHUU.Utils.Interaction
 
             previousInact.HoverEnd(modifyDynamicCursor);
             previousInact = null;
+        }
+
+
+        public static Vector2 PointerPosition()
+        {
+            #if ENABLE_LEGACY_INPUT_MANAGER
+            return Input.mousePosition;
+            #elif ENABLE_INPUT_SYSTEM
+            return UnityEngine.InputSystem.Mouse.current != null ? UnityEngine.InputSystem.Mouse.current.position.ReadValue() : Vector2.zero;
+            #else
+            return Vector2.zero;
+            #endif
         }
         #endregion
     }

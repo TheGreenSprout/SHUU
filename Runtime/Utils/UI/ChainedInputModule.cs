@@ -12,6 +12,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
+#if !ENABLE_LEGACY_INPUT_MANAGER && ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+#endif
+
 using static SHUU.Utils.Helpers.HandyFunctions;
 
 namespace SHUU.Utils.UI
@@ -56,6 +61,10 @@ namespace SHUU.Utils.UI
         private float lastExternalTime;
 
         private bool _blockMouseInputThisFrame = false;
+
+
+        private PointerEventData blockingPointerData;
+        private readonly List<RaycastResult> blockingResults = new();
         #endregion
 
 
@@ -64,6 +73,10 @@ namespace SHUU.Utils.UI
         #region Main
         protected override void Awake()
         {
+            #if !ENABLE_LEGACY_INPUT_MANAGER && ENABLE_INPUT_SYSTEM
+            if (inputOverride == null) inputOverride = gameObject.AddComponent<ChainedInputModule_InputSystemInput>().Init(this);
+            #endif
+
             base.Awake();
 
             externalCanvasRaycasters.Clean();
@@ -85,7 +98,7 @@ namespace SHUU.Utils.UI
 
             base.Process();
 
-            if (Input.GetMouseButtonUp(0) && EventSystem.current != null)
+            if (input.GetMouseButtonUp(0) && EventSystem.current != null)
             {
                 GameObject selected = EventSystem.current.currentSelectedGameObject;
 
@@ -122,18 +135,28 @@ namespace SHUU.Utils.UI
         
         public bool BlockingUI()
         {
-            PointerEventData pointerData = new PointerEventData(eventSystem) { position = Input.mousePosition };
+            if (externalCanvasRaycasters == null || externalCanvasRaycasters.Count == 0) return false;
 
-            var results = new List<RaycastResult>();
+
+            blockingPointerData ??= new PointerEventData(eventSystem);
+            blockingPointerData.Reset();
+            blockingPointerData.position = input.mousePosition;
+
+            blockingResults.Clear();
 
             foreach (var raycaster in externalCanvasRaycasters)
             {
                 if (raycaster == null) continue;
 
-                raycaster.Raycast(pointerData, results);
+                raycaster.Raycast(blockingPointerData, blockingResults);
+
+                if (blockingResults.Count > 0) break;
             }
 
-            return results.Count > 0;
+            bool blocking = blockingResults.Count > 0;
+            blockingResults.Clear();
+
+            return blocking;
         }
 
 
@@ -391,4 +414,138 @@ namespace SHUU.Utils.UI
 
         #endregion
     }
+
+
+
+
+    #if !ENABLE_LEGACY_INPUT_MANAGER && ENABLE_INPUT_SYSTEM
+    [AddComponentMenu("")]
+    public class ChainedInputModule_InputSystemInput : BaseInput
+    {
+        #region Variables
+        private StandaloneInputModule module;
+        #endregion
+
+
+
+
+        #region Main
+        public ChainedInputModule_InputSystemInput Init(StandaloneInputModule module)
+        {
+            this.module = module;
+            hideFlags = HideFlags.HideInInspector;
+
+            return this;
+        }
+        #endregion
+
+
+
+
+        #region Mouse
+        public override bool mousePresent => Mouse.current != null;
+
+        public override Vector2 mousePosition => Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+
+        public override Vector2 mouseScrollDelta
+        {
+            get
+            {
+                if (Mouse.current == null) return Vector2.zero;
+
+                Vector2 scroll = Mouse.current.scroll.ReadValue();
+
+                if (UnityEngine.InputSystem.InputSystem.settings.scrollDeltaBehavior == InputSettings.ScrollDeltaBehavior.KeepPlatformSpecificInputRange
+                    && Application.platform is RuntimePlatform.WindowsPlayer or RuntimePlatform.WindowsEditor) scroll /= 120f;
+
+                return scroll;
+            }
+        }
+
+
+        public override bool GetMouseButton(int button) => MouseButton(button)?.isPressed ?? false;
+        public override bool GetMouseButtonDown(int button) => MouseButton(button)?.wasPressedThisFrame ?? false;
+        public override bool GetMouseButtonUp(int button) => MouseButton(button)?.wasReleasedThisFrame ?? false;
+
+
+        private static ButtonControl MouseButton(int button)
+        {
+            Mouse mouse = Mouse.current;
+            if (mouse == null) return null;
+
+            return button switch
+            {
+                0 => mouse.leftButton,
+                1 => mouse.rightButton,
+                2 => mouse.middleButton,
+                _ => null
+            };
+        }
+        #endregion
+
+
+
+        #region Navigation
+        public override float GetAxisRaw(string axisName)
+        {
+            if (module == null) return 0f;
+
+            if (axisName == module.horizontalAxis) return ReadMove().x;
+            if (axisName == module.verticalAxis) return ReadMove().y;
+
+            return 0f;
+        }
+
+        public override bool GetButtonDown(string buttonName)
+        {
+            if (module == null) return false;
+
+            Keyboard keyboard = Keyboard.current;
+            Gamepad gamepad = Gamepad.current;
+
+            if (buttonName == module.submitButton)
+                return (keyboard != null && (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame))
+                    || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame);
+
+            if (buttonName == module.cancelButton)
+                return (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
+                    || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame);
+
+            return false;
+        }
+
+
+        private static Vector2 ReadMove()
+        {
+            Vector2 move = Vector2.zero;
+
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard != null)
+            {
+                if (keyboard.rightArrowKey.isPressed || keyboard.dKey.isPressed) move.x += 1f;
+                if (keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed) move.x -= 1f;
+                if (keyboard.upArrowKey.isPressed || keyboard.wKey.isPressed) move.y += 1f;
+                if (keyboard.downArrowKey.isPressed || keyboard.sKey.isPressed) move.y -= 1f;
+            }
+
+            Gamepad gamepad = Gamepad.current;
+            if (gamepad != null) move += gamepad.leftStick.ReadValue() + gamepad.dpad.ReadValue();
+
+            return Vector2.ClampMagnitude(move, 1f);
+        }
+        #endregion
+
+
+
+        #region Unsupported
+        public override bool touchSupported => false;
+        public override int touchCount => 0;
+        public override Touch GetTouch(int index) => default;
+
+        public override string compositionString => string.Empty;
+        public override IMECompositionMode imeCompositionMode { get => IMECompositionMode.Auto; set { } }
+        public override Vector2 compositionCursorPos { get => Vector2.zero; set { } }
+        #endregion
+    }
+    #endif
 }
