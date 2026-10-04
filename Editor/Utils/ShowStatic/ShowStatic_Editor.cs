@@ -8,7 +8,7 @@ using SETB.SuperClasses;
 
 using static SETB.EditorGUI_Base;
 
-namespace SHUU._Editor.Utils
+namespace SHUU._Editor.Utils.ShowStatic
 {
     [CustomEditor(typeof(MonoBehaviour), true)]
     [CanEditMultipleObjects]
