@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using Alchemy.Inspector;
+
 namespace SHUU.Utils.Interaction
 {
     #region XML doc
@@ -10,9 +12,9 @@ namespace SHUU.Utils.Interaction
     public abstract class Interactable : MonoBehaviour, IfaceInteractable
     {
         #region Variables
-        [SerializeField] private bool synced_canBeInteracted = true;
+        [SerializeField, FoldoutGroup("Interactable Settings")] private bool synced_canBeInteracted = true;
 
-        [SerializeField] private bool _canBeInteracted = true;
+        [SerializeField, FoldoutGroup("Interactable Settings")] private bool _canBeInteracted = true;
         public bool canBeInteracted
         {
             protected get => _canBeInteracted;
@@ -32,7 +34,7 @@ namespace SHUU.Utils.Interaction
             }
         }
 
-        [SerializeField] private bool _canBeAltInteracted = true;
+        [SerializeField, FoldoutGroup("Interactable Settings")] private bool _canBeAltInteracted = true;
         public bool canBeAltInteracted
         {
             protected get => _canBeAltInteracted;
@@ -53,13 +55,13 @@ namespace SHUU.Utils.Interaction
         }
 
 
-        [SerializeField] private bool holdInteract = false;
-        [SerializeField] private bool holdAltInteract = false;
+        [SerializeField, FoldoutGroup("Interactable Settings")] private bool holdInteract = false;
+        [SerializeField, FoldoutGroup("Interactable Settings")] private bool holdAltInteract = false;
 
-        [SerializeField] private bool stopHoldOnHoverEnd = false;
+        [SerializeField, FoldoutGroup("Interactable Settings")] private bool stopHoldOnHoverEnd = false;
 
 
-        [SerializeField] protected bool modifyDynamicCursor = true;
+        [SerializeField, FoldoutGroup("Interactable Settings")] protected bool modifyDynamicCursor = true;
 
 
         protected bool beingHovered = false;
