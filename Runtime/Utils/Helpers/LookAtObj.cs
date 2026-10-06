@@ -127,5 +127,30 @@ namespace SHUU.Utils.Helpers
             lastPosition = transform.position;
         }
         #endregion
+
+
+
+        #region Gizmos
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            Vector3 position = transform.position;
+            float size = SHUU_Gizmos.Size(position, 0.7f);
+
+            SHUU_Gizmos.Line(position, position + transform.right * size, lockX ? SHUU_Gizmos.Red : SHUU_Gizmos.Green);
+            SHUU_Gizmos.Line(position, position + transform.up * size, lockY ? SHUU_Gizmos.Red : SHUU_Gizmos.Green);
+            SHUU_Gizmos.Line(position, position + transform.forward * size, lockZ ? SHUU_Gizmos.Red : SHUU_Gizmos.Green);
+
+            Vector3 facing = twoDimensions ? transform.right : transform.forward;
+
+            SHUU_Gizmos.Head(position + facing * size, facing, SHUU_Gizmos.Blue);
+
+            if (lookAtMovementDirection || target == null) return;
+
+            SHUU_Gizmos.Line(position, target.position, SHUU_Gizmos.Blue.WithAlpha(0.6f));
+            SHUU_Gizmos.Sphere(target.position, SHUU_Gizmos.Size(target.position, 0.05f), SHUU_Gizmos.Blue);
+        }
+#endif
+        #endregion
     }
 }

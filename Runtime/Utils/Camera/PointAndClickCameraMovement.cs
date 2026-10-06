@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using SHUU.Utils.Helpers;
+
 public class PointAndClickCameraMovement : MonoBehaviour
 {
     #region Variables
@@ -108,5 +110,48 @@ public class PointAndClickCameraMovement : MonoBehaviour
 
         transform.localRotation = Quaternion.Euler(targetRotationX * influence, targetRotationY * influence, 0f);
     }
+    #endregion
+
+
+
+    #region Gizmos
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 origin = transform.position;
+        Quaternion space = transform.parent != null ? transform.parent.rotation : Quaternion.identity;
+        float length = SHUU_Gizmos.Size(origin, 2f);
+
+        float reach = 10f * Mathf.Abs(sensitivity);
+
+        DrawRange(origin, space, minYRotation, maxYRotation, minXRotation, maxXRotation, length, SHUU_Gizmos.Orange.WithAlpha(0.5f));
+        DrawRange(origin, space, Mathf.Clamp(-reach, minYRotation, maxYRotation), Mathf.Clamp(reach, minYRotation, maxYRotation), Mathf.Clamp(-reach, minXRotation, maxXRotation), Mathf.Clamp(reach, minXRotation, maxXRotation), length, SHUU_Gizmos.Blue);
+
+        SHUU_Gizmos.Line(origin, origin + space * Vector3.forward * length, SHUU_Gizmos.Green);
+    }
+
+    private static void DrawRange(Vector3 origin, Quaternion space, float minPitch, float maxPitch, float minYaw, float maxYaw, float length, Color color)
+    {
+        Vector3 Point(float pitch, float yaw) => origin + space * Quaternion.Euler(pitch, yaw, 0f) * Vector3.forward * length;
+
+        const int steps = 12;
+
+        for (int i = 0; i < steps; i++)
+        {
+            float a = i / (float)steps;
+            float b = (i + 1) / (float)steps;
+
+            SHUU_Gizmos.Line(Point(minPitch, Mathf.Lerp(minYaw, maxYaw, a)), Point(minPitch, Mathf.Lerp(minYaw, maxYaw, b)), color);
+            SHUU_Gizmos.Line(Point(maxPitch, Mathf.Lerp(minYaw, maxYaw, a)), Point(maxPitch, Mathf.Lerp(minYaw, maxYaw, b)), color);
+            SHUU_Gizmos.Line(Point(Mathf.Lerp(minPitch, maxPitch, a), minYaw), Point(Mathf.Lerp(minPitch, maxPitch, b), minYaw), color);
+            SHUU_Gizmos.Line(Point(Mathf.Lerp(minPitch, maxPitch, a), maxYaw), Point(Mathf.Lerp(minPitch, maxPitch, b), maxYaw), color);
+        }
+
+        SHUU_Gizmos.Line(origin, Point(minPitch, minYaw), color);
+        SHUU_Gizmos.Line(origin, Point(minPitch, maxYaw), color);
+        SHUU_Gizmos.Line(origin, Point(maxPitch, minYaw), color);
+        SHUU_Gizmos.Line(origin, Point(maxPitch, maxYaw), color);
+    }
+#endif
     #endregion
 }

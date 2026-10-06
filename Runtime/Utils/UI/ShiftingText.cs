@@ -68,7 +68,7 @@ namespace SHUU.Utils.UI
         #region Logic
         private void Shift()
         {
-            if (!this.gameObject.activeInHierarchy)
+            if (!this.gameObject.activeInHierarchy || textVariations.Count == 0)
             {
                 invoked = false;
 
@@ -81,7 +81,7 @@ namespace SHUU.Utils.UI
             {
                 if (pingPong)
                 {
-                    current = textVariations.Count-2;
+                    current = Mathf.Max(0, textVariations.Count-2);
 
                     dir = -1;
                 }
@@ -91,7 +91,7 @@ namespace SHUU.Utils.UI
             {
                 if (pingPong)
                 {
-                    current = 1;
+                    current = Mathf.Min(1, textVariations.Count-1);
 
                     dir = 1;
                 }

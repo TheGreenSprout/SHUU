@@ -49,6 +49,83 @@ namespace SHUU.Utils.Interaction
 
 
         #region Logic
+        private void ExitChain()
+        {
+            if (!inChain) return;
+            inChain = false;
+
+            chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
+        }
+
+        private bool GetFirstHit(Ray ray, out RaycastHit result)
+        {
+            result = default;
+
+            if (!tagMaskPenetrate) return Physics.Raycast(ray, out result, interactionRange, layerMask);
+
+
+            int count = Physics.RaycastNonAlloc(ray, HitBuffer, interactionRange, layerMask);
+
+            bool found = false;
+            float closest = float.MaxValue;
+
+            for (int i = 0; i < count; i++)
+            {
+                RaycastHit hit = HitBuffer[i];
+
+                if (hit.distance >= closest) continue;
+                if (!GetSurface(hit, out _) && !tagMask.Contains(hit.collider.tag)) continue;
+
+                closest = hit.distance;
+                result = hit;
+                found = true;
+            }
+
+            return found;
+        }
+
+
+        #region Surfaces
+        private bool AnySurfaceUsable()
+        {
+            if (surfaces == null) return false;
+
+            for (int i = 0; i < surfaces.Count; i++)
+                if (IsUsable(surfaces[i])) return true;
+
+            return false;
+        }
+
+        private static bool IsUsable(ChainedUISurface s)
+            => s != null && s.renderCamera != null && s.renderTexture != null && s.rendererPlane != null && s.rendererPlane.gameObject.activeInHierarchy;
+
+        private bool GetSurface(RaycastHit hit, out ChainedUISurface surface)
+        {
+            GameObject hitObject = hit.collider.gameObject;
+
+            for (int i = 0; i < surfaces.Count; i++)
+            {
+                ChainedUISurface s = surfaces[i];
+
+                if (!IsUsable(s) || hitObject != s.rendererPlane.gameObject) continue;
+
+                surface = s;
+                return true;
+            }
+
+            surface = null;
+            return false;
+        }
+        #endregion
+
+        #endregion
+
+
+
+        #region Override points
+        protected override bool SupportsCastShapes => false;
+
+
         protected override bool CastRay()
         {
             if (!cam)
@@ -134,78 +211,56 @@ namespace SHUU.Utils.Interaction
 
             return true;
         }
-
-
-        private void ExitChain()
-        {
-            if (!inChain) return;
-            inChain = false;
-
-            chainedInputModule?.SetExternalRaycast(false, Vector2.zero);
-        }
-
-
-        private bool GetFirstHit(Ray ray, out RaycastHit result)
-        {
-            result = default;
-
-            if (!tagMaskPenetrate) return Physics.Raycast(ray, out result, interactionRange, layerMask);
-
-
-            int count = Physics.RaycastNonAlloc(ray, HitBuffer, interactionRange, layerMask);
-
-            bool found = false;
-            float closest = float.MaxValue;
-
-            for (int i = 0; i < count; i++)
-            {
-                RaycastHit hit = HitBuffer[i];
-
-                if (hit.distance >= closest) continue;
-                if (!GetSurface(hit, out _) && !tagMask.Contains(hit.collider.tag)) continue;
-
-                closest = hit.distance;
-                result = hit;
-                found = true;
-            }
-
-            return found;
-        }
-
-
-        #region Surfaces
-        private bool AnySurfaceUsable()
-        {
-            if (surfaces == null) return false;
-
-            for (int i = 0; i < surfaces.Count; i++)
-                if (IsUsable(surfaces[i])) return true;
-
-            return false;
-        }
-
-        private static bool IsUsable(ChainedUISurface s)
-            => s != null && s.renderCamera != null && s.renderTexture != null && s.rendererPlane != null && s.rendererPlane.gameObject.activeInHierarchy;
-
-        private bool GetSurface(RaycastHit hit, out ChainedUISurface surface)
-        {
-            GameObject hitObject = hit.collider.gameObject;
-
-            for (int i = 0; i < surfaces.Count; i++)
-            {
-                ChainedUISurface s = surfaces[i];
-
-                if (!IsUsable(s) || hitObject != s.rendererPlane.gameObject) continue;
-
-                surface = s;
-                return true;
-            }
-
-            surface = null;
-            return false;
-        }
         #endregion
 
+
+
+        #region Gizmos
+#if UNITY_EDITOR
+        private static readonly Color[] SurfaceColors = { SHUU_Gizmos.Purple, SHUU_Gizmos.Yellow, SHUU_Gizmos.Green, SHUU_Gizmos.Orange };
+
+
+        protected override void OnDrawGizmosSelected()
+        {
+            base.OnDrawGizmosSelected();
+
+            if (surfaces == null) return;
+
+            for (int i = 0; i < surfaces.Count; i++)
+            {
+                ChainedUISurface surface = surfaces[i];
+
+                if (surface == null || surface.renderCamera == null) continue;
+
+                Color color = SurfaceColors[i % SurfaceColors.Length];
+
+                if (surface.rendererPlane != null)
+                {
+                    Bounds bounds = surface.rendererPlane.bounds;
+
+                    Gizmos.color = color.WithAlpha(0.6f);
+                    Gizmos.DrawWireCube(bounds.center, bounds.size);
+                }
+
+                DrawInteractionRay(SurfaceRay(surface), surface.interactionRange, surface.layerMask, color);
+            }
+        }
+
+        private Ray SurfaceRay(ChainedUISurface surface)
+        {
+            if (Application.isPlaying && inChain && cam != null && surface.renderTexture != null
+                && Physics.Raycast(cam.ScreenPointToRay(PointerPosition()), out RaycastHit hit, interactionRange, layerMask)
+                && GetSurface(hit, out ChainedUISurface hitSurface) && hitSurface == surface)
+            {
+                float x = surface.flipX ? 1f - hit.textureCoord.x : hit.textureCoord.x;
+                float y = surface.flipY ? 1f - hit.textureCoord.y : hit.textureCoord.y;
+
+                return surface.renderCamera.ScreenPointToRay(new Vector2(x * surface.renderTexture.width, y * surface.renderTexture.height));
+            }
+
+            return surface.renderCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        }
+#endif
         #endregion
     }
 
