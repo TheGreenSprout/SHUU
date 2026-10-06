@@ -16,7 +16,7 @@ using SHUU.InnerWorkings.Preferences;
 namespace SHUU.Utils.UI
 {
     [DisallowMultipleComponent, HideScriptField, AddComponentMenu("SHUU/UI/UI Float")]
-    public class UIfloat : MonoBehaviour
+    public class ObjFloat : MonoBehaviour
     {
         #region Variables
 
@@ -33,14 +33,14 @@ namespace SHUU.Utils.UI
 
 
 
-#if UNITY_EDITOR
         #region EditorOptions
+#if UNITY_EDITOR
         [System.Serializable]
         private class EditorOptions
         {
             public bool drawGizmos = true;
 
-            [System.NonSerialized] public UIfloat owner;
+            [System.NonSerialized] public ObjFloat owner;
 
             [Button, LabelText("Test Shake"), HideInEditMode]
             private void TestShake()
@@ -48,8 +48,8 @@ namespace SHUU.Utils.UI
                 if (owner != null) owner.ShakeAndScale();
             }
         }
-        #endregion
 #endif
+        #endregion
 
 
 
@@ -568,9 +568,8 @@ namespace SHUU.Utils.UI
 
 
 
-
-#if UNITY_EDITOR
         #region Editor
+#if UNITY_EDITOR
         private static readonly List<(Vector3 from, Vector3 to)> gizmoSegments = new();
         private static readonly float[] gizmoSigns = { -1f, 1f };
 
@@ -679,7 +678,7 @@ namespace SHUU.Utils.UI
 
             if (path && active > 1) segments.Add((-(ex + ey + ez), ex + ey + ez));
         }
-        #endregion
 #endif
+        #endregion
     }
 }

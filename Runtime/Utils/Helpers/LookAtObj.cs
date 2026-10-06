@@ -56,8 +56,7 @@ namespace SHUU.Utils.Helpers
         {
             if (target == null)
             {
-                if (transform.rotation != cacheRotation && cacheRotation != null)
-                    transform.rotation = Quaternion.Slerp(transform.rotation, (Quaternion)cacheRotation, rotationSpeed * Time.deltaTime);
+                if (transform.rotation != cacheRotation && cacheRotation != null) RotateTowards((Quaternion)cacheRotation, false);
                 else cacheRotation = null;
 
                 return;
@@ -82,17 +81,7 @@ namespace SHUU.Utils.Helpers
             }
 
 
-            Vector3 euler = targetRotation.eulerAngles;
-            Vector3 currentEuler = transform.rotation.eulerAngles;
-
-            if (lockX) euler.x = currentEuler.x;
-            if (lockY) euler.y = currentEuler.y;
-            if (lockZ) euler.z = currentEuler.z;
-
-            targetRotation = Quaternion.Euler(euler);
-
-
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            RotateTowards(targetRotation, false);
         }
 
         private void Not_LookAtMovementDirection()
@@ -112,19 +101,33 @@ namespace SHUU.Utils.Helpers
             }
 
 
-            Vector3 euler = targetRotation.eulerAngles;
-            Vector3 currentEuler = transform.rotation.eulerAngles;
-
-            if (lockX) euler.x = currentEuler.x;
-            if (lockY) euler.y = currentEuler.y;
-            if (lockZ) euler.z = currentEuler.z;
-
-            targetRotation = Quaternion.Euler(euler);
-
-
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            RotateTowards(targetRotation, true);
 
             lastPosition = transform.position;
+        }
+
+
+        private void RotateTowards(Quaternion goal, bool lerp)
+        {
+            float t = rotationSpeed * Time.deltaTime;
+
+            if (!lockX && !lockY && !lockZ)
+            {
+                transform.rotation = lerp ? Quaternion.Lerp(transform.rotation, goal, t) : Quaternion.Slerp(transform.rotation, goal, t);
+
+                return;
+            }
+
+
+            Vector3 current = transform.eulerAngles;
+            Vector3 target = goal.eulerAngles;
+
+            transform.rotation = Quaternion.Euler
+            (
+                lockX ? current.x : Mathf.LerpAngle(current.x, target.x, t),
+                lockY ? current.y : Mathf.LerpAngle(current.y, target.y, t),
+                lockZ ? current.z : Mathf.LerpAngle(current.z, target.z, t)
+            );
         }
         #endregion
 
