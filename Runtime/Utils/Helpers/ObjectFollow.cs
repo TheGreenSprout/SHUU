@@ -43,8 +43,18 @@ namespace SHUU.Utils.Helpers
         #region Main
         private void LateUpdate()
         {
-            if (target == null || !positionFollow) return;
+            if (target == null) return;
 
+            if (positionFollow) FollowPosition();
+            if (rotationFollow) FollowRotation();
+        }
+        #endregion
+
+
+
+        #region Logic
+        private void FollowPosition()
+        {
             if (followSmoothTime == 0f) transform.position = target.position;
             else
             {
@@ -55,7 +65,6 @@ namespace SHUU.Utils.Helpers
 
                 if (maxDistance > 0f && distance > maxDistance) transform.position = target.position - toTarget.normalized * maxDistance;
 
-                /*if (distance > minDistance || snapToMinDistance) transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _posVelocity, positionSmoothTime);*/
                 if (distance > minDistance || snapToMinDistance)
                 {
                     float remainingDistance = Vector3.Distance(transform.position, desiredPos);
@@ -74,26 +83,20 @@ namespace SHUU.Utils.Helpers
             }
         }
 
-        private void FixedUpdate()
+        private void FollowRotation()
         {
-            if (target == null || !rotationFollow) return;
-
             if (followSmoothTime == 0f) transform.rotation = target.rotation;
             else
             {
-                /*float t = 1f - Mathf.Exp(-Time.deltaTime / followSmoothTime);
-
-                transform.rotation = Quaternion.Slerp(transform.rotation, target.rotation, t);*/
-
                 float angleDifference = Quaternion.Angle(
                     transform.rotation,
                     target.rotation
                 );
 
-                if (angleDifference <= rotationBuffer) transform.rotation = target.rotation;
+                if (rotationBuffer > 0f && angleDifference <= rotationBuffer) transform.rotation = target.rotation;
                 else
                 {
-                    float t = 1f - Mathf.Exp(-Time.fixedDeltaTime / followSmoothTime);
+                    float t = 1f - Mathf.Exp(-Time.deltaTime / followSmoothTime);
 
                     transform.rotation = Quaternion.Slerp(
                         transform.rotation,

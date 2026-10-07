@@ -9,6 +9,7 @@ This code was written with the assistance of AI.
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,7 +22,8 @@ namespace SHUU._Editor.Utils
     {
         #region Variables
         public string scenePath;
-        public int[] siblingIndices;
+        public string globalId;
+        public int[] sameNameIndices;
         public string[] names;
 
         public string typeName;
@@ -45,6 +47,8 @@ namespace SHUU._Editor.Utils
 
 
 
+
+        #region Logic
 
         #region Create
         public static bool TryCreate(Object target, out SceneObjectLocator locator, out string problem)
@@ -75,6 +79,10 @@ namespace SHUU._Editor.Utils
 
             locator = new SceneObjectLocator { scenePath = scene.path };
 
+            GlobalObjectId id = GlobalObjectId.GetGlobalObjectIdSlow(component != null ? (Object)component : gameObject);
+
+            if (id.identifierType == 2) locator.globalId = id.ToString();
+
             FillPath(locator, gameObject.transform);
 
             if (component != null)
@@ -98,15 +106,46 @@ namespace SHUU._Editor.Utils
 
             for (Transform current = transform; current != null; current = current.parent)
             {
-                indices.Add(current.GetSiblingIndex());
+                indices.Add(SameNameIndex(current));
                 names.Add(current.name);
             }
 
             indices.Reverse();
             names.Reverse();
 
-            locator.siblingIndices = indices.ToArray();
+            locator.sameNameIndices = indices.ToArray();
             locator.names = names.ToArray();
+        }
+
+
+        private static int SameNameIndex(Transform transform)
+        {
+            int index = 0;
+
+            if (transform.parent != null)
+            {
+                Transform parent = transform.parent;
+
+                for (int i = 0; i < parent.childCount; i++)
+                {
+                    Transform sibling = parent.GetChild(i);
+
+                    if (sibling == transform) break;
+
+                    if (sibling.name == transform.name) index++;
+                }
+
+                return index;
+            }
+
+            foreach (GameObject root in transform.gameObject.scene.GetRootGameObjects())
+            {
+                if (root.transform == transform) break;
+
+                if (root.name == transform.name) index++;
+            }
+
+            return index;
         }
 
 
@@ -134,7 +173,14 @@ namespace SHUU._Editor.Utils
         {
             target = null;
 
-            if (siblingIndices == null || names == null || siblingIndices.Length == 0 || siblingIndices.Length != names.Length)
+            if (TryFindById(out target))
+            {
+                problem = null;
+
+                return true;
+            }
+
+            if (sameNameIndices == null || names == null || sameNameIndices.Length == 0 || sameNameIndices.Length != names.Length)
             {
                 problem = "it wasn't written down properly";
 
@@ -154,12 +200,12 @@ namespace SHUU._Editor.Utils
 
             Transform current = null;
 
-            for (int depth = 0; depth < siblingIndices.Length; depth++)
+            for (int depth = 0; depth < sameNameIndices.Length; depth++)
             {
-                if (depth == 0) current = FindRoot(scene, siblingIndices[0]);
-                else current = siblingIndices[depth] < current.childCount ? current.GetChild(siblingIndices[depth]) : null;
+                if (depth == 0) current = FindRoot(scene, names[0], sameNameIndices[0]);
+                else current = FindChild(current, names[depth], sameNameIndices[depth]);
 
-                if (current != null && current.name == names[depth]) continue;
+                if (current != null) continue;
 
                 problem = $"couldn't find '{string.Join("/", names)}' where it was (the hierarchy changed, or it was created while playing)";
 
@@ -205,13 +251,60 @@ namespace SHUU._Editor.Utils
         }
 
 
-        private static Transform FindRoot(Scene scene, int siblingIndex)
+        private bool TryFindById(out Object target)
         {
+            target = null;
+
+            if (string.IsNullOrEmpty(globalId) || !GlobalObjectId.TryParse(globalId, out GlobalObjectId id)) return false;
+
+            Object found = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id);
+
+            if (found == null) return false;
+
+            Component component = found as Component;
+            GameObject gameObject = component != null ? component.gameObject : found as GameObject;
+
+            if (gameObject == null || gameObject.scene.path != scenePath) return false;
+
+            if (!string.IsNullOrEmpty(typeName) && found.GetType() != Type.GetType(typeName)) return false;
+
+            target = found;
+
+            return true;
+        }
+
+
+        private static Transform FindRoot(Scene scene, string name, int sameNameIndex)
+        {
+            int seen = 0;
+
             foreach (GameObject root in scene.GetRootGameObjects())
-                if (root.transform.GetSiblingIndex() == siblingIndex) return root.transform;
+            {
+                if (root.name != name) continue;
+
+                if (seen++ == sameNameIndex) return root.transform;
+            }
 
             return null;
         }
+
+        private static Transform FindChild(Transform parent, string name, int sameNameIndex)
+        {
+            int seen = 0;
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+
+                if (child.name != name) continue;
+
+                if (seen++ == sameNameIndex) return child;
+            }
+
+            return null;
+        }
+        #endregion
+    
         #endregion
     }
 }
