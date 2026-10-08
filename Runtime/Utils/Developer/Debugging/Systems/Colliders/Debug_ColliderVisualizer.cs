@@ -26,6 +26,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         private static ColliderVisualizer_Cache cache;
 
         private static bool started;
+        private static bool sceneHandled;
 
         private static bool visible;
         private static bool alwaysRenderWire;
@@ -40,7 +41,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
         #region Main
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Init()
+        private static void ResetStatics()
         {
             Dispose();
 
@@ -49,8 +50,12 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             visible = false;
             alwaysRenderWire = false;
             alwaysRenderFill = false;
+            sceneHandled = false;
+        }
 
-
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Init()
+        {
             SceneLoader.OnSceneLoaded -= HandleSceneLoaded;
             SceneLoader.OnSceneLoaded += HandleSceneLoaded;
 
@@ -63,6 +68,8 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
         private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            sceneHandled = true;
+
             settings = SHUU_Debug.Instance;
 
             StopTimers();
@@ -84,6 +91,8 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
         private static void Tick()
         {
+            if (!sceneHandled) HandleSceneLoaded(SceneLoader.GetCurrentScene(), LoadSceneMode.Single);
+
             if (!Active) return;
 
             EnsureStarted();
