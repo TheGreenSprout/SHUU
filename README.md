@@ -66,7 +66,7 @@ Enjoy :D
 
 
 ***
-### + Current Version: 5.6.7
+### + Current Version: 5.7.0
 ### - Update Date: 08-10-2026
 ### - Creation Date: 24-03-2025
 ***

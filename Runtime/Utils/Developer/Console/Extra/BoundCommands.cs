@@ -60,6 +60,7 @@ namespace SHUU.Utils.Developer.Console
                 }
 
 
+            #if ENABLE_LEGACY_INPUT_MANAGER
             foreach (var kvp in Classic_BindCommands_key)
                 if (Input.GetKeyDown(kvp.Key))
                 {
@@ -73,6 +74,7 @@ namespace SHUU.Utils.Developer.Console
                     foreach (var cmd in kvp.Value)
                         devConsoleManager.ProcessInput(cmd);
                 }
+            #endif
         }
         #endregion
 

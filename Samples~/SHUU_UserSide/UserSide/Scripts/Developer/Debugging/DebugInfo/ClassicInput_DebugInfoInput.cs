@@ -35,9 +35,9 @@ namespace SHUU.UserSide.Developer.Debugging.DebugInfo
 
             foreach (KeyCode key in toggleKeys)
             {
-                if (Input.GetKeyDown(key)) atLeast_aKey_pressed = true;
+                if (KeyDown(key)) atLeast_aKey_pressed = true;
 
-                keys_pressed = keys_pressed && Input.GetKey(key);
+                keys_pressed = keys_pressed && KeyHeld(key);
             }
 
 
@@ -52,23 +52,45 @@ namespace SHUU.UserSide.Developer.Debugging.DebugInfo
 
             foreach (KeyCode key in toggleFpsGraphKeys)
             {
-                if (Input.GetKeyDown(key)) atLeast_aKey_pressed = true;
+                if (KeyDown(key)) atLeast_aKey_pressed = true;
 
-                keys_pressed = keys_pressed && Input.GetKey(key);
+                keys_pressed = keys_pressed && KeyHeld(key);
             }
 
 
             return keys_pressed && atLeast_aKey_pressed;
         }
-        protected override bool FpsGraphCorner_Key() => Input.GetKeyDown(fpsGraphCornerKey);
+        protected override bool FpsGraphCorner_Key() => KeyDown(fpsGraphCornerKey);
 
 
-        protected override bool ToggleAxis_Key() => Input.GetKeyDown(toggleAxisKey);
-        protected override bool AxisMode_Key() => Input.GetKeyDown(axisModeKey);
+        protected override bool ToggleAxis_Key() => KeyDown(toggleAxisKey);
+        protected override bool AxisMode_Key() => KeyDown(axisModeKey);
 
-        protected override bool ToggleCompass_Key() => Input.GetKeyDown(toggleCompassKey);
-        protected override bool CompassMode_Key() => Input.GetKeyDown(compassModeKey);
-        protected override bool CompassPosition_Key() => Input.GetKeyDown(compassPositionKey);
+        protected override bool ToggleCompass_Key() => KeyDown(toggleCompassKey);
+        protected override bool CompassMode_Key() => KeyDown(compassModeKey);
+        protected override bool CompassPosition_Key() => KeyDown(compassPositionKey);
+        #endregion
+
+
+
+        #region Input
+        private static bool KeyDown(KeyCode key)
+        {
+#if ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKeyDown(key);
+#else
+            return false;
+#endif
+        }
+
+        private static bool KeyHeld(KeyCode key)
+        {
+#if ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKey(key);
+#else
+            return false;
+#endif
+        }
         #endregion
     }
 }

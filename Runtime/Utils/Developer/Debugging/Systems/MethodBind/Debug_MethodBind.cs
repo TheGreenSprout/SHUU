@@ -42,6 +42,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             if (!Application.isPlaying) return;
 
 
+#if ENABLE_LEGACY_INPUT_MANAGER
             foreach (var pair in KeyBindings)
             {
                 if (Input.GetKeyDown(pair.Key))
@@ -50,6 +51,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                         action.Invoke();
                 }
             }
+#endif
         }
         #endregion
 

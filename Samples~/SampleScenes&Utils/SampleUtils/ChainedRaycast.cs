@@ -23,6 +23,7 @@ namespace SHUU.Samples.ScenesUtils.Utils
         #region Logic
         protected override InteractKeyState InteractKey(IfaceInteractable target)
         {
+#if ENABLE_LEGACY_INPUT_MANAGER
             foreach (KeyCode key in interactKeys)
             {
                 if (Input.GetKeyDown(key)) return InteractKeyState.Press;
@@ -34,12 +35,14 @@ namespace SHUU.Samples.ScenesUtils.Utils
                 if (Input.GetMouseButtonDown(mouse)) return InteractKeyState.Press;
                 else if (Input.GetMouseButtonUp(mouse)) return InteractKeyState.Release;
             }
+#endif
 
             return InteractKeyState.Idle;
         }
 
         protected override InteractKeyState AltInteractKey(IfaceInteractable target)
         {
+#if ENABLE_LEGACY_INPUT_MANAGER
             foreach (KeyCode key in altInteractKeys)
             {
                 if (Input.GetKeyDown(key)) return InteractKeyState.Press;
@@ -51,6 +54,7 @@ namespace SHUU.Samples.ScenesUtils.Utils
                 if (Input.GetMouseButtonDown(mouse)) return InteractKeyState.Press;
                 else if (Input.GetMouseButtonUp(mouse)) return InteractKeyState.Release;
             }
+#endif
 
             return InteractKeyState.Idle;
         }

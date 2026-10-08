@@ -138,7 +138,15 @@ namespace SHUU.Samples.CatsDogs
         {
             if (mode == Mode.None) return;
 
-            if (Input.GetKeyDown(KeyCode.Escape))
+#if ENABLE_LEGACY_INPUT_MANAGER
+            bool escape = Input.GetKeyDown(KeyCode.Escape);
+#elif ENABLE_INPUT_SYSTEM
+            bool escape = UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.escapeKey.wasPressedThisFrame;
+#else
+            bool escape = false;
+#endif
+
+            if (escape)
             {
                 if (mode == Mode.Cat) CatCode_Close();
                 else if (mode == Mode.Dog) DogCode_Close();

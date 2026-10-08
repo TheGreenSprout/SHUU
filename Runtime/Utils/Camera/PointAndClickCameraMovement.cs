@@ -99,7 +99,13 @@ public class PointAndClickCameraMovement : MonoBehaviour
         }
 
 
+#if ENABLE_LEGACY_INPUT_MANAGER
         Vector2 mousePosition = Input.mousePosition;
+#elif ENABLE_INPUT_SYSTEM
+        Vector2 mousePosition = UnityEngine.InputSystem.Mouse.current != null ? UnityEngine.InputSystem.Mouse.current.position.ReadValue() : Vector2.zero;
+#else
+        Vector2 mousePosition = Vector2.zero;
+#endif
 
         Vector2 offset = (mousePosition - screenCenter) / screenCenter;
 

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+
 namespace SHUU.Utils.Helpers
 {
     public class CodeListener : MonoBehaviour
@@ -70,6 +74,10 @@ namespace SHUU.Utils.Helpers
             KeyCode.Period,
             KeyCode.Slash
         };
+
+#if ENABLE_INPUT_SYSTEM
+        private static readonly Dictionary<KeyCode, Key> InputSystemKeys = BuildInputSystemKeys();
+#endif
         #endregion
 
         #endregion
@@ -89,7 +97,7 @@ namespace SHUU.Utils.Helpers
         {
             foreach (KeyCode keyCode in SupportedKeys)
             {
-                if (Input.GetKeyDown(keyCode))
+                if (KeyDown(keyCode))
                 {
                     currentInput.Add(keyCode);
 
@@ -118,6 +126,48 @@ namespace SHUU.Utils.Helpers
 
 
         #region Logic
+        private static bool KeyDown(KeyCode keyCode)
+        {
+#if ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKeyDown(keyCode);
+#elif ENABLE_INPUT_SYSTEM
+            return Keyboard.current != null && InputSystemKeys.TryGetValue(keyCode, out Key key) && Keyboard.current[key].wasPressedThisFrame;
+#else
+            return false;
+#endif
+        }
+
+#if ENABLE_INPUT_SYSTEM
+        private static Dictionary<KeyCode, Key> BuildInputSystemKeys()
+        {
+            Dictionary<KeyCode, Key> keys = new()
+            {
+                { KeyCode.Space, Key.Space },
+                { KeyCode.Return, Key.Enter },
+                { KeyCode.Tab, Key.Tab },
+                { KeyCode.Minus, Key.Minus },
+                { KeyCode.Equals, Key.Equals },
+                { KeyCode.LeftBracket, Key.LeftBracket },
+                { KeyCode.RightBracket, Key.RightBracket },
+                { KeyCode.Backslash, Key.Backslash },
+                { KeyCode.Semicolon, Key.Semicolon },
+                { KeyCode.Quote, Key.Quote },
+                { KeyCode.Comma, Key.Comma },
+                { KeyCode.Period, Key.Period },
+                { KeyCode.Slash, Key.Slash }
+            };
+
+            for (int i = 0; i < 26; i++)
+                keys[KeyCode.A + i] = (Key)Enum.Parse(typeof(Key), ((char)('A' + i)).ToString());
+
+            for (int i = 0; i < 10; i++)
+                keys[KeyCode.Alpha0 + i] = (Key)Enum.Parse(typeof(Key), "Digit" + i);
+
+            return keys;
+        }
+#endif
+
+
         private List<KeyCode> ConvertStringToKeys(string str)
         {
             List<KeyCode> ret = new();
