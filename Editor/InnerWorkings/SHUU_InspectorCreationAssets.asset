@@ -21,6 +21,12 @@ MonoBehaviour:
     priority: 0
     unpack: 1
     addRectTransformUnderCanvas: 1
+  - path: Create Icon (SHUU)
+    prefab: {fileID: 1093772259444442373, guid: 6ca26900363b73e4e84c327d0acc0b40, type: 3}
+    validateFunction: 0
+    priority: 0
+    unpack: 1
+    addRectTransformUnderCanvas: 1
   - path: SHUU/OnEveryScene
     prefab: {fileID: 5225186638109007582, guid: 0d3c4b398dd720c40ba1bb00a2b30364, type: 3}
     validateFunction: 0

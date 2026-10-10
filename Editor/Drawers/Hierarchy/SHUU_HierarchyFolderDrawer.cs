@@ -1,3 +1,11 @@
+/*
+⚠️‼️ AI ASSISTED SCRIPT
+
+This script was written with the assistance of AI.
+*/
+
+
+
 #if UNITY_EDITOR
 using System;
 using System.Linq;
@@ -18,6 +26,9 @@ namespace SHUU._Editor.Drawers
 
         private static Texture2D IconFolder;
         private static Texture2D GradientTex;
+
+
+        private const float HoverLighten = 0.08f;
         #endregion
 
 
@@ -39,11 +50,6 @@ namespace SHUU._Editor.Drawers
 
 
         #region Logic
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-
-        This code snippet was written with the assistance of AI.
-        */
         private static void Logic(int instanceID, Rect position)
         {
             if (Event.current.type != EventType.Repaint) return;
@@ -98,16 +104,19 @@ namespace SHUU._Editor.Drawers
 
             Texture2D folderIcon = component.customIcon != null ? component.customIcon : IconFolder;
 
-            // background (always solid)
             Color bgColor = isSelected
                 ? (EditorGUIUtility.isProSkin ? new Color(0.173f, 0.365f, 0.529f) : new Color(0.227f, 0.447f, 0.69f))
                 : (EditorGUIUtility.isProSkin ? new Color(0.219f, 0.219f, 0.219f) : new Color(0.784f, 0.784f, 0.784f));
+
+            bool isHovered = IsMouseOver(position);
+            if (isHovered) bgColor = Color.Lerp(bgColor, Color.white, HoverLighten);
 
             EditorGUI.DrawRect(new Rect(position.xMin, position.yMin, position.width + pixelHeight, position.height), bgColor);
 
             if (component.coloredHighlight)
             {
                 Color hColor = isPrefabRoot ? Color.Lerp(component.highlightColor, component.prefabHighlightTint, component.prefabTintStrength) : component.highlightColor;
+                if (isHovered) hColor = Color.Lerp(hColor, Color.white, HoverLighten);
                 Color prev = GUI.color;
                 GUI.color = hColor;
                 GUI.DrawTexture(new Rect(position.xMin, position.yMin, position.width + pixelHeight, position.height), component.customGradient != null ? component.customGradient : GradientTex);
@@ -149,6 +158,15 @@ namespace SHUU._Editor.Drawers
 
 
         #region Helpers
+        private static bool IsMouseOver(Rect position)
+        {
+            EditorWindow hovered = EditorWindow.mouseOverWindow;
+            if (hovered == null || hovered.GetType().Name != "SceneHierarchyWindow") return false;
+
+            return position.Contains(Event.current.mousePosition);
+        }
+
+
         private static void EnsureIcons()
         {
             IconFolder ??= EditorGUIUtility.IconContent("Folder Icon").image as Texture2D;
