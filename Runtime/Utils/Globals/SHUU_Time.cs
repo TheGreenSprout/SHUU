@@ -134,12 +134,17 @@ namespace SHUU.Utils.Globals
         #endregion
         public static SHUU_Timer Timer(float seconds, Action onComplete, bool ignoreTimeScale = false)
         {
-            if (seconds <= 0) return null;
+            if (seconds <= 0)
+            {
+                onComplete?.Invoke();
+                return null;
+            }
 
             if (Instance == null)
             {
                 Debug.LogError("No SHUU_Time Instance found in the scene. Unable to create timer. Wait until Instance is created.");
 
+                onComplete?.Invoke();
                 return null;
             }
 
@@ -156,12 +161,17 @@ namespace SHUU.Utils.Globals
 
         public static SHUU_Timer Timer(int frames, Action onComplete, bool ignoreTimeScale = false)
         {
-            if (frames <= 0) return null;
+            if (frames <= 0)
+            {
+                onComplete?.Invoke();
+                return null;
+            }
 
             if (Instance == null)
             {
                 Debug.LogError("No SHUU_Time Instance found in the scene. Unable to create timer. Wait until Instance is created.");
 
+                onComplete?.Invoke();
                 return null;
             }
 
