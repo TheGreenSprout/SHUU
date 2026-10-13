@@ -70,6 +70,17 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
 
         #region Main
+        protected override void OnDestroy()
+        {
+            Application.logMessageReceived -= HandleLog;
+
+            factory?.Dispose();
+            factory = null;
+
+            base.OnDestroy();
+        }
+
+
         private void OnProxyAdded(Debug_ScreenLogsProxy proxy)
         {
             if (this.proxy != null) this.proxy = null;
@@ -77,6 +88,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             if (!proxy || !proxy.content) return;
 
             
+            Application.logMessageReceived -= HandleLog;
             Application.logMessageReceived += HandleLog;
             
             if (!proxy.content.gameObject.activeInHierarchy) proxy.content.gameObject.SetActive(true);
@@ -87,11 +99,11 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
         private void OnProxyRemoved(Debug_ScreenLogsProxy proxy)
         {
+            Application.logMessageReceived -= HandleLog;
+
             if (!proxy || !proxy.content) return;
 
 
-            Application.logMessageReceived -= HandleLog;
-            
             if (proxy.content.gameObject.activeInHierarchy) proxy.content.gameObject.SetActive(false);
         }
 
@@ -113,6 +125,13 @@ namespace SHUU.Utils.Developer.Debugging.Systems
         #region Debug Logs
         private void HandleLog(string logString, string stackTrace, LogType type)
         {
+            if (!this)
+            {
+                Application.logMessageReceived -= HandleLog;
+
+                return;
+            }
+
             if (!active || !listenForDebugLogs) return;
 
 
@@ -156,12 +175,12 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             else c = color.Value;
 
 
-            if (factory == null) return;
+            if (factory == null || !proxy || !proxy.content) return;
 
-            factory?.GetLog(proxy?.content, logString, c);
+            factory.GetLog(proxy.content, logString, c);
 
             Canvas.ForceUpdateCanvases();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(proxy?.content);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(proxy.content);
         }
         #endregion
 
@@ -230,7 +249,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             return Instance;
         }
 
-        public void Dispose() => pool.Dispose();
+        public void Dispose() => _pool?.Dispose();
     }
     #endregion
 }

@@ -61,7 +61,16 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
             SceneLoader.OnSceneLoadRequested -= Dispose;
 
-            pool.Return(this);
+            pool?.Return(this);
+        }
+
+
+        private void OnDestroy()
+        {
+            if (timer != null) timer.Cancel();
+            timer = null;
+
+            SceneLoader.OnSceneLoadRequested -= Dispose;
         }
 
 

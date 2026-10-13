@@ -44,6 +44,8 @@ namespace SHUU.Utils.Interaction
 
         protected virtual void Update()
         {
+            DropDestroyed();
+
             InteractCheck();
             
             CastRay();
@@ -54,6 +56,14 @@ namespace SHUU.Utils.Interaction
 
         #region Logic
         protected virtual bool SupportsCastShapes => true;
+
+        private void DropDestroyed()
+        {
+            if (previousInact is Object hovered && hovered == null) previousInact = null;
+
+            if (holdInact is Object held && held == null) holdInact = null;
+        }
+
 
         protected virtual bool CastRay() => InteractionCast(ref previousInact, cam, SupportsCastShapes ? castShape : null, interactionRange, layerMask, tagMask, tagMaskPenetrate, modifyDynamicCursor);
 

@@ -65,7 +65,7 @@ namespace SHUU.Utils.Interaction
             else
             {
                 bool cast = CastFirst(ray, view, shape, interactionRange, layers, out RaycastHit hitInfo);
-                if (cast) hitInfo.InteractionRaycast_Check(out inact, tagMask);
+                if (cast && hitInfo.InteractionRaycast_Check(out IfaceInteractable candidate, tagMask)) inact = candidate;
             }
 
 
@@ -106,6 +106,8 @@ namespace SHUU.Utils.Interaction
             if (!hit.collider.gameObject.TryGetComponent(out IfaceInteractable inact)) return false;
             inactScript = inact;
 
+            if (inact is Behaviour behaviour && !behaviour.isActiveAndEnabled) return false;
+
             if (!inact.CanBeInteracted()) return false;
 
             if (tagMask != null && !tagMask.Value.Contains(hit.collider.tag)) return false;
@@ -117,6 +119,13 @@ namespace SHUU.Utils.Interaction
         public static void ClearInteractHover(ref IfaceInteractable previousInact, bool modifyDynamicCursor)
         {
             if (previousInact == null) return;
+
+            if (previousInact is UnityEngine.Object target && target == null)
+            {
+                previousInact = null;
+
+                return;
+            }
 
             previousInact.HoverEnd(modifyDynamicCursor);
             previousInact = null;

@@ -288,7 +288,7 @@ namespace SHUU.Utils.Helpers
 
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i] == null)
+                if (IsNullOrDestroyed(list[i]))
                 {
                     list.RemoveAt(i);
 
@@ -300,8 +300,10 @@ namespace SHUU.Utils.Helpers
         public static IEnumerable<E> Clean<E>(this IEnumerable<E> source)
         {
             foreach (var item in source)
-                if (item != null) yield return item;
+                if (!IsNullOrDestroyed(item)) yield return item;
         }
+
+        private static bool IsNullOrDestroyed<E>(E item) => item == null || (item is UnityEngine.Object unityObject && unityObject == null);
 
 
         public static bool NonLINQ_Contains<E>(this IEnumerable<E> source, E item)

@@ -63,10 +63,10 @@ namespace SHUU.Utils.Helpers
         public void Dispose()
         {
             foreach (var node in available)
-                Object.Destroy(node.instance.gameObject);
+                if (node.instance != null) Object.Destroy(node.instance.gameObject);
             
             foreach (var node in inUse)
-                Object.Destroy(node.instance.gameObject);
+                if (node.instance != null) Object.Destroy(node.instance.gameObject);
         }
         #endregion
 
@@ -77,7 +77,7 @@ namespace SHUU.Utils.Helpers
         #region Pool Handling
         private ObjectPoolNode<T> AddObject()
         {
-            T obj = Object.Instantiate(prefab, parent);
+            T obj = Object.Instantiate(prefab, parent != null ? parent : null);
 
             string json = null;
             if (obj is IObjectPoolable) ((IObjectPoolable)obj).SaveDefaults();
@@ -124,21 +124,35 @@ namespace SHUU.Utils.Helpers
         #region Fetching
         public T Get()
         {
-            ObjectPoolNode<T> node;
+            ObjectPoolNode<T> node = DequeueAlive();
 
-            if (available.Count > 0) node = available.Dequeue();
-            else if (autoExpand)
+            if (node == null)
             {
-                AddObject();
-                
-                return Get();
-            }
-            else return GetOldestRecyclable();
+                if (!autoExpand) return GetOldestRecyclable();
 
-            node?.instance?.gameObject?.SetActive(true);
+                AddObject();
+
+                node = DequeueAlive();
+
+                if (node == null) return null;
+            }
+
+            node.instance.gameObject.SetActive(true);
             inUse.Add(node);
 
             return node.instance;
+        }
+
+        private ObjectPoolNode<T> DequeueAlive()
+        {
+            while (available.Count > 0)
+            {
+                ObjectPoolNode<T> node = available.Dequeue();
+
+                if (node != null && node.instance != null) return node;
+            }
+
+            return null;
         }
 
         public T[] GetActives()
@@ -166,7 +180,7 @@ namespace SHUU.Utils.Helpers
         {
             foreach (var node in inUse)
             {
-                if (!node.canRecycle) continue;
+                if (node.instance == null || !node.canRecycle) continue;
 
                 node.instance.gameObject.SetActive(true);
 
@@ -207,7 +221,7 @@ namespace SHUU.Utils.Helpers
 
             inUse.Remove(found);
             instance.gameObject.SetActive(false);
-            instance.transform.SetParent(parent, false);
+            instance.transform.SetParent(parent != null ? parent : null, false);
 
 
             if (instance is IObjectPoolable) ((IObjectPoolable)instance).RestoreDefaults();
