@@ -183,7 +183,7 @@ namespace SHUU.Utils.Interaction
         #endregion
         public void HoverEnd(bool _modifyDynamicCursor = true)
         {
-            if (modifyDynamicCursor && _modifyDynamicCursor) DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
+            DynamicCursorInteraction.RemoveCursorAffector(this.gameObject);
 
             if (stopHoldOnHoverEnd) ReleaseInteract();
 
