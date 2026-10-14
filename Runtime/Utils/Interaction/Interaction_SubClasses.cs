@@ -27,6 +27,7 @@ namespace SHUU.Utils.Interaction
         public static bool InteractionCast(ref IfaceInteractable previousInact, Ray ray, Quaternion view, CastShapeSettings shape, float interactionRange, LayerMask? interactionLayers = null, TagMask? tagMask = null, bool tagMaskPenetrate = false, bool modifyDynamicCursor = true)
         {
             IfaceInteractable inact = null;
+            RaycastHit inactHit = default;
 
             int layers = interactionLayers ?? Physics.DefaultRaycastLayers;
 
@@ -45,6 +46,7 @@ namespace SHUU.Utils.Interaction
 
                         closest = hit.distance;
                         inact = candidate;
+                        inactHit = hit;
                     }
                 }
                 else
@@ -57,6 +59,7 @@ namespace SHUU.Utils.Interaction
                         if (hit.InteractionRaycast_Check(out IfaceInteractable candidate, tagMask))
                         {
                             inact = candidate;
+                            inactHit = hit;
                             break;
                         }
                     }
@@ -65,7 +68,11 @@ namespace SHUU.Utils.Interaction
             else
             {
                 bool cast = CastFirst(ray, view, shape, interactionRange, layers, out RaycastHit hitInfo);
-                if (cast && hitInfo.InteractionRaycast_Check(out IfaceInteractable candidate, tagMask)) inact = candidate;
+                if (cast && hitInfo.InteractionRaycast_Check(out IfaceInteractable candidate, tagMask))
+                {
+                    inact = candidate;
+                    inactHit = hitInfo;
+                }
             }
 
 
@@ -77,6 +84,8 @@ namespace SHUU.Utils.Interaction
                     previousInact = inact;
                     inact.HoverStart(modifyDynamicCursor);
                 }
+
+                SendHoverHit(inact, inactHit);
             }
             else ClearInteractHover(ref previousInact, modifyDynamicCursor);
 
@@ -129,6 +138,11 @@ namespace SHUU.Utils.Interaction
 
             previousInact.HoverEnd(modifyDynamicCursor);
             previousInact = null;
+        }
+
+        public static void SendHoverHit(IfaceInteractable inact, RaycastHit hit)
+        {
+            if (inact is IfaceHitInteractable hitInact) hitInact.HoverHit(hit);
         }
 
 

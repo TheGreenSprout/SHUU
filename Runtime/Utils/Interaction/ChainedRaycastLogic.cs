@@ -209,6 +209,8 @@ namespace SHUU.Utils.Interaction
                 inact.HoverStart(modifyDynamicCursor);
             }
 
+            SendHoverHit(inact, hit);
+
             return true;
         }
         #endregion
