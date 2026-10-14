@@ -169,7 +169,7 @@ namespace SHUU.Utils.UI
             }
 
 
-            if (activeCanvasRaycaster != raycaster) ForceReleaseAllMouseButtons();
+            if (releaseClickHoldOnLayerChange && activeCanvasRaycaster != raycaster) ForceReleaseAllMouseButtons();
 
             activeCanvasRaycaster = raycaster;
 
