@@ -116,10 +116,8 @@ namespace SHUU.Utils.Interaction
         {
             if (!CanBeInteracted() || !canBeInteracted) return;
 
-
-            InteractLogic();
-
             if (holdInteract) beingInteracted = true;
+            InteractLogic();
         }
         protected virtual void InteractLogic() { }
 
@@ -127,10 +125,8 @@ namespace SHUU.Utils.Interaction
         {
             if (!holdInteract || !beingInteracted) return;
 
-
-            ReleaseInteractLogic();
-
             beingInteracted = false;
+            ReleaseInteractLogic();
         }
         protected virtual void ReleaseInteractLogic() { }
 
@@ -139,10 +135,8 @@ namespace SHUU.Utils.Interaction
         {
             if (!CanBeInteracted() || !canBeAltInteracted) return;
 
-
-            AltInteractLogic();
-
             if (holdAltInteract) beingAltInteracted = true;
+            AltInteractLogic();
         }
         protected virtual void AltInteractLogic() { }
 
@@ -150,10 +144,8 @@ namespace SHUU.Utils.Interaction
         {
             if (!holdAltInteract || !beingAltInteracted) return;
 
-
-            ReleaseAltInteractLogic();
-
             beingAltInteracted = false;
+            ReleaseAltInteractLogic();
         }
         protected virtual void ReleaseAltInteractLogic() { }
         #endregion
