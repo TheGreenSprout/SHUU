@@ -58,7 +58,7 @@ namespace SHUU.Utils.Helpers
             if (followSmoothTime == 0f) followingObject.transform.position = transform.position;
             else
             {
-                Vector3 toTarget = followingObject.transform.position - followingObject.transform.position;
+                Vector3 toTarget = transform.position - followingObject.transform.position;
                 float distance = toTarget.magnitude;
 
                 Vector3 desiredPos = transform.position - toTarget.normalized * minDistance;
