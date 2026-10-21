@@ -32,11 +32,6 @@ namespace SHUU.Utils.UI
 
 
 
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-
-        This code snippet was written with the assistance of AI.
-        */
         #region Helpers
 
         #region Gradient Types
@@ -75,10 +70,8 @@ namespace SHUU.Utils.UI
             {
                 Rect rect = graphic.rectTransform.rect;
 
-                // Gradient direction (0° = top→bottom)
                 Vector2 dir = UIGradientUtils.RotationDir(m_angle - 90f).normalized;
 
-                // Calculate projection range using rect corners
                 Vector2[] corners = new Vector2[4] {
                     new Vector2(rect.xMin, rect.yMin),
                     new Vector2(rect.xMin, rect.yMax),
@@ -102,11 +95,9 @@ namespace SHUU.Utils.UI
                 {
                     vh.PopulateUIVertex(ref vertex, i);
 
-                    // Project position along axis, normalize to 0–1
                     float proj = Vector2.Dot((Vector2)vertex.position, dir);
                     float t = (proj - minProj) / projRange;
 
-                    // Apply length + midpoint
                     float halfLength = m_length * 0.5f;
                     float start = m_midpoint - halfLength;
                     float end = m_midpoint + halfLength;
@@ -115,10 +106,8 @@ namespace SHUU.Utils.UI
                     else if (t >= end) t = 1f;
                     else t = (t - start) / (end - start);
 
-                    // Apply strength bias
                     t = Mathf.Lerp(t, m_strength > 0 ? 1f : 0f, Mathf.Abs(m_strength));
 
-                    // Apply color
                     vertex.color *= Color.Lerp(m_color1, m_color2, t);
                     vh.SetUIVertex(vertex, i);
                 }
@@ -159,18 +148,14 @@ namespace SHUU.Utils.UI
                 for (int i = 0; i < vh.currentVertCount; i++) {
                     vh.PopulateUIVertex(ref vertex, i);
 
-                    // Normalized local position
                     Vector2 norm = localPositionMatrix * vertex.position;
 
-                    // --- Apply length + midpoint per axis ---
                     norm.x = ApplyLengthMidpoint(norm.x, m_midpoint.x, m_length.x);
                     norm.y = ApplyLengthMidpoint(norm.y, m_midpoint.y, m_length.y);
 
-                    // --- Apply strength biases ---
                     float bx = Mathf.Lerp(norm.x, m_strength.x > 0 ? 1f : 0f, Mathf.Abs(m_strength.x));
                     float by = Mathf.Lerp(norm.y, m_strength.y > 0 ? 1f : 0f, Mathf.Abs(m_strength.y));
 
-                    // Bilinear blend
                     Color c = UIGradientUtils.Bilerp(
                         m_bottomLeftColor,
                         m_bottomRightColor,
@@ -186,10 +171,10 @@ namespace SHUU.Utils.UI
             private float ApplyLengthMidpoint(float t, float midpoint, float length) {
                 float half = length * 0.5f;
                 float start = midpoint - half;
-                float end   = midpoint + half;
+                float end = midpoint + half;
 
                 if (t <= start) return 0f;
-                if (t >= end)   return 1f;
+                if (t >= end) return 1f;
                 return (t - start) / (end - start);
             }
 
@@ -218,7 +203,6 @@ namespace SHUU.Utils.UI
 
                 Vector2 dir = UIGradientUtils.RotationDir(m_angle - 90f).normalized;
 
-                // Projection range from corners
                 Vector2[] corners = new Vector2[4] {
                     new Vector2(rect.xMin, rect.yMin),
                     new Vector2(rect.xMin, rect.yMax),
@@ -243,7 +227,6 @@ namespace SHUU.Utils.UI
                     float proj = Vector2.Dot((Vector2)vertex.position, dir);
                     float t = (proj - minProj) / projRange;
 
-                    // --- Length + Midpoint logic ---
                     float halfLength = m_length * 0.5f;
                     float start = m_midpoint - halfLength;
                     float end = m_midpoint + halfLength;
@@ -252,10 +235,8 @@ namespace SHUU.Utils.UI
                     else if (t >= end) t = 1f;
                     else t = (t - start) / (end - start);
 
-                    // Strength bias
                     t = Mathf.Lerp(t, m_strength > 0 ? 1f : 0f, Mathf.Abs(m_strength));
 
-                    // Apply color
                     vertex.color *= Color.Lerp(m_color1, m_color2, t);
                     vh.SetUIVertex(vertex, i);
                 }
@@ -295,21 +276,17 @@ namespace SHUU.Utils.UI
                 for (int i = 0; i < vh.currentVertCount; i++) {
                     vh.PopulateUIVertex(ref vertex, i);
 
-                    // Normalized [0–1] position
                     Vector2 norm = new Vector2(
                         (vertex.position.x - rectMin.x) / rectSize.x,
                         (vertex.position.y - rectMin.y) / rectSize.y
                     );
 
-                    // --- Apply length + midpoint per axis ---
                     norm.x = ApplyLengthMidpoint(norm.x, m_midpoint.x, m_length.x);
                     norm.y = ApplyLengthMidpoint(norm.y, m_midpoint.y, m_length.y);
 
-                    // --- Apply strength biases ---
                     float bx = Mathf.Lerp(norm.x, m_strength.x > 0 ? 1f : 0f, Mathf.Abs(m_strength.y));
                     float by = Mathf.Lerp(norm.y, m_strength.y > 0 ? 1f : 0f, Mathf.Abs(m_strength.y));
 
-                    // Bilinear color blend
                     Color c = UIGradientUtils.Bilerp(
                         m_bottomLeftColor,
                         m_bottomRightColor,
@@ -325,7 +302,7 @@ namespace SHUU.Utils.UI
             private float ApplyLengthMidpoint(float t, float midpoint, float length) {
                 float half = length * 0.5f;
                 float start = midpoint - half;
-                float end   = midpoint + half;
+                float end = midpoint + half;
 
                 if (t <= start) return 0f;
                 if (t >= end)   return 1f;
@@ -386,7 +363,7 @@ namespace SHUU.Utils.UI
             static Vector2[] VerticesPositions = new Vector2[] { Vector2.up, Vector2.one, Vector2.right, Vector2.zero };
             public static Vector2[] VerticePositions
             {
-                get { return VerticesPositions; }
+                get => VerticesPositions;
             }
 
             public static Vector2 RotationDir(float angle)
@@ -404,10 +381,7 @@ namespace SHUU.Utils.UI
                 return dir.normalized;
             }
 
-            public static float InverseLerp(float a, float b, float v)
-            {
-                return a != b ? (v - a) / (b - a) : 0f;
-            }
+            public static float InverseLerp(float a, float b, float v) => a != b ? (v - a) / (b - a) : 0f;
 
             public static Color Bilerp(Color a1, Color a2, Color b1, Color b2, Vector2 t)
             {
@@ -424,8 +398,6 @@ namespace SHUU.Utils.UI
                 c.tangent = Vector3.LerpUnclamped(a.tangent, b.tangent, t);
                 c.uv0 = Vector3.LerpUnclamped(a.uv0, b.uv0, t);
                 c.uv1 = Vector3.LerpUnclamped(a.uv1, b.uv1, t);
-                // c.uv2 = Vector3.LerpUnclamped(a.uv2, b.uv2, t);
-                // c.uv3 = Vector3.LerpUnclamped(a.uv3, b.uv3, t);		
             }
 
 
@@ -439,7 +411,6 @@ namespace SHUU.Utils.UI
 
                 var gridVerts = new List<UIVertex>();
 
-                // Build grid of vertices
                 for (int y = 0; y <= subdivisions.y; y++)
                 {
                     float fy = (float)y / subdivisions.y;
@@ -455,7 +426,6 @@ namespace SHUU.Utils.UI
                     }
                 }
 
-                // Build quads into triangles
                 for (int y = 0; y < subdivisions.y; y++)
                 {
                     for (int x = 0; x < subdivisions.x; x++)

@@ -1,12 +1,5 @@
-/*
-⚠️‼️ AI ASSISTED SCRIPT
-
-This script was written with the assistance of AI.
-*/
-
-
-
 using UnityEngine;
+
 using Alchemy.Inspector;
 
 namespace SHUU.Utils
@@ -15,7 +8,7 @@ namespace SHUU.Utils
     public class SHUU_HierarchyFolder : MonoBehaviour
     {
         #region Enums
-        public enum TextAlignment  { Left, Center }
+        public enum TextAlignment { Left, Center }
         public enum DissolveOnPlay { Off, PlayMode, Build }
         public enum PrefabTintMode { None, Root, Always }
         #endregion
@@ -24,7 +17,6 @@ namespace SHUU.Utils
 
 
         #region Variables
-
         [SerializeField] private DissolveOnPlay dissolveOnPlay = DissolveOnPlay.Build;
 
 

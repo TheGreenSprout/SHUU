@@ -295,20 +295,9 @@ namespace SHUU.Utils.Developer.Console
 
 
 
-
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-
-        This code snippet was written with the assistance of AI.
-        */
         #region Logic
 
         #region Fetch
-        #region XML doc
-        /// <summary>
-        /// The items that match. Throws a QueryException if a field doesn't exist or can't be compared with the value.
-        /// </summary>
-        #endregion
         public List<T> Filter<T>(IEnumerable<T> source)
         {
             List<T> matches = new List<T>();
@@ -329,7 +318,6 @@ namespace SHUU.Utils.Developer.Console
             return true;
         }
         #endregion
-
 
 
         #region Parsing
@@ -387,7 +375,6 @@ namespace SHUU.Utils.Developer.Console
         #endregion
 
 
-
         #region Reading fields
         private static bool Matches(object item, Condition condition) => Compare(Resolve(item, condition), condition);
 
@@ -411,11 +398,6 @@ namespace SHUU.Utils.Developer.Console
             return IsNull(current) ? null : current;
         }
 
-        #region XML doc
-        /// <summary>
-        /// The public field or property of a type with that name (not case sensitive), or null if there isn't one.
-        /// </summary>
-        #endregion
         public static MemberInfo FindMember(Type type, string name)
         {
             if (MemberCache.TryGetValue((type, name), out MemberInfo cached)) return cached;
@@ -444,7 +426,6 @@ namespace SHUU.Utils.Developer.Console
             return found;
         }
         #endregion
-
 
 
         #region Comparing
@@ -517,7 +498,6 @@ namespace SHUU.Utils.Developer.Console
             }
         }
         #endregion
-
 
 
         #region Helpers

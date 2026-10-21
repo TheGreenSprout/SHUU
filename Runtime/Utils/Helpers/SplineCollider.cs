@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using UnityEngine;
 using UnityEngine.Splines;
 using System.Collections.Generic;
@@ -16,14 +8,13 @@ using UnityEditor;
 
 namespace SHUU.Utils.Helpers
 {
-    [ExecuteAlways]
-    [DisallowMultipleComponent]
-    [RequireComponent(typeof(MeshCollider))]
+    [ExecuteAlways, DisallowMultipleComponent, RequireComponent(typeof(MeshCollider))]
     public class SplineCollider : MonoBehaviour
     {
         #region Variables
         [Header("Spline")]
         public SplineContainer splineContainer;
+
 
         [Header("Shape")]
         [Min(0.01f)] public float height = 2f;
@@ -31,10 +22,14 @@ namespace SHUU.Utils.Helpers
         public Vector3 localUp = Vector3.up;
         [Min(3)] public int resolution = 64;
 
+
         [Header("Gizmos")]
         public bool drawGizmos = true;
         public Color gizmoColor = new Color(0f, 1f, 0f, 0.7f);
 
+
+
+        // Internal
         private MeshCollider meshCollider;
         private bool dirty;
         private bool originalEnabled = false;
@@ -49,6 +44,7 @@ namespace SHUU.Utils.Helpers
             EnsureCollider();
             MarkDirty();
         }
+
 
         private void OnEnable()
         {
@@ -67,6 +63,7 @@ namespace SHUU.Utils.Helpers
             meshCollider.enabled = originalEnabled;
         }
 
+
         private void OnApplicationQuit()
         {
             if (!Application.isPlaying) return;
@@ -80,7 +77,8 @@ namespace SHUU.Utils.Helpers
             EnsureCollider();
             MarkDirty();
         }
-    #endif
+#endif
+
 
         private void LateUpdate()
         {
@@ -139,7 +137,6 @@ namespace SHUU.Utils.Helpers
         #region Mesh Generation
         private Mesh GenerateVolumeMesh()
         {
-            // Collect base spline points
             List<Vector3> baseVerts = new();
             for (int i = 0; i < resolution; i++)
                 baseVerts.Add(Evaluate(i / (float)resolution) + HeightOffset);
@@ -148,14 +145,12 @@ namespace SHUU.Utils.Helpers
             List<Vector3> verts = new List<Vector3>();
             List<int> tris = new List<int>();
 
-            // Add bottom and top vertices
             for (int i = 0; i < vertCount; i++)
             {
-                verts.Add(baseVerts[i]);                 // bottom
-                verts.Add(baseVerts[i] + Up * height);  // top
+                verts.Add(baseVerts[i]);
+                verts.Add(baseVerts[i] + Up * height);
             }
 
-            // Side quads
             for (int i = 0; i < vertCount; i++)
             {
                 int next = (i + 1) % vertCount;
@@ -169,22 +164,19 @@ namespace SHUU.Utils.Helpers
                 tris.Add(b0); tris.Add(t1); tris.Add(b1);
             }
 
-            // Caps
-            AddCap(verts, tris, false); // bottom
-            AddCap(verts, tris, true);  // top
+            AddCap(verts, tris, false);
+            AddCap(verts, tris, true);
 
             return CreateMesh(verts, tris);
         }
 
-        // Improved cap generation using ear-clipping
         private void AddCap(List<Vector3> verts, List<int> tris, bool top)
         {
             int offset = top ? 1 : 0;
             int vertCount = resolution;
 
-            // Project to 2D plane for triangulation
             Vector2[] points2D = new Vector2[vertCount];
-            Vector3 origin = verts[offset]; // first vertex as origin
+            Vector3 origin = verts[offset];
             Vector3 tangent = Vector3.Cross(Up, Vector3.forward).normalized;
             Vector3 bitangent = Vector3.Cross(Up, tangent).normalized;
 
@@ -196,7 +188,6 @@ namespace SHUU.Utils.Helpers
 
             int[] indices = TriangulatePolygon(points2D);
 
-            // Assign to mesh
             for (int i = 0; i < indices.Length; i += 3)
             {
                 if (top) tris.AddRange(new[] { indices[i] * 2 + 1, indices[i + 1] * 2 + 1, indices[i + 2] * 2 + 1 });
@@ -204,7 +195,6 @@ namespace SHUU.Utils.Helpers
             }
         }
 
-        // Ear clipping triangulation
         private int[] TriangulatePolygon(Vector2[] points)
         {
             List<int> indices = new List<int>();
@@ -234,9 +224,9 @@ namespace SHUU.Utils.Helpers
                     }
                 }
 
-                if (!earFound) break; // fallback
+                if (!earFound) break;
                 count++;
-                if (count > 5000) break; // prevent infinite loop
+                if (count > 5000) break;
             }
 
             if (V.Count == 3) indices.AddRange(V);

@@ -1,21 +1,12 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 Shader "Debug/GLDebug"
 {
     Properties
-    {
-        _ZTest("ZTest Mode", Int) = 4 // LessEqual
-    }
+        { _ZTest("ZTest Mode", Int) = 4 }
 
     SubShader
     {
-        Tags { "Queue"="Overlay" "RenderType"="Overlay" }
+        Tags
+            { "Queue"="Overlay" "RenderType"="Overlay" }
 
         Pass
         {
@@ -47,7 +38,6 @@ Shader "Debug/GLDebug"
             {
                 v2f o;
 
-                // ✅ FIX: world-space vertex → clip space
                 o.pos = mul(UNITY_MATRIX_VP, v.vertex);
 
                 o.color = v.color;
@@ -55,9 +45,7 @@ Shader "Debug/GLDebug"
             }
 
             fixed4 frag(v2f i) : SV_Target
-            {
-                return i.color;
-            }
+                { return i.color; }
             ENDCG
         }
     }

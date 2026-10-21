@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System.Collections.Generic;
 using System;
 using System.IO;

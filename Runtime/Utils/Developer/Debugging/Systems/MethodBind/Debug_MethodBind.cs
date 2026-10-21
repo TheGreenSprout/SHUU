@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;

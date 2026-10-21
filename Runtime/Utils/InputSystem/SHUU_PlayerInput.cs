@@ -665,11 +665,6 @@ namespace SHUU.Utils.InputSystem
 
 
         
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-
-        This snippet was written with the assistance of AI.
-        */
         #region Display Strings
         public string GetBindingDisplayString(string actionPath, int bindingIndex)
         {

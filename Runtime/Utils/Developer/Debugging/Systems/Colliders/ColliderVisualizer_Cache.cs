@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -260,8 +252,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             }
         }
 
-        private static void DrawOverlay(Mesh mesh, Material material)
-            => Graphics.DrawMesh(mesh, Matrix4x4.identity, material, 0, null, 0, null, ShadowCastingMode.Off, false);
+        private static void DrawOverlay(Mesh mesh, Material material) => Graphics.DrawMesh(mesh, Matrix4x4.identity, material, 0, null, 0, null, ShadowCastingMode.Off, false);
         #endregion
 
 

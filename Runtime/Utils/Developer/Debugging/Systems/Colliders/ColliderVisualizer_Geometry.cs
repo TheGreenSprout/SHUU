@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,10 +5,15 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 {
     internal static class ColliderVisualizer_Geometry
     {
+        #region Variables
         private const float SizeFraction = 0.0006f;
+
 
         private static Vector3 PushedVertex(Vector3[] verts, Vector3[] normals, bool hasNormals, float push, int index)
             => hasNormals ? verts[index] + normals[index] * push : verts[index];
+        #endregion
+
+
 
 
         #region Wire geometry

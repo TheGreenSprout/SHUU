@@ -31,14 +31,6 @@ namespace SHUU.Utils.Globals
 
 
 
-        [Header("Dialogue Settings")]
-        //[SerializeField] private List<GameObject> dialogueBox_PrefabList = new List<GameObject>();
-
-
-        [SerializeField] private Canvas dialogueCanvas;
-
-
-
         [Header("Scene Transition Fade Settings")]
         [SerializeField] private bool fadeInAtSceneRoomEnter = true;
 

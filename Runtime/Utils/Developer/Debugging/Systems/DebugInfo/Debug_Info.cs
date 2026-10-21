@@ -329,10 +329,6 @@ namespace SHUU.Utils.Developer.Debugging.Systems
 
 
 
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-        This code snippet was written with the assistance of AI.
-        */
         #region Overlays
         private void BuildOverlays()
         {
@@ -368,8 +364,8 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                 Vector3.Dot(Vector3.forward, cam.transform.forward),
             };
 
-            // Insertion sort 3 elements back-to-front (largest depth first = furthest behind camera first)
             for (int i = 1; i < 3; i++)
+            {
                 for (int j = i; j > 0 && depth[j] > depth[j - 1]; j--)
                 {
                     (world[j], world[j-1]) = (world[j-1], world[j]);
@@ -377,6 +373,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                     (lbls[j], lbls[j-1]) = (lbls[j-1], lbls[j]);
                     (depth[j], depth[j-1]) = (depth[j-1], depth[j]);
                 }
+            }
 
             GL.PushMatrix();
             GL.LoadPixelMatrix();
@@ -425,23 +422,22 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             GUI.DrawTexture(new Rect(barX, barY, barW, barH), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
-            // Tick marks — 32 steps of 11.25° per full rotation
             for (int i = 0; i < 32; i++)
             {
                 float angle = i * 11.25f;
                 float diff  = Mathf.DeltaAngle(yaw, angle);
                 if (Mathf.Abs(diff) > visibleDeg * 0.5f) continue;
-                if (i % 4 == 0) continue; // 45° slots have labels instead
+                if (i % 4 == 0) continue;
 
                 float px = barX + barW * 0.5f - (diff / visibleDeg) * barW;
 
                 float tickH, alpha;
-                if (i % 2 == 0) // 22.5° — medium
+                if (i % 2 == 0)
                 {
                     tickH = 7f;
                     alpha = 0.75f;
                 }
-                else // 11.25° — small
+                else
                 {
                     tickH = 4f;
                     alpha = 0.45f;
@@ -452,7 +448,6 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             }
             GUI.color = Color.white;
 
-            // Direction labels
             var style = new GUIStyle { fontSize = 11, alignment = TextAnchor.MiddleCenter };
             foreach (var (text, angle) in CompassDirs)
             {
@@ -467,7 +462,7 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                 if (CompassEdgeShrink)
                 {
                     float t = Mathf.Abs(diff) / (visibleDeg * 0.5f);
-                    t = t * t * t; // cubic — stays full-size near center, shrinks sharply near edges
+                    t = t * t * t;
                     float scaleX = Mathf.Lerp(1f, 0.3f, t);
                     var prevMatrix = GUI.matrix;
                     GUIUtility.ScaleAroundPivot(new Vector2(scaleX, 1f), new Vector2(px, barY + barH * 0.5f));
@@ -480,7 +475,6 @@ namespace SHUU.Utils.Developer.Debugging.Systems
                 }
             }
 
-            // Centre heading marker
             GUI.color = Color.yellow;
             GUI.DrawTexture(new Rect(barX + barW * 0.5f - 1f, barY, 2f, barH), Texture2D.whiteTexture);
             GUI.color = Color.white;
@@ -493,16 +487,14 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             const float maxMs = 50f;
             float graphW = FrameBufferSize * barW;
             float gx = FrameGraphCorner ? Screen.width - graphW - 8f : (Screen.width - graphW) * 0.5f;
-            float gy = 22f; // leaves room for the label above
+            float gy = 22f;
 
             float targetMs = Application.targetFrameRate > 0 ? 1000f / Application.targetFrameRate : 1000f / 60f;
             float target30Ms = 1000f / 30f;
 
-            // Background
             GUI.color = new Color(0f, 0f, 0f, 0.6f);
             GUI.DrawTexture(new Rect(gx, gy, graphW, graphH), Texture2D.whiteTexture);
 
-            // Target lines
             float yTarget = gy + graphH - Mathf.Clamp01(targetMs  / maxMs) * graphH;
             float y30 = gy + graphH - Mathf.Clamp01(target30Ms / maxMs) * graphH;
             GUI.color = new Color(0.2f, 0.9f, 0.2f, 0.5f);
@@ -510,7 +502,6 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             GUI.color = new Color(1f, 0.85f, 0.1f, 0.5f);
             GUI.DrawTexture(new Rect(gx, y30, graphW, 1f), Texture2D.whiteTexture);
 
-            // Bars oldest → newest
             for (int i = 0; i < FrameBufferSize; i++)
             {
                 float ms = frameTimes[(frameHead + i) % FrameBufferSize];
@@ -524,7 +515,6 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             }
             GUI.color = Color.white;
 
-            // FPS labels to the right of target lines
             var labelStyle = new GUIStyle { fontSize = 9, alignment = TextAnchor.MiddleLeft };
             float lx = FrameGraphCorner ? gx - 40f : gx + graphW + 3f;
             labelStyle.normal.textColor = new Color(0.2f, 0.9f, 0.2f);
@@ -532,7 +522,6 @@ namespace SHUU.Utils.Developer.Debugging.Systems
             labelStyle.normal.textColor = new Color(1f, 0.85f, 0.1f);
             GUI.Label(new Rect(lx, y30 - 6f, 36f, 12f), "30fps", labelStyle);
 
-            // Current frametime above the graph
             labelStyle.fontSize = 10;
             labelStyle.normal.textColor = Color.white;
             GUI.Label(new Rect(gx, gy - 14f, graphW, 13f), $"{Stats.Fps:F0} fps  {Stats.Frametimems:F2} ms", labelStyle);

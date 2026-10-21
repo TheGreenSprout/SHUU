@@ -513,11 +513,6 @@ namespace SHUU.Utils.InputSystem
 
 
 
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-
-        This snippet was written with the assistance of AI.
-        */
         #region Rebinding & Defaults
         public static string SaveOverrides() => InputActionAsset?.SaveBindingOverridesAsJson();
 
@@ -653,11 +648,6 @@ namespace SHUU.Utils.InputSystem
 
 
 
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-
-        This snippet was written with the assistance of AI.
-        */
         #region Display Strings
         public static string GetBindingDisplayString(string actionPath, int bindingIndex)
         {

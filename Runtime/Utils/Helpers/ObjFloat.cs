@@ -1,14 +1,7 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+
 using Alchemy.Inspector;
 
 using SHUU.InnerWorkings.Preferences;
@@ -289,6 +282,7 @@ namespace SHUU.Utils.UI
             noiseSeed = new Vector3(Random.Range(0f, 1000f), Random.Range(0f, 1000f), Random.Range(0f, 1000f));
         }
 
+
         private void OnEnable()
         {
             floatWeight = 0f;
@@ -318,6 +312,7 @@ namespace SHUU.Utils.UI
             shakeMagnitude = Mathf.Max(0f, shakeMagnitude);
             scaleMagnitude = Mathf.Max(0f, scaleMagnitude);
         }
+
 
         private void Migrate()
         {
@@ -460,6 +455,7 @@ namespace SHUU.Utils.UI
         #endregion
 
 
+
         #region Float
         private float PhaseX => randomStartPhase ? randomPhase.x : startPhase * Mathf.Deg2Rad;
         private float PhaseY => randomStartPhase ? (pattern == FloatPattern.Drift ? randomPhase.y : randomPhase.x) : startPhase * Mathf.Deg2Rad;
@@ -516,6 +512,7 @@ namespace SHUU.Utils.UI
             return value;
         }
         #endregion
+
 
 
         #region Applying

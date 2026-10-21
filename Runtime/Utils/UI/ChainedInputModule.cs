@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -40,6 +32,7 @@ namespace SHUU.Utils.UI
 
 
 
+        // Internal
         private bool usingChainedInput;
         private Vector2 chainedMousePosition;
 
@@ -418,7 +411,9 @@ namespace SHUU.Utils.UI
 
 
 
-    #if !ENABLE_LEGACY_INPUT_MANAGER && ENABLE_INPUT_SYSTEM
+
+    #region  InputSystemInput
+#if !ENABLE_LEGACY_INPUT_MANAGER && ENABLE_INPUT_SYSTEM
     [AddComponentMenu("")]
     public class ChainedInputModule_InputSystemInput : BaseInput
     {
@@ -438,7 +433,6 @@ namespace SHUU.Utils.UI
             return this;
         }
         #endregion
-
 
 
 
@@ -508,8 +502,7 @@ namespace SHUU.Utils.UI
                     || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame);
 
             if (buttonName == module.cancelButton)
-                return (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
-                    || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame);
+                return (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame);
 
             return false;
         }
@@ -547,5 +540,6 @@ namespace SHUU.Utils.UI
         public override Vector2 compositionCursorPos { get => Vector2.zero; set { } }
         #endregion
     }
-    #endif
+#endif
+    #endregion
 }

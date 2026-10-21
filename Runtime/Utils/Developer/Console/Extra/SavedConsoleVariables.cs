@@ -29,17 +29,7 @@ namespace SHUU.Utils.Developer.Console
         public static void Clear() => Variables.Clear();
 
 
-        /*
-        ⚠️‼️ AI ASSISTED SNIPPET
-
-        This code snippet was written with the assistance of AI.
-        */
         #region Parse
-        #region XML doc
-        /// <summary>
-        /// Variable names start with a letter or _ and go on with letters, numbers and _, so they can be told apart from the text around them.
-        /// </summary>
-        #endregion
         public static bool IsValidName(string name)
         {
             if (string.IsNullOrEmpty(name) || !IsNameStart(name[0])) return false;
@@ -55,18 +45,8 @@ namespace SHUU.Utils.Developer.Console
         private static bool IsDigit(char c) => c >= '0' && c <= '9';
 
 
-        #region XML doc
-        /// <summary>
-        /// Replaces every $variable in the text, wherever it is in a word (hp&lt;$health,ammo=$ammo). One that doesn't exist loses its $.
-        /// </summary>
-        #endregion
         public static string ParseVariable(string input) => Expand(input, int.MaxValue, false, out _);
 
-        #region XML doc
-        /// <summary>
-        /// Same, but a variable that doesn't exist is an error, and so is the result getting longer than maxLength. On an error the text comes back unchanged.
-        /// </summary>
-        #endregion
         public static string ParseVariable(string input, out CommandReturn error, int maxLength = int.MaxValue)
         {
             string result = Expand(input, maxLength, true, out error);
@@ -87,13 +67,11 @@ namespace SHUU.Utils.Developer.Console
 
             int i = 0;
 
-            // Where the text is inside quotes (the same way the console reads them), because a variable is put in differently there.
             bool inQuotes = false;
             int backslashes = 0;
 
             while (i < input.Length)
             {
-                // A '$' that isn't followed by a name (like the one in "cost$5") is just text.
                 if (input[i] != '$' || i + 1 >= input.Length || !IsNameStart(input[i + 1]))
                 {
                     if (input[i] == '\\') backslashes++;
@@ -125,7 +103,6 @@ namespace SHUU.Utils.Developer.Console
                 {
                     List<string> words = Slice(value, start, count);
 
-                    // Outside quotes every word that has a space in it gets its own, so it stays one word. Inside quotes they just join the quoted text.
                     result.Append(inQuotes ? ConsoleTokenizer.EscapeForQuotes(string.Join(" ", words), end < input.Length && input[end] == '"') : ConsoleTokenizer.Join(words));
                 }
                 else if (reportMissing) { if (!missing.Contains(name)) missing.Add(name); }
@@ -135,7 +112,6 @@ namespace SHUU.Utils.Developer.Console
                 i = end;
 
 
-                // Checked as it grows, so a variable that contains itself never gets to build a huge line.
                 if (result.Length > maxLength)
                 {
                     error = CommandReturn.Red($"The line got longer than {maxLength} characters once the variables were replaced (does a variable contain itself?).");
@@ -155,7 +131,6 @@ namespace SHUU.Utils.Developer.Console
             return result.ToString();
         }
 
-        // >X skips the first X words, <Y keeps only Y of them (after skipping). Going past the end gives fewer words, or none.
         private static List<string> Slice(List<string> words, int? start, int? count)
         {
             int from = Math.Clamp(start ?? 0, 0, words.Count);
@@ -164,7 +139,6 @@ namespace SHUU.Utils.Developer.Console
             return words.GetRange(from, take);
         }
 
-        // Reads the >X and <Y written right after a name. They only count when a number follows, so in "$max<$min" the < stays as text.
         private static void ReadSlice(string text, ref int index, out int? start, out int? count)
         {
             start = null;

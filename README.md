@@ -59,15 +59,15 @@ Enjoy :D
 
 
 ️## ⚠️‼️ AI ASSISTED CODE
-###     - This package contains some AI assisted code. All scripts with AI assistance present will have a warning at the very top!
+###     - This package contains some AI assisted code. All scripts with AI assistance are only used in the editor (no direct player code, only quality of life editor windows and such) and will have a warning at the very top!
 ***
 <br><br><br><br>
 
 
 
 ***
-### + Current Version: 5.8.4
-### - Update Date: 16-10-2026
+### + Current Version: 5.10.1
+### - Update Date: 22-10-2026
 ### - Creation Date: 24-03-2025
 ***
 <br><br><br><br>

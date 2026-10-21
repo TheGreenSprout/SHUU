@@ -1,16 +1,9 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 Shader "Hidden/SHUU/DebugInfo_AxisLines"
 {
     SubShader
     {
-        Tags { "Queue" = "Overlay" }
+        Tags
+            { "Queue"="Overlay" }
 
         Pass
         {
@@ -44,9 +37,7 @@ Shader "Hidden/SHUU/DebugInfo_AxisLines"
             }
 
             fixed4 frag(v2f i) : SV_Target
-            {
-                return i.color;
-            }
+                { return i.color; }
             ENDCG
         }
     }

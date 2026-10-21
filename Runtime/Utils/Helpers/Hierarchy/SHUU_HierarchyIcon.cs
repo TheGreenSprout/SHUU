@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED SCRIPT
-
-This script was written with the assistance of AI.
-*/
-
-
-
 using UnityEngine;
 
 using Alchemy.Inspector;

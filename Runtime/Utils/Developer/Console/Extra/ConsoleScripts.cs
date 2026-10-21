@@ -1,11 +1,3 @@
-/*
-⚠️‼️ AI ASSISTED CODE
-
-This code was written with the assistance of AI.
-*/
-
-
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -67,7 +59,6 @@ namespace SHUU.Utils.Developer.Console
             Waiter = null;
         }
         #endregion
-
 
 
 
