@@ -20,6 +20,7 @@ namespace SETB.UserSide
 		
 		
 		
+		
 		// <AUTO_GENERATED_START:SHUU_InspectorCreationAssets>
 		[MenuItem("GameObject/Create Folder (SHUU)", false, 0)]
 		private static void Folder(MenuCommand menuCommand)
@@ -56,10 +57,15 @@ namespace SETB.UserSide
 		{
 			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 6, menuCommand);
 		}
+		[MenuItem("GameObject/SHUU/UI/TypewriterText", false, 51)]
+		private static void TypewriterText(MenuCommand menuCommand)
+		{
+			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 7, menuCommand);
+		}
 		[MenuItem("GameObject/SHUU/UI/Chained_EventSystem", false, 51)]
 		private static void Chained_EventSystem(MenuCommand menuCommand)
 		{
-			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 7, menuCommand);
+			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 8, menuCommand);
 		}
 		// <AUTO_GENERATED_END:SHUU_InspectorCreationAssets>
 	
