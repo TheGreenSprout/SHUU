@@ -21,6 +21,7 @@ namespace SETB.UserSide
 		
 		
 		
+		
 		// <AUTO_GENERATED_START:SHUU_InspectorCreationAssets>
 		[MenuItem("GameObject/Create Folder (SHUU)", false, 0)]
 		private static void Folder(MenuCommand menuCommand)
