@@ -9,17 +9,6 @@ namespace SETB.UserSide
     {
         //! DO NOT MODIFY THIS CODE. IT IS AUTO GENERATED, CHANGES WILL BE OVERRIDEN.
         //! DO NOT DELETE THIS SCRIPT, IT'S NECESSARY FOR SAUB TO WORK.
-	
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		// <AUTO_GENERATED_START:SHUU_InspectorCreationAssets>
@@ -58,15 +47,20 @@ namespace SETB.UserSide
 		{
 			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 6, menuCommand);
 		}
+		[MenuItem("GameObject/SHUU/UI/BlipSlider", true, 51)]
+		private static void BlipSlider(MenuCommand menuCommand)
+		{
+			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 7, menuCommand);
+		}
 		[MenuItem("GameObject/SHUU/UI/TypewriterText", false, 51)]
 		private static void TypewriterText(MenuCommand menuCommand)
 		{
-			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 7, menuCommand);
+			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 8, menuCommand);
 		}
 		[MenuItem("GameObject/SHUU/UI/Chained_EventSystem", false, 51)]
 		private static void Chained_EventSystem(MenuCommand menuCommand)
 		{
-			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 8, menuCommand);
+			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 9, menuCommand);
 		}
 		// <AUTO_GENERATED_END:SHUU_InspectorCreationAssets>
 	

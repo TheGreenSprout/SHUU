@@ -27,27 +27,24 @@ namespace SHUU.Utils.UI
 
         #region Inspector
         [Header("Speed")]
-        [Min(1f), SerializeField] private float charactersPerSecond = 20f;
+        [Min(1f)] public float charactersPerSecond = 20f;
 
-        [SerializeField] private float punctuationDelay = 0.5f; // ? . : ; !
-        [SerializeField] private float semiPunctuationDelay = 0.25f; // , -
+        public float punctuationDelay = 0.5f; // ? . : ; !
+        public float semiPunctuationDelay = 0.25f; // , -
 
 
         [Header("Fast forward / skip")]
-        [Min(1), SerializeField] private int fastForwardSpeedup = 5;
+        [Min(1)] public int fastForwardSpeedup = 5;
 
         [Tooltip("When the text is skipped, still fire the <event=...> tags that hadn't been reached yet.")]
         [SerializeField] private bool fireEventsOnSkip = true;
 
 
         [Header("Misc")]
-        [Range(0.1f, 0.5f), SerializeField] private float completeDelay = 0.25f;
+        [Range(0.1f, 0.5f)] public float completeDelay = 0.25f;
         [SerializeField] private bool useUnscaledTime = true;
 
-        [SerializeField] private Func<AudioClip> talkingSounds;
-        private AudioClip talkingSound => talkingSounds?.Invoke();
-
-        [SerializeField] private UnityEvent<AudioClip> paySound;
+        [SerializeField] private UnityEvent<AudioClip> playSound;
 
 
         [Header("Shake")]
@@ -58,14 +55,16 @@ namespace SHUU.Utils.UI
 
 
         #region Public
+        public Func<AudioClip> talkingSounds;
+        private AudioClip talkingSound => talkingSounds?.Invoke();
+
+
         public bool isTyping { get; private set; }
         public bool isFastForwarding { get; private set; }
 
 
         public event Action completeTextRevealed;
-
         public event Action<char> characterRevealed;
-
         public event Action<string> eventTagReached;
         #endregion
 
@@ -348,7 +347,7 @@ namespace SHUU.Utils.UI
             Camera cam = Camera.main;
             if (cam == null) return;
 
-            paySound?.Invoke(talkingSound);
+            playSound?.Invoke(talkingSound);
         }
 
 
