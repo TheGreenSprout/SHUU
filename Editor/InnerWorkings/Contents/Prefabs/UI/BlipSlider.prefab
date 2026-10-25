@@ -931,10 +931,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.UI.BlipSlider
   sliderRegion: {fileID: 4497004187220573407}
-  blips: []
+  blips:
+  - {fileID: 7820753075794358638}
+  - {fileID: 1782983257526198888}
+  - {fileID: 803767365394715969}
+  - {fileID: 4702509835457883833}
+  - {fileID: 1307866728408069917}
+  - {fileID: 1283074820101512630}
+  - {fileID: 1154014230548705004}
+  - {fileID: 737177548099503369}
+  - {fileID: 197812432925063383}
+  - {fileID: 6804724566427825099}
   onBlipChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8219936397362202014}
+        m_TargetAssemblyTypeName: SHUU.Utils.UI.BlipSliderAction, SproutingGames.Sprouts.HUU
+        m_MethodName: SelectBlip
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   allowDragOutsideRegion: 1
 --- !u!114 &8219936397362202014
 MonoBehaviour:
@@ -948,8 +970,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5e9d4314d64a4a4a971c61ee20abf77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: SproutingGames.Sprouts.HUU::SHUU.Utils.UI.BlipSliderAction
-  blips: []
-  allowEmptyBlips: 0
+  blips:
+  - {fileID: 4500715535541414195}
+  - {fileID: 3783134417347701770}
+  - {fileID: 4550667155214389252}
+  - {fileID: 6622853101342065327}
+  - {fileID: 7494267354360450412}
+  - {fileID: 4070617143335455988}
+  - {fileID: 7439139325712665393}
+  - {fileID: 340753891430693166}
+  - {fileID: 1353365832928191824}
+  - {fileID: 7633944672758367250}
+  allowEmptyBlips: 1
 --- !u!1 &7232762123818188897
 GameObject:
   m_ObjectHideFlags: 0

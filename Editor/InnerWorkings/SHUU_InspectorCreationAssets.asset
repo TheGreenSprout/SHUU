@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SHUU_InspectorCreationAssets
   m_EditorClassIdentifier: Sprouts.ETB.Editor::SETB._CustomEditor.ScriptableObjects.InspectorCreationAssets
   lastName: SHUU_InspectorCreationAssets
-  removeMethodsOnDelete: 1
+  removeMethodsOnDelete: 0
   data:
   - path: Create Folder (SHUU)
     prefab: {fileID: 1093772259444442373, guid: b782f4e4c287549429930e9726a499d4, type: 3}

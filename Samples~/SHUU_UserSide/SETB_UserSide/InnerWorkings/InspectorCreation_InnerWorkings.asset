@@ -57,6 +57,12 @@ MonoBehaviour:
       priority: 50
       unpack: 1
       addRectTransformUnderCanvas: 0
+    - path: SHUU/UI/BlipSlider
+      prefab: {fileID: 7042995451539528798, guid: 3d865df0d268c6249b623c84af6e1de5, type: 3}
+      validateFunction: 1
+      priority: 51
+      unpack: 1
+      addRectTransformUnderCanvas: 1
     - path: SHUU/UI/TypewriterText
       prefab: {fileID: 2350387954671118356, guid: 1a304b79ffa363143b8ac415242ef481, type: 3}
       validateFunction: 0
