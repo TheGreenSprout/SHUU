@@ -59,7 +59,7 @@ MonoBehaviour:
     addRectTransformUnderCanvas: 0
   - path: SHUU/UI/BlipSlider
     prefab: {fileID: 7042995451539528798, guid: 3d865df0d268c6249b623c84af6e1de5, type: 3}
-    validateFunction: 1
+    validateFunction: 0
     priority: 51
     unpack: 1
     addRectTransformUnderCanvas: 1

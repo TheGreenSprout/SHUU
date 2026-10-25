@@ -9,7 +9,7 @@ namespace SETB.UserSide
     {
         //! DO NOT MODIFY THIS CODE. IT IS AUTO GENERATED, CHANGES WILL BE OVERRIDEN.
         //! DO NOT DELETE THIS SCRIPT, IT'S NECESSARY FOR SAUB TO WORK.
-		
+
 		
 		// <AUTO_GENERATED_START:SHUU_InspectorCreationAssets>
 		[MenuItem("GameObject/Create Folder (SHUU)", false, 0)]
@@ -47,7 +47,7 @@ namespace SETB.UserSide
 		{
 			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 6, menuCommand);
 		}
-		[MenuItem("GameObject/SHUU/UI/BlipSlider", true, 51)]
+		[MenuItem("GameObject/SHUU/UI/BlipSlider", false, 51)]
 		private static void BlipSlider(MenuCommand menuCommand)
 		{
 			InspectorCreation_InnerWorkings.instance?.CreatePrefabFromIndex("SHUU_InspectorCreationAssets", 7, menuCommand);
