@@ -39,14 +39,11 @@ namespace SHUU.Utils.UI
         private void OnEnable()
         {
             CacheReferences();
+            Canvas.willRenderCanvases += OnWillRenderCanvases;
             Refresh(true);
         }
 
-
-        private void LateUpdate()
-        {
-            if (image != null && image.sprite != lastSprite) Refresh(true);
-        }
+        private void OnDisable() => Canvas.willRenderCanvases -= OnWillRenderCanvases;
 
 
         private void OnValidate()
@@ -65,14 +62,12 @@ namespace SHUU.Utils.UI
             Refresh(true);
         }
 
-        private void OnRectTransformDimensionsChange()
-        {
-            if (isActiveAndEnabled) Refresh(false);
-        }
+        private void OnWillRenderCanvases() => Refresh(false);
         #endregion
 
 
-        #region Internal
+
+        #region Logic
         private void CacheReferences()
         {
             if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
