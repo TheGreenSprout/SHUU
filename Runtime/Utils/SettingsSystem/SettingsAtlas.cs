@@ -65,7 +65,13 @@ namespace SHUU.Utils.SettingsSystem
 
         public event Action<SettingsAtlas, string, string> onSettingsChanged;
 
-        public void NotifyChanged(string mapName, string fieldKey) => onSettingsChanged?.Invoke(this, mapName, fieldKey);
+        public void NotifyChanged(string mapName, string fieldKey)
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+#endif
+            onSettingsChanged?.Invoke(this, mapName, fieldKey);
+        }
 
 
         public bool generateStaticReferences = false;

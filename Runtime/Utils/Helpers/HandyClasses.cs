@@ -1041,9 +1041,9 @@ namespace SHUU.Utils.Helpers
 
 
         #region Override points
-        public virtual void LoadFile() => WriteText_ToFile(filePath, SaveData());
+        public virtual void SaveFile() => WriteText_ToFile(filePath, SaveData());
 
-        public void SaveFile()
+        public void LoadFile()
         {
             if (TryReadText_FromFile(filePath, out string json)) LoadData(json);
         }
