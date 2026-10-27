@@ -34,7 +34,7 @@ namespace SHUU.Utils.UI
 
 
         [Header("Fast forward / skip")]
-        [Min(1)] public int fastForwardSpeedup = 5;
+        [Min(0.1f)] public float fastForwardSpeedup = 5;
 
         [Tooltip("When the text is skipped, still fire the <event=...> tags that hadn't been reached yet.")]
         [SerializeField] private bool fireEventsOnSkip = true;
@@ -317,8 +317,7 @@ namespace SHUU.Utils.UI
 
         private float DelayAfter(char c, int index)
         {
-            if (isFastForwarding)
-                return 1f / (charactersPerSecond * fastForwardSpeedup);
+            if (isFastForwarding) return 1f / (charactersPerSecond * fastForwardSpeedup);
 
             bool suppressed = index < suppressPause.Length && suppressPause[index];
 
@@ -326,8 +325,10 @@ namespace SHUU.Utils.UI
             {
                 case '?': case '.': case ':': case ';': case '!':
                     return suppressed ? 1f / charactersPerSecond : punctuationDelay;
+
                 case ',': case '-':
                     return suppressed ? 1f / charactersPerSecond : semiPunctuationDelay;
+
                 default:
                     return 1f / charactersPerSecond;
             }
@@ -361,6 +362,7 @@ namespace SHUU.Utils.UI
         private void StopRoutine()
         {
             if (routine == null) return;
+            
             StopCoroutine(routine);
             routine = null;
         }
@@ -398,12 +400,14 @@ namespace SHUU.Utils.UI
         private static int SourceToCharacterIndex(TMP_TextInfo info, int sourceIndex)
         {
             int lo = 0, hi = info.characterCount;
+
             while (lo < hi)
             {
                 int mid = (lo + hi) >> 1;
                 if (info.characterInfo[mid].index < sourceIndex) lo = mid + 1;
                 else hi = mid;
             }
+
             return lo;
         }
 
@@ -439,8 +443,8 @@ namespace SHUU.Utils.UI
                 else if (m.Groups[3].Success)
                 {
                     string id = m.Groups[3].Value.Trim();
-                    if (id.Length > 0)
-                        tags.Add(new TextTag { position = pos, eventId = id });
+
+                    if (id.Length > 0) tags.Add(new TextTag { position = pos, eventId = id });
                 }
                 else if (m.Value == "<nopause>")
                 {
@@ -448,8 +452,7 @@ namespace SHUU.Utils.UI
                 }
                 else if (m.Value == "</nopause>")
                 {
-                    if (noPauseDepth > 0 && --noPauseDepth == 0)
-                        noPauses.Add(new CharRange { start = noPauseStart, end = pos });
+                    if (noPauseDepth > 0 && --noPauseDepth == 0) noPauses.Add(new CharRange { start = noPauseStart, end = pos });
                 }
                 else if (openShakes.Count > 0)
                 {
@@ -480,6 +483,7 @@ namespace SHUU.Utils.UI
             foreach (Shake s in shakes)
             {
                 int end = Mathf.Min(s.end, characterCount);
+
                 for (int i = Mathf.Max(0, s.start); i < end; i++)
                     shakeIntensity[i] = Mathf.Max(shakeIntensity[i], s.intensity * shakeScale);
             }
@@ -492,6 +496,7 @@ namespace SHUU.Utils.UI
             foreach (CharRange r in noPauses)
             {
                 int end = Mathf.Min(r.end, characterCount);
+
                 for (int i = Mathf.Max(0, r.start); i < end; i++)
                     suppressPause[i] = true;
             }
