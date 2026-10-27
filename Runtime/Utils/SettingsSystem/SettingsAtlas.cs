@@ -86,6 +86,7 @@ namespace SHUU.Utils.SettingsSystem
             base.OnEnable();
 
             AllSettingsData_proxy = this;
+            BindAllMaps();
         }
         #endregion
 
@@ -94,7 +95,25 @@ namespace SHUU.Utils.SettingsSystem
         #region Logic
 
         #region Map access
-        public SettingMap GetMap(string mapName) => maps.Find(x => x.mapName == mapName) ?? SettingMap.Null;
+        public SettingMap GetMap(string mapName)
+        {
+            var map = maps.Find(x => x.mapName == mapName);
+            if (map == null) return SettingMap.Null;
+
+            BindMap(map);
+            return map;
+        }
+
+        private void BindMap(SettingMap map)
+        {
+            if (map != null && map != SettingMap.Null) map.Bind(this);
+        }
+
+        private void BindAllMaps()
+        {
+            foreach (var map in maps)
+                BindMap(map);
+        }
 
         public bool TryGetMap(string mapName, out SettingMap map) => (map = GetMap(mapName)) != null && map != SettingMap.Null;
         #endregion
@@ -114,69 +133,22 @@ namespace SHUU.Utils.SettingsSystem
         public T GetEnum<T>(string mapName, string key) where T : Enum => GetMap(mapName).GetEnum<T>(key);
 
 
-        public bool SetBool (string mapName, string key, bool value)
-        {
-            bool r = GetMap(mapName).SetBool(key, value);
-
-            if (r) NotifyChanged(mapName, key);
-
-            return r;
-        }
+        public bool SetBool (string mapName, string key, bool value) => GetMap(mapName).SetBool(key, value);
         
-        public bool SetInt (string mapName, string key, int value)
-        {
-            bool r = GetMap(mapName).SetInt(key, value);
-
-            if (r) NotifyChanged(mapName, key);
-
-            return r;
-        }
+        public bool SetInt (string mapName, string key, int value) => GetMap(mapName).SetInt(key, value);
         
-        public bool SetFloat (string mapName, string key, float  value)
-        {
-            bool r = GetMap(mapName).SetFloat(key, value);
-
-            if (r) NotifyChanged(mapName, key);
-
-            return r;
-        }
+        public bool SetFloat (string mapName, string key, float  value) => GetMap(mapName).SetFloat(key, value);
         
-        public bool SetString (string mapName, string key, string value)
-        {
-            bool r = GetMap(mapName).SetString(key, value);
-
-            if (r) NotifyChanged(mapName, key);
-
-            return r;
-        }
+        public bool SetString (string mapName, string key, string value) => GetMap(mapName).SetString(key, value);
         
-        public bool SetEnumInt (string mapName, string key, int value)
-        {
-            bool r = GetMap(mapName).SetEnumInt(key, value); 
-
-            if (r) NotifyChanged(mapName, key);
-
-            return r;
-        }
-        public bool SetEnum<T> (string mapName, string key, T value) where T : Enum
-        {
-            bool r = GetMap(mapName).SetEnum(key, value);
-
-            if (r) NotifyChanged(mapName, key);
-
-            return r;
-        }
+        public bool SetEnumInt (string mapName, string key, int value) => GetMap(mapName).SetEnumInt(key, value);
+        public bool SetEnum<T> (string mapName, string key, T value) where T : Enum => GetMap(mapName).SetEnum(key, value);
 
         
         public SettingField GetField (string mapName, string key) => GetMap(mapName).GetSettingField(key);
         public Type GetFieldType(string mapName, string key) => GetMap(mapName).GetSettingFieldType(key);
         
-        public bool SetField(string mapName, string key, object value)
-        {
-            bool result = GetMap(mapName).SetField(key, value);
-            if (result) NotifyChanged(mapName, key);
-            return result;
-        }
+        public bool SetField(string mapName, string key, object value) => GetMap(mapName).SetField(key, value);
         #endregion
 
 
@@ -213,6 +185,7 @@ namespace SHUU.Utils.SettingsSystem
             }
 
             maps = restored;
+            BindAllMaps();
 
 
             NotifyChanged(null, null);

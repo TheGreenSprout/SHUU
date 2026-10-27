@@ -123,6 +123,13 @@ namespace SHUU.Utils.SettingsSystem
     {
         #region Variables
         public List<SettingField> fields = new();
+
+
+        [NonSerialized] internal SettingsAtlas atlas;
+
+        protected virtual string NotifyMapName => null;
+
+        protected void RaiseChanged(string key) => atlas?.NotifyChanged(NotifyMapName, key);
         #endregion
 
 
@@ -179,7 +186,11 @@ namespace SHUU.Utils.SettingsSystem
         {
             var field = GetSettingField(key);
             if (field == null || field.type != SettingType.Bool) return false;
+
+            bool changed = field.boolValue != value;
             field.boolValue = value;
+
+            if (changed) RaiseChanged(key);
             return true;
         }
 
@@ -189,7 +200,11 @@ namespace SHUU.Utils.SettingsSystem
             if (field == null || field.type != SettingType.Int) return false;
             if (field.useMin) value = UnityEngine.Mathf.Max(value, field.intMin);
             if (field.useMax) value = UnityEngine.Mathf.Min(value, field.intMax);
+
+            bool changed = field.intValue != value;
             field.intValue = value;
+
+            if (changed) RaiseChanged(key);
             return true;
         }
 
@@ -199,7 +214,11 @@ namespace SHUU.Utils.SettingsSystem
             if (field == null || field.type != SettingType.Float) return false;
             if (field.useMin) value = UnityEngine.Mathf.Max(value, field.floatMin);
             if (field.useMax) value = UnityEngine.Mathf.Min(value, field.floatMax);
+
+            bool changed = !UnityEngine.Mathf.Approximately(field.floatValue, value);
             field.floatValue = value;
+
+            if (changed) RaiseChanged(key);
             return true;
         }
 
@@ -207,7 +226,11 @@ namespace SHUU.Utils.SettingsSystem
         {
             var field = GetSettingField(key);
             if (field == null || field.type != SettingType.String) return false;
+
+            bool changed = field.stringValue != value;
             field.stringValue = value;
+
+            if (changed) RaiseChanged(key);
             return true;
         }
 
@@ -215,7 +238,11 @@ namespace SHUU.Utils.SettingsSystem
         {
             var field = GetSettingField(key);
             if (field == null || field.type != SettingType.Enum) return false;
+
+            bool changed = field.enumValue != value;
             field.enumValue = value;
+
+            if (changed) RaiseChanged(key);
             return true;
         }
         public virtual bool SetEnum<T>(string key, T value) where T : Enum => SetEnumInt(key, Convert.ToInt32(value));
@@ -231,6 +258,9 @@ namespace SHUU.Utils.SettingsSystem
     {
         #region Variables
         public string groupName;
+
+        [NonSerialized] internal SettingMap parentMap;
+        protected override string NotifyMapName => parentMap?.mapName;
 
         public static readonly SettingGroup Null = new NullSettingGroup();
         public virtual bool isNull => false;
@@ -301,6 +331,8 @@ namespace SHUU.Utils.SettingsSystem
 
         public static readonly SettingMap Null = new NullSettingMap();
         public virtual bool isNull => false;
+
+        protected override string NotifyMapName => mapName;
         #endregion
 
 
@@ -328,6 +360,21 @@ namespace SHUU.Utils.SettingsSystem
 
         
         #region Logic
+
+        #region Atlas binding
+        internal void Bind(SettingsAtlas owner)
+        {
+            atlas = owner;
+
+            foreach (var g in groups)
+            {
+                g.atlas = owner;
+                g.parentMap = this;
+            }
+        }
+        #endregion
+
+
 
         #region Access
         public SettingGroup GetGroup(string groupName) => groups.Find(g => g.groupName == groupName) ?? SettingGroup.Null;
@@ -362,6 +409,7 @@ namespace SHUU.Utils.SettingsSystem
             if (defaultFields == null || !defaultFields.hasValue) return false;
 
             ApplySnapshot(defaultFields);
+            RaiseChanged(null);
             return true;
         }
 
@@ -384,6 +432,8 @@ namespace SHUU.Utils.SettingsSystem
                 restoredGroups.Add(group);
             }
             groups = restoredGroups;
+
+            Bind(atlas);
         }
         #endregion
 
