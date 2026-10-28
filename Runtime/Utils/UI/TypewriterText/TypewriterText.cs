@@ -16,6 +16,7 @@ namespace SHUU.Utils.UI
     ///     <pause=N> --> Pause for N tenths of a second
     ///     <shake=N>...</shake> --> Shake the enclosed characters with intensity N
     ///     <event=id> --> Fires an event right before the next character is revealed
+    ///     <event=id(argument)> --> Same, but fires the argument event, passing everything inside the () as a string
     ///     <nopause>...</nopause> --> Disables the automatic punctuation delays for the enclosed characters
     /// </summary>
     #endregion
@@ -66,6 +67,7 @@ namespace SHUU.Utils.UI
         public event Action completeTextRevealed;
         public event Action<char> characterRevealed;
         public event Action<string> eventTagReached;
+        public event Action<string, string> argumentEventTagReached;
         #endregion
 
 
@@ -79,17 +81,16 @@ namespace SHUU.Utils.UI
             public float intensity;
         }
 
-        private struct CharRange
-        {
-            public int start, end;
-        }
+        private struct CharRange { public int start, end; }
 
         private struct TextTag
         {
             public int position;
             public float pauseSeconds;
             public string eventId;
-            public bool IsEvent => eventId != null;
+            public string eventArgument;
+
+            public bool isEvent => eventId != null;
         }
         #endregion
 
@@ -227,9 +228,9 @@ namespace SHUU.Utils.UI
                 while (nextTag < tags.Count)
                 {
                     TextTag tag = tags[nextTag++];
-                    if (!tag.IsEvent) continue;
+                    if (!tag.isEvent) continue;
 
-                    RaiseEvent(tag.eventId);
+                    RaiseEvent(tag.eventId, tag.eventArgument);
                     if (_token != token) return;
                 }
             }
@@ -279,9 +280,9 @@ namespace SHUU.Utils.UI
                 {
                     TextTag tag = tags[nextTag++];
 
-                    if (tag.IsEvent)
+                    if (tag.isEvent)
                     {
-                        RaiseEvent(tag.eventId);
+                        RaiseEvent(tag.eventId, tag.eventArgument);
                         if (_token != token) yield break;
                     }
                     else
@@ -334,10 +335,18 @@ namespace SHUU.Utils.UI
             }
         }
 
-        private void RaiseEvent(string id)
+        private void RaiseEvent(string id, string argument)
         {
-            eventTagReached?.Invoke(id);
-            if (events != null) events.CallEvent(id);
+            if (argument == null)
+            {
+                eventTagReached?.Invoke(id);
+                if (events != null) events.CallEvent(id);
+            }
+            else
+            {
+                argumentEventTagReached?.Invoke(id, argument);
+                if (events != null) events.CallEvent(id, argument);
+            }
         }
 
 
@@ -443,8 +452,16 @@ namespace SHUU.Utils.UI
                 else if (m.Groups[3].Success)
                 {
                     string id = m.Groups[3].Value.Trim();
+                    string argument = null;
 
-                    if (id.Length > 0) tags.Add(new TextTag { position = pos, eventId = id });
+                    int open = id.IndexOf('(');
+                    if (open >= 0 && id[id.Length - 1] == ')')
+                    {
+                        argument = id.Substring(open + 1, id.Length - open - 2);
+                        id = id.Substring(0, open).Trim();
+                    }
+
+                    if (id.Length > 0) tags.Add(new TextTag { position = pos, eventId = id, eventArgument = argument });
                 }
                 else if (m.Value == "<nopause>")
                 {
